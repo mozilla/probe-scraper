@@ -87,3 +87,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Cache files
+probe_scraper_errors_cache.json
+probe_scraper_cache.sqlite
