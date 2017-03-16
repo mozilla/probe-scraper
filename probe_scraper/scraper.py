@@ -138,6 +138,7 @@ def save_error_cache(error_cache):
 # returns:
 # node_id -> {
 #    channel: string,
+#    version: string,
 #    data: {
 #      histograms: [path list, ...]
 #      events: [path list, ...]
@@ -162,6 +163,7 @@ def scrape(dir = tempfile.mkdtemp()):
             print "  from: " + str(v)
             results[v['node']] = {
                 'channel': channel,
+                'version': v['version'],
                 'data': download_files(channel, v['node'], dir, error_cache),
             }
             save_error_cache(error_cache)
