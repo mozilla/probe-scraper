@@ -73,9 +73,10 @@ def transform_probe_info(probes):
     return out
 
 
-def parse(filenames):
-    # Call the histogram tools for each file.
-    parsed_probes = list(histogram_tools.from_files(filenames))
+class HistogramsParser:
+    def parse(self, filenames):
+        # Call the histogram tools for each file.
+        parsed_probes = list(histogram_tools.from_files(filenames))
 
-    # Get the probe information in a standard format.
-    return transform_probe_info(parsed_probes)
+        # Get the probe information in a standard format.
+        return transform_probe_info(parsed_probes)

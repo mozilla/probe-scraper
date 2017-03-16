@@ -7,8 +7,10 @@ import os
 import json
 
 import scraper
+from parsers.histograms import HistogramsParser
 import transform_revisions
 import transform_probes
+
 
 class DummyParser:
     def parse(self, files):
@@ -17,7 +19,7 @@ class DummyParser:
 PARSERS = {
     # This lists the available probe registry parsers:
     # parser type -> parser
-    'histograms': DummyParser(),
+    'histograms': HistogramsParser(),
     'scalars': DummyParser(),
     'events': DummyParser(),
 }

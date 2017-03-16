@@ -241,11 +241,12 @@ associated with the histogram.  Returns None if no guarding is necessary."""
         table_dispatch(definition['kind'], table,
                        lambda allowed_keys: Histogram.check_keys(name, definition, allowed_keys))
 
-        self.check_name(name)
-        self.check_field_types(name, definition)
-        self.check_whitelistable_fields(name, definition)
-        self.check_expiration(name, definition)
-        self.check_label_values(name, definition)
+        if self._strict_type_checks:
+            self.check_name(name)
+            self.check_field_types(name, definition)
+            self.check_whitelistable_fields(name, definition)
+            self.check_expiration(name, definition)
+            self.check_label_values(name, definition)
 
     def check_name(self, name):
         if '#' in name:
@@ -272,7 +273,7 @@ associated with the histogram.  Returns None if no guarding is necessary."""
 
         # We forbid new probes from using "expires_in_version" : "default" field/value pair.
         # Old ones that use this are added to the whitelist.
-        if expiration == "default" and name not in whitelists['expiry_default']:
+        if expiration == "default" and whitelists and name not in whitelists['expiry_default']:
             raise ValueError, 'New histogram "%s" cannot have "default" %s value.' % (name, field)
 
         if re.match(r'^[1-9][0-9]*$', expiration):
@@ -408,8 +409,16 @@ associated with the histogram.  Returns None if no guarding is necessary."""
 
     @staticmethod
     def enumerated_bucket_parameters(definition):
-        n_values = definition['n_values']
-        return (1, n_values, n_values + 1)
+        try:
+            n_values = definition['n_values']
+            return (1, n_values, n_values + 1)
+        except:
+            # TODO: Fixup old non-number values & expressions.
+            # History: bug 920169, bug 1245910
+            # "JS::gcreason::NUM_TELEMETRY_REASONS"
+            # "JS::gcreason::NUM_TELEMETRY_REASONS+1"
+            # "mozilla::StartupTimeline::MAX_EVENT_ID"
+            return (1, 2, 2 + 1)
 
     @staticmethod
     def categorical_bucket_parameters(definition):
@@ -525,4 +534,4 @@ the histograms defined in filenames.
             raise BaseException, msg % (', '.join(sorted(orphaned)))
 
     for (name, definition) in all_histograms.iteritems():
-        yield Histogram(name, definition, strict_type_checks=True)
+        yield Histogram(name, definition, strict_type_checks=False)

@@ -1,4 +1,4 @@
-from parsers import histograms
+from parsers.histograms import HistogramsParser
 
 
 def is_string(s):
@@ -7,7 +7,8 @@ def is_string(s):
 
 def test_histogram_parser():
     # Parse the histograms from the test definitions.
-    parsed_histograms = histograms.parse(["tests/Histograms.json"])
+    parser = HistogramsParser()
+    parsed_histograms = parser.parse(["tests/Histograms.json"])
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
