@@ -5,6 +5,7 @@
 import re
 import os
 import json
+import tempfile
 import requests
 import requests_cache
 
@@ -84,24 +85,45 @@ def extract_tag_data(tags, channel):
     results = sorted(results, key=lambda r: int(r["version"]))
     return results
 
-def download_files(channel, node, dir, error_cache):
+def download_files(channel, node, target_dir, error_cache):
     base_uri = CHANNELS[channel]['base_uri'] + 'raw-file/' + node + '/'
-    for path in ALL_FILES:
-        base = os.path.basename(path)
-        uri = base_uri + path
+    node_path = os.path.join(target_dir, node)
+    results = []
+
+    for rel_path in ALL_FILES:
+        uri = base_uri + rel_path
         # requests_cache doesn't cache on error status codes.
         # We just use our own cache for these for now.
         if uri in error_cache:
             continue
 
-        r = requests.get(uri)
-        if r.status_code != requests.codes.ok:
-            if base in ['Histograms.json', 'histogram_tools.py']:
-                raise RuntimeError, "Request returned status " + str(r.status_code) + " for " + uri
+        req = requests.get(uri)
+        if req.status_code != requests.codes.ok:
+            if os.path.basename(rel_path) in ['Histograms.json', 'histogram_tools.py']:
+                raise RuntimeError, "Request returned status " + str(req.status_code) + " for " + uri
             else:
-                error_cache[uri] = r.status_code
+                error_cache[uri] = req.status_code
 
-def scrape():
+        path = os.path.join(node_path, rel_path)
+        if not os.path.exists(path):
+            dir = os.path.split(path)[0]
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            with open(path, 'wb') as f:
+                for chunk in req.iter_content(chunk_size=128):
+                    f.write(chunk)
+        results.append(path)
+
+    return results
+
+# returns:
+# node_id -> {
+#    channel: ,
+#    histograms: [path list, ...]
+#    events: [path list, ...]
+#    scalars: [path list, ...]
+# }
+def scrape(dir = tempfile.mkdtemp()):
     error_cache = {
         # path -> error code
     }
@@ -129,4 +151,4 @@ def scrape():
             save_cache()
 
 if __name__ == "__main__":
-    scrape()
+    scrape('_tmp')
