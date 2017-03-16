@@ -114,6 +114,7 @@ def download_files(channel, node, temp_dir, error_cache):
                 raise RuntimeError, "Request returned status " + str(req.status_code) + " for " + uri
             else:
                 error_cache[uri] = req.status_code
+                continue
 
         dir = os.path.split(disk_path)[0]
         if not os.path.exists(dir):
