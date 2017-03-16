@@ -140,9 +140,9 @@ def save_error_cache(error_cache):
 #    channel: string,
 #    version: string,
 #    data: {
-#      histograms: [path list, ...]
-#      events: [path list, ...]
-#      scalars: [path list, ...]
+#      histograms: [path, ...]
+#      events: [path, ...]
+#      scalars: [path, ...]
 #    }
 # }
 def scrape(dir = tempfile.mkdtemp()):
