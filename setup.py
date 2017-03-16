@@ -9,5 +9,10 @@ setup(name='probe-scraper',
       author='Georg Fritzsche (gfritzsche)',
       author_email='gfritzsche@mozilla.com',
       url='https://github.com/georgf/probe-scraper/',
+<<<<<<< HEAD
       packages=['probe-scraper'],
+=======
+      license='MPL 2.0',
+      packages=['probe_scraper'],
+>>>>>>> master
      )
