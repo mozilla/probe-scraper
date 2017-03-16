@@ -91,3 +91,7 @@ ENV/
 # Cache files
 probe_scraper_errors_cache.json
 probe_scraper_cache.sqlite
+
+# Temp files.
+temp/
+_tmp/

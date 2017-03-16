@@ -11,21 +11,19 @@ import requests_cache
 
 requests_cache.install_cache('probe_scraper_cache')
 
-HISTOGRAM_FILES = [
-    'toolkit/components/telemetry/Histograms.json',
-    'dom/base/UseCounters.conf',
-    'dom/base/nsDeprecatedOperationList.h',
-]
-
-SCALAR_FILES = [
-    'toolkit/components/telemetry/Scalars.yaml',
-]
-
-EVENT_FILES = [
-    'toolkit/components/telemetry/Events.yaml',
-]
-
-ALL_FILES = HISTOGRAM_FILES + SCALAR_FILES + EVENT_FILES
+REGISTRY_FILES = {
+    'histograms': [
+        'toolkit/components/telemetry/Histograms.json',
+        'dom/base/UseCounters.conf',
+        'dom/base/nsDeprecatedOperationList.h',
+    ],
+    'scalars': [
+        'toolkit/components/telemetry/Scalars.yaml',
+    ],
+    'events': [
+        'toolkit/components/telemetry/Events.yaml',
+    ],
+}
 
 CHANNELS = {
     # 'nightly': 'https://hg.mozilla.org/mozilla-central/',
@@ -85,12 +83,23 @@ def extract_tag_data(tags, channel):
     results = sorted(results, key=lambda r: int(r["version"]))
     return results
 
-def download_files(channel, node, target_dir, error_cache):
+def download_files(channel, node, temp_dir, error_cache):
     base_uri = CHANNELS[channel]['base_uri'] + 'raw-file/' + node + '/'
-    node_path = os.path.join(target_dir, node)
-    results = []
+    node_path = os.path.join(temp_dir, 'hg', node)
 
-    for rel_path in ALL_FILES:
+    results = {}
+    def add_result(ptype, disk_path):
+        if not ptype in results:
+            results[ptype] = []
+        results[ptype].append(disk_path)
+
+    all_files = [(k, x) for k, l in REGISTRY_FILES.items() for x in l]
+    for (ptype, rel_path) in all_files:
+        disk_path = os.path.join(node_path, rel_path)
+        if os.path.exists(disk_path):
+            add_result(ptype, disk_path)
+            continue
+
         uri = base_uri + rel_path
         # requests_cache doesn't cache on error status codes.
         # We just use our own cache for these for now.
@@ -104,41 +113,43 @@ def download_files(channel, node, target_dir, error_cache):
             else:
                 error_cache[uri] = req.status_code
 
-        path = os.path.join(node_path, rel_path)
-        if not os.path.exists(path):
-            dir = os.path.split(path)[0]
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            with open(path, 'wb') as f:
-                for chunk in req.iter_content(chunk_size=128):
-                    f.write(chunk)
-        results.append(path)
+        dir = os.path.split(disk_path)[0]
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        with open(disk_path, 'wb') as f:
+            for chunk in req.iter_content(chunk_size=128):
+                f.write(chunk)
+
+        add_result(ptype, disk_path)
 
     return results
 
-# returns:
-# node_id -> {
-#    channel: ,
-#    histograms: [path list, ...]
-#    events: [path list, ...]
-#    scalars: [path list, ...]
-# }
-def scrape(dir = tempfile.mkdtemp()):
-    error_cache = {
-        # path -> error code
-    }
+def load_error_cache():
     if os.path.exists('probe_scraper_errors_cache.json'):
         with open('probe_scraper_errors_cache.json', 'r') as f:
-            error_cache = json.load(f)
+            return json.load(f)
 
-    def save_cache():
+def save_error_cache(error_cache):
         with open('probe_scraper_errors_cache.json', 'w') as f:
             json.dump(error_cache, f, sort_keys=True, indent=2)
+
+# returns:
+# node_id -> {
+#    channel: string,
+#    data: {
+#      histograms: [path list, ...]
+#      events: [path list, ...]
+#      scalars: [path list, ...]
+#    }
+# }
+def scrape(dir = tempfile.mkdtemp()):
+    error_cache = load_error_cache()
+    results = {}
 
     for channel in CHANNELS.iterkeys():
         tags = load_tags(channel)
         versions = extract_tag_data(tags, channel)
-        save_cache()
+        save_error_cache(error_cache)
 
         print "\n" + channel + " - extracted version data:"
         for v in versions:
@@ -147,8 +158,17 @@ def scrape(dir = tempfile.mkdtemp()):
         print "\n" + channel + " - loading files:"
         for v in versions:
             print "  from: " + str(v)
-            download_files(channel, v["node"], dir, error_cache)
-            save_cache()
+            results[v['node']] = {
+                'channel': channel,
+                'data': download_files(channel, v['node'], dir, error_cache),
+            }
+            save_error_cache(error_cache)
+
+    return results
 
 if __name__ == "__main__":
-    scrape('_tmp')
+    results = scrape('_tmp')
+    for node,data in results.iteritems():
+        print "node " + node + ": "
+        for ptype,paths in data.iteritems():
+            print "  " + ptype + ": " + str(paths)
