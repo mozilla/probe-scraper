@@ -110,7 +110,7 @@ def download_files(channel, node, temp_dir, error_cache):
 
         req = requests.get(uri)
         if req.status_code != requests.codes.ok:
-            if os.path.basename(rel_path) in ['Histograms.json', 'histogram_tools.py']:
+            if os.path.basename(rel_path) == 'Histograms.json':
                 raise RuntimeError, "Request returned status " + str(req.status_code) + " for " + uri
             else:
                 error_cache[uri] = req.status_code
