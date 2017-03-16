@@ -44,7 +44,7 @@ CHANNELS = {
 }
 
 MIN_FIREFOX_VERSION = 30
-
+ERROR_CACHE_FILENAME = 'probe_scraper_errors_cache.json'
 
 def load_tags(channel):
     uri = CHANNELS[channel]['base_uri'] + "json-tags"
@@ -127,12 +127,13 @@ def download_files(channel, node, temp_dir, error_cache):
     return results
 
 def load_error_cache():
-    if os.path.exists('probe_scraper_errors_cache.json'):
-        with open('probe_scraper_errors_cache.json', 'r') as f:
-            return json.load(f)
+    if not os.path.exists(ERROR_CACHE_FILENAME):
+        return {}
+    with open(ERROR_CACHE_FILENAME, 'r') as f:
+        return json.load(f)
 
 def save_error_cache(error_cache):
-        with open('probe_scraper_errors_cache.json', 'w') as f:
+        with open(ERROR_CACHE_FILENAME, 'w') as f:
             json.dump(error_cache, f, sort_keys=True, indent=2)
 
 # returns:
