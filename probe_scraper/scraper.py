@@ -172,7 +172,10 @@ def scrape(dir = tempfile.mkdtemp()):
 
 if __name__ == "__main__":
     results = scrape('_tmp')
-    for node,data in results.iteritems():
-        print "node " + node + ": "
-        for ptype,paths in data.iteritems():
-            print "  " + ptype + ": " + str(paths)
+
+    if False:
+        for node,data in results.iteritems():
+            print data['channel'] + ", " + data['version'] + ", " + node + ":"
+            for ptype,paths in data['data'].iteritems():
+                print "  " + ptype + ":"
+                print "    " + "\n    ".join(paths)
