@@ -9,6 +9,8 @@ import tempfile
 import requests
 import requests_cache
 
+from collections import OrderedDict
+
 requests_cache.install_cache('probe_scraper_cache')
 
 REGISTRY_FILES = {
@@ -144,7 +146,7 @@ def save_error_cache(error_cache):
 # }
 def scrape(dir = tempfile.mkdtemp()):
     error_cache = load_error_cache()
-    results = {}
+    results = OrderedDict()
 
     for channel in CHANNELS.iterkeys():
         tags = load_tags(channel)
