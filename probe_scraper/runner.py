@@ -26,6 +26,10 @@ PARSERS = {
     'events': DummyParser(),
 }
 
+def general_data():
+    return {
+        "lastUpdate": datetime.date.today().isoformat(),
+    }
 
 def main(target_dir = tempfile.mkdtemp()):
     # Scrape probe data from repositories.
@@ -58,6 +62,7 @@ def main(target_dir = tempfile.mkdtemp()):
 
     dump_json(revisions, 'revisions.json')
     dump_json(probe_data, 'probes.json')
+    dump_json(general_data(), 'general.json')
 
 if __name__ == "__main__":
     main('_tmp')
