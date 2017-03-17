@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import parse_scalars
+import third_party.parse_scalars
 
 
 def extract_scalar_data(s):
@@ -24,7 +24,7 @@ class ScalarsParser:
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 
-        scalars = parse_scalars.load_scalars(filenames[0])
+        scalars = third_party.parse_scalars.load_scalars(filenames[0])
 
         # Get the probe information in a standard format.
         out = {}
