@@ -13,3 +13,8 @@ Run tests:
 ```
 pytest
 ```
+
+## Output location
+The output from the scheduled job can be found at:
+
+https://analysis-output.telemetry.mozilla.org/probe-scraper/data/*.json
