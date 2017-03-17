@@ -5,6 +5,7 @@
 import tempfile
 import scraper
 from parsers.histograms import HistogramsParser
+from parsers.scalars import ScalarsParser
 
 class DummyParser:
     def parse(self, files):
@@ -14,7 +15,7 @@ PARSERS = {
     # This lists the available probe registry parsers:
     # parser type -> parser
     'histograms': HistogramsParser(),
-    'scalars': DummyParser(),
+    'scalars': ScalarsParser(),
     'events': DummyParser(),
 }
 
