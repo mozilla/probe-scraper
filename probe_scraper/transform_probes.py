@@ -27,9 +27,16 @@ def is_test_probe():
 #   }
 
 def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
-    for probe in probe_data:
-        name = probe['name']
+    for name,probe in probe_data.iteritems():
         id = probe_type + "/" + name
+
+        if id in result_data and channel in result_data[id]:
+            # If the probes state didn't change from the previous revision,
+            # let's continue.
+            previous = result_data[id]["history"][channel][-1]
+            if histograms_equal(previous, probe):
+                previous["revisions"]["first"] = node_id
+                continue
 
         if not id in result_data:
             result_data[id] = {
@@ -37,18 +44,11 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
                 "name": name,
                 "history": {channel: []},
             }
-        elif not channel in result_data[id]["history"]:
+        if not channel in result_data[id]["history"]:
             result_data[id]["history"][channel] = []
-        else:
-            # If the probes state didn't change from the previous revision,
-            # let's continue.
-            previous = result_data[id]["history"][channel][-1]
-            if histograms_equal(previous, data):
-                previous["revisions"]["first"] = rev
-                continue
 
-        data["revisions"] = {"first": rev, "last": rev}
-        result_data[id]["history"][channel].append(data)
+        probe["revisions"] = {"first": node_id, "last": node_id}
+        result_data[id]["history"][channel].append(probe)
 
 def sorted_node_lists_by_channel(node_data):
     channels = defaultdict(list)
@@ -65,13 +65,11 @@ def sorted_node_lists_by_channel(node_data):
 
 def transform(probe_data, node_data):
     channels = sorted_node_lists_by_channel(node_data)
-    #print channels
 
     result_data = {}
     for channel,channel_data in channels.iteritems():
         for entry in channel_data:
             node_id = entry['node_id']
-            print "\n\n" + str(probe_data[node_id])
             for probe_type,probes in probe_data[node_id].iteritems():
                 extract_node_data(node_id, channel, probe_type, probes, result_data)
 
