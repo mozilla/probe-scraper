@@ -79,7 +79,7 @@ class EventsParser:
         for e in events:
             full_name = e.category + "." + e.methods[0]
             if getattr(e, "name", None):
-                full_name += e.name
+                full_name += "#" + e.name
             out[full_name] = extract_events_data(e)
 
         return out
