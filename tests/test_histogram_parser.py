@@ -1,4 +1,4 @@
-from parsers.histograms import HistogramsParser
+from probe_scraper.parsers.histograms import HistogramsParser
 
 
 def is_string(s):
