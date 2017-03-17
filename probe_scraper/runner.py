@@ -67,11 +67,11 @@ def main(temp_dir, out_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('tempdir',
+    parser.add_argument('--tempdir',
                         help='Temporary directory to work in.',
                         action='store',
                         default=tempfile.mkdtemp())
-    parser.add_argument('outdir',
+    parser.add_argument('--outdir',
                         help='Directory to store output files in.',
                         action='store',
                         default='.')
