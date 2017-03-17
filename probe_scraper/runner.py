@@ -61,6 +61,7 @@ def main(temp_dir, out_dir):
         with open(os.path.join(out_dir, file_name), 'w') as f:
             json.dump(data, f, sort_keys=True, indent=2)
 
+    print "\n... writing output files to " + out_dir
     dump_json(revisions, 'revisions.json')
     dump_json(probe_data, 'probes.json')
     dump_json(general_data(), 'general.json')
