@@ -4,6 +4,7 @@
 
 import third_party.histogram_tools
 
+
 def set_in_nested_dict(dictionary, path, value):
     keys = path.split('/')
     for k in keys[:-1]:
@@ -35,7 +36,7 @@ def extract_histogram_data(h):
         "details": {}
     }
 
-    for source_field,target_field in props.iteritems():
+    for source_field, target_field in props.iteritems():
         value = None
         if getattr(h, source_field, None):
             value = getattr(h, source_field)()

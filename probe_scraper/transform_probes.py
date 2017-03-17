@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import pprint
 from collections import defaultdict
+
 
 def is_test_probe(probe_type, name):
     if probe_type == 'histogram':
@@ -14,11 +14,13 @@ def is_test_probe(probe_type, name):
 
     return False
 
+
 def get_from_nested_dict(dictionary, path, default=None):
     keys = path.split('/')
     for k in keys[:-1]:
         dictionary = dictionary[k]
     return dictionary.get(keys[-1], default)
+
 
 def probes_equal(probe_type, probe1, probe2):
     props = [
@@ -61,8 +63,9 @@ def probes_equal(probe_type, probe1, probe2):
 #     channel: ...
 #   }
 
+
 def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
-    for name,probe in probe_data.iteritems():
+    for name, probe in probe_data.iteritems():
         if is_test_probe(probe_type, name):
             continue
 
@@ -74,13 +77,13 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
             if probes_equal(probe_type, previous, probe):
                 previous["revisions"]["first"] = node_id
                 continue
-        if not id in result_data:
+        if id not in result_data:
             result_data[id] = {
                 "type": probe_type,
                 "name": name,
                 "history": {channel: []},
             }
-        if not channel in result_data[id]["history"]:
+        if channel not in result_data[id]["history"]:
             result_data[id]["history"][channel] = []
 
         probe["revisions"] = {
@@ -89,29 +92,31 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
         }
         result_data[id]["history"][channel].append(probe)
 
+
 def sorted_node_lists_by_channel(node_data):
     channels = defaultdict(list)
-    for node_id,data in node_data.iteritems():
+    for node_id, data in node_data.iteritems():
         channels[data['channel']].append({
             'node_id': node_id,
             'version': data['version'],
         })
 
-    for channel,data in channels.iteritems():
+    for channel, data in channels.iteritems():
         channels[channel] = sorted(data, key=lambda n: int(n["version"]), reverse=True)
 
     return channels
+
 
 def transform(probe_data, node_data):
     channels = sorted_node_lists_by_channel(node_data)
 
     result_data = {}
-    for channel,channel_data in channels.iteritems():
+    for channel, channel_data in channels.iteritems():
         print "\n" + channel + " - transforming probe data:"
         for entry in channel_data:
             node_id = entry['node_id']
             print "  from: " + str({"node": node_id, "version": node_data[node_id]["version"]})
-            for probe_type,probes in probe_data[node_id].iteritems():
+            for probe_type, probes in probe_data[node_id].iteritems():
                 extract_node_data(node_id, channel, probe_type, probes, result_data)
 
     return result_data

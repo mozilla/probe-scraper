@@ -41,7 +41,7 @@ def extract_events_data(e):
         "details": {}
     }
 
-    for source_field,target_field in props.iteritems():
+    for source_field, target_field in props.iteritems():
         value = None
         if getattr(e, source_field, None):
             value = getattr(e, source_field)
@@ -71,7 +71,6 @@ class EventsParser:
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 
-        
         events = third_party.parse_events.load_events(filenames[0])
 
         # Get the probe information in a standard format.

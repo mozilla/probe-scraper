@@ -13,6 +13,7 @@ from collections import OrderedDict
 
 requests_cache.install_cache('probe_scraper_cache')
 
+
 REGISTRY_FILES = {
     'histograms': [
         'toolkit/components/telemetry/Histograms.json',
@@ -46,21 +47,23 @@ CHANNELS = {
 MIN_FIREFOX_VERSION = 30
 ERROR_CACHE_FILENAME = 'probe_scraper_errors_cache.json'
 
+
 def load_tags(channel):
     uri = CHANNELS[channel]['base_uri'] + "json-tags"
     r = requests.get(uri)
     if r.status_code != requests.codes.ok:
-        raise RuntimeError, "Request returned status " + str(r.status_code) + " for " + uri
+        raise Exception("Request returned status " + str(r.status_code) + " for " + uri)
 
     ctype = r.headers['content-type']
     if ctype != 'application/json':
-        raise RuntimeError, "Request didn't return JSON: " + ctype + " (" + uri + ")"
-    
+        raise Exception("Request didn't return JSON: " + ctype + " (" + uri + ")")
+
     data = r.json()
-    if not data or not "tags" in data:
-        raise RuntimeError, "Result JSON doesn't have the right format for " + uri
+    if not data or "tags" not in data:
+        raise Exception("Result JSON doesn't have the right format for " + uri)
 
     return data["tags"]
+
 
 def extract_tag_data(tags, channel):
     tag_regex = CHANNELS[channel]['tag_regex']
@@ -74,7 +77,7 @@ def extract_tag_data(tags, channel):
         elif channel in ["beta", "aurora"]:
             version = tag["tag"].split('_')[2]
         else:
-            raise RuntimeError, "Unsupported channel " + channel
+            raise Exception("Unsupported channel " + channel)
 
         if int(version) >= MIN_FIREFOX_VERSION:
             results.append({
@@ -85,13 +88,15 @@ def extract_tag_data(tags, channel):
     results = sorted(results, key=lambda r: int(r["version"]))
     return results
 
+
 def download_files(channel, node, temp_dir, error_cache):
     base_uri = CHANNELS[channel]['base_uri'] + 'raw-file/' + node + '/'
     node_path = os.path.join(temp_dir, 'hg', node)
 
     results = {}
+
     def add_result(ptype, disk_path):
-        if not ptype in results:
+        if ptype not in results:
             results[ptype] = []
         results[ptype].append(disk_path)
 
@@ -111,7 +116,7 @@ def download_files(channel, node, temp_dir, error_cache):
         req = requests.get(uri)
         if req.status_code != requests.codes.ok:
             if os.path.basename(rel_path) == 'Histograms.json':
-                raise RuntimeError, "Request returned status " + str(req.status_code) + " for " + uri
+                raise Exception("Request returned status " + str(req.status_code) + " for " + uri)
             else:
                 error_cache[uri] = req.status_code
                 continue
@@ -127,15 +132,18 @@ def download_files(channel, node, temp_dir, error_cache):
 
     return results
 
+
 def load_error_cache():
     if not os.path.exists(ERROR_CACHE_FILENAME):
         return {}
     with open(ERROR_CACHE_FILENAME, 'r') as f:
         return json.load(f)
 
+
 def save_error_cache(error_cache):
         with open(ERROR_CACHE_FILENAME, 'w') as f:
             json.dump(error_cache, f, sort_keys=True, indent=2)
+
 
 # returns:
 # node_id -> {
@@ -147,7 +155,7 @@ def save_error_cache(error_cache):
 #      scalars: [path, ...]
 #    }
 # }
-def scrape(dir = tempfile.mkdtemp()):
+def scrape(dir=tempfile.mkdtemp()):
     error_cache = load_error_cache()
     results = OrderedDict()
 
@@ -172,12 +180,13 @@ def scrape(dir = tempfile.mkdtemp()):
 
     return results
 
+
 if __name__ == "__main__":
     results = scrape('_tmp')
 
     if False:
-        for node,data in results.iteritems():
+        for node, data in results.iteritems():
             print data['channel'] + ", " + data['version'] + ", " + node + ":"
-            for ptype,paths in data['registries'].iteritems():
+            for ptype, paths in data['registries'].iteritems():
                 print "  " + ptype + ":"
                 print "    " + "\n    ".join(paths)

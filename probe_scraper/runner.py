@@ -16,9 +16,11 @@ from parsers.events import EventsParser
 import transform_revisions
 import transform_probes
 
+
 class DummyParser:
     def parse(self, files):
         return {}
+
 
 PARSERS = {
     # This lists the available probe registry parsers:
@@ -28,10 +30,12 @@ PARSERS = {
     'events': EventsParser(),
 }
 
+
 def general_data():
     return {
         "lastUpdate": datetime.date.today().isoformat(),
     }
+
 
 def main(temp_dir, out_dir):
     # Scrape probe data from repositories.
@@ -48,8 +52,8 @@ def main(temp_dir, out_dir):
     #   },
     # }
     probes = defaultdict(dict)
-    for node_id,details in nodes.iteritems():
-        for probe_type,paths in details['registries'].iteritems():
+    for node_id, details in nodes.iteritems():
+        for probe_type, paths in details['registries'].iteritems():
             results = PARSERS[probe_type].parse(paths, details["version"])
             probes[node_id][probe_type] = results
 
@@ -66,6 +70,7 @@ def main(temp_dir, out_dir):
     dump_json(revisions, 'revisions.json')
     dump_json(probe_data, 'probes.json')
     dump_json(general_data(), 'general.json')
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

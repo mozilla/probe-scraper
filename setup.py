@@ -11,4 +11,4 @@ setup(name='probe-scraper',
       url='https://github.com/georgf/probe-scraper/',
       packages=['probe_scraper'],
       license='MPL 2.0',
-     )
+      )

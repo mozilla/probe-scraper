@@ -129,12 +129,14 @@ OUT_PROBE_DATA = {
     }
 }
 
+
 def test_probes_equal():
     histogram_node1 = IN_PROBE_DATA["node_id_1"]["histograms"]["TEST_HISTOGRAM_1"]
     histogram_node2 = IN_PROBE_DATA["node_id_2"]["histograms"]["TEST_HISTOGRAM_1"]
     histogram_node3 = IN_PROBE_DATA["node_id_3"]["histograms"]["TEST_HISTOGRAM_1"]
     assert(not transform.probes_equal('histogram', histogram_node1, histogram_node2))
     assert(transform.probes_equal('histogram', histogram_node2, histogram_node3))
+
 
 def test_transform():
     result = transform.transform(IN_PROBE_DATA, IN_NODE_DATA)
