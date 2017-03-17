@@ -6,6 +6,7 @@ import os
 import json
 import datetime
 import tempfile
+import argparse
 from collections import defaultdict
 
 import scraper
@@ -31,9 +32,9 @@ def general_data():
         "lastUpdate": datetime.date.today().isoformat(),
     }
 
-def main(target_dir = tempfile.mkdtemp()):
+def main(temp_dir, out_dir):
     # Scrape probe data from repositories.
-    nodes = scraper.scrape(target_dir)
+    nodes = scraper.scrape(temp_dir)
 
     # Parse probe data from files into the form:
     # node_id -> {
@@ -57,7 +58,7 @@ def main(target_dir = tempfile.mkdtemp()):
 
     # Serialize extracted data.
     def dump_json(data, file_name):
-        with open(os.path.join(target_dir, file_name), 'w') as f:
+        with open(os.path.join(out_dir, file_name), 'w') as f:
             json.dump(data, f, sort_keys=True, indent=2)
 
     dump_json(revisions, 'revisions.json')
@@ -65,4 +66,15 @@ def main(target_dir = tempfile.mkdtemp()):
     dump_json(general_data(), 'general.json')
 
 if __name__ == "__main__":
-    main('_tmp')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('tempdir',
+                        help='Temporary directory to work in.',
+                        action='store',
+                        default=tempfile.mkdtemp())
+    parser.add_argument('outdir',
+                        help='Directory to store output files in.',
+                        action='store',
+                        default='.')
+
+    args = parser.parse_args()
+    main(args.tempdir, args.outdir)

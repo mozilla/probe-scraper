@@ -95,3 +95,4 @@ probe_scraper_cache.sqlite
 # Temp files.
 temp/
 _tmp/
+_out/
