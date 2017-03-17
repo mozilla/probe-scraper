@@ -20,7 +20,7 @@ def extract_scalar_data(s):
 
 
 class ScalarsParser:
-    def parse(self, filenames):
+    def parse(self, filenames, version):
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 

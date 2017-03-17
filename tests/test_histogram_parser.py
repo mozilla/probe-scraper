@@ -8,7 +8,7 @@ def is_string(s):
 def test_histogram_parser():
     # Parse the histograms from the test definitions.
     parser = HistogramsParser()
-    parsed_histograms = parser.parse(["tests/Histograms.json"])
+    parsed_histograms = parser.parse(["tests/Histograms.json"], "55")
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [

@@ -12,6 +12,7 @@ from collections import defaultdict
 import scraper
 from parsers.histograms import HistogramsParser
 from parsers.scalars import ScalarsParser
+from parsers.events import EventsParser
 import transform_revisions
 import transform_probes
 
@@ -24,7 +25,7 @@ PARSERS = {
     # parser type -> parser
     'histograms': HistogramsParser(),
     'scalars': ScalarsParser(),
-    'events': DummyParser(),
+    'events': EventsParser(),
 }
 
 def general_data():
@@ -49,7 +50,7 @@ def main(temp_dir, out_dir):
     probes = defaultdict(dict)
     for node_id,details in nodes.iteritems():
         for probe_type,paths in details['registries'].iteritems():
-            results = PARSERS[probe_type].parse(paths)
+            results = PARSERS[probe_type].parse(paths, details["version"])
             probes[node_id][probe_type] = results
 
     # Transform extracted data.

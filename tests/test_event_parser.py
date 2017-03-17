@@ -1,23 +1,23 @@
-from probe_scraper.parsers.scalars import ScalarsParser
+from probe_scraper.parsers.events import EventsParser
 
 
 def is_string(s):
     return isinstance(s, basestring)
 
 
-def test_scalar_parser():
-    # Parse the histograms from the test definitions.
-    parser = ScalarsParser()
-    parsed_scalars = parser.parse(["tests/test_scalars.yaml"], "55")
+def test_event_parser():
+    # Parse the events from the test definitions.
+    parser = EventsParser()
+    parsed_events = parser.parse(["tests/test_events.yaml"], "55")
 
-    # Make sure we loaded all the scalars.
-    assert len(parsed_scalars) == 16
+    # Make sure we loaded all the events.
+    assert len(parsed_events) == 4
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = ["cpp_guard", "description", "details", "expiry_version", "optout"]
-    REQUIRED_DETAILS = ["keyed", "kind", "record_in_processes"]
+    REQUIRED_DETAILS = ["methods", "objects", "extra_keys", "record_in_processes"]
 
-    for name, data in parsed_scalars.iteritems():
+    for name, data in parsed_events.iteritems():
         assert is_string(name)
 
         # Make sure we have all the required fields and details.
