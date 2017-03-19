@@ -56,6 +56,10 @@ def test_histogram_parser():
     parser = HistogramsParser()
     parsed_histograms = parser.parse(FILES, "55")
 
+    # Check that all expected histogram keys are present.
+    ALL_KEYS = HISTOGRAMS + USE_COUNTERS + DEPRECATED_OPERATIONS
+    assert set(ALL_KEYS) == set(parsed_histograms.iterkeys())
+
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
         "cpp_guard", "description", "details", "expiry_version", "optout"
@@ -64,9 +68,6 @@ def test_histogram_parser():
     REQUIRED_DETAILS = [
         "low", "high", "keyed", "kind", "n_buckets"
     ]
-
-    ALL_KEYS = HISTOGRAMS + USE_COUNTERS + DEPRECATED_OPERATIONS
-    assert set(ALL_KEYS) == set(parsed_histograms.iterkeys())
 
     for name, data in parsed_histograms.iteritems():
         assert is_string(name)
