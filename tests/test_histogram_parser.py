@@ -6,9 +6,55 @@ def is_string(s):
 
 
 def test_histogram_parser():
+    FILES = [
+        "tests/Histograms.json",
+        "tests/nsDeprecatedOperationList.h",
+        "tests/UseCounters.conf",
+    ]
+
+    HISTOGRAMS = [
+        "TELEMETRY_TEST_FLAG",
+        "TELEMETRY_TEST_COUNT",
+        "TELEMETRY_TEST_COUNT2",
+        "TELEMETRY_TEST_COUNT_INIT_NO_RECORD",
+        "TELEMETRY_TEST_CATEGORICAL",
+        "TELEMETRY_TEST_CATEGORICAL_OPTOUT",
+        "TELEMETRY_TEST_CATEGORICAL_NVALUES",
+        "TELEMETRY_TEST_KEYED_COUNT_INIT_NO_RECORD",
+        "TELEMETRY_TEST_KEYED_FLAG",
+        "TELEMETRY_TEST_KEYED_COUNT",
+        "TELEMETRY_TEST_KEYED_BOOLEAN",
+        "TELEMETRY_TEST_RELEASE_OPTOUT",
+        "TELEMETRY_TEST_RELEASE_OPTIN",
+        "TELEMETRY_TEST_KEYED_RELEASE_OPTIN",
+        "TELEMETRY_TEST_KEYED_RELEASE_OPTOUT",
+        "TELEMETRY_TEST_EXPONENTIAL",
+        "TELEMETRY_TEST_LINEAR",
+        "TELEMETRY_TEST_BOOLEAN",
+        "TELEMETRY_TEST_EXPIRED",
+    ]
+
+    USE_COUNTERS = [
+        "USE_COUNTER2_SVGSVGELEMENT_GETELEMENTBYID_DOCUMENT",
+        "USE_COUNTER2_SVGSVGELEMENT_GETELEMENTBYID_PAGE",
+        "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_getter_DOCUMENT",
+        "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_getter_PAGE",
+        "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_setter_DOCUMENT",
+        "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_setter_PAGE",
+        "USE_COUNTER2_PROPERTY_FILL_DOCUMENT",
+        "USE_COUNTER2_PROPERTY_FILL_PAGE",
+    ]
+
+    DEPRECATED_OPERATIONS = [
+        "USE_COUNTER2_DEPRECATED_GetAttributeNode_DOCUMENT",
+        "USE_COUNTER2_DEPRECATED_GetAttributeNode_PAGE",
+        "USE_COUNTER2_DEPRECATED_SetAttributeNode_DOCUMENT",
+        "USE_COUNTER2_DEPRECATED_SetAttributeNode_PAGE",
+    ]
+
     # Parse the histograms from the test definitions.
     parser = HistogramsParser()
-    parsed_histograms = parser.parse(["tests/Histograms.json"], "55")
+    parsed_histograms = parser.parse(FILES, "55")
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
@@ -18,6 +64,9 @@ def test_histogram_parser():
     REQUIRED_DETAILS = [
         "low", "high", "keyed", "kind", "n_buckets"
     ]
+
+    ALL_KEYS = HISTOGRAMS + USE_COUNTERS + DEPRECATED_OPERATIONS
+    assert set(ALL_KEYS) == set(parsed_histograms.iterkeys())
 
     for name, data in parsed_histograms.iteritems():
         assert is_string(name)
