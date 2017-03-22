@@ -145,17 +145,22 @@ def save_error_cache(error_cache):
             json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
-# returns:
-# node_id -> {
-#    channel: string,
-#    version: string,
-#    registries: {
-#      histograms: [path, ...]
-#      events: [path, ...]
-#      scalars: [path, ...]
-#    }
-# }
 def scrape(dir=tempfile.mkdtemp()):
+    """
+    Returns data in the format:
+    {
+      node_id: {
+        channel: string,
+        version: string,
+        registries: {
+          histograms: [path, ...]
+          events: [path, ...]
+          scalars: [path, ...]
+        }
+      },
+      ...
+    }
+    """
     error_cache = load_error_cache()
     results = OrderedDict()
 
