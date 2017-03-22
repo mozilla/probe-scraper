@@ -46,25 +46,46 @@ def probes_equal(probe_type, probe1, probe2):
             return False
     return True
 
-# incoming probe_data is of the form:
-#   node_id -> {
-#     histograms: {
-#       name: ...,
-#       ...
-#     },
-#     scalars: {
-#       ...
-#     },
-#   }
-#
-# node_data is of the form:
-#   node_id -> {
-#     version: ...
-#     channel: ...
-#   }
-
-
 def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
+    """
+    Extract the probe data from the arguments and add it to result_data.
+
+    probe_data should have the form:
+    {
+      node_id: {
+        histograms: {
+          name: ...,
+          ...
+        },
+        scalars: {
+          ...
+        },
+      },
+      ...
+    }
+    
+    node_data should have the form:
+      node_id: {
+        version: ...
+        channel: ...
+      }
+
+    Extract probe data will be added to result_data in the form:
+    {
+      probe_id: {
+        type: 'histogram',
+        name
+        history: [
+          {
+            optout: True,
+            ...
+            revisions: {first: ..., last: ...}
+          },
+          ...
+        ]
+      }
+    }
+    """
     for name, probe in probe_data.iteritems():
         if is_test_probe(probe_type, name):
             continue
