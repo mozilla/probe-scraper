@@ -145,7 +145,7 @@ def save_error_cache(error_cache):
             json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
-def scrape(dir=tempfile.mkdtemp()):
+def scrape(folder=None):
     """
     Returns data in the format:
     {
@@ -161,6 +161,8 @@ def scrape(dir=tempfile.mkdtemp()):
       ...
     }
     """
+    if folder is None:
+        folder = tempfile.mkdtemp()
     error_cache = load_error_cache()
     results = OrderedDict()
 
@@ -179,7 +181,7 @@ def scrape(dir=tempfile.mkdtemp()):
             results[v['node']] = {
                 'channel': channel,
                 'version': v['version'],
-                'registries': download_files(channel, v['node'], dir, error_cache),
+                'registries': download_files(channel, v['node'], folder, error_cache),
             }
             save_error_cache(error_cache)
 
