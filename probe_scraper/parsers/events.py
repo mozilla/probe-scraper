@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import third_party.parse_events
+from third_party import parse_events
 
 
 def set_in_nested_dict(dictionary, path, value):
@@ -71,7 +71,7 @@ class EventsParser:
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 
-        events = third_party.parse_events.load_events(filenames[0])
+        events = parse_events.load_events(filenames[0])
 
         # Get the probe information in a standard format.
         out = {}

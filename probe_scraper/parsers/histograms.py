@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import third_party.histogram_tools
+from third_party import histogram_tools
 
 
 def set_in_nested_dict(dictionary, path, value):
@@ -77,7 +77,7 @@ def transform_probe_info(probes):
 class HistogramsParser:
     def parse(self, filenames, version):
         # Call the histogram tools for each file.
-        parsed_probes = list(third_party.histogram_tools.from_files(filenames))
+        parsed_probes = list(histogram_tools.from_files(filenames))
 
         # Get the probe information in a standard format.
         return transform_probe_info(parsed_probes)
