@@ -3,13 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from third_party import histogram_tools
-
-
-def set_in_nested_dict(dictionary, path, value):
-    keys = path.split('/')
-    for k in keys[:-1]:
-        dictionary = dictionary[k]
-    dictionary[keys[-1]] = value
+from utils import set_in_nested_dict
 
 
 def extract_histogram_data(h):
