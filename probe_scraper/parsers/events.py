@@ -36,10 +36,8 @@ def extract_events_data(e):
     }
 
     for source_field, target_field in props.iteritems():
-        value = None
-        if getattr(e, source_field, None):
-            value = getattr(e, source_field)
-        elif source_field in defaults:
+        value = getattr(e, source_field, None)
+        if value is None and source_field in defaults:
             value = defaults[source_field]
         set_in_nested_dict(data, target_field, value)
 

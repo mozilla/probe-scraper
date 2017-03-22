@@ -19,6 +19,10 @@ def extract_scalar_data(s):
     }
 
 
+def transform_scalar_info(probes):
+    return dict((probe.label, extract_scalar_data(probe)) for probe in probes)
+
+
 class ScalarsParser:
     def parse(self, filenames, version):
         if len(filenames) > 1:
@@ -27,7 +31,4 @@ class ScalarsParser:
         scalars = parse_scalars.load_scalars(filenames[0])
 
         # Get the probe information in a standard format.
-        out = {}
-        for probe in scalars:
-            out[probe.label] = extract_scalar_data(probe)
-        return out
+        return transform_scalar_info(scalars)

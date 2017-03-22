@@ -6,7 +6,7 @@ from third_party import histogram_tools
 from utils import set_in_nested_dict
 
 
-def extract_histogram_data(h):
+def extract_histogram_data(histogram):
     props = {
         # source_field: target_field
         "cpp_guard": "cpp_guard",
@@ -32,16 +32,16 @@ def extract_histogram_data(h):
 
     for source_field, target_field in props.iteritems():
         value = None
-        if getattr(h, source_field, None):
-            value = getattr(h, source_field)()
+        if hasattr(histogram, source_field):
+            value = getattr(histogram, source_field)()
         elif source_field in defaults:
             value = defaults[source_field]
         set_in_nested_dict(data, target_field, value)
 
     # We only care about opt-out or opt-in really.
     optout = False
-    if getattr(h, "dataset", None):
-        optout = getattr(h, "dataset")().endswith('_OPTOUT')
+    if hasattr(histogram, "dataset"):
+        optout = getattr(histogram, "dataset")().endswith('_OPTOUT')
     data["optout"] = optout
 
     # Normalize some field values.
@@ -60,12 +60,7 @@ def extract_histogram_data(h):
 
 
 def transform_probe_info(probes):
-    out = {}
-
-    for probe in probes:
-        out[probe.name()] = extract_histogram_data(probe)
-
-    return out
+    return dict((probe.name(), extract_histogram_data(probe)) for probe in probes)
 
 
 class HistogramsParser:
