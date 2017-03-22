@@ -186,14 +186,3 @@ def scrape(folder=None):
             save_error_cache(error_cache)
 
     return results
-
-
-if __name__ == "__main__":
-    results = scrape('_tmp')
-
-    if False:
-        for node, data in results.iteritems():
-            print data['channel'] + ", " + data['version'] + ", " + node + ":"
-            for ptype, paths in data['registries'].iteritems():
-                print "  " + ptype + ":"
-                print "    " + "\n    ".join(paths)
