@@ -46,6 +46,7 @@ def probes_equal(probe_type, probe1, probe2):
             return False
     return True
 
+
 def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
     """
     Extract the probe data from the arguments and add it to result_data.
@@ -63,7 +64,7 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
       },
       ...
     }
-    
+
     node_data should have the form:
       node_id: {
         version: ...
@@ -90,28 +91,28 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
         if is_test_probe(probe_type, name):
             continue
 
-        id = probe_type + "/" + name
-        if id in result_data and channel in result_data[id]["history"]:
+        probe_id = probe_type + "/" + name
+        if probe_id in result_data and channel in result_data[probe_id]["history"]:
             # If the probes state didn't change from the previous revision,
             # we just override with the latest state and continue.
-            previous = result_data[id]["history"][channel][-1]
+            previous = result_data[probe_id]["history"][channel][-1]
             if probes_equal(probe_type, previous, probe):
                 previous["revisions"]["first"] = node_id
                 continue
-        if id not in result_data:
-            result_data[id] = {
+        if probe_id not in result_data:
+            result_data[probe_id] = {
                 "type": probe_type,
                 "name": name,
                 "history": {channel: []},
             }
-        if channel not in result_data[id]["history"]:
-            result_data[id]["history"][channel] = []
+        if channel not in result_data[probe_id]["history"]:
+            result_data[probe_id]["history"][channel] = []
 
         probe["revisions"] = {
             "first": node_id,
             "last": node_id
         }
-        result_data[id]["history"][channel].append(probe)
+        result_data[probe_id]["history"][channel].append(probe)
 
 
 def sorted_node_lists_by_channel(node_data):

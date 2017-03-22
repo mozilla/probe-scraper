@@ -54,9 +54,9 @@ def load_tags(channel):
     if r.status_code != requests.codes.ok:
         raise Exception("Request returned status " + str(r.status_code) + " for " + uri)
 
-    ctype = r.headers['content-type']
-    if ctype != 'application/json':
-        raise Exception("Request didn't return JSON: " + ctype + " (" + uri + ")")
+    content_type = r.headers['content-type']
+    if content_type != 'application/json':
+        raise Exception("Request didn't return JSON: " + content_type + " (" + uri + ")")
 
     data = r.json()
     if not data or "tags" not in data:
