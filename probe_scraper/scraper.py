@@ -9,9 +9,8 @@ import tempfile
 import requests
 import requests_cache
 
-from collections import OrderedDict
-
 requests_cache.install_cache('probe_scraper_cache')
+from collections import defaultdict
 
 
 REGISTRY_FILES = {
@@ -29,10 +28,13 @@ REGISTRY_FILES = {
 }
 
 CHANNELS = {
-    # 'nightly': 'https://hg.mozilla.org/mozilla-central/',
+    'nightly': {
+        'base_uri': 'https://hg.mozilla.org/mozilla-central/',
+        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$',
+    },
     'aurora': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-aurora/',
-        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$'
+        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$',
     },
     'beta': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-beta/',
@@ -74,10 +76,14 @@ def extract_tag_data(tags, channel):
         version = ""
         if channel == "release":
             version = tag["tag"].split('_')[1]
-        elif channel in ["beta", "aurora"]:
+        elif channel in ["beta", "aurora", "nightly"]:
             version = tag["tag"].split('_')[2]
         else:
             raise Exception("Unsupported channel " + channel)
+
+        # Nightly only has tags of the type FIREFOX_AURORA_NN_BASE.
+        if channel == "nightly":
+            version = str(int(version) + 1)
 
         if int(version) >= MIN_FIREFOX_VERSION:
             results.append({
@@ -150,7 +156,7 @@ def scrape(folder=None):
     Returns data in the format:
     {
       node_id: {
-        channel: string,
+        channels: [channel_name, ...],
         version: string,
         registries: {
           histograms: [path, ...]
@@ -164,7 +170,7 @@ def scrape(folder=None):
     if folder is None:
         folder = tempfile.mkdtemp()
     error_cache = load_error_cache()
-    results = OrderedDict()
+    results = defaultdict(dict)
 
     for channel in CHANNELS.iterkeys():
         tags = load_tags(channel)
@@ -178,10 +184,11 @@ def scrape(folder=None):
         print "\n" + channel + " - loading files:"
         for v in versions:
             print "  from: " + str(v)
-            results[v['node']] = {
+            files = download_files(channel, v['node'], folder, error_cache)
+            results[channel][v['node']] = {
                 'channel': channel,
                 'version': v['version'],
-                'registries': download_files(channel, v['node'], folder, error_cache),
+                'registries': files,
             }
             save_error_cache(error_cache)
 

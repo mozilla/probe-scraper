@@ -39,34 +39,39 @@ def general_data():
 
 def main(temp_dir, out_dir):
     # Scrape probe data from repositories.
-    nodes = scraper.scrape(temp_dir)
+    node_data = scraper.scrape(temp_dir)
 
     # Parse probe data from files into the form:
-    # node_id -> {
-    #   histograms: {
-    #     name: ...,
-    #     ...
+    # channel_name -> {
+    #   node_id -> {
+    #     histograms: {
+    #       name: ...,
+    #       ...
+    #     },
+    #     scalars: {
+    #       ...
+    #     },
     #   },
-    #   scalars: {
-    #     ...
-    #   },
+    #   ...
     # }
-    probes = defaultdict(dict)
-    for node_id, details in nodes.iteritems():
-        for probe_type, paths in details['registries'].iteritems():
-            results = PARSERS[probe_type].parse(paths, details["version"])
-            probes[node_id][probe_type] = results
+    probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    for channel, nodes in node_data.iteritems():
+        for node_id, details in nodes.iteritems():
+            for probe_type, paths in details['registries'].iteritems():
+                results = PARSERS[probe_type].parse(paths, details["version"])
+                probes[channel][node_id][probe_type] = results
 
     # Transform extracted data.
-    revisions = transform_revisions.transform(nodes)
-    probe_data = transform_probes.transform(probes, nodes)
+    revisions = transform_revisions.transform(node_data)
+    probe_data = transform_probes.transform(probes, node_data)
 
     # Serialize extracted data.
     def dump_json(data, file_name):
-        with open(os.path.join(out_dir, file_name), 'w') as f:
-            json.dump(data, f, sort_keys=True, indent=2)
+        path = os.path.join(out_dir, file_name)
+        with open(path, 'w') as f:
+            print "  " + path
 
-    print "\n... writing output files to " + out_dir
+    print "\nwriting output:"
     dump_json(revisions, 'revisions.json')
     dump_json(probe_data, 'probes.json')
     dump_json(general_data(), 'general.json')
@@ -75,7 +80,7 @@ def main(temp_dir, out_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--tempdir',
-                        help='Temporary directory to work in.',
+                        help='Temporary directory to work in. This serves as a cache if reused.',
                         action='store',
                         default=tempfile.mkdtemp())
     parser.add_argument('--outdir',
