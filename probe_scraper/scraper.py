@@ -9,7 +9,6 @@ import tempfile
 import requests
 import requests_cache
 
-requests_cache.install_cache('probe_scraper_cache')
 from collections import defaultdict
 
 
@@ -139,16 +138,18 @@ def download_files(channel, node, temp_dir, error_cache):
     return results
 
 
-def load_error_cache():
-    if not os.path.exists(ERROR_CACHE_FILENAME):
+def load_error_cache(folder):
+    path = os.path.join(folder, ERROR_CACHE_FILENAME)
+    if not os.path.exists(path):
         return {}
-    with open(ERROR_CACHE_FILENAME, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
 
-def save_error_cache(error_cache):
-        with open(ERROR_CACHE_FILENAME, 'w') as f:
-            json.dump(error_cache, f, sort_keys=True, indent=2)
+def save_error_cache(folder, error_cache):
+    path = os.path.join(folder, ERROR_CACHE_FILENAME)
+    with open(path, 'w') as f:
+        json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
 def scrape(folder=None):
@@ -169,13 +170,14 @@ def scrape(folder=None):
     """
     if folder is None:
         folder = tempfile.mkdtemp()
-    error_cache = load_error_cache()
+    error_cache = load_error_cache(folder)
+    requests_cache.install_cache(os.path.join(folder, 'probe_scraper_cache'))
     results = defaultdict(dict)
 
     for channel in CHANNELS.iterkeys():
         tags = load_tags(channel)
         versions = extract_tag_data(tags, channel)
-        save_error_cache(error_cache)
+        save_error_cache(folder, error_cache)
 
         print "\n" + channel + " - extracted version data:"
         for v in versions:
@@ -190,6 +192,6 @@ def scrape(folder=None):
                 'version': v['version'],
                 'registries': files,
             }
-            save_error_cache(error_cache)
+            save_error_cache(folder, error_cache)
 
     return results
