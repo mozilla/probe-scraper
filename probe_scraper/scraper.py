@@ -60,15 +60,16 @@ def load_tags(channel):
         raise Exception("Request didn't return JSON: " + content_type + " (" + uri + ")")
 
     data = r.json()
-    if not data or "tags" not in data:
+    if not data or "node" not in data or "tags" not in data:
         raise Exception("Result JSON doesn't have the right format for " + uri)
 
-    return data["tags"]
+    return data
 
 
-def extract_tag_data(tags, channel):
+def extract_tag_data(tag_data, channel):
     tag_regex = CHANNELS[channel]['tag_regex']
-    tags = filter(lambda t: re.match(tag_regex, t["tag"]), tags)
+    tip_node_id = tag_data["node"]
+    tags = filter(lambda t: re.match(tag_regex, t["tag"]), tag_data["tags"])
     results = []
 
     for tag in tags:
@@ -80,9 +81,12 @@ def extract_tag_data(tags, channel):
         else:
             raise Exception("Unsupported channel " + channel)
 
-        # Nightly only has tags of the type FIREFOX_AURORA_NN_BASE.
-        if channel == "nightly":
-            version = str(int(version) + 1)
+        # We work with tags that are the start of version N.
+        # We want to treat those revisions as the end of version N-1 instead.
+        # Nightly only has tags of the type FIREFOX_AURORA_NN_BASE, so it doesn't
+        # need this.
+        if channel != "nightly":
+            version = str(int(version) - 1)
 
         if int(version) >= MIN_FIREFOX_VERSION:
             results.append({
@@ -91,6 +95,15 @@ def extract_tag_data(tags, channel):
             })
 
     results = sorted(results, key=lambda r: int(r["version"]))
+
+    # Add tip revision.
+    if tip_node_id != results[-1]["node"]:
+        latest_version = str(int(results[-1]["version"]) + 1)
+        results.append({
+            "node": tip_node_id,
+            "version": latest_version,
+        })
+
     return results
 
 

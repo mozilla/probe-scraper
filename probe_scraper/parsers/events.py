@@ -63,7 +63,7 @@ class EventsParser:
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 
-        events = parse_events.load_events(filenames[0])
+        events = parse_events.load_events(filenames[0], strict_type_checks=False)
 
         # Get the probe information in a standard format.
         out = {}
