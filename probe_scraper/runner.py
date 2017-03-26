@@ -70,6 +70,7 @@ def main(temp_dir, out_dir):
         path = os.path.join(out_dir, file_name)
         with open(path, 'w') as f:
             print "  " + path
+            json.dump(data, f, sort_keys=True, indent=2)
 
     print "\nwriting output:"
     dump_json(revisions, 'revisions.json')

@@ -12,3 +12,5 @@ def transform(node_data):
             results[channel][node_id] = {
                 'version': details['version'],
             }
+
+    return results
