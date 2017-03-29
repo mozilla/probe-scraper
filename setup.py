@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-from distutils.core import setup
 
 setup(name='probe-scraper',
       version='0.1',
