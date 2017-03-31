@@ -9,9 +9,7 @@ import tempfile
 import requests
 import requests_cache
 
-from collections import OrderedDict
-
-requests_cache.install_cache('probe_scraper_cache')
+from collections import defaultdict
 
 
 REGISTRY_FILES = {
@@ -29,10 +27,13 @@ REGISTRY_FILES = {
 }
 
 CHANNELS = {
-    # 'nightly': 'https://hg.mozilla.org/mozilla-central/',
+    'nightly': {
+        'base_uri': 'https://hg.mozilla.org/mozilla-central/',
+        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$',
+    },
     'aurora': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-aurora/',
-        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$'
+        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$',
     },
     'beta': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-beta/',
@@ -59,25 +60,33 @@ def load_tags(channel):
         raise Exception("Request didn't return JSON: " + content_type + " (" + uri + ")")
 
     data = r.json()
-    if not data or "tags" not in data:
+    if not data or "node" not in data or "tags" not in data:
         raise Exception("Result JSON doesn't have the right format for " + uri)
 
-    return data["tags"]
+    return data
 
 
-def extract_tag_data(tags, channel):
+def extract_tag_data(tag_data, channel):
     tag_regex = CHANNELS[channel]['tag_regex']
-    tags = filter(lambda t: re.match(tag_regex, t["tag"]), tags)
+    tip_node_id = tag_data["node"]
+    tags = filter(lambda t: re.match(tag_regex, t["tag"]), tag_data["tags"])
     results = []
 
     for tag in tags:
         version = ""
         if channel == "release":
             version = tag["tag"].split('_')[1]
-        elif channel in ["beta", "aurora"]:
+        elif channel in ["beta", "aurora", "nightly"]:
             version = tag["tag"].split('_')[2]
         else:
             raise Exception("Unsupported channel " + channel)
+
+        # We work with tags that are the start of version N.
+        # We want to treat those revisions as the end of version N-1 instead.
+        # Nightly only has tags of the type FIREFOX_AURORA_NN_BASE, so it doesn't
+        # need this.
+        if channel != "nightly":
+            version = str(int(version) - 1)
 
         if int(version) >= MIN_FIREFOX_VERSION:
             results.append({
@@ -86,6 +95,15 @@ def extract_tag_data(tags, channel):
             })
 
     results = sorted(results, key=lambda r: int(r["version"]))
+
+    # Add tip revision.
+    if tip_node_id != results[-1]["node"]:
+        latest_version = str(int(results[-1]["version"]) + 1)
+        results.append({
+            "node": tip_node_id,
+            "version": latest_version,
+        })
+
     return results
 
 
@@ -133,16 +151,18 @@ def download_files(channel, node, temp_dir, error_cache):
     return results
 
 
-def load_error_cache():
-    if not os.path.exists(ERROR_CACHE_FILENAME):
+def load_error_cache(folder):
+    path = os.path.join(folder, ERROR_CACHE_FILENAME)
+    if not os.path.exists(path):
         return {}
-    with open(ERROR_CACHE_FILENAME, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
 
-def save_error_cache(error_cache):
-        with open(ERROR_CACHE_FILENAME, 'w') as f:
-            json.dump(error_cache, f, sort_keys=True, indent=2)
+def save_error_cache(folder, error_cache):
+    path = os.path.join(folder, ERROR_CACHE_FILENAME)
+    with open(path, 'w') as f:
+        json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
 def scrape(folder=None):
@@ -150,7 +170,7 @@ def scrape(folder=None):
     Returns data in the format:
     {
       node_id: {
-        channel: string,
+        channels: [channel_name, ...],
         version: string,
         registries: {
           histograms: [path, ...]
@@ -163,13 +183,14 @@ def scrape(folder=None):
     """
     if folder is None:
         folder = tempfile.mkdtemp()
-    error_cache = load_error_cache()
-    results = OrderedDict()
+    error_cache = load_error_cache(folder)
+    requests_cache.install_cache(os.path.join(folder, 'probe_scraper_cache'))
+    results = defaultdict(dict)
 
     for channel in CHANNELS.iterkeys():
         tags = load_tags(channel)
         versions = extract_tag_data(tags, channel)
-        save_error_cache(error_cache)
+        save_error_cache(folder, error_cache)
 
         print "\n" + channel + " - extracted version data:"
         for v in versions:
@@ -178,11 +199,12 @@ def scrape(folder=None):
         print "\n" + channel + " - loading files:"
         for v in versions:
             print "  from: " + str(v)
-            results[v['node']] = {
+            files = download_files(channel, v['node'], folder, error_cache)
+            results[channel][v['node']] = {
                 'channel': channel,
                 'version': v['version'],
-                'registries': download_files(channel, v['node'], folder, error_cache),
+                'registries': files,
             }
-            save_error_cache(error_cache)
+            save_error_cache(folder, error_cache)
 
     return results

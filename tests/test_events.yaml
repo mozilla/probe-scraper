@@ -6,6 +6,7 @@ telemetry.test:
     objects: ["object1", "object2"]
     bug_numbers: [1286606]
     notification_emails: ["telemetry-client-dev@mozilla.com"]
+    record_in_processes: ['main', 'content']
     description: This is a test entry for Telemetry.
     expiry_date: never
     extra_keys:

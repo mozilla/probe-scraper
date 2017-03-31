@@ -2,12 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from collections import defaultdict
+
 
 def transform(node_data):
-    results = {}
-    for node_id, details in node_data.iteritems():
-        results[node_id] = {
-            'channel': details['channel'],
-            'version': details['version'],
-        }
+    results = defaultdict(dict)
+    for channel, nodes in node_data.iteritems():
+        for node_id, details in nodes.iteritems():
+            results[channel][node_id] = {
+                'version': details['version'],
+            }
+
     return results
