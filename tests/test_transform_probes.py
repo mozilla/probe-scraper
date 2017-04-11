@@ -3,11 +3,11 @@ import pprint
 
 # incoming probe_data is of the form:
 #   node_id -> {
-#     histograms: {
+#     histogram: {
 #       name: ...,
 #       ...
 #     },
-#     scalars: {
+#     scalar: {
 #       ...
 #     },
 #   }
@@ -35,7 +35,7 @@ IN_NODE_DATA = {
 IN_PROBE_DATA = {
     "release": {
         "node_id_1": {
-            "histograms": {
+            "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
                     "description": "A description.",
@@ -53,7 +53,7 @@ IN_PROBE_DATA = {
 
         },
         "node_id_2": {
-            "histograms": {
+            "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
                     "description": "A description.",
@@ -70,7 +70,7 @@ IN_PROBE_DATA = {
              }
         },
         "node_id_3": {
-            "histograms": {
+            "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
                     "description": "A description.",
@@ -90,7 +90,7 @@ IN_PROBE_DATA = {
 }
 
 OUT_PROBE_DATA = {
-    'histograms/TEST_HISTOGRAM_1': {
+    'histogram/TEST_HISTOGRAM_1': {
         'history': {
             'release': [
                 {
@@ -129,16 +129,16 @@ OUT_PROBE_DATA = {
             ]
         },
         'name': 'TEST_HISTOGRAM_1',
-        'type': 'histograms'
+        'type': 'histogram'
     }
 }
 
 
 def test_probes_equal():
     DATA = IN_PROBE_DATA["release"]
-    histogram_node1 = DATA["node_id_1"]["histograms"]["TEST_HISTOGRAM_1"]
-    histogram_node2 = DATA["node_id_2"]["histograms"]["TEST_HISTOGRAM_1"]
-    histogram_node3 = DATA["node_id_3"]["histograms"]["TEST_HISTOGRAM_1"]
+    histogram_node1 = DATA["node_id_1"]["histogram"]["TEST_HISTOGRAM_1"]
+    histogram_node2 = DATA["node_id_2"]["histogram"]["TEST_HISTOGRAM_1"]
+    histogram_node3 = DATA["node_id_3"]["histogram"]["TEST_HISTOGRAM_1"]
     assert(not transform.probes_equal('histogram', histogram_node1, histogram_node2))
     assert(transform.probes_equal('histogram', histogram_node2, histogram_node3))
 

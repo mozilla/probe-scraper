@@ -25,9 +25,9 @@ class DummyParser:
 PARSERS = {
     # This lists the available probe registry parsers:
     # parser type -> parser
-    'histograms': HistogramsParser(),
-    'scalars': ScalarsParser(),
-    'events': EventsParser(),
+    'histogram': HistogramsParser(),
+    'scalar': ScalarsParser(),
+    'event': EventsParser(),
 }
 
 
@@ -44,11 +44,11 @@ def main(temp_dir, out_dir):
     # Parse probe data from files into the form:
     # channel_name -> {
     #   node_id -> {
-    #     histograms: {
+    #     histogram: {
     #       name: ...,
     #       ...
     #     },
-    #     scalars: {
+    #     scalar: {
     #       ...
     #     },
     #   },

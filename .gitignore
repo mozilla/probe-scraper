@@ -96,3 +96,4 @@ probe_scraper_cache.sqlite
 temp/
 _tmp/
 _out/
+_temp/
