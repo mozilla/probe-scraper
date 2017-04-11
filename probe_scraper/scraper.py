@@ -13,15 +13,15 @@ from collections import defaultdict
 
 
 REGISTRY_FILES = {
-    'histograms': [
+    'histogram': [
         'toolkit/components/telemetry/Histograms.json',
         'dom/base/UseCounters.conf',
         'dom/base/nsDeprecatedOperationList.h',
     ],
-    'scalars': [
+    'scalar': [
         'toolkit/components/telemetry/Scalars.yaml',
     ],
-    'events': [
+    'event': [
         'toolkit/components/telemetry/Events.yaml',
     ],
 }
@@ -173,9 +173,9 @@ def scrape(folder=None):
         channels: [channel_name, ...],
         version: string,
         registries: {
-          histograms: [path, ...]
-          events: [path, ...]
-          scalars: [path, ...]
+          histogram: [path, ...]
+          event: [path, ...]
+          scalar: [path, ...]
         }
       },
       ...

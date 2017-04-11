@@ -54,11 +54,11 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
     probe_data should have the form:
     {
       node_id: {
-        histograms: {
+        histogram: {
           name: ...,
           ...
         },
-        scalars: {
+        scalar: {
           ...
         },
       },
