@@ -29,7 +29,7 @@ REGISTRY_FILES = {
 CHANNELS = {
     'nightly': {
         'base_uri': 'https://hg.mozilla.org/mozilla-central/',
-        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$',
+        'tag_regex': '^FIREFOX_(AURORA|BETA)_[0-9]+_BASE$',
     },
     'aurora': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-aurora/',
