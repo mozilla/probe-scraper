@@ -5,6 +5,7 @@
 import os
 import json
 import datetime
+from dateutil.tz import tzlocal
 import tempfile
 import argparse
 from collections import defaultdict
@@ -33,7 +34,7 @@ PARSERS = {
 
 def general_data():
     return {
-        "lastUpdate": datetime.date.today().isoformat(),
+        "lastUpdate": datetime.datetime.now(tzlocal()).isoformat(),
     }
 
 
