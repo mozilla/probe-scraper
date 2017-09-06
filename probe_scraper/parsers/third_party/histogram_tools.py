@@ -249,7 +249,7 @@ associated with the histogram.  Returns None if no guarding is necessary."""
             table['exponential'].append('extended_statistics_ok')
 
         table_dispatch(definition['kind'], table,
-                       lambda allowed_keys: Histogram.check_keys(name, definition, allowed_keys))
+                       lambda allowed_keys: self.check_keys(name, definition, allowed_keys))
 
         if self._strict_type_checks:
             self.check_name(name)
@@ -410,8 +410,9 @@ associated with the histogram.  Returns None if no guarding is necessary."""
                 raise ValueError, ('all values for list "{0}" in Histogram "{1}" '
                         'should be {2}').format(key, name, nice_type_name(key_type))
 
-    @staticmethod
-    def check_keys(name, definition, allowed_keys):
+    def check_keys(self, name, definition, allowed_keys):
+        if not self._strict_type_checks:
+            return
         for key in definition.iterkeys():
             if key not in allowed_keys:
                 raise KeyError, '%s not permitted for %s' % (key, name)
