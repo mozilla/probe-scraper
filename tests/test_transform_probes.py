@@ -89,7 +89,7 @@ IN_PROBE_DATA = {
     }
 }
 
-OUT_PROBE_DATA = {
+OUT_PROBE_DATA_MONOLITHIC = {
     'histogram/TEST_HISTOGRAM_1': {
         'history': {
             'release': [
@@ -108,6 +108,10 @@ OUT_PROBE_DATA = {
                     'revisions': {
                         'first': 'node_id_2',
                         'last': 'node_id_3'
+                    },
+                    'versions': {
+                        'first': '51',
+                        'last': '52'
                     }
                 }, {
                     'cpp_guard': None,
@@ -124,12 +128,70 @@ OUT_PROBE_DATA = {
                     'revisions': {
                         'first': 'node_id_1',
                         'last': 'node_id_1'
+                    },
+                    'versions': {
+                        'first': '50',
+                        'last': '50'
                     }
                 }
             ]
         },
         'name': 'TEST_HISTOGRAM_1',
         'type': 'histogram'
+    }
+}
+
+OUT_PROBE_DATA_BY_CHANNEL = {
+    'release': {
+        'histogram/TEST_HISTOGRAM_1': {
+            'history': {
+                'release': [
+                    {
+                        'cpp_guard': None,
+                        'description': 'A description.',
+                        'details': {
+                            'high': 10,
+                            'keyed': False,
+                            'kind': 'exponential',
+                            'low': 1,
+                            'n_buckets': 5
+                        },
+                        'expiry_version': '53.0',
+                        'optout': True,
+                        'revisions': {
+                            'first': 'node_id_2',
+                            'last': 'node_id_3',
+                        },
+                        'versions': {
+                            'first': '51',
+                            'last': '52'
+                        }
+                    }, {
+                        'cpp_guard': None,
+                        'description': 'A description.',
+                        'details': {
+                            'high': 10,
+                            'keyed': False,
+                            'kind': 'exponential',
+                            'low': 1,
+                            'n_buckets': 5
+                        },
+                        'expiry_version': '53.0',
+                        'optout': False,
+                        'revisions': {
+                            'first': 'node_id_1',
+                            'last': 'node_id_1',
+                        },
+                        'versions': {
+                            'first': '50',
+                            'last': '50'
+                        }
+                    }
+                ],
+            },
+            'name': 'TEST_HISTOGRAM_1',
+            'type': 'histogram'
+        }
     }
 }
 
@@ -143,10 +205,19 @@ def test_probes_equal():
     assert(transform.probes_equal('histogram', histogram_node2, histogram_node3))
 
 
-def test_transform():
-    result = transform.transform(IN_PROBE_DATA, IN_NODE_DATA)
+def test_transform_monolithic():
+    result = transform.transform(IN_PROBE_DATA, IN_NODE_DATA, False)
 
     pp = pprint.PrettyPrinter(indent=2)
     print "\nresult:"
     pp.pprint(result)
-    assert(result == OUT_PROBE_DATA)
+    assert(result == OUT_PROBE_DATA_MONOLITHIC)
+
+
+def test_transform_by_channel():
+    result = transform.transform(IN_PROBE_DATA, IN_NODE_DATA, True)
+
+    pp = pprint.PrettyPrinter(indent=2)
+    print "\nresult:"
+    pp.pprint(result)
+    assert(result == OUT_PROBE_DATA_BY_CHANNEL)

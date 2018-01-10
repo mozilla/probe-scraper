@@ -15,3 +15,12 @@ def set_in_nested_dict(dictionary, path, value):
     for k in keys[:-1]:
         dictionary = dictionary[k]
     dictionary[keys[-1]] = value
+
+
+def get_major_version(version):
+    """ Extracts the major (leftmost) version of a version string.
+
+    :param version: the version string (e.g. "53.1")
+    :return: a string containing the leftmost number before the first dot
+    """
+    return version.split('.')[0]
