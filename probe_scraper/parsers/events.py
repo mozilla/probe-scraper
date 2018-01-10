@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from third_party import parse_events
-from utils import set_in_nested_dict
+from utils import set_in_nested_dict, get_major_version
 
 
 def extract_events_data(e):
@@ -46,6 +46,7 @@ def extract_events_data(e):
     data["optout"] = optout
 
     # Normalize some field values.
+    data["expiry_version"] = get_major_version(data["expiry_version"])
     if data["expiry_version"] == "default":
         data["expiry_version"] = "never"
 

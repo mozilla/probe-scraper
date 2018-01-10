@@ -5,6 +5,7 @@
 import os
 import json
 import datetime
+import errno
 from dateutil.tz import tzlocal
 import tempfile
 import argparse
@@ -38,6 +39,37 @@ def general_data():
     }
 
 
+def write_probe_data(probe_data, revisions, out_dir):
+    # Serialize extracted data.
+    def dump_json(data, out_dir, file_name):
+        # Make sure that the output directory exists. This also creates
+        # intermediate directories if needed.
+        try:
+            os.makedirs(out_dir)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+        path = os.path.join(out_dir, file_name)
+        with open(path, 'w') as f:
+            print "  " + path
+            json.dump(data, f, sort_keys=True, indent=2)
+
+    # Save all our files to "outdir/firefox/..." to mimic a REST API.
+    base_dir = os.path.join(out_dir, "firefox")
+
+    print "\nwriting output:"
+    dump_json(general_data(), base_dir, 'general.json')
+    dump_json(revisions, base_dir, 'revisions.json')
+
+    # Break down the output by channel. We don't need to write a revisions
+    # file in this case, the probe data will contain human readable version
+    # numbers along with revision numbers.
+    for channel, channel_probes in probe_data.iteritems():
+        data_dir = os.path.join(base_dir, channel, "main")
+        dump_json(channel_probes, data_dir, 'all_probes')
+
+
 def main(temp_dir, out_dir):
     # Scrape probe data from repositories.
     node_data = scraper.scrape(temp_dir)
@@ -62,21 +94,15 @@ def main(temp_dir, out_dir):
                 results = PARSERS[probe_type].parse(paths, details["version"])
                 probes[channel][node_id][probe_type] = results
 
-    # Transform extracted data.
+    # Transform extracted data: get both the monolithic and by channel probe data.
     revisions = transform_revisions.transform(node_data)
-    probe_data = transform_probes.transform(probes, node_data)
+    probes_by_channel = transform_probes.transform(probes, node_data,
+                                                   break_by_channel=True)
+    probes_by_channel["all"] = transform_probes.transform(probes, node_data,
+                                                          break_by_channel=False)
 
-    # Serialize extracted data.
-    def dump_json(data, file_name):
-        path = os.path.join(out_dir, file_name)
-        with open(path, 'w') as f:
-            print "  " + path
-            json.dump(data, f, sort_keys=True, indent=2)
-
-    print "\nwriting output:"
-    dump_json(revisions, 'revisions.json')
-    dump_json(probe_data, 'probes.json')
-    dump_json(general_data(), 'general.json')
+    # Serialize the probe data to disk.
+    write_probe_data(probes_by_channel, revisions, out_dir)
 
 
 if __name__ == "__main__":

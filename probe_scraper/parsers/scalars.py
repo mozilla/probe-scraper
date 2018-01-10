@@ -3,12 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from third_party import parse_scalars
+from utils import get_major_version
 
 
 def extract_scalar_data(s):
     return {
         "description": s.description,
-        "expiry_version": s.expires,
+        "expiry_version": get_major_version(s.expires),
         "cpp_guard": s.cpp_guard,
         "optout": s.dataset.endswith('_OPTOUT'),
         "details": {

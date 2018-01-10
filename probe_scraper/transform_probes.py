@@ -47,75 +47,93 @@ def probes_equal(probe_type, probe1, probe2):
     return True
 
 
-def extract_node_data(node_id, channel, probe_type, probe_data, result_data):
-    """
-    Extract the probe data from the arguments and add it to result_data.
+def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
+                      version, break_by_channel):
+    """ Extract the probe data and group it by channel.
 
-    probe_data should have the form:
-    {
-      node_id: {
-        histogram: {
-          name: ...,
-          ...
-        },
-        scalar: {
-          ...
-        },
-      },
-      ...
-    }
-
-    node_data should have the form:
-      node_id: {
-        version: ...
-        channel: ...
-      }
-
-    Extract probe data will be added to result_data in the form:
-    {
-      probe_id: {
-        type: 'histogram',
-        name
-        history: [
-          {
-            optout: True,
-            ...
-            revisions: {first: ..., last: ...}
-          },
-          ...
-        ]
-      }
-    }
+    :param node_id: the revision the probe data comes from, with th
+    :param channel: the channel the probe was found in.
+    :param probe_type: the probe type (e.g. 'histogram').
+    :param probe_data: the probe data, with the following form:
+            {
+              node_id: {
+                histogram: {
+                  name: ...,
+                  ...
+                },
+                scalar: {
+                  ...
+                },
+              },
+              ...
+            }
+    :param result_data: the dictionary to which the processed probe data is appended
+           to. Extract probe data will be added to result_data in the form:
+            {
+              channel: {
+                probe_id: {
+                  type: 'histogram',
+                  name: 'some-name',
+                  history: {
+                    channel: [
+                      {
+                        optout: True,
+                        ...
+                        revisions: {first: ..., last: ...},
+                        versions: {first: ..., last: ...}
+                      },
+                      ...
+                      ]
+                    }
+                }
+              }
+            }
+    :param version: a human readable version string.
+    :param break_by_channel: True if probe data for different channels needs to be
+           stored separately, False otherwise. If True, probe data will be saved
+           to result_data[channel] instead of just result_data.
     """
     for name, probe in probe_data.iteritems():
         # Telemetrys test probes are never submitted to the servers.
         if is_test_probe(probe_type, name):
             continue
 
+        storage = result_data
+        if break_by_channel:
+            if channel not in result_data:
+                result_data[channel] = {}
+            storage = result_data[channel]
+
         probe_id = probe_type + "/" + name
-        if probe_id in result_data and channel in result_data[probe_id]["history"]:
+        if probe_id in storage and channel in storage[probe_id]["history"]:
             # If the probes state didn't change from the previous revision,
             # we just override with the latest state and continue.
-            previous = result_data[probe_id]["history"][channel][-1]
+            previous = storage[probe_id]["history"][channel][-1]
             if probes_equal(probe_type, previous, probe):
                 previous["revisions"]["first"] = node_id
+                previous["versions"]["first"] = version
                 continue
 
-        if probe_id not in result_data:
-            result_data[probe_id] = {
+        if probe_id not in storage:
+            storage[probe_id] = {
                 "type": probe_type,
                 "name": name,
                 "history": {channel: []},
             }
 
-        if channel not in result_data[probe_id]["history"]:
-            result_data[probe_id]["history"][channel] = []
+        if channel not in storage[probe_id]["history"]:
+            storage[probe_id]["history"][channel] = []
 
         probe["revisions"] = {
             "first": node_id,
-            "last": node_id
+            "last": node_id,
         }
-        result_data[probe_id]["history"][channel].append(probe)
+
+        probe["versions"] = {
+            "first": version,
+            "last": version,
+        }
+        storage[probe_id]["history"][channel].append(probe)
 
 
 def sorted_node_lists_by_channel(node_data):
@@ -133,7 +151,14 @@ def sorted_node_lists_by_channel(node_data):
     return channels
 
 
-def transform(probe_data, node_data):
+def transform(probe_data, node_data, break_by_channel):
+    """ Transform the probe data into the final format.
+
+    :param probe_data: the preprocessed probe data.
+    :param node_data: the raw probe data.
+    :param break_by_channel: True if we want the probe output grouped by
+           release channel.
+    """
     channels = sorted_node_lists_by_channel(node_data)
 
     result_data = {}
@@ -141,8 +166,11 @@ def transform(probe_data, node_data):
         print "\n" + channel + " - transforming probe data:"
         for entry in channel_data:
             node_id = entry['node_id']
-            print "  from: " + str({"node": node_id, "version": entry["version"]})
+            readable_version = entry["version"]
+            print "  from: " + str({"node": node_id, "version": readable_version})
             for probe_type, probes in probe_data[channel][node_id].iteritems():
-                extract_node_data(node_id, channel, probe_type, probes, result_data)
+                # Group the probes by the release channel, if requested
+                extract_node_data(node_id, channel, probe_type, probes, result_data,
+                                  readable_version, break_by_channel)
 
     return result_data
