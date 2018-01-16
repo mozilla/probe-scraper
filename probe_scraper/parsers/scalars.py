@@ -29,7 +29,7 @@ class ScalarsParser:
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 
-        scalars = parse_scalars.load_scalars(filenames[0])
+        scalars = parse_scalars.load_scalars(filenames[0], strict_type_checks=False)
 
         # Get the probe information in a standard format.
         return transform_scalar_info(scalars)
