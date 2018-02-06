@@ -32,6 +32,8 @@ def test_histogram_parser():
         "TELEMETRY_TEST_LINEAR",
         "TELEMETRY_TEST_BOOLEAN",
         "TELEMETRY_TEST_EXPIRED",
+        "TELEMETRY_TEST_ALL_CHILDREN",
+        "TELEMETRY_TEST_ALL_CHILDS",
     ]
 
     USE_COUNTERS = [
