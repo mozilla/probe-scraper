@@ -154,5 +154,27 @@
     "expires_in_version": "4.0a1",
     "kind": "flag",
     "description": "a testing histogram; not meant to be touched"
+  },
+  "TELEMETRY_TEST_ALL_CHILDREN": {
+    "record_in_processes": ["all_children"],
+    "alert_emails": ["telemetry-client-dev@mozilla.com"],
+    "expires_in_version": "never",
+    "kind": "linear",
+    "low": 1,
+    "high": 10000,
+    "n_buckets": 10,
+    "bug_numbers": [1363725],
+    "description": "a testing histogram; not meant to be touched"
+  },
+  "TELEMETRY_TEST_ALL_CHILDS": {
+    "record_in_processes": ["all_childs"],
+    "alert_emails": ["telemetry-client-dev@mozilla.com"],
+    "expires_in_version": "never",
+    "kind": "linear",
+    "low": 1,
+    "high": 10000,
+    "n_buckets": 10,
+    "bug_numbers": [1335343,1363725],
+    "description": "a testing histogram; not meant to be touched"
   }
 }
