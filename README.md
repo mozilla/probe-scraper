@@ -42,7 +42,7 @@ The code layout consists mainly of:
 ## File formats
 This scraper generates three different JSON file types.
 
-### `revisions.json`
+### `revisions`
 This file contains the revision hashes of the changesets the probe files were scraped. These hashes are mapped to an human-readable version string.
 
 ```
@@ -63,7 +63,7 @@ This file contains the revision hashes of the changesets the probe files were sc
 }
 ```
 
-### `general.json`
+### `general`
 This file contains general properties related to the scraping process. As of today, it only contains the `lastUpdate` property, which is the day and time the scraping was performed, in ISO 8601 format.
 
 ```
@@ -147,8 +147,8 @@ Please refer to the Telemetry data collection [documentation](https://firefox-so
 The processed probe data is serialized to the disk in a directory hierarchy starting from the provided output directory. The directory layout resembles a REST-friendly structure.
 
     |-- product
-        |-- general.json
-        |-- revisions.json
+        |-- general
+        |-- revisions
         |-- channel (or "all")
             |-- ping type
                 |-- probe type (or "all_probes")
