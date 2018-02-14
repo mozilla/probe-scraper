@@ -59,8 +59,8 @@ def write_probe_data(probe_data, revisions, out_dir):
     base_dir = os.path.join(out_dir, "firefox")
 
     print "\nwriting output:"
-    dump_json(general_data(), base_dir, 'general.json')
-    dump_json(revisions, base_dir, 'revisions.json')
+    dump_json(general_data(), base_dir, 'general')
+    dump_json(revisions, base_dir, 'revisions')
 
     # Break down the output by channel. We don't need to write a revisions
     # file in this case, the probe data will contain human readable version
