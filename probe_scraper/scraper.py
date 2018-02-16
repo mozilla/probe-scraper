@@ -31,10 +31,6 @@ CHANNELS = {
         'base_uri': 'https://hg.mozilla.org/mozilla-central/',
         'tag_regex': '^FIREFOX_(AURORA|BETA)_[0-9]+_BASE$',
     },
-    'aurora': {
-        'base_uri': 'https://hg.mozilla.org/releases/mozilla-aurora/',
-        'tag_regex': '^FIREFOX_AURORA_[0-9]+_BASE$',
-    },
     'beta': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-beta/',
         'tag_regex': '^FIREFOX_BETA_[0-9]+_BASE$',
@@ -76,7 +72,7 @@ def extract_tag_data(tag_data, channel):
         version = ""
         if channel == "release":
             version = tag["tag"].split('_')[1]
-        elif channel in ["beta", "aurora", "nightly"]:
+        elif channel in ["beta", "nightly"]:
             version = tag["tag"].split('_')[2]
         else:
             raise Exception("Unsupported channel " + channel)
