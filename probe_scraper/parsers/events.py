@@ -27,7 +27,7 @@ def extract_events_data(e):
         "expiry_version": "never",
         "expiry_day": "never",
         "name": e.methods[0],
-        "description": "<TODO>",
+        "description": e.description,
         "cpp_guard": None,
     }
 

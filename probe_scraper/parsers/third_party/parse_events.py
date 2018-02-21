@@ -222,6 +222,10 @@ class EventData:
         return convert_to_cpp_identifier(self._category, ".")
 
     @property
+    def description(self):
+        return self._definition.get('description')
+
+    @property
     def name(self):
         return self._name
 
