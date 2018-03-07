@@ -5,7 +5,7 @@ This extracts per-version Telemetry probe data for Firefox from registry files l
 The data allows answering questions like "which Firefox versions is this Telemetry probe in anyway?".
 Also, probes outside of Histograms.json - like the CSS use counters - are included in the output data.
 
-A prototype web viewer is available [here](http://georgf.github.io/fx-data-explorer/index.html).
+A web tool to explore the data is available [here](https://telemetry.mozilla.org/probe-dictionary/).
 
 ## Developing the probe-scraper
 Install the requirements:
