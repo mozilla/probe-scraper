@@ -155,4 +155,4 @@ The processed probe data is serialized to the disk in a directory hierarchy star
 
 For example, all the JSON probe data in the [main ping]() for the *Firefox Nightly* channel can be accessed with the followign path: `firefox/nightly/main/all_probes`. The probe data for all the channels (same product and ping) can be accessed instead using `firefox/all/main/all_probes`.
 
-The root directory for the output generated from the scheduled job can be found at: https://analysis-output.telemetry.mozilla.org/probe-scraper/data-rest/ . All the probe data for Firefox coming from the main ping can be found [here](https://analysis-output.telemetry.mozilla.org/probe-scraper/data-rest/firefox/all/main/all_probes).
+The root directory for the output generated from the scheduled job can be found at: https://probeinfo.telemetry.mozilla.org/ . All the probe data for Firefox coming from the main ping can be found [here](https://probeinfo.telemetry.mozilla.org/firefox/all/main/all_probes).
