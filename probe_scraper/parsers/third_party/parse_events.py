@@ -128,14 +128,16 @@ def type_check_event_fields(identifier, name, definition, strict):
     if len(missing_fields) > 0:
         raise KeyError(identifier + ' - missing required fields: ' + ', '.join(missing_fields))
 
-    # Is there any unknown field?
-    unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
-    if len(unknown_fields) > 0:
-        raise KeyError(identifier + ' - unknown fields: ' + ', '.join(unknown_fields))
+    # Are there any unknown field?
+    if strict:
+        unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
+        if len(unknown_fields) > 0:
+            raise KeyError(identifier + ' - unknown fields: ' + ', '.join(unknown_fields))
 
     # Type-check fields.
     for k, v in definition.iteritems():
-        ALL_FIELDS[k].check(identifier, k, v)
+        if k in ALL_FIELDS:
+            ALL_FIELDS[k].check(identifier, k, v)
 
 
 def string_check(identifier, field, value, min_length=1, max_length=None, regex=None):
