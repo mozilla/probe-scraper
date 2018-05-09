@@ -5,6 +5,13 @@
 from collections import defaultdict
 
 
+DATES_KEY = "dates"
+
+TYPE_KEY = "type"
+NAME_KEY = "name"
+HISTORY_KEY = "history"
+
+
 def is_test_probe(probe_type, name):
     if probe_type == 'histogram':
         # These are test-only probes and never sent out.
@@ -22,7 +29,11 @@ def get_from_nested_dict(dictionary, path, default=None):
     return dictionary.get(keys[-1], default)
 
 
-def probes_equal(probe_type, probe1, probe2):
+def get_probe_id(ptype, name):
+    return ptype + "/" + name
+
+
+def probes_equal(probe1, probe2):
     props = [
         # Common.
         "cpp_guard",
@@ -104,25 +115,25 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
                 result_data[channel] = {}
             storage = result_data[channel]
 
-        probe_id = probe_type + "/" + name
-        if probe_id in storage and channel in storage[probe_id]["history"]:
+        probe_id = get_probe_id(probe_type, name)
+        if probe_id in storage and channel in storage[probe_id][HISTORY_KEY]:
             # If the probes state didn't change from the previous revision,
             # we just override with the latest state and continue.
-            previous = storage[probe_id]["history"][channel][-1]
-            if probes_equal(probe_type, previous, probe):
+            previous = storage[probe_id][HISTORY_KEY][channel][-1]
+            if probes_equal(previous, probe):
                 previous["revisions"]["first"] = node_id
                 previous["versions"]["first"] = version
                 continue
 
         if probe_id not in storage:
             storage[probe_id] = {
-                "type": probe_type,
-                "name": name,
-                "history": {channel: []},
+                TYPE_KEY: probe_type,
+                NAME_KEY: name,
+                HISTORY_KEY: {channel: []},
             }
 
-        if channel not in storage[probe_id]["history"]:
-            storage[probe_id]["history"][channel] = []
+        if channel not in storage[probe_id][HISTORY_KEY]:
+            storage[probe_id][HISTORY_KEY][channel] = []
 
         probe["revisions"] = {
             "first": node_id,
@@ -133,7 +144,8 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
             "first": version,
             "last": version,
         }
-        storage[probe_id]["history"][channel].append(probe)
+
+        storage[probe_id][HISTORY_KEY][channel].append(probe)
 
 
 def sorted_node_lists_by_channel(node_data):
@@ -174,3 +186,96 @@ def transform(probe_data, node_data, break_by_channel):
                                   readable_version, break_by_channel)
 
     return result_data
+
+
+def make_date_probe_definition(definition, date):
+    if DATES_KEY not in definition:
+        definition[DATES_KEY] = {
+            "first": date,
+            "last": date
+        }
+    else:
+        definition[DATES_KEY]["last"] = date
+
+    return definition
+
+
+def transform_by_date(probe_data):
+    """
+    :param probe_data - of the form
+      <repo_name> -> {
+        <date> -> {
+          "histogram": {
+            <histogram_name>: {
+              ...
+            },
+            ...
+          },
+          "scalar": {
+            ...
+          },
+        },
+        ...
+      }
+
+    Outputs deduplicated data of the form
+        <repo_name>: {
+            <probe_slug>: {
+                    "type": <type>,
+                    "name": <name>,
+                    "history": {
+                        <repo_name>: [
+                            {
+                                "description": <description>,
+                                "details": {
+                                    "high": <high>,
+                                    "low": <low>,
+                                    "keyed": <boolean>,
+                                    "kind": <kind>,
+                                    ...
+                                }
+                                "release": <boolean>,
+                                "dates": {
+                                    "first": <date>
+                                    "last": <date>
+                                },
+                                ...
+                            },
+                            ...
+                        ]
+                    }
+                }
+            }
+        }
+    """
+
+    all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for repo_name, dates in probe_data.iteritems():
+        for date, probes in sorted(dates.iteritems(), key=lambda x: int(x[0])):
+            for ptype, ptype_probes in probes.iteritems():
+                for probe, definition in ptype_probes.iteritems():
+                    probe_id = get_probe_id(ptype, probe)
+
+                    if probe_id in all_probes[repo_name]:
+                        prev_defns = all_probes[repo_name][probe_id][HISTORY_KEY][repo_name]
+
+                        # Update date on existing definition
+                        if probes_equal(definition, prev_defns[0]):
+                            new_defn = make_date_probe_definition(prev_defns[0], date)
+                            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
+
+                        # Append changed definition for existing probe
+                        else:
+                            defns = [make_date_probe_definition(definition, date)] + prev_defns
+                            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = defns
+
+                    # Otherwise, add new probe
+                    else:
+                        defn = make_date_probe_definition(definition, date)
+                        all_probes[repo_name][probe_id] = {
+                            TYPE_KEY: ptype,
+                            NAME_KEY: probe,
+                            HISTORY_KEY: {repo_name: [defn]}
+                        }
+
+    return all_probes
