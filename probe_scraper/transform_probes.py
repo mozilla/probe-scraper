@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+
 from collections import defaultdict
 
 
-DATES_KEY = "dates"
-
-TYPE_KEY = "type"
-NAME_KEY = "name"
+COMMITS_KEY = "commits"
 HISTORY_KEY = "history"
+NAME_KEY = "name"
+TYPE_KEY = "type"
 
 
 def is_test_probe(probe_type, name):
@@ -188,23 +188,29 @@ def transform(probe_data, node_data, break_by_channel):
     return result_data
 
 
-def make_date_probe_definition(definition, date):
-    if DATES_KEY not in definition:
-        definition[DATES_KEY] = {
-            "first": date,
-            "last": date
+def make_commit_hash_probe_definition(definition, commit, timestamp):
+    if COMMITS_KEY not in definition:
+        definition[COMMITS_KEY] = {
+            "first": commit,
+            "last": commit
         }
     else:
-        definition[DATES_KEY]["last"] = date
+        definition[COMMITS_KEY]["last"] = commit
 
     return definition
 
 
-def transform_by_date(probe_data):
+def transform_by_hash(commit_timestamps, probe_data):
     """
+    :param commit_timestamps - of the form
+      <repo_name> -> {
+        <commit-hash> -> <commit-timestamp>,
+        ...
+      }
+
     :param probe_data - of the form
       <repo_name> -> {
-        <date> -> {
+        <commit-hash> -> {
           "histogram": {
             <histogram_name>: {
               ...
@@ -235,8 +241,8 @@ def transform_by_date(probe_data):
                                     ...
                                 }
                                 "release": <boolean>,
-                                "dates": {
-                                    "first": <date>
+                                "commits": {
+                                    "first": <date>,
                                     "last": <date>
                                 },
                                 ...
@@ -250,8 +256,9 @@ def transform_by_date(probe_data):
     """
 
     all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for repo_name, dates in probe_data.iteritems():
-        for date, probes in sorted(dates.iteritems(), key=lambda x: int(x[0])):
+    for repo_name, commits in probe_data.iteritems():
+        for commit_hash, probes in sorted(commits.iteritems(), key=lambda (x, y): int(commit_timestamps[repo_name][x])):
+            timestamp = commit_timestamps[repo_name][commit_hash]
             for ptype, ptype_probes in probes.iteritems():
                 for probe, definition in ptype_probes.iteritems():
                     probe_id = get_probe_id(ptype, probe)
@@ -259,19 +266,19 @@ def transform_by_date(probe_data):
                     if probe_id in all_probes[repo_name]:
                         prev_defns = all_probes[repo_name][probe_id][HISTORY_KEY][repo_name]
 
-                        # Update date on existing definition
+                        # If equal to previous commit, update date and commit on existing definition
                         if probes_equal(definition, prev_defns[0]):
-                            new_defn = make_date_probe_definition(prev_defns[0], date)
+                            new_defn = make_commit_hash_probe_definition(prev_defns[0], commit_hash, timestamp)
                             all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
 
-                        # Append changed definition for existing probe
+                        # Otherwise, Append changed definition for existing probe
                         else:
-                            defns = [make_date_probe_definition(definition, date)] + prev_defns
+                            defns = [make_commit_hash_probe_definition(definition, commit_hash, timestamp)] + prev_defns
                             all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = defns
 
                     # Otherwise, add new probe
                     else:
-                        defn = make_date_probe_definition(definition, date)
+                        defn = make_commit_hash_probe_definition(definition, commit_hash, timestamp)
                         all_probes[repo_name][probe_id] = {
                             TYPE_KEY: ptype,
                             NAME_KEY: probe,

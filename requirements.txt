@@ -1,5 +1,6 @@
+GitPython
+python-dateutil
+pyyaml
 requests
 requests_cache
-pyyaml
-python-dateutil
-
+schema

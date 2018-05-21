@@ -16,7 +16,8 @@ from emailer import send_ses
 from parsers.events import EventsParser
 from parsers.histograms import HistogramsParser
 from parsers.scalars import ScalarsParser
-from scrapers import http_scraper, moz_central_scraper
+from scrapers import git_scraper, moz_central_scraper
+from schema import And, Optional, Schema
 import transform_probes
 import transform_revisions
 
@@ -68,7 +69,7 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
     dump_json(general_data(), base_dir, "general")
     dump_json(revisions, base_dir, "revisions")
 
-    # Break down the output by channel. We don"t need to write a revisions
+    # Break down the output by channel. We don't need to write a revisions
     # file in this case, the probe data will contain human readable version
     # numbers along with revision numbers.
     for channel, channel_probes in probe_data.iteritems():
@@ -123,12 +124,28 @@ def load_moz_central_probes(cache_dir, out_dir):
     write_moz_central_probe_data(probes_by_channel, revisions, out_dir)
 
 
-def load_http_probes(date, cache_dir="cache", out_dir="output"):
-    repos_probes_data, emails = http_scraper.scrape(date, cache_dir)
+def check_git_probe_structure(data):
+    schema = Schema({
+        str: {
+            And(str, lambda x: len(x) == 40): {
+                Optional("histogram"): [And(str, lambda x: os.path.exists(x))],
+                Optional("event"): [And(str, lambda x: os.path.exists(x))],
+                Optional("scalar"): [And(str, lambda x: os.path.exists(x))]
+            }
+        }
+    })
+
+    schema.validate(data)
+    
+
+def load_git_probes(cache_dir="cache", out_dir="output"):
+    commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir)
+
+    check_git_probe_structure(repos_probes_data)
 
     # Parse probe data from files into the form:
     # <repo_name> -> {
-    #   <date> -> {
+    #   <commit-hash> -> {
     #     "histogram": {
     #       <histogram_name>: {
     #         ...
@@ -142,8 +159,8 @@ def load_http_probes(date, cache_dir="cache", out_dir="output"):
     #   ...
     # }
     probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for repo_name, dates in repos_probes_data.iteritems():
-        for date, probe_types in dates.iteritems():
+    for repo_name, commits in repos_probes_data.iteritems():
+        for commit_hash, probe_types in commits.iteritems():
             for probe_type, paths in probe_types.iteritems():
                 try:
                     results = PARSERS[probe_type].parse(paths)
@@ -153,9 +170,9 @@ def load_http_probes(date, cache_dir="cache", out_dir="output"):
                         "subject": "Probe Scraper: Improper File",
                         "message": msg
                     })
-                probes[repo_name][date][probe_type] = results
+                probes[repo_name][commit_hash][probe_type] = results
 
-    probes_by_repo = transform_probes.transform_by_date(probes)
+    probes_by_repo = transform_probes.transform_by_hash(commit_timestamps, probes)
 
     write_external_probe_data(probes_by_repo, out_dir)
 
@@ -165,19 +182,16 @@ def load_http_probes(date, cache_dir="cache", out_dir="output"):
             send_ses(FROM_EMAIL, email["subject"], email["message"], addresses)
 
 
-def main(date, cache_dir, out_dir, process_moz_central, process_http):
-    if process_moz_central:
+def main(cache_dir, out_dir, process_moz_central_probes, process_git_probes):
+    process_both = not (process_moz_central_probes or process_git_probes)
+    if process_moz_central_probes or process_both:
         load_moz_central_probes(cache_dir, out_dir)
-    if process_http:
-        load_http_probes(date, cache_dir, out_dir)
+    elif process_git_probes or process_both:
+        load_git_probes(cache_dir, out_dir)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--date',
-                        help='The date being run',
-                        action='store',
-                        required=True)
     parser.add_argument('--cache-dir',
                         help='Cache directory. If empty, will be filled with the probe files.',
                         action='store',
@@ -186,18 +200,17 @@ if __name__ == "__main__":
                         help='Directory to store output files in.',
                         action='store',
                         default='.')
-    parser.add_argument('--skip-moz-central-probes',
-                        help='Directory to store output files in.',
-                        action='store_false',
-                        default=True)
-    parser.add_argument('--skip-http-probes',
-                        help='Directory to store output files in.',
-                        action='store_false',
-                        default=True)
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--only-moz-central-probes',
+                        help='Only scrape moz-central probes',
+                        action='store_true')
+    group.add_argument('--only-git-probes',
+                        help='Only scrape probes in remote git repos',
+                        action='store_true')
 
     args = parser.parse_args()
-    main(args.date,
-         args.cache_dir,
+    main(args.cache_dir,
          args.out_dir,
-         args.skip_moz_central_probes,
-         args.skip_http_probes)
+         args.only_moz_central_probes,
+         args.only_git_probes)

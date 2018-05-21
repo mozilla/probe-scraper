@@ -34,11 +34,12 @@ def send_ses(fromaddr,
 
     if dryrun:
         print '\n'.join([
-            "Would send email",
-            "From: " + fromaddr,
-            "To:" + recipients,
-            "Subject: " + subject,
-            "Body: " + body])
+            "Would send email:",
+            "    From: " + fromaddr,
+            "    To:" + recipients,
+            "    Subject: " + subject,
+            "    Body: " + body])
+        return
 
     msg = MIMEMultipart()
     msg['Subject'] = subject

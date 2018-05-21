@@ -4,7 +4,6 @@ mobile_metrics_example:
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/fbertsch/mobile-metrics-example'
-  base_url: 'https://raw.githubusercontent.com/fbertsch/mobile-metrics-example/master/'
   histogram:
     - Histograms.json
   scalar:

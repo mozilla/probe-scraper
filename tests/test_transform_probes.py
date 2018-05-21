@@ -43,7 +43,7 @@ def in_probe_data(moz_central=True):
         secondary_level_prefix = "node_id_"
     else:
         top_levels = REPOS
-        secondary_level_prefix = "2018040"
+        secondary_level_prefix = "abcdef"
 
     secondary_level = {
         secondary_level_prefix + "1": {
@@ -153,13 +153,13 @@ def out_probe_data(by_channel=False, include_versions=True):
 
         allowed_channels = CHANNELS
     else:
-        probes[0]['dates'] = {
-            'first': '20180402',
-            'last': '20180403'
+        probes[0]['commits'] = {
+            'first': 'abcdef2',
+            'last': 'abcdef3'
         }
-        probes[1]['dates'] = {
-            'first': '20180401',
-            'last': '20180401'
+        probes[1]['commits'] = {
+            'first': 'abcdef1',
+            'last': 'abcdef1'
         }
 
         allowed_channels = REPOS
@@ -259,8 +259,15 @@ def test_transform_by_channel():
     print_and_test(expected, result)
 
 
-def test_transform_by_date():
-    result = transform.transform_by_date(in_probe_data(False))
+def test_transform_by_hash():
+    timestamps = {
+        repo: {
+            "abcdef{}".format(i): str(i)
+            for i in xrange(1, 4)
+        } for repo in REPOS
+    }
+
+    result = transform.transform_by_hash(timestamps, in_probe_data(False))
     expected = out_probe_data(by_channel=True, include_versions=False)
 
     print_and_test(expected, result)
