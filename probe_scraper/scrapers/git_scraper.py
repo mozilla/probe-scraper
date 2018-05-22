@@ -5,15 +5,12 @@
 from collections import defaultdict
 from git import Repo
 import os
-import re
-import requests
 import shutil
 import tempfile
 import traceback
 import yaml
 
 
-GIT_SHA1_REGEX = "^[a-f0-9]{40}$"
 REPOSITORIES_FILENAME = "repositories.yaml"
 
 METRIC_KEYS = ["histogram", "scalar", "event"]

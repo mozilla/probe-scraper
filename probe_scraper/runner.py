@@ -136,7 +136,7 @@ def check_git_probe_structure(data):
     })
 
     schema.validate(data)
-    
+
 
 def load_git_probes(cache_dir="cache", out_dir="output"):
     commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir)
@@ -203,11 +203,11 @@ if __name__ == "__main__":
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--only-moz-central-probes',
-                        help='Only scrape moz-central probes',
-                        action='store_true')
+                       help='Only scrape moz-central probes',
+                       action='store_true')
     group.add_argument('--only-git-probes',
-                        help='Only scrape probes in remote git repos',
-                        action='store_true')
+                       help='Only scrape probes in remote git repos',
+                       action='store_true')
 
     args = parser.parse_args()
     main(args.cache_dir,

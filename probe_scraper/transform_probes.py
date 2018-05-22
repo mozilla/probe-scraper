@@ -257,7 +257,9 @@ def transform_by_hash(commit_timestamps, probe_data):
 
     all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for repo_name, commits in probe_data.iteritems():
-        for commit_hash, probes in sorted(commits.iteritems(), key=lambda (x, y): int(commit_timestamps[repo_name][x])):
+        sorted_commits = sorted(commits.iteritems(),
+                                key=lambda (x, y): int(commit_timestamps[repo_name][x]))
+        for commit_hash, probes in sorted_commits:
             timestamp = commit_timestamps[repo_name][commit_hash]
             for ptype, ptype_probes in probes.iteritems():
                 for probe, definition in ptype_probes.iteritems():
@@ -268,13 +270,18 @@ def transform_by_hash(commit_timestamps, probe_data):
 
                         # If equal to previous commit, update date and commit on existing definition
                         if probes_equal(definition, prev_defns[0]):
-                            new_defn = make_commit_hash_probe_definition(prev_defns[0], commit_hash, timestamp)
+                            new_defn = make_commit_hash_probe_definition(prev_defns[0],
+                                                                         commit_hash,
+                                                                         timestamp)
                             all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
 
                         # Otherwise, Append changed definition for existing probe
                         else:
-                            defns = [make_commit_hash_probe_definition(definition, commit_hash, timestamp)] + prev_defns
-                            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = defns
+                            new_defn = make_commit_hash_probe_definition(definition,
+                                                                         commit_hash,
+                                                                         timestamp)
+                            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = \
+                                [new_defn] + prev_defns
 
                     # Otherwise, add new probe
                     else:
