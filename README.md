@@ -16,8 +16,8 @@ match the corresponding fields in the [mobile metrics ping](https://github.com/m
 - `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
 will be just about your specific repository.
 - `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
-- `histogram`: A list of relative paths to `Histograms.json` files
-- `scalar`: A list of relative paths to `Scalars.yaml` files
+- `histogram_file_paths`: A list of relative paths to `Histograms.json` files
+- `scalar_file_paths`: A list of relative paths to `Scalars.yaml` files
 
 Future work:
 - `Events.yaml` support
@@ -163,7 +163,7 @@ This file contains the data for the probes. The data might be spread across mult
 Please refer to the Telemetry data collection [documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/collection/index.html) for a detailed explaination of the field information reported for each probe (e.g. `cpp_guard`).
 
 ## Git Repository Probe Data Files
-The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has a `commits` key, which contains the
+The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has a `git-commits` key, which contains the
 first and last commits that definition has been seen in.
 
 ```
@@ -184,7 +184,7 @@ first and last commits that definition has been seen in.
           },
           "expiry_version": "<string>",
           "optout": <bool>,
-          "commits": {
+          "git-commits": {
             "first": "<commit-hash>",
             "last": "<commit-hash>"
           },
@@ -200,7 +200,7 @@ first and last commits that definition has been seen in.
     "history": {
       "mobile_metrics_example": [
         {
-          "commits": {
+          "git-commits": {
             "first": "71f9c017fb75c46e4f5167a92d549f12dc088f1c", 
             "last": "ebb0e4637ebb1c665d384c094ee71c79656b1acd"
           }, 

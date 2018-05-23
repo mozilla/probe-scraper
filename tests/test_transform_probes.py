@@ -153,11 +153,11 @@ def out_probe_data(by_channel=False, include_versions=True):
 
         allowed_channels = CHANNELS
     else:
-        probes[0]['commits'] = {
+        probes[0]['git-commits'] = {
             'first': 'abcdef2',
             'last': 'abcdef3'
         }
-        probes[1]['commits'] = {
+        probes[1]['git-commits'] = {
             'first': 'abcdef1',
             'last': 'abcdef1'
         }

@@ -12,6 +12,11 @@ import yaml
 
 
 REPOSITORIES_FILENAME = "repositories.yaml"
+REPOSITORY_PROBE_KEYS = {
+    "histogram": "histogram_file_paths",
+    "scalar": "scalar_file_paths",
+    "event": "event_file_paths"
+}
 
 METRIC_KEYS = ["histogram", "scalar", "event"]
 
@@ -41,8 +46,10 @@ def retrieve_files(repo_name, repo_info, cache_dir):
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_name)
 
+    all_files = [(k, x) for k in METRIC_KEYS for x in repo_info.get(REPOSITORY_PROBE_KEYS[k], [])]
+
+    shutil.rmtree(repo_name)
     repo = Repo.clone_from(repo_info[URL_KEY], repo_name)
-    all_files = [(k, x) for k in METRIC_KEYS for x in repo_info.get(k, [])]
 
     try:
         for (ptype, rel_path) in all_files:

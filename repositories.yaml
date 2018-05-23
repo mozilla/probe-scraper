@@ -1,10 +1,10 @@
 mobile_metrics_example:
-  app_name: mobile_metrics
-  os: Android # Android/iOS
+  app_name: mobile_metrics_example
+  os: Android
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/fbertsch/mobile-metrics-example'
-  histogram:
+  histogram_file_paths:
     - Histograms.json
-  scalar:
+  scalar_file_paths:
     - Scalars.yaml

@@ -6,7 +6,7 @@
 from collections import defaultdict
 
 
-COMMITS_KEY = "commits"
+COMMITS_KEY = "git-commits"
 HISTORY_KEY = "history"
 NAME_KEY = "name"
 TYPE_KEY = "type"

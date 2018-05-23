@@ -12,7 +12,7 @@ def extract_scalar_data(s):
     try:
         optout = s.dataset.endswith('_OPTOUT')
     except KeyError:
-        optout = s._definition.get('release_channel_collection', 'prerelease') == 'prerelease'
+        optout = s._definition.get('collect_on_channels', 'prerelease') == 'release'
 
     return {
         "description": s.description,
