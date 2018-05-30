@@ -186,7 +186,7 @@ def main(cache_dir, out_dir, process_moz_central_probes, process_git_probes):
     process_both = not (process_moz_central_probes or process_git_probes)
     if process_moz_central_probes or process_both:
         load_moz_central_probes(cache_dir, out_dir)
-    elif process_git_probes or process_both:
+    if process_git_probes or process_both:
         load_git_probes(cache_dir, out_dir)
 
 
