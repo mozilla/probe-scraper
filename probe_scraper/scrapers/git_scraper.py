@@ -25,8 +25,8 @@ HASH_TIMESTAMP_KEY = "timestamps"
 URL_KEY = "url"
 
 
-def load_repos():
-    with open(REPOSITORIES_FILENAME, 'r') as f:
+def load_repos(repositories_file):
+    with open(repositories_file, 'r') as f:
         repos = yaml.load(f)
     return repos
 
@@ -48,7 +48,8 @@ def retrieve_files(repo_name, repo_info, cache_dir):
 
     all_files = [(k, x) for k in METRIC_KEYS for x in repo_info.get(REPOSITORY_PROBE_KEYS[k], [])]
 
-    shutil.rmtree(repo_name)
+    if os.path.exists(repo_name):
+        shutil.rmtree(repo_name)
     repo = Repo.clone_from(repo_info[URL_KEY], repo_name)
 
     try:
@@ -76,7 +77,7 @@ def retrieve_files(repo_name, repo_info, cache_dir):
     return timestamps, results
 
 
-def scrape(folder=None):
+def scrape(folder=None, repositories_file=REPOSITORIES_FILENAME):
     """
     Returns two data structures. The first is the commit timestamps:
     {
@@ -103,7 +104,7 @@ def scrape(folder=None):
 
     results = {}
     timestamps = {}
-    repos = load_repos()
+    repos = load_repos(repositories_file)
     emails = {}
 
     for repo_name, repo_info in repos.iteritems():

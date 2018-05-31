@@ -29,8 +29,8 @@ def get_from_nested_dict(dictionary, path, default=None):
     return dictionary.get(keys[-1], default)
 
 
-def get_probe_id(ptype, name):
-    return ptype + "/" + name
+def get_probe_id(probe_type, name):
+    return probe_type + "/" + name
 
 
 def probes_equal(probe1, probe2):
@@ -188,16 +188,48 @@ def transform(probe_data, node_data, break_by_channel):
     return result_data
 
 
-def make_commit_hash_probe_definition(definition, commit, timestamp):
+def make_commit_hash_probe_definition(definition, commit):
     if COMMITS_KEY not in definition:
+        # This is the first time we've seen this definition
         definition[COMMITS_KEY] = {
             "first": commit,
             "last": commit
         }
     else:
+        # we've seen this definition, update the `last` commit
         definition[COMMITS_KEY]["last"] = commit
 
     return definition
+
+
+def update_or_add_probe(all_probes, repo_name, commit_hash, probe, probe_type, definition):
+    probe_id = get_probe_id(probe_type, probe)
+
+    # If we've seen this probe before, check previous definitions
+    if probe_id in all_probes[repo_name]:
+        prev_defns = all_probes[repo_name][probe_id][HISTORY_KEY][repo_name]
+
+        # If equal to previous commit, update date and commit on existing definition
+        if probes_equal(definition, prev_defns[0]):
+            new_defn = make_commit_hash_probe_definition(prev_defns[0], commit_hash)
+            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
+
+        # Otherwise, Append changed definition for existing probe
+        else:
+            new_defn = make_commit_hash_probe_definition(definition, commit_hash)
+            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = \
+                [new_defn] + prev_defns
+
+    # We haven't seen this probe before, add it
+    else:
+        defn = make_commit_hash_probe_definition(definition, commit_hash)
+        all_probes[repo_name][probe_id] = {
+            TYPE_KEY: probe_type,
+            NAME_KEY: probe,
+            HISTORY_KEY: {repo_name: [defn]}
+        }
+
+    return all_probes
 
 
 def transform_by_hash(commit_timestamps, probe_data):
@@ -257,39 +289,25 @@ def transform_by_hash(commit_timestamps, probe_data):
 
     all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for repo_name, commits in probe_data.iteritems():
+
+        # iterate through commits, sorted by timestamp of the commit
         sorted_commits = sorted(commits.iteritems(),
                                 key=lambda (x, y): int(commit_timestamps[repo_name][x]))
-        for commit_hash, probes in sorted_commits:
-            timestamp = commit_timestamps[repo_name][commit_hash]
-            for ptype, ptype_probes in probes.iteritems():
-                for probe, definition in ptype_probes.iteritems():
-                    probe_id = get_probe_id(ptype, probe)
+        for commit_hash, probe_types in sorted_commits:
 
-                    if probe_id in all_probes[repo_name]:
-                        prev_defns = all_probes[repo_name][probe_id][HISTORY_KEY][repo_name]
+            # for this commit, get all the probes (of all types)
+            probes = [
+                (probe, probe_type, definition)
+                for probe_type, probes in probe_types.iteritems()
+                for probe, definition in probes.iteritems()
+            ]
 
-                        # If equal to previous commit, update date and commit on existing definition
-                        if probes_equal(definition, prev_defns[0]):
-                            new_defn = make_commit_hash_probe_definition(prev_defns[0],
-                                                                         commit_hash,
-                                                                         timestamp)
-                            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
-
-                        # Otherwise, Append changed definition for existing probe
-                        else:
-                            new_defn = make_commit_hash_probe_definition(definition,
-                                                                         commit_hash,
-                                                                         timestamp)
-                            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = \
-                                [new_defn] + prev_defns
-
-                    # Otherwise, add new probe
-                    else:
-                        defn = make_commit_hash_probe_definition(definition, commit_hash, timestamp)
-                        all_probes[repo_name][probe_id] = {
-                            TYPE_KEY: ptype,
-                            NAME_KEY: probe,
-                            HISTORY_KEY: {repo_name: [defn]}
-                        }
+            for probe, probe_type, definition in probes:
+                all_probes = update_or_add_probe(all_probes,
+                                                 repo_name,
+                                                 commit_hash,
+                                                 probe,
+                                                 probe_type,
+                                                 definition)
 
     return all_probes

@@ -138,8 +138,8 @@ def check_git_probe_structure(data):
     schema.validate(data)
 
 
-def load_git_probes(cache_dir="cache", out_dir="output"):
-    commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir)
+def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
+    commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir, repositories_file)
 
     check_git_probe_structure(repos_probes_data)
 
@@ -164,13 +164,13 @@ def load_git_probes(cache_dir="cache", out_dir="output"):
             for probe_type, paths in probe_types.iteritems():
                 try:
                     results = PARSERS[probe_type].parse(paths)
+                    probes[repo_name][commit_hash][probe_type] = results
                 except Exception:
                     msg = "Improper file in {}\n{}".format(', '.join(paths), traceback.format_exc())
                     emails[repo_name]["emails"].append({
                         "subject": "Probe Scraper: Improper File",
                         "message": msg
                     })
-                probes[repo_name][commit_hash][probe_type] = results
 
     probes_by_repo = transform_probes.transform_by_hash(commit_timestamps, probes)
 
@@ -179,15 +179,20 @@ def load_git_probes(cache_dir="cache", out_dir="output"):
     for repo_name, email_info in emails.items():
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
         for email in email_info["emails"]:
-            send_ses(FROM_EMAIL, email["subject"], email["message"], addresses)
+            send_ses(FROM_EMAIL, email["subject"], email["message"], addresses, dryrun=dry_run)
 
 
-def main(cache_dir, out_dir, process_moz_central_probes, process_git_probes):
+def main(cache_dir,
+         out_dir,
+         process_moz_central_probes,
+         process_git_probes,
+         repositories_file,
+         dry_run):
     process_both = not (process_moz_central_probes or process_git_probes)
     if process_moz_central_probes or process_both:
         load_moz_central_probes(cache_dir, out_dir)
     if process_git_probes or process_both:
-        load_git_probes(cache_dir, out_dir)
+        load_git_probes(cache_dir, out_dir, repositories_file, dry_run)
 
 
 if __name__ == "__main__":
@@ -200,6 +205,13 @@ if __name__ == "__main__":
                         help='Directory to store output files in.',
                         action='store',
                         default='.')
+    parser.add_argument('--repositories-file',
+                        help='Repositories YAML file location.',
+                        action='store',
+                        default='repositories.yaml')
+    parser.add_argument('--dry-run',
+                        help='Whether emails should be sent.',
+                        action='store_true')
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--only-moz-central-probes',
@@ -213,4 +225,6 @@ if __name__ == "__main__":
     main(args.cache_dir,
          args.out_dir,
          args.only_moz_central_probes,
-         args.only_git_probes)
+         args.only_git_probes,
+         args.repositories_file,
+         args.dry_run)
