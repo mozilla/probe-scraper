@@ -50,7 +50,7 @@ The code layout consists mainly of:
 
 - `probe_scraper`
   - `runner.py` - the central script, ties the other pieces together
-  - `scrapes`
+  - `scrapers`
      - `moz_central_scraper.py` - loads probe registry files for multiple versions from mozilla-central
      - `git_scraper.py` - loads probe registry files from a git repository (no version or channel support yet, just per-commit)
   - `parsers/` - extract probe data from the registry files
