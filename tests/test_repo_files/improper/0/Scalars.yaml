@@ -1,0 +1,8 @@
+example:
+  string_kind:
+    expires: "3.0"
+    kind: string
+    record_in_processes:
+      - application
+    collect_on_channels: prerelease
+    keyed: false

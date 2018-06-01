@@ -7,6 +7,23 @@ Also, probes outside of Histograms.json - like the CSS use counters - are includ
 
 A web tool to explore the data is available [here](https://telemetry.mozilla.org/probe-dictionary/).
 
+## Adding a New Git Repository
+
+To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
+Currently all repositories are assumed to be for mobile-metrics. The `app_name` and `os` should
+match the corresponding fields in the [mobile metrics ping](https://github.com/mozilla-services/mozilla-pipeline-schemas/blob/dev/schemas/telemetry/mobile-metrics/mobile-metrics.1.schema.json).
+
+- `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
+will be just about your specific repository.
+- `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
+- `histogram_file_paths`: A list of relative paths to `Histograms.json` files
+- `scalar_file_paths`: A list of relative paths to `Scalars.yaml` files
+
+Future work:
+- `Events.yaml` support
+- `Histograms.yaml` support
+- Support for repos containing addon Scalar and Event definitions
+
 ## Developing the probe-scraper
 Install the requirements:
 ```
@@ -24,7 +41,7 @@ pytest
 
 The module is built around the following data flow:
 
-- scrape registry files from mozilla-central
+- scrape registry files from mozilla-central, clone files from repositories directory
 - extract probe data from the files
 - transform probe data into output formats
 - save to disk
@@ -33,7 +50,9 @@ The code layout consists mainly of:
 
 - `probe_scraper`
   - `runner.py` - the central script, ties the other pieces together
-  - `scraper.py` - loads probe registry files for multiple versions from mozilla-central
+  - `scrapers`
+     - `moz_central_scraper.py` - loads probe registry files for multiple versions from mozilla-central
+     - `git_scraper.py` - loads probe registry files from a git repository (no version or channel support yet, just per-commit)
   - `parsers/` - extract probe data from the registry files
      - `third_party` - these are imported parser scripts from [mozilla-central](https://dxr.mozilla.org/mozilla-central/source/toolkit/components/telemetry/)
    - `transform_*.py` - transform the extracted raw data into output formats
@@ -142,6 +161,72 @@ This file contains the data for the probes. The data might be spread across mult
 ```
 
 Please refer to the Telemetry data collection [documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/collection/index.html) for a detailed explaination of the field information reported for each probe (e.g. `cpp_guard`).
+
+## Git Repository Probe Data Files
+The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has a `git-commits` key, which contains the
+first and last commits that definition has been seen in.
+
+```
+{
+  "<probe type>/<probe name>": {
+    "history": {
+      "<repository-name>": [
+        {
+          "cpp_guard": <string or null>,
+          "description": "<string>",
+          "details": {
+            "<type specific detail>": "<detail data>",
+            ...
+            "record_in_processes": [
+              "<string>",
+              ...
+            ]
+          },
+          "expiry_version": "<string>",
+          "optout": <bool>,
+          "git-commits": {
+            "first": "<commit-hash>",
+            "last": "<commit-hash>"
+          },
+        },
+        ...
+      ]
+    },
+    "name": "<probe name>",
+    "type": "<probe type>"
+  },
+  ...
+  "histogram/EXAMPLE_EXPONENTIAL_HISTOGRAM": {
+    "history": {
+      "mobile_metrics_example": [
+        {
+          "git-commits": {
+            "first": "71f9c017fb75c46e4f5167a92d549f12dc088f1c", 
+            "last": "ebb0e4637ebb1c665d384c094ee71c79656b1acd"
+          }, 
+          "dates": {
+            "first": "20180504", 
+            "last": "20180510"
+          }, 
+          "description": "An example exponential histogram, sent on prerelease and release, recorded in the engine process", 
+          "details": {
+            "high": 1000, 
+            "keyed": false, 
+            "kind": "exponential", 
+            "low": 1, 
+            "n_buckets": 50
+          }, 
+          "expiry_version": "2", 
+          "optout": false
+        }
+      ]
+    }, 
+    "name": "EXAMPLE_EXPONENTIAL_HISTOGRAM", 
+    "type": "histogram"
+  },
+  ...
+}
+```
 
 ## Accessing the data files
 The processed probe data is serialized to the disk in a directory hierarchy starting from the provided output directory. The directory layout resembles a REST-friendly structure.

@@ -2,7 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+
 from collections import defaultdict
+
+
+COMMITS_KEY = "git-commits"
+HISTORY_KEY = "history"
+NAME_KEY = "name"
+TYPE_KEY = "type"
 
 
 def is_test_probe(probe_type, name):
@@ -22,7 +29,11 @@ def get_from_nested_dict(dictionary, path, default=None):
     return dictionary.get(keys[-1], default)
 
 
-def probes_equal(probe_type, probe1, probe2):
+def get_probe_id(probe_type, name):
+    return probe_type + "/" + name
+
+
+def probes_equal(probe1, probe2):
     props = [
         # Common.
         "cpp_guard",
@@ -104,25 +115,25 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
                 result_data[channel] = {}
             storage = result_data[channel]
 
-        probe_id = probe_type + "/" + name
-        if probe_id in storage and channel in storage[probe_id]["history"]:
+        probe_id = get_probe_id(probe_type, name)
+        if probe_id in storage and channel in storage[probe_id][HISTORY_KEY]:
             # If the probes state didn't change from the previous revision,
             # we just override with the latest state and continue.
-            previous = storage[probe_id]["history"][channel][-1]
-            if probes_equal(probe_type, previous, probe):
+            previous = storage[probe_id][HISTORY_KEY][channel][-1]
+            if probes_equal(previous, probe):
                 previous["revisions"]["first"] = node_id
                 previous["versions"]["first"] = version
                 continue
 
         if probe_id not in storage:
             storage[probe_id] = {
-                "type": probe_type,
-                "name": name,
-                "history": {channel: []},
+                TYPE_KEY: probe_type,
+                NAME_KEY: name,
+                HISTORY_KEY: {channel: []},
             }
 
-        if channel not in storage[probe_id]["history"]:
-            storage[probe_id]["history"][channel] = []
+        if channel not in storage[probe_id][HISTORY_KEY]:
+            storage[probe_id][HISTORY_KEY][channel] = []
 
         probe["revisions"] = {
             "first": node_id,
@@ -133,7 +144,8 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
             "first": version,
             "last": version,
         }
-        storage[probe_id]["history"][channel].append(probe)
+
+        storage[probe_id][HISTORY_KEY][channel].append(probe)
 
 
 def sorted_node_lists_by_channel(node_data):
@@ -174,3 +186,128 @@ def transform(probe_data, node_data, break_by_channel):
                                   readable_version, break_by_channel)
 
     return result_data
+
+
+def make_commit_hash_probe_definition(definition, commit):
+    if COMMITS_KEY not in definition:
+        # This is the first time we've seen this definition
+        definition[COMMITS_KEY] = {
+            "first": commit,
+            "last": commit
+        }
+    else:
+        # we've seen this definition, update the `last` commit
+        definition[COMMITS_KEY]["last"] = commit
+
+    return definition
+
+
+def update_or_add_probe(all_probes, repo_name, commit_hash, probe, probe_type, definition):
+    probe_id = get_probe_id(probe_type, probe)
+
+    # If we've seen this probe before, check previous definitions
+    if probe_id in all_probes[repo_name]:
+        prev_defns = all_probes[repo_name][probe_id][HISTORY_KEY][repo_name]
+
+        # If equal to previous commit, update date and commit on existing definition
+        if probes_equal(definition, prev_defns[0]):
+            new_defn = make_commit_hash_probe_definition(prev_defns[0], commit_hash)
+            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
+
+        # Otherwise, Append changed definition for existing probe
+        else:
+            new_defn = make_commit_hash_probe_definition(definition, commit_hash)
+            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = \
+                [new_defn] + prev_defns
+
+    # We haven't seen this probe before, add it
+    else:
+        defn = make_commit_hash_probe_definition(definition, commit_hash)
+        all_probes[repo_name][probe_id] = {
+            TYPE_KEY: probe_type,
+            NAME_KEY: probe,
+            HISTORY_KEY: {repo_name: [defn]}
+        }
+
+    return all_probes
+
+
+def transform_by_hash(commit_timestamps, probe_data):
+    """
+    :param commit_timestamps - of the form
+      <repo_name> -> {
+        <commit-hash> -> <commit-timestamp>,
+        ...
+      }
+
+    :param probe_data - of the form
+      <repo_name> -> {
+        <commit-hash> -> {
+          "histogram": {
+            <histogram_name>: {
+              ...
+            },
+            ...
+          },
+          "scalar": {
+            ...
+          },
+        },
+        ...
+      }
+
+    Outputs deduplicated data of the form
+        <repo_name>: {
+            <probe_slug>: {
+                    "type": <type>,
+                    "name": <name>,
+                    "history": {
+                        <repo_name>: [
+                            {
+                                "description": <description>,
+                                "details": {
+                                    "high": <high>,
+                                    "low": <low>,
+                                    "keyed": <boolean>,
+                                    "kind": <kind>,
+                                    ...
+                                }
+                                "release": <boolean>,
+                                "commits": {
+                                    "first": <date>,
+                                    "last": <date>
+                                },
+                                ...
+                            },
+                            ...
+                        ]
+                    }
+                }
+            }
+        }
+    """
+
+    all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for repo_name, commits in probe_data.iteritems():
+
+        # iterate through commits, sorted by timestamp of the commit
+        sorted_commits = sorted(commits.iteritems(),
+                                key=lambda (x, y): int(commit_timestamps[repo_name][x]))
+        for commit_hash, probe_types in sorted_commits:
+
+            # for this commit, get all the probes (of all types)
+            probes = [
+                (probe, probe_type, definition)
+                for probe_type, probes in probe_types.iteritems()
+                for probe, definition in probes.iteritems()
+            ]
+
+            for probe, probe_type, definition in probes:
+                all_probes = update_or_add_probe(all_probes,
+                                                 repo_name,
+                                                 commit_hash,
+                                                 probe,
+                                                 probe_type,
+                                                 definition)
+
+    return all_probes

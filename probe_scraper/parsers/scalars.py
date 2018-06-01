@@ -7,11 +7,18 @@ from utils import get_major_version
 
 
 def extract_scalar_data(s):
+
+    # External scalars.yaml files have release/prerelease, not opt-in/opt-out
+    try:
+        optout = s.dataset.endswith('_OPTOUT')
+    except KeyError:
+        optout = s._definition.get('collect_on_channels', 'prerelease') == 'release'
+
     return {
         "description": s.description,
         "expiry_version": get_major_version(s.expires),
         "cpp_guard": s.cpp_guard,
-        "optout": s.dataset.endswith('_OPTOUT'),
+        "optout": optout,
         "details": {
             "keyed": s.keyed,
             "kind": s.kind,
@@ -25,7 +32,7 @@ def transform_scalar_info(probes):
 
 
 class ScalarsParser:
-    def parse(self, filenames, version):
+    def parse(self, filenames, version=None):
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 

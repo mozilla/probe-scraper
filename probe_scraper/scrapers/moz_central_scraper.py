@@ -180,7 +180,7 @@ def scrape(folder=None):
     if folder is None:
         folder = tempfile.mkdtemp()
     error_cache = load_error_cache(folder)
-    requests_cache.install_cache(os.path.join(folder, 'probe_scraper_cache'))
+    requests_cache.install_cache('probe_scraper_cache')
     results = defaultdict(dict)
 
     for channel in CHANNELS.iterkeys():

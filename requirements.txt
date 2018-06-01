@@ -1,5 +1,7 @@
+boto3
+GitPython
+python-dateutil
+pyyaml
 requests
 requests_cache
-pyyaml
-python-dateutil
-
+schema
