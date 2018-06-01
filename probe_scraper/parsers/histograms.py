@@ -12,6 +12,7 @@ def extract_histogram_data(histogram):
         "cpp_guard": "cpp_guard",
         "description": "description",
         "expiration": "expiry_version",
+        "bug_numbers": "bug_numbers",
 
         "n_buckets": "details/n_buckets",
         "low": "details/low",
@@ -24,6 +25,7 @@ def extract_histogram_data(histogram):
         "cpp_guard": None,
         "keyed": False,
         "expiration": "never",
+        "bug_numbers": [],
     }
 
     data = {

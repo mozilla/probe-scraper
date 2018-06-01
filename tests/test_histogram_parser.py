@@ -64,7 +64,7 @@ def test_histogram_parser():
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
-        "cpp_guard", "description", "details", "expiry_version", "optout"
+        "cpp_guard", "description", "details", "expiry_version", "optout", "bug_numbers"
     ]
 
     REQUIRED_DETAILS = [

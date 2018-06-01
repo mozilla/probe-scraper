@@ -15,6 +15,7 @@ def extract_events_data(e):
         "expiry_version": "expiry_version",
         "expiry_day": "expiry_day",
         "cpp_guard": "cpp_guard",
+        "bug_numbers": "bug_numbers",
 
         "methods": "details/methods",
         "objects": "details/objects",
@@ -29,6 +30,7 @@ def extract_events_data(e):
         "name": e.methods[0],
         "description": e.description,
         "cpp_guard": None,
+        "bug_numbers": [],
     }
 
     data = {
