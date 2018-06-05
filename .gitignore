@@ -99,3 +99,4 @@ _out/
 _temp/
 
 *.json
+!schemas/*.json
