@@ -1,6 +1,7 @@
 boto3
 GitPython
 python-dateutil
+jsonschema
 pyyaml
 requests
 requests_cache

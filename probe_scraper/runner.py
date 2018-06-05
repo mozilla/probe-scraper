@@ -89,6 +89,11 @@ def write_external_probe_data(repo_data, out_dir):
         dump_json(probe_data, data_dir, "all_probes")
 
 
+def write_repositories_data(repos):
+    json_data = [r.to_dict() for r in repos]
+    dump_json(json_data, "mobile-metrics", "repositories")
+
+
 def load_moz_central_probes(cache_dir, out_dir):
     # Scrape probe data from repositories.
     node_data = moz_central_scraper.scrape(cache_dir)
@@ -139,7 +144,8 @@ def check_git_probe_structure(data):
 
 
 def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
-    commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir, repositories_file)
+    commit_timestamps, repos_probes_data, emails, repositories = \
+        git_scraper.scrape(cache_dir, repositories_file)
 
     check_git_probe_structure(repos_probes_data)
 
@@ -176,6 +182,11 @@ def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
 
     write_external_probe_data(probes_by_repo, out_dir)
 
+    write_repositories_data(repositories)
+
+    print "Emails"
+    print emails
+
     for repo_name, email_info in emails.items():
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
         for email in email_info["emails"]:
@@ -188,6 +199,7 @@ def main(cache_dir,
          process_git_probes,
          repositories_file,
          dry_run):
+
     process_both = not (process_moz_central_probes or process_git_probes)
     if process_moz_central_probes or process_both:
         load_moz_central_probes(cache_dir, out_dir)

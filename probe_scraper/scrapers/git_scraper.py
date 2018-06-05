@@ -4,31 +4,11 @@
 
 from collections import defaultdict
 from git import Repo
+from probe_scraper.parsers.repositories import RepositoriesParser
 import os
 import shutil
 import tempfile
 import traceback
-import yaml
-
-
-REPOSITORIES_FILENAME = "repositories.yaml"
-REPOSITORY_PROBE_KEYS = {
-    "histogram": "histogram_file_paths",
-    "scalar": "scalar_file_paths",
-    "event": "event_file_paths"
-}
-
-METRIC_KEYS = ["histogram", "scalar", "event"]
-
-ALERT_EMAILS_KEY = "alert_emails"
-HASH_TIMESTAMP_KEY = "timestamps"
-URL_KEY = "url"
-
-
-def load_repos(repositories_file):
-    with open(repositories_file, 'r') as f:
-        repos = yaml.load(f)
-    return repos
 
 
 def get_commits(repo, filename):
@@ -41,16 +21,15 @@ def get_file_at_hash(repo, _hash, filename):
     return repo.git.show("{hash}:{path}".format(hash=_hash, path=filename))
 
 
-def retrieve_files(repo_name, repo_info, cache_dir):
+def retrieve_files(repo_info, cache_dir):
     results = defaultdict(lambda: defaultdict(list))
     timestamps = dict()
-    base_path = os.path.join(cache_dir, repo_name)
+    base_path = os.path.join(cache_dir, repo_info.name)
+    all_files = repo_info.get_probe_paths()
 
-    all_files = [(k, x) for k in METRIC_KEYS for x in repo_info.get(REPOSITORY_PROBE_KEYS[k], [])]
-
-    if os.path.exists(repo_name):
-        shutil.rmtree(repo_name)
-    repo = Repo.clone_from(repo_info[URL_KEY], repo_name)
+    if os.path.exists(repo_info.name):
+        shutil.rmtree(repo_info.name)
+    repo = Repo.clone_from(repo_info.url, repo_info.name)
 
     try:
         for (ptype, rel_path) in all_files:
@@ -72,12 +51,12 @@ def retrieve_files(repo_name, repo_info, cache_dir):
         # without this, the error will be silently discarded
         raise
     finally:
-        shutil.rmtree(repo_name)
+        shutil.rmtree(repo_info.name)
 
     return timestamps, results
 
 
-def scrape(folder=None, repositories_file=REPOSITORIES_FILENAME):
+def scrape(folder=None, repositories_file=None):
     """
     Returns two data structures. The first is the commit timestamps:
     {
@@ -102,25 +81,25 @@ def scrape(folder=None, repositories_file=REPOSITORIES_FILENAME):
     if folder is None:
         folder = tempfile.mkdtemp()
 
+    repo_parser = RepositoriesParser()
+
     results = {}
     timestamps = {}
-    repos = load_repos(repositories_file)
+    repos = repo_parser.parse(repositories_file)
     emails = {}
 
-    for repo_name, repo_info in repos.iteritems():
-        print "\n" + repo_name + " - cloning repo"
-
-        results[repo_name] = {}
-        emails[repo_name] = {"addresses": repo_info["notification_emails"], "emails": []}
+    for repo_info in repos:
+        results[repo_info.name] = {}
+        emails[repo_info.name] = {"addresses": repo_info.notification_emails, "emails": []}
 
         try:
-            ts, commits = retrieve_files(repo_name, repo_info, folder)
-            results[repo_name] = commits
-            timestamps[repo_name] = ts
+            ts, commits = retrieve_files(repo_info, folder)
+            results[repo_info.name] = commits
+            timestamps[repo_info.name] = ts
         except Exception:
-            emails[repo_name]["emails"].append({
+            emails[repo_info.name]["emails"].append({
                 "subject": "Probe Scraper: Failed Probe Import",
                 "message": traceback.format_exc()
             })
 
-    return timestamps, results, emails
+    return timestamps, results, emails, repos
