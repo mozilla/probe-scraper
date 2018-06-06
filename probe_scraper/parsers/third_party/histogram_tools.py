@@ -109,6 +109,7 @@ definition is a dict-like object that must contain at least the keys:
 
 The key 'cpp_guard' is optional; if present, it denotes a preprocessor
 symbol that should guard C/C++ definitions associated with the histogram."""
+        self._definition = definition
         self._strict_type_checks = strict_type_checks
         self._is_use_counter = name.startswith("USE_COUNTER2_")
         if self._is_use_counter:
