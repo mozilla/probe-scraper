@@ -15,6 +15,7 @@ def extract_events_data(e):
         "expiry_version": "expiry_version",
         "expiry_day": "expiry_day",
         "cpp_guard": "cpp_guard",
+        "bug_numbers": "bug_numbers",
 
         "methods": "details/methods",
         "objects": "details/objects",
@@ -29,6 +30,7 @@ def extract_events_data(e):
         "name": e.methods[0],
         "description": e.description,
         "cpp_guard": None,
+        "bug_numbers": [],
     }
 
     data = {
@@ -36,7 +38,7 @@ def extract_events_data(e):
     }
 
     for source_field, target_field in props.iteritems():
-        value = getattr(e, source_field, None)
+        value = getattr(e, source_field, e._definition.get(source_field, None))
         if value is None and source_field in defaults:
             value = defaults[source_field]
         set_in_nested_dict(data, target_field, value)

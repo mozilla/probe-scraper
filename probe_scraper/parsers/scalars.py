@@ -19,6 +19,7 @@ def extract_scalar_data(s):
         "expiry_version": get_major_version(s.expires),
         "cpp_guard": s.cpp_guard,
         "optout": optout,
+        "bug_numbers": s.bug_numbers,
         "details": {
             "keyed": s.keyed,
             "kind": s.kind,

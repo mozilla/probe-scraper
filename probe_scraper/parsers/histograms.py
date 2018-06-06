@@ -12,6 +12,7 @@ def extract_histogram_data(histogram):
         "cpp_guard": "cpp_guard",
         "description": "description",
         "expiration": "expiry_version",
+        "bug_numbers": "bug_numbers",
 
         "n_buckets": "details/n_buckets",
         "low": "details/low",
@@ -24,6 +25,7 @@ def extract_histogram_data(histogram):
         "cpp_guard": None,
         "keyed": False,
         "expiration": "never",
+        "bug_numbers": [],
     }
 
     data = {
@@ -34,6 +36,8 @@ def extract_histogram_data(histogram):
         value = None
         if hasattr(histogram, source_field):
             value = getattr(histogram, source_field)()
+        elif source_field in histogram._definition:
+            value = histogram._definition.get(source_field)
         elif source_field in defaults:
             value = defaults[source_field]
         set_in_nested_dict(data, target_field, value)
