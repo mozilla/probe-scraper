@@ -16,6 +16,7 @@ from emailer import send_ses
 from parsers.events import EventsParser
 from parsers.histograms import HistogramsParser
 from parsers.scalars import ScalarsParser
+from parsers.repositories import RepositoriesParser
 from scrapers import git_scraper, moz_central_scraper
 from schema import And, Optional, Schema
 import transform_probes
@@ -144,8 +145,8 @@ def check_git_probe_structure(data):
 
 
 def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
-    commit_timestamps, repos_probes_data, emails, repositories = \
-        git_scraper.scrape(cache_dir, repositories_file)
+    repositories = RepositoriesParser().parse(repositories_file)
+    commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir, repositories)
 
     check_git_probe_structure(repos_probes_data)
 

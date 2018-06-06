@@ -4,7 +4,6 @@
 
 from collections import defaultdict
 from git import Repo
-from probe_scraper.parsers.repositories import RepositoriesParser
 import os
 import shutil
 import tempfile
@@ -56,7 +55,7 @@ def retrieve_files(repo_info, cache_dir):
     return timestamps, results
 
 
-def scrape(folder=None, repositories_file=None):
+def scrape(folder=None, repos=None):
     """
     Returns two data structures. The first is the commit timestamps:
     {
@@ -81,11 +80,8 @@ def scrape(folder=None, repositories_file=None):
     if folder is None:
         folder = tempfile.mkdtemp()
 
-    repo_parser = RepositoriesParser()
-
     results = {}
     timestamps = {}
-    repos = repo_parser.parse(repositories_file)
     emails = {}
 
     for repo_info in repos:
@@ -102,4 +98,4 @@ def scrape(folder=None, repositories_file=None):
                 "message": traceback.format_exc()
             })
 
-    return timestamps, results, emails, repos
+    return timestamps, results, emails
