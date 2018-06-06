@@ -89,9 +89,9 @@ def write_external_probe_data(repo_data, out_dir):
         dump_json(probe_data, data_dir, "all_probes")
 
 
-def write_repositories_data(repos):
+def write_repositories_data(repos, out_dir):
     json_data = [r.to_dict() for r in repos]
-    dump_json(json_data, "mobile-metrics", "repositories")
+    dump_json(json_data, os.path.join(out_dir, "mobile-metrics"), "repositories")
 
 
 def load_moz_central_probes(cache_dir, out_dir):
@@ -182,10 +182,7 @@ def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
 
     write_external_probe_data(probes_by_repo, out_dir)
 
-    write_repositories_data(repositories)
-
-    print "Emails"
-    print emails
+    write_repositories_data(repositories, out_dir)
 
     for repo_name, email_info in emails.items():
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
