@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 import json
 import jsonschema
 import yaml
@@ -12,6 +16,9 @@ EVENT_KEY = "event"
 
 
 class Repository(object):
+    """
+    A class representing a repository, read in from `repositories.yaml`
+    """
 
     def __init__(self, name, definition):
         self.name = name
@@ -44,6 +51,9 @@ class Repository(object):
 
 
 class RepositoriesParser(object):
+    """
+    A parser for `repositories.yaml` files, which both validates and retrieves Repository objects
+    """
 
     def _get_repos(self, filename=None):
         if filename is None:
