@@ -37,6 +37,11 @@ Run tests:
 pytest
 ```
 
+To test whether the code conforms to the style rules, you can run:
+```
+flake8
+```
+
 ## Module overview
 
 The module is built around the following data flow:
