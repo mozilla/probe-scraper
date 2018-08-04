@@ -156,7 +156,6 @@ def sorted_node_lists_by_channel(node_data):
                 'node_id': node_id,
                 'version': data['version'],
             })
-
     for channel, data in channels.iteritems():
         channels[channel] = sorted(data, key=lambda n: int(n["version"]), reverse=True)
     return channels
@@ -180,10 +179,9 @@ def transform(probe_data, node_data, break_by_channel):
             print "  from: " + str({"node": node_id, "version": readable_version})
             for probe_type, probes in probe_data[channel][node_id].iteritems():
                 # Group the probes by the release channel, if requested
-                 
+                result_data[probe_type][channel] = {"node": node_id, "version": readable_version} 
                 extract_node_data(node_id, channel, probe_type, probes, result_data,
                                   readable_version, break_by_channel)
-            result_data[channel] = {"node": node_id, "version": readable_version}
     return result_data
 
 
