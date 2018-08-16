@@ -172,7 +172,7 @@ def transform(probe_data, node_data, break_by_channel):
            release channel.
     """
     channels = sorted_node_lists_by_channel(node_data)
-
+    new_data = {}
     result_data = {}
     for channel, channel_data in channels.iteritems():
         print "\n" + channel + " - transforming probe data:"
@@ -182,10 +182,14 @@ def transform(probe_data, node_data, break_by_channel):
             print "  from: " + str({"node": node_id, "version": readable_version})
             for probe_type, probes in probe_data[channel][node_id].iteritems():
                 # Group the probes by the release channel, if requested
+                if probe_type not in result_data:
+                    result_data[probe_type] = 1
+                else:
+                    result_data[probe_type] +=1
                 extract_node_data(node_id, channel, probe_type, probes, result_data,
-                                  readable_version, break_by_channel)
-
-    return result_data
+                                 readable_version, break_by_channel)
+        new_data[channel] = result_data
+    return new_data
 
 
 def make_commit_hash_probe_definition(definition, commit):
