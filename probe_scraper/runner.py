@@ -38,6 +38,7 @@ PARSERS = {
     'histogram': HistogramsParser(),
     'scalar': ScalarsParser(),
     'event': EventsParser(),
+    'glean': DummyParser()
 }
 
 
