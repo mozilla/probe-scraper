@@ -11,3 +11,12 @@ mobile_metrics_example:
     - Histograms.json
   scalar_file_paths:
     - Scalars.yaml
+
+glean_android_example:
+  app_name: glean_android_sample
+  os: Android
+  notification_emails:
+    - aplacitelli@mozilla.com
+  url: 'https://github.com/mozilla-mobile/android-components'
+  glean_file_paths:
+    - samples/glean/metrics.yaml

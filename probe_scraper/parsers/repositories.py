@@ -13,6 +13,7 @@ REPOSITORIES_SCHEMA = "schemas/repositories.json"
 HISTOGRAM_KEY = "histogram"
 SCALAR_KEY = "scalar"
 EVENT_KEY = "event"
+GLEAN_KEY = "glean"
 
 
 class Repository(object):
@@ -29,8 +30,13 @@ class Repository(object):
         self.histogram_file_paths = definition.get("histogram_file_paths", [])
         self.scalar_file_paths = definition.get("scalar_file_paths", [])
         self.event_file_paths = definition.get("event_file_paths", [])
+        self.glean_file_paths = definition.get("glean_file_paths", [])
 
     def get_probe_paths(self):
+        glean_paths = self.get_glean_paths()
+        if (len(glean_paths) > 0):
+            return glean_paths
+
         return (self.get_histogram_paths() +
                 self.get_scalar_paths() +
                 self.get_event_paths())
@@ -43,6 +49,9 @@ class Repository(object):
 
     def get_event_paths(self):
         return [(EVENT_KEY, p) for p in self.event_file_paths]
+
+    def get_glean_paths(self):
+        return [(GLEAN_KEY, p) for p in self.glean_file_paths]
 
     def to_dict(self):
         # Remove null elements

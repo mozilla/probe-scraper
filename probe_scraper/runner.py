@@ -136,7 +136,8 @@ def check_git_probe_structure(data):
             And(str, lambda x: len(x) == 40): {
                 Optional("histogram"): [And(str, lambda x: os.path.exists(x))],
                 Optional("event"): [And(str, lambda x: os.path.exists(x))],
-                Optional("scalar"): [And(str, lambda x: os.path.exists(x))]
+                Optional("scalar"): [And(str, lambda x: os.path.exists(x))],
+                Optional("glean"): [And(str, lambda x: os.path.exists(x))]
             }
         }
     })

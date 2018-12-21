@@ -39,6 +39,13 @@
           "type": "string",
           "pattern": "yaml$"
         }
+      },
+      "glean_file_paths": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "yaml$"
+        }
       }
     },
     "required": [
