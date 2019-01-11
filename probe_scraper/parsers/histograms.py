@@ -21,6 +21,7 @@ def extract_histogram_data(histogram):
         "keyed": "details/keyed",
         "kind": "details/kind",
         "record_in_processes": "details/record_in_processes",
+        "ranges": "details/buckets",
     }
 
     defaults = {
@@ -29,6 +30,7 @@ def extract_histogram_data(histogram):
         "expiration": "never",
         "bug_numbers": [],
         "alert_emails": [],
+        "ranges": [],
     }
 
     data = {
