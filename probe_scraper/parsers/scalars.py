@@ -20,6 +20,7 @@ def extract_scalar_data(s):
         "cpp_guard": s.cpp_guard,
         "optout": optout,
         "bug_numbers": s.bug_numbers,
+        "notification_emails": s.notification_emails,
         "details": {
             "keyed": s.keyed,
             "kind": s.kind,

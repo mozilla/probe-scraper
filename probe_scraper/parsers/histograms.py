@@ -13,12 +13,14 @@ def extract_histogram_data(histogram):
         "description": "description",
         "expiration": "expiry_version",
         "bug_numbers": "bug_numbers",
+        "alert_emails": "notification_emails",
 
         "n_buckets": "details/n_buckets",
         "low": "details/low",
         "high": "details/high",
         "keyed": "details/keyed",
         "kind": "details/kind",
+        "record_in_processes": "details/record_in_processes",
     }
 
     defaults = {
@@ -26,6 +28,7 @@ def extract_histogram_data(histogram):
         "keyed": False,
         "expiration": "never",
         "bug_numbers": [],
+        "alert_emails": [],
     }
 
     data = {
