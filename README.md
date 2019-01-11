@@ -42,6 +42,15 @@ To test whether the code conforms to the style rules, you can run:
 flake8
 ```
 
+### Performing a Dry-Run
+
+Before opening a PR, it's good to test the code you wrote on the production data.
+
+1. Change `MIN_FIREFOX_VERSION` in `scrapers/moz_central_scraper.py` to something larger, e.g. `60`.
+   This will facilitate a faster scraping (so it's not searching through all of the historical commits).
+2. Run `python probe_scraper/runner.py`
+3. Check the output of the various files listed, and that the changes you expected to happen, did
+
 ## Module overview
 
 The module is built around the following data flow:
