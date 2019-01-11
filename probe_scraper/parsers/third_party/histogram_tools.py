@@ -198,7 +198,7 @@ associated with the histogram.  Returns None if no guarding is necessary."""
 
     def record_in_processes(self):
         """Returns a list of processes this histogram is permitted to record in."""
-        return self.definition['record_in_processes']
+        return self._definition.get('record_in_processes', [])
 
     def record_in_processes_enum(self):
         """Get the non-empty list of flags representing the processes to record data in"""

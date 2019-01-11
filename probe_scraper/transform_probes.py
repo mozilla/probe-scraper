@@ -38,6 +38,7 @@ def probes_equal(probe1, probe2):
         # Common.
         "cpp_guard",
         "optout",
+        "notification_emails",
         # Histograms & scalars.
         "details/keyed",
         "details/kind",
