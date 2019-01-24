@@ -34,6 +34,8 @@ def test_histogram_parser():
         "TELEMETRY_TEST_EXPIRED",
         "TELEMETRY_TEST_ALL_CHILDREN",
         "TELEMETRY_TEST_ALL_CHILDS",
+        "EXPRESSION_IN_LOW_HIGH_ATTRIBUTE",
+        "NON_INTEGER_IN_HIGH_ATTRIBUTE",
     ]
 
     USE_COUNTERS = [
