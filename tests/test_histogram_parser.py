@@ -68,7 +68,7 @@ def test_histogram_parser():
     ]
 
     REQUIRED_DETAILS = [
-        "low", "high", "keyed", "kind", "n_buckets", "record_in_processes", "buckets"
+        "low", "high", "keyed", "kind", "n_buckets", "record_in_processes"
     ]
 
     for name, data in parsed_histograms.iteritems():
