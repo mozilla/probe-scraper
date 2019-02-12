@@ -12,7 +12,6 @@ def pytest_addoption(parser):
 
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--run-web-tests"):
-        # --runslow given in cli: do not skip slow tests
         return
     skip_web = pytest.mark.skip(reason="Need --run-web-tests option to run")
     for item in items:

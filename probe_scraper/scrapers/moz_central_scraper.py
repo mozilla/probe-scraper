@@ -42,7 +42,7 @@ CHANNELS = {
     },
 }
 
-MIN_FIREFOX_VERSION = 64
+MIN_FIREFOX_VERSION = 30
 ERROR_CACHE_FILENAME = 'probe_scraper_errors_cache.json'
 
 
