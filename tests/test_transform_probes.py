@@ -1,6 +1,8 @@
 import probe_scraper.transform_probes as transform
 import pprint
 
+from datetime import datetime
+
 # incoming probe_data is of the form:
 #   node_id -> {
 #     histogram: {
@@ -31,6 +33,24 @@ IN_NODE_DATA = {
         },
         "node_id_3": {
             "version": "52",
+        },
+    }
+    for channel in CHANNELS
+}
+
+REVISION_DATES = {
+    channel: {
+        "node_id_1": {
+            "version": "50",
+            "date": datetime(2018, 1, 1, 10, 11, 12)
+        },
+        "node_id_2": {
+            "version": "51",
+            "date": datetime(2018, 2, 2, 10, 11, 12)
+        },
+        "node_id_3": {
+            "version": "52",
+            "date": datetime(2018, 3, 3, 10, 11, 12)
         },
     }
     for channel in CHANNELS
@@ -271,3 +291,14 @@ def test_transform_by_hash():
     expected = out_probe_data(by_channel=True, include_versions=False)
 
     print_and_test(expected, result)
+
+
+def test_get_minimum_date():
+    expected = {
+        "histogram/TEST_HISTOGRAM_1": {
+            "release": datetime(2018, 1, 1, 10, 11, 12),
+            "beta": datetime(2018, 1, 1, 10, 11, 12)
+        }
+    }
+
+    assert transform.get_minimum_date(in_probe_data(), IN_NODE_DATA, REVISION_DATES) == expected

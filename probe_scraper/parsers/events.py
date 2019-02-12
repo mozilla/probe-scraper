@@ -60,7 +60,7 @@ class EventsParser:
         # Events.yaml had a format change in 53, see bug 1329620.
         # We don't have important event usage yet, so lets skip
         # backwards compatibility for now.
-        if version and int(version) < 53:
+        if version and version < 53:
             return {}
 
         if len(filenames) > 1:

@@ -1,0 +1,62 @@
+from probe_scraper.scrapers import moz_central_scraper
+from datetime import datetime
+import pytest
+import os
+
+
+def test_extract_major_version():
+    assert moz_central_scraper.extract_major_version("62.0a1") == 62
+    assert moz_central_scraper.extract_major_version("63.0.2") == 63
+    with pytest.raises(Exception):
+        moz_central_scraper.extract_major_version("helloworld")
+
+
+@pytest.mark.web_dependency
+def test_channel_revisions():
+    tmp_dir = "./.test-files"
+    min_fx_version = 62
+    max_fx_version = 62
+
+    res = moz_central_scraper.scrape_channel_revisions(tmp_dir, min_fx_version,
+                                                       max_fx_version=max_fx_version)
+
+    channel = "release"
+    revision = "c9ed11ae5c79df3dcb69075e1c9da0317d1ecb1b"
+
+    registries = {
+        probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
+        for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
+    }
+
+    record = {
+        "date": datetime(2018, 10, 01, 15, 55, 45),
+        "version": 62,
+        "registries": registries
+    }
+
+    assert res[channel][revision] == record
+
+
+@pytest.mark.web_dependency
+def test_scrape():
+    tmp_dir = "./.test-files"
+    min_fx_version = 62
+    max_fx_version = 62
+
+    res = moz_central_scraper.scrape(tmp_dir, min_fx_version, max_fx_version=max_fx_version)
+
+    channel = "release"
+    revision = "84219fbf133cacfc6e31c9471ad20ee7162a02af"
+
+    registries = {
+        probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
+        for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
+    }
+
+    record = {
+        "channel": channel,
+        "version": 62,
+        "registries": registries
+    }
+
+    assert res[channel][revision] == record

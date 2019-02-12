@@ -11,6 +11,7 @@ The data is pulled from two different sources:
 
 A web tool to explore the data is available [here](https://telemetry.mozilla.org/probe-dictionary/).
 
+
 ## Adding a New Git Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
@@ -36,15 +37,26 @@ pip install -r test_requirements.txt
 python setup.py develop
 ```
 
-Run tests:
+Run tests. This by default does not run tests that require a web connection:
 ```
-pytest
+pytest tests/
+```
+
+To run all tests, including those that require a web connection:
+```
+pytest tests/ --run-web-tests
 ```
 
 To test whether the code conforms to the style rules, you can run:
 ```
 flake8
 ```
+
+### Tests with Web Dependencies
+
+Any tests that require a web connection to run should be marked with `@pytest.mark.web_dependency`.
+
+These will not run by default, but will run on CI.
 
 ### Performing a Dry-Run
 
@@ -69,6 +81,7 @@ The code layout consists mainly of:
 - `probe_scraper`
   - `runner.py` - the central script, ties the other pieces together
   - `scrapers`
+     - `buildhub.py` - pull build info from the [BuildHub](https://buildhub.moz.tools) service
      - `moz_central_scraper.py` - loads probe registry files for multiple versions from mozilla-central
      - `git_scraper.py` - loads probe registry files from a git repository (no version or channel support yet, just per-commit)
   - `parsers/` - extract probe data from the registry files

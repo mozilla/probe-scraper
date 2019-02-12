@@ -179,14 +179,30 @@ def transform(probe_data, node_data, break_by_channel):
         print("\n" + channel + " - transforming probe data:")
         for entry in channel_data:
             node_id = entry['node_id']
-            readable_version = entry["version"]
-            print("  from: " + str({"node": node_id, "version": readable_version}))
-            for probe_type, probes in probe_data[channel][node_id].items():
+
+            readable_version = str(entry["version"])
+            print "  from: " + str({"node": node_id, "version": readable_version})
+            for probe_type, probes in probe_data[channel][node_id].iteritems():
                 # Group the probes by the release channel, if requested
                 extract_node_data(node_id, channel, probe_type, probes, result_data,
                                   readable_version, break_by_channel)
 
     return result_data
+
+
+def get_minimum_date(probe_data, revision_data, revision_dates):
+    probe_histories = transform(probe_data, revision_data, break_by_channel=True)
+    min_dates = defaultdict(lambda: defaultdict(str))
+
+    for channel, probes in probe_histories.items():
+        for probe_id, entry in probes.items():
+            dates = []
+            for history in entry['history'][channel]:
+                revision = history['revisions']['first']
+                dates.append(revision_dates[channel][revision]["date"])
+            min_dates[probe_id][channel] = min(dates)
+
+    return min_dates
 
 
 def make_commit_hash_probe_definition(definition, commit):

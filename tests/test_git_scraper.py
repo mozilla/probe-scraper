@@ -115,7 +115,7 @@ def improper_scalar_repo():
 
 
 def test_normal_repo(normal_repo):
-    runner.main(cache_dir, out_dir, False, True, repositories_file, True)
+    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
 
     path = "{out_dir}/{repo_name}/mobile-metrics/all_probes".format(
            out_dir=out_dir,
@@ -144,7 +144,7 @@ def test_normal_repo(normal_repo):
 
 
 def test_improper_scalar_repo(improper_scalar_repo):
-    runner.main(cache_dir, out_dir, False, True, repositories_file, True)
+    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
 
     # should be no output, since it was an improper file
     scalar_path = "{out_dir}/{repo_name}/mobile-metrics/all_probes".format(
