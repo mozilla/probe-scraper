@@ -15,7 +15,7 @@ import yaml
 
 
 # Where the test files are located
-base_dir = "tests/test_repo_files"
+base_dir = "tests/resources/test_repo_files"
 
 # Where we will build the test git repo
 test_dir = ".test_git_repositories"

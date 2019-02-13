@@ -7,9 +7,9 @@ def is_string(s):
 
 def test_histogram_parser():
     FILES = [
-        "tests/Histograms.json",
-        "tests/nsDeprecatedOperationList.h",
-        "tests/UseCounters.conf",
+        "tests/resources/Histograms.json",
+        "tests/resources/nsDeprecatedOperationList.h",
+        "tests/resources/UseCounters.conf",
     ]
 
     HISTOGRAMS = [
