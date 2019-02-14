@@ -6,6 +6,7 @@
 from collections import defaultdict
 
 
+DATES_KEY = "dates"
 COMMITS_KEY = "git-commits"
 HISTORY_KEY = "history"
 NAME_KEY = "name"
@@ -205,68 +206,85 @@ def get_minimum_date(probe_data, revision_data, revision_dates):
     return min_dates
 
 
-def make_commit_hash_probe_definition(definition, commit):
+def make_commit_hash_metric_definition(definition, commit, commit_timestamps):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
         definition[COMMITS_KEY] = {
             "first": commit,
             "last": commit
         }
+        definition[DATES_KEY] = {
+            "first": commit_timestamps[commit],
+            "last": commit_timestamps[commit]
+        }
     else:
         # we've seen this definition, update the `last` commit
         definition[COMMITS_KEY]["last"] = commit
+        definition[DATES_KEY]["last"] = commit_timestamps[commit]
 
     return definition
 
 
-def update_or_add_probe(all_probes, repo_name, commit_hash, probe, probe_type, definition):
-    probe_id = get_probe_id(probe_type, probe)
+def metrics_equal(def1, def2):
+    return all((
+        def1.get(l) == def2.get(l)
+        for l in {
+            'bugs',
+            'data_reviews',
+            'description',
+            'disabled',
+            'labeled',
+            'labels',
+            'lifetime',
+            'notification_emails',
+            'send_in_pings',
+            'time_unit',
+            'type',
+            'version',
+        }
+     ))
 
-    # If we've seen this probe before, check previous definitions
-    if probe_id in all_probes[repo_name]:
-        prev_defns = all_probes[repo_name][probe_id][HISTORY_KEY][repo_name]
+
+def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_timestamps):
+    # If we've seen this metric before, check previous definitions
+    if metric in repo_metrics:
+        prev_defns = repo_metrics[metric][HISTORY_KEY]
 
         # If equal to previous commit, update date and commit on existing definition
-        if probes_equal(definition, prev_defns[0]):
-            new_defn = make_commit_hash_probe_definition(prev_defns[0], commit_hash)
-            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name][0] = new_defn
+        if metrics_equal(definition, prev_defns[0]):
+            new_defn = make_commit_hash_metric_definition(prev_defns[0], commit_hash, commit_timestamps)
+            repo_metrics[metric][HISTORY_KEY][0] = new_defn
 
-        # Otherwise, Append changed definition for existing probe
+        # Otherwise, prepend changed definition for existing metric
         else:
-            new_defn = make_commit_hash_probe_definition(definition, commit_hash)
-            all_probes[repo_name][probe_id][HISTORY_KEY][repo_name] = \
+            new_defn = make_commit_hash_metric_definition(definition, commit_hash, commit_timestamps)
+            repo_metrics[metric][HISTORY_KEY] = \
                 [new_defn] + prev_defns
 
-    # We haven't seen this probe before, add it
+    # We haven't seen this metric before, add it
     else:
-        defn = make_commit_hash_probe_definition(definition, commit_hash)
-        all_probes[repo_name][probe_id] = {
-            TYPE_KEY: probe_type,
-            NAME_KEY: probe,
-            HISTORY_KEY: {repo_name: [defn]}
+        defn = make_commit_hash_metric_definition(definition, commit_hash, commit_timestamps)
+        repo_metrics[metric] = {
+            TYPE_KEY: defn[TYPE_KEY],
+            NAME_KEY: metric,
+            HISTORY_KEY: [defn]
         }
 
-    return all_probes
+    return repo_metrics
 
 
-def transform_by_hash(commit_timestamps, probe_data):
+def transform_by_hash(commit_timestamps, metric_data):
     """
     :param commit_timestamps - of the form
-      <repo_name> -> {
-        <commit-hash> -> <commit-timestamp>,
+      <repo_name>: {
+        <commit-hash>: <commit-timestamp>,
         ...
       }
 
-    :param probe_data - of the form
-      <repo_name> -> {
-        <commit-hash> -> {
-          "histogram": {
-            <histogram_name>: {
-              ...
-            },
-            ...
-          },
-          "scalar": {
+    :param metric_data - of the form
+      <repo_name>: {
+        <commit-hash>: {
+          <metric-name>: {
             ...
           },
         },
@@ -275,56 +293,43 @@ def transform_by_hash(commit_timestamps, probe_data):
 
     Outputs deduplicated data of the form
         <repo_name>: {
-            <probe_slug>: {
-                    "type": <type>,
-                    "name": <name>,
-                    "history": {
-                        <repo_name>: [
-                            {
-                                "description": <description>,
-                                "details": {
-                                    "high": <high>,
-                                    "low": <low>,
-                                    "keyed": <boolean>,
-                                    "kind": <kind>,
-                                    ...
-                                }
-                                "release": <boolean>,
-                                "commits": {
-                                    "first": <date>,
-                                    "last": <date>
-                                },
-                                ...
-                            },
-                            ...
-                        ]
-                    }
-                }
+            <metric_name>: {
+                "type": <type>,
+                "name": <name>,
+                "history": [
+                    {
+                        "bugs": [<bug#>, ...],
+                        ...other metrics.yaml info...,
+                        "git-commits": {
+                            "first": <hash>,
+                            "last": <hash>
+                        },
+                        "dates": {
+                            "first": <datetime>,
+                            "last": <datetime>
+                        }
+                    },
+                ]
             }
         }
     """
 
-    all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for repo_name, commits in probe_data.items():
+    all_metrics = {}
+    for repo_name, commits in metric_data.items():
+        repo_metrics = {}
 
         # iterate through commits, sorted by timestamp of the commit
         sorted_commits = sorted(iter(commits.items()),
-                                key=lambda x_y: int(commit_timestamps[repo_name][x_y[0]]))
-        for commit_hash, probe_types in sorted_commits:
+                                key=lambda x_y: commit_timestamps[repo_name][x_y[0]])
 
-            # for this commit, get all the probes (of all types)
-            probes = [
-                (probe, probe_type, definition)
-                for probe_type, probes in probe_types.items()
-                for probe, definition in probes.items()
-            ]
+        for commit_hash, metrics in sorted_commits:
+            for metric, definition in metrics.items():
+                repo_metrics = update_or_add_metric(repo_metrics,
+                                                   commit_hash,
+                                                   metric,
+                                                   definition,
+                                                   commit_timestamps[repo_name])
 
-            for probe, probe_type, definition in probes:
-                all_probes = update_or_add_probe(all_probes,
-                                                 repo_name,
-                                                 commit_hash,
-                                                 probe,
-                                                 probe_type,
-                                                 definition)
+        all_metrics[repo_name] = repo_metrics
 
-    return all_probes
+    return all_metrics

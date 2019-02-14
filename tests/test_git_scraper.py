@@ -7,6 +7,7 @@ from git import Repo
 from probe_scraper import runner
 from probe_scraper.emailer import EMAIL_FILE
 from probe_scraper.transform_probes import HISTORY_KEY, COMMITS_KEY
+from pathlib import Path
 import json
 import os
 import pytest
@@ -23,6 +24,9 @@ test_dir = ".test_git_repositories"
 # Where we will write the repositories file
 repositories_file = ".repositories.yaml"
 
+# Number of commits in the test repository
+num_commits = 1000
+
 cache_dir = ".cache"
 out_dir = ".out"
 
@@ -31,43 +35,39 @@ normal_repo_name = "normal"
 improper_repo_name = "improper"
 
 
-def rm_if_exists(path):
-    if os.path.exists(path):
-        if os.path.isfile(path):
-            os.remove(path)
-        else:
-            shutil.rmtree(path)
+def rm_if_exists(*paths):
+    for path in paths:
+        if os.path.exists(path):
+            if os.path.isfile(path):
+                os.remove(path)
+            else:
+                shutil.rmtree(path)
 
 
 @pytest.yield_fixture(autouse=True)
 def run_before_tests():
-    rm_if_exists(EMAIL_FILE)
-    rm_if_exists(cache_dir)
-    rm_if_exists(out_dir)
+    rm_if_exists(EMAIL_FILE, cache_dir, out_dir)
     os.mkdir(cache_dir)
     os.mkdir(out_dir)
     yield
-    rm_if_exists(cache_dir)
-    rm_if_exists(out_dir)
-    rm_if_exists(test_dir)
+    rm_if_exists(cache_dir, out_dir, test_dir)
 
 
 def get_repo(repo_name):
-    directory = "{test_dir}/{repo_name}".format(test_dir=test_dir, repo_name=repo_name)
+
+    directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
 
-    base_path = "{base_dir}/{repo_name}".format(base_dir=base_dir, repo_name=repo_name)
-    for i in range(1000):
-        files_dir = "{base_path}/{index}".format(base_path=base_path, index=i)
+    base_path = os.path.join(base_dir, repo_name)
+    for i in range(num_commits):
+        files_dir = os.path.join(base_path, str(i))
         if not os.path.exists(files_dir):
             break
 
         files = os.listdir(files_dir)
         for filename in files:
-            path = "{base_path}/{index}/{filename}".format(
-                   base_path=base_path, index=i, filename=filename)
-            destination = "{directory}/{filename}".format(
-                          directory=directory, filename=filename)
+            path = os.path.join(base_path, str(i), filename)
+            destination = os.path.join(directory, filename)
             shutil.copyfile(path, destination)
 
         repo.index.add("*")
@@ -81,11 +81,10 @@ def normal_repo():
     location = get_repo(normal_repo_name)
     repositories_info = {
         normal_repo_name: {
-            "app_name": "normal_app_name",
-            "os": "Android",
+            "app_id": "normal_app_name",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
-            "scalar_file_paths": ["Scalars.yaml"]
+            "metrics_files": ["metrics.yaml"]
         }
     }
 
@@ -96,15 +95,14 @@ def normal_repo():
 
 
 @pytest.fixture
-def improper_scalar_repo():
+def improper_metrics_repo():
     location = get_repo(improper_repo_name)
     repositories_info = {
         improper_repo_name: {
-            "app_name": "improper_app_name",
-            "os": "Android",
+            "app_id": "improper_app_name",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
-            "scalar_file_paths": ["Scalars.yaml"]
+            "metrics_files": ["metrics.yaml"]
         }
     }
 
@@ -117,41 +115,38 @@ def improper_scalar_repo():
 def test_normal_repo(normal_repo):
     runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
 
-    path = "{out_dir}/{repo_name}/mobile-metrics/all_probes".format(
-           out_dir=out_dir,
-           repo_name=normal_repo_name)
+    path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
 
     with open(path, 'r') as data:
-        scalars = json.load(data)
+        metrics = json.load(data)
 
-    # there are 2 scalars
-    assert len(scalars) == 2
+    # there are 2 metrics
+    assert len(metrics) == 2
 
-    bool_id = 'scalar/example.boolean_kind'
-    str_id = 'scalar/example.string_kind'
+    duration = 'example.duration'
+    os_metric = 'example.os'
+
     # they each have one definition
-    assert len(scalars[bool_id][HISTORY_KEY][normal_repo_name]) == 1
-    assert len(scalars[str_id][HISTORY_KEY][normal_repo_name]) == 1
+    assert len(metrics[duration][HISTORY_KEY]) == 1
+    assert len(metrics[os_metric][HISTORY_KEY]) == 1
 
-    # this was in 2 commits
-    assert len(set(scalars[bool_id][HISTORY_KEY][normal_repo_name][0][COMMITS_KEY].values())) == 1
+    # duration was in 2 commits
+    assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 2
 
-    # this was in 1 commit
-    assert len(set(scalars[str_id][HISTORY_KEY][normal_repo_name][0][COMMITS_KEY].values())) == 2
+    # os was in 1 commit
+    assert len(set(metrics[os_metric][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
 
     # There should have been no errors
-    assert not os.path.exists(EMAIL_FILE)
+    assert not Path(EMAIL_FILE).exists()
 
 
-def test_improper_scalar_repo(improper_scalar_repo):
+def test_improper_metrics_repo(improper_metrics_repo):
     runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
 
     # should be no output, since it was an improper file
-    scalar_path = "{out_dir}/{repo_name}/mobile-metrics/all_probes".format(
-                  out_dir=out_dir,
-                  repo_name=normal_repo_name)
+    path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
 
-    assert not os.path.exists(scalar_path)
+    assert not Path(path).exists()
 
     with open(EMAIL_FILE, 'r') as email_file:
         emails = yaml.load(email_file)

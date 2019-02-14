@@ -10,10 +10,6 @@ import yaml
 REPOSITORIES_FILENAME = "repositories.yaml"
 REPOSITORIES_SCHEMA = "schemas/repositories.json"
 
-HISTOGRAM_KEY = "histogram"
-SCALAR_KEY = "scalar"
-EVENT_KEY = "event"
-
 
 class Repository(object):
     """
@@ -24,25 +20,11 @@ class Repository(object):
         self.name = name
         self.url = definition.get("url")
         self.notification_emails = definition.get("notification_emails")
-        self.app_name = definition.get("app_name")
-        self.os = definition.get("os")
-        self.histogram_file_paths = definition.get("histogram_file_paths", [])
-        self.scalar_file_paths = definition.get("scalar_file_paths", [])
-        self.event_file_paths = definition.get("event_file_paths", [])
+        self.app_id = definition.get("app_id")
+        self.metrics_file_paths = definition.get("metrics_files", [])
 
-    def get_probe_paths(self):
-        return (self.get_histogram_paths() +
-                self.get_scalar_paths() +
-                self.get_event_paths())
-
-    def get_histogram_paths(self):
-        return [(HISTOGRAM_KEY, p) for p in self.histogram_file_paths]
-
-    def get_scalar_paths(self):
-        return [(SCALAR_KEY, p) for p in self.scalar_file_paths]
-
-    def get_event_paths(self):
-        return [(EVENT_KEY, p) for p in self.event_file_paths]
+    def get_metrics_file_paths(self):
+        return self.metrics_file_paths
 
     def to_dict(self):
         # Remove null elements

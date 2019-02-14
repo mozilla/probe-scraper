@@ -2,12 +2,9 @@
 # them earlier in the file and leave the mobile_metrics_example as the last
 # one for readability.
 mobile_metrics_example:
-  app_name: mobile_metrics_example
-  os: Android
+  app_id: mobile_metrics_example
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/fbertsch/mobile-metrics-example'
-  histogram_file_paths:
-    - Histograms.json
-  scalar_file_paths:
-    - Scalars.yaml
+  metrics_file_paths:
+    - metrics.yaml

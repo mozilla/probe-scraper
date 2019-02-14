@@ -1,7 +1,8 @@
-boto3
 GitPython
-python-dateutil
+boto3
+glean_parser
 jsonschema
+python-dateutil
 pyyaml
 requests
 requests_cache

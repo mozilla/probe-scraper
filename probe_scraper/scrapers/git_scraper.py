@@ -10,10 +10,12 @@ import tempfile
 import traceback
 
 
+
 def get_commits(repo, filename):
     sep = ":"
     commits = repo.git.log('--format="%H{}%ct"'.format(sep), filename)
-    return dict((c.strip('"').split(sep) for c in commits.split("\n")))
+    with_ts = dict((c.strip('"').split(sep) for c in commits.split("\n")))
+    return {k: int(v) for k, v in with_ts.items()}
 
 
 def get_file_at_hash(repo, _hash, filename):
@@ -21,17 +23,17 @@ def get_file_at_hash(repo, _hash, filename):
 
 
 def retrieve_files(repo_info, cache_dir):
-    results = defaultdict(lambda: defaultdict(list))
+    results = defaultdict(list)
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_info.name)
-    all_files = repo_info.get_probe_paths()
+    metric_files = repo_info.get_metrics_file_paths()
 
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
     repo = Repo.clone_from(repo_info.url, repo_info.name)
 
     try:
-        for (ptype, rel_path) in all_files:
+        for rel_path in metric_files:
             hashes = get_commits(repo, rel_path)
             for _hash, ts in hashes.items():
                 disk_path = os.path.join(base_path, _hash, rel_path)
@@ -44,7 +46,7 @@ def retrieve_files(repo_info, cache_dir):
                     with open(disk_path, 'wb') as f:
                         f.write(contents.encode("UTF-8"))
 
-                results[_hash][ptype].append(disk_path)
+                results[_hash].append(disk_path)
                 timestamps[_hash] = ts
     except Exception:
         # without this, the error will be silently discarded
@@ -67,11 +69,7 @@ def scrape(folder=None, repos=None):
     The second is the probe data:
     {
       repo: {
-        <commit-hash>: {
-          histogram: [path, ...]
-          event: [path, ...]
-          scalar: [path, ...]
-        },
+        <commit-hash>: [path, ...],
         ...
       },
       ...
@@ -85,11 +83,14 @@ def scrape(folder=None, repos=None):
     emails = {}
 
     for repo_info in repos:
+        print("Getting commits for repository " + repo_info.name)
+
         results[repo_info.name] = {}
         emails[repo_info.name] = {"addresses": repo_info.notification_emails, "emails": []}
 
         try:
             ts, commits = retrieve_files(repo_info, folder)
+            print("  Got {} commits".format(len(commits)))
             results[repo_info.name] = commits
             timestamps[repo_info.name] = ts
         except Exception:
