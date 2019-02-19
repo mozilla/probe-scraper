@@ -7,8 +7,8 @@ from collections import defaultdict
 
 def transform(node_data):
     results = defaultdict(dict)
-    for channel, nodes in node_data.iteritems():
-        for node_id, details in nodes.iteritems():
+    for channel, nodes in node_data.items():
+        for node_id, details in nodes.items():
             results[channel][node_id] = {
                 'version': details['version'],
             }

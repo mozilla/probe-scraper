@@ -2,7 +2,7 @@ from probe_scraper.parsers.scalars import ScalarsParser
 
 
 def is_string(s):
-    return isinstance(s, basestring)
+    return isinstance(s, str)
 
 
 def test_scalar_parser():
@@ -21,7 +21,7 @@ def test_scalar_parser():
         "keyed", "kind", "record_in_processes"
     ]
 
-    for name, data in parsed_scalars.iteritems():
+    for name, data in parsed_scalars.items():
         assert is_string(name)
 
         # Make sure we have all the required fields and details.

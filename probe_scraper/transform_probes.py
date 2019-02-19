@@ -105,7 +105,7 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
            stored separately, False otherwise. If True, probe data will be saved
            to result_data[channel] instead of just result_data.
     """
-    for name, probe in probe_data.iteritems():
+    for name, probe in probe_data.items():
         # Telemetrys test probes are never submitted to the servers.
         if is_test_probe(probe_type, name):
             continue
@@ -151,14 +151,14 @@ def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
 
 def sorted_node_lists_by_channel(node_data):
     channels = defaultdict(list)
-    for channel, nodes in node_data.iteritems():
-        for node_id, data in nodes.iteritems():
+    for channel, nodes in node_data.items():
+        for node_id, data in nodes.items():
             channels[channel].append({
                 'node_id': node_id,
                 'version': data['version'],
             })
 
-    for channel, data in channels.iteritems():
+    for channel, data in channels.items():
         channels[channel] = sorted(data, key=lambda n: int(n["version"]), reverse=True)
 
     return channels
@@ -175,13 +175,13 @@ def transform(probe_data, node_data, break_by_channel):
     channels = sorted_node_lists_by_channel(node_data)
 
     result_data = {}
-    for channel, channel_data in channels.iteritems():
-        print "\n" + channel + " - transforming probe data:"
+    for channel, channel_data in channels.items():
+        print("\n" + channel + " - transforming probe data:")
         for entry in channel_data:
             node_id = entry['node_id']
             readable_version = entry["version"]
-            print "  from: " + str({"node": node_id, "version": readable_version})
-            for probe_type, probes in probe_data[channel][node_id].iteritems():
+            print("  from: " + str({"node": node_id, "version": readable_version}))
+            for probe_type, probes in probe_data[channel][node_id].items():
                 # Group the probes by the release channel, if requested
                 extract_node_data(node_id, channel, probe_type, probes, result_data,
                                   readable_version, break_by_channel)
@@ -289,18 +289,18 @@ def transform_by_hash(commit_timestamps, probe_data):
     """
 
     all_probes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for repo_name, commits in probe_data.iteritems():
+    for repo_name, commits in probe_data.items():
 
         # iterate through commits, sorted by timestamp of the commit
-        sorted_commits = sorted(commits.iteritems(),
-                                key=lambda (x, y): int(commit_timestamps[repo_name][x]))
+        sorted_commits = sorted(iter(commits.items()),
+                                key=lambda x_y: int(commit_timestamps[repo_name][x_y[0]]))
         for commit_hash, probe_types in sorted_commits:
 
             # for this commit, get all the probes (of all types)
             probes = [
                 (probe, probe_type, definition)
-                for probe_type, probes in probe_types.iteritems()
-                for probe, definition in probes.iteritems()
+                for probe_type, probes in probe_types.items()
+                for probe, definition in probes.items()
             ]
 
             for probe, probe_type, definition in probes:

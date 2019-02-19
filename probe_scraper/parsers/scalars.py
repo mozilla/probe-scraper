@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from third_party import parse_scalars
-from utils import get_major_version
+from .third_party import parse_scalars
+from .utils import get_major_version
 
 
 def extract_scalar_data(s):

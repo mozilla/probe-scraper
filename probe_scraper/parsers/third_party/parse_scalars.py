@@ -4,9 +4,9 @@
 
 import re
 import yaml
-import shared_telemetry_utils as utils
+from . import shared_telemetry_utils as utils
 
-from shared_telemetry_utils import ParserError
+from .shared_telemetry_utils import ParserError
 
 # The map of containing the allowed scalar types and their mapping to
 # nsITelemetry::SCALAR_TYPE_* type constants.
@@ -91,24 +91,24 @@ class ScalarType:
         # The required and optional fields in a scalar type definition.
         REQUIRED_FIELDS = {
             'bug_numbers': list,  # This contains ints. See LIST_FIELDS_CONTENT.
-            'description': basestring,
-            'expires': basestring,
-            'kind': basestring,
+            'description': str,
+            'expires': str,
+            'kind': str,
             'notification_emails': list,  # This contains strings. See LIST_FIELDS_CONTENT.
             'record_in_processes': list,
         }
 
         OPTIONAL_FIELDS = {
-            'cpp_guard': basestring,
-            'release_channel_collection': basestring,
+            'cpp_guard': str,
+            'release_channel_collection': str,
             'keyed': bool,
         }
 
         # The types for the data within the fields that hold lists.
         LIST_FIELDS_CONTENT = {
             'bug_numbers': int,
-            'notification_emails': basestring,
-            'record_in_processes': basestring,
+            'notification_emails': str,
+            'record_in_processes': str,
         }
 
         # Concatenate the required and optional field definitions.
@@ -116,21 +116,21 @@ class ScalarType:
         ALL_FIELDS.update(OPTIONAL_FIELDS)
 
         # Checks that all the required fields are available.
-        missing_fields = [f for f in REQUIRED_FIELDS.keys() if f not in definition]
+        missing_fields = [f for f in list(REQUIRED_FIELDS.keys()) if f not in definition]
         if len(missing_fields) > 0:
             raise ParserError(self._name + ' - missing required fields: ' +
                               ', '.join(missing_fields) +
                               '.\nSee: {}#required-fields'.format(BASE_DOC_URL))
 
         # Do we have any unknown field?
-        unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
+        unknown_fields = [f for f in list(definition.keys()) if f not in ALL_FIELDS]
         if len(unknown_fields) > 0:
             raise ParserError(self._name + ' - unknown fields: ' + ', '.join(unknown_fields) +
                               '.\nSee: {}#required-fields'.format(BASE_DOC_URL))
 
         # Checks the type for all the fields.
         wrong_type_names = ['{} must be {}'.format(f, ALL_FIELDS[f].__name__)
-                            for f in definition.keys()
+                            for f in list(definition.keys())
                             if not isinstance(definition[f], ALL_FIELDS[f])]
         if len(wrong_type_names) > 0:
             raise ParserError(self._name + ' - ' + ', '.join(wrong_type_names) +
@@ -166,7 +166,7 @@ class ScalarType:
 
         # Validate the scalar kind.
         scalar_kind = definition.get('kind')
-        if scalar_kind not in SCALAR_TYPES_MAP.keys():
+        if scalar_kind not in list(SCALAR_TYPES_MAP.keys()):
             raise ParserError(self._name + ' - unknown scalar kind: ' + scalar_kind +
                               '.\nSee: {}'.format(BASE_DOC_URL))
 
@@ -294,9 +294,9 @@ def load_scalars(filename, strict_type_checks=True):
     try:
         with open(filename, 'r') as f:
             scalars = yaml.safe_load(f)
-    except IOError, e:
+    except IOError as e:
         raise ParserError('Error opening ' + filename + ': ' + e.message)
-    except ValueError, e:
+    except ValueError as e:
         raise ParserError('Error parsing scalars in {}: {}'
                           '.\nSee: {}'.format(filename, e.message, BASE_DOC_URL))
 

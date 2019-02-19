@@ -58,7 +58,7 @@ def dump_json(data, out_dir, file_name):
 
     path = os.path.join(out_dir, file_name)
     with open(path, 'w') as f:
-        print "  " + path
+        print("  " + path)
         json.dump(data, f, sort_keys=True, indent=2)
 
 
@@ -66,24 +66,24 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
     # Save all our files to "outdir/firefox/..." to mimic a REST API.
     base_dir = os.path.join(out_dir, "firefox")
 
-    print "\nwriting output:"
+    print("\nwriting output:")
     dump_json(general_data(), base_dir, "general")
     dump_json(revisions, base_dir, "revisions")
 
     # Break down the output by channel. We don't need to write a revisions
     # file in this case, the probe data will contain human readable version
     # numbers along with revision numbers.
-    for channel, channel_probes in probe_data.iteritems():
+    for channel, channel_probes in probe_data.items():
         data_dir = os.path.join(base_dir, channel, "main")
         dump_json(channel_probes, data_dir, "all_probes")
 
 
 def write_external_probe_data(repo_data, out_dir):
     # Save all our files to "outdir/<repo>/..." to mimic a REST API.
-    for repo, probe_data in repo_data.iteritems():
+    for repo, probe_data in repo_data.items():
         base_dir = os.path.join(out_dir, repo)
 
-        print "\nwriting output:"
+        print("\nwriting output:")
         dump_json(general_data(), base_dir, "general")
 
         data_dir = os.path.join(base_dir, "mobile-metrics")
@@ -113,9 +113,9 @@ def load_moz_central_probes(cache_dir, out_dir):
     #   ...
     # }
     probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for channel, nodes in node_data.iteritems():
-        for node_id, details in nodes.iteritems():
-            for probe_type, paths in details['registries'].iteritems():
+    for channel, nodes in node_data.items():
+        for node_id, details in nodes.items():
+            for probe_type, paths in details['registries'].items():
                 results = PARSERS[probe_type].parse(paths, details["version"])
                 probes[channel][node_id][probe_type] = results
 
@@ -147,6 +147,8 @@ def check_git_probe_structure(data):
 def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
     repositories = RepositoriesParser().parse(repositories_file)
     commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir, repositories)
+    print("Scraped")
+    print(commit_timestamps)
 
     check_git_probe_structure(repos_probes_data)
 
@@ -166,9 +168,9 @@ def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
     #   ...
     # }
     probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for repo_name, commits in repos_probes_data.iteritems():
-        for commit_hash, probe_types in commits.iteritems():
-            for probe_type, paths in probe_types.iteritems():
+    for repo_name, commits in repos_probes_data.items():
+        for commit_hash, probe_types in commits.items():
+            for probe_type, paths in probe_types.items():
                 try:
                     results = PARSERS[probe_type].parse(paths)
                     probes[repo_name][commit_hash][probe_type] = results
@@ -185,7 +187,7 @@ def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
 
     write_repositories_data(repositories, out_dir)
 
-    for repo_name, email_info in emails.items():
+    for repo_name, email_info in list(emails.items()):
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
         for email in email_info["emails"]:
             send_ses(FROM_EMAIL, email["subject"], email["message"], addresses, dryrun=dry_run)

@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from third_party import histogram_tools
-from utils import set_in_nested_dict, get_major_version
+from .third_party import histogram_tools
+from .utils import set_in_nested_dict, get_major_version
 
 
 def extract_histogram_data(histogram):
@@ -35,7 +35,7 @@ def extract_histogram_data(histogram):
         "details": {}
     }
 
-    for source_field, target_field in props.iteritems():
+    for source_field, target_field in props.items():
         value = None
         if hasattr(histogram, source_field):
             value = getattr(histogram, source_field)()

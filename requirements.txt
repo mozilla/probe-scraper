@@ -6,3 +6,4 @@ pyyaml
 requests
 requests_cache
 schema
+urllib3==1.23

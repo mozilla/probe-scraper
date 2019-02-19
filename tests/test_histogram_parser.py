@@ -2,7 +2,7 @@ from probe_scraper.parsers.histograms import HistogramsParser
 
 
 def is_string(s):
-    return isinstance(s, basestring)
+    return isinstance(s, str)
 
 
 def test_histogram_parser():
@@ -62,7 +62,7 @@ def test_histogram_parser():
 
     # Check that all expected histogram keys are present.
     ALL_KEYS = HISTOGRAMS + USE_COUNTERS + DEPRECATED_OPERATIONS
-    assert set(ALL_KEYS) == set(parsed_histograms.iterkeys())
+    assert set(ALL_KEYS) == set(parsed_histograms.keys())
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
@@ -73,7 +73,7 @@ def test_histogram_parser():
         "low", "high", "keyed", "kind", "n_buckets", "record_in_processes"
     ]
 
-    for name, data in parsed_histograms.iteritems():
+    for name, data in parsed_histograms.items():
         assert is_string(name)
 
         # Check that we have all the required fields for each probe.
