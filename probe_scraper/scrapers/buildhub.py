@@ -122,9 +122,9 @@ class Buildhub(object):
 
         returns a list of records of type
         {
+            "date": <date>
             "revision": <revision>,
             "version": <version>,
-            "date": <date>
         }
         """
 

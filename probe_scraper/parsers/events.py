@@ -56,11 +56,13 @@ def extract_events_data(e):
 
 
 class EventsParser:
-    def parse(self, filenames, version=None):
+    def parse(self, filenames, version=None, channel=None):
         # Events.yaml had a format change in 53, see bug 1329620.
         # We don't have important event usage yet, so lets skip
         # backwards compatibility for now.
-        if version and version < 53:
+        if (version and channel) and (
+          ((channel != "nightly" and version < 53)
+           or (channel == "nightly" and version < 54))):
             return {}
 
         if len(filenames) > 1:
