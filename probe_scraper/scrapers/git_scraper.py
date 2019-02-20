@@ -37,25 +37,16 @@ def retrieve_files(repo_info, cache_dir):
                 disk_path = os.path.join(base_path, _hash, rel_path)
                 if not os.path.exists(disk_path):
                     contents = get_file_at_hash(repo, _hash, rel_path)
-                    print("Contents of " + disk_path)
-                    print(contents)
-                    print(type(contents))
 
                     dir = os.path.split(disk_path)[0]
-                    print("dir: " + dir)
                     if not os.path.exists(dir):
                         os.makedirs(dir)
                     with open(disk_path, 'wb') as f:
                         f.write(contents.encode("UTF-8"))
-                    print("Hash: " + str(_hash))
-                    print("ptype: " + str(ptype))
-                    print("disk path: " + str(disk_path))
-                    
+
                 results[_hash][ptype].append(disk_path)
-                print(results[_hash][ptype])
                 timestamps[_hash] = ts
     except Exception:
-        print("Got an exception!")
         # without this, the error will be silently discarded
         raise
     finally:
@@ -92,7 +83,6 @@ def scrape(folder=None, repos=None):
     results = {}
     timestamps = {}
     emails = {}
-    print("Scraping...")
 
     for repo_info in repos:
         results[repo_info.name] = {}

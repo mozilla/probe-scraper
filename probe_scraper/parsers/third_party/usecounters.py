@@ -4,7 +4,6 @@
 
 import collections
 import re
-import io
 import sys
 
 def read_conf(conf_filename):

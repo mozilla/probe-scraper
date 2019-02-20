@@ -124,13 +124,13 @@ def type_check_event_fields(identifier, name, definition, strict):
     ALL_FIELDS.update(OPTIONAL_FIELDS)
 
     # Check that all the required fields are available.
-    missing_fields = [f for f in list(REQUIRED_FIELDS.keys()) if f not in definition]
+    missing_fields = [f for f in REQUIRED_FIELDS.keys() if f not in definition]
     if len(missing_fields) > 0:
         raise KeyError(identifier + ' - missing required fields: ' + ', '.join(missing_fields))
 
     # Are there any unknown field?
     if strict:
-        unknown_fields = [f for f in list(definition.keys()) if f not in ALL_FIELDS]
+        unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
         if len(unknown_fields) > 0:
             raise KeyError(identifier + ' - unknown fields: ' + ', '.join(unknown_fields))
 

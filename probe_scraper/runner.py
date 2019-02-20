@@ -147,8 +147,6 @@ def check_git_probe_structure(data):
 def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
     repositories = RepositoriesParser().parse(repositories_file)
     commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir, repositories)
-    print("Scraped")
-    print(commit_timestamps)
 
     check_git_probe_structure(repos_probes_data)
 
