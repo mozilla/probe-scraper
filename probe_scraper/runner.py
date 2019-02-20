@@ -12,15 +12,15 @@ import os
 import tempfile
 import traceback
 
-from emailer import send_ses
-from parsers.events import EventsParser
-from parsers.histograms import HistogramsParser
-from parsers.scalars import ScalarsParser
-from parsers.repositories import RepositoriesParser
-from scrapers import git_scraper, moz_central_scraper
+from .emailer import send_ses
+from .parsers.events import EventsParser
+from .parsers.histograms import HistogramsParser
+from .parsers.scalars import ScalarsParser
+from .parsers.repositories import RepositoriesParser
+from .scrapers import git_scraper, moz_central_scraper
 from schema import And, Optional, Schema
-import transform_probes
-import transform_revisions
+from . import transform_probes
+from . import transform_revisions
 
 
 class DummyParser:
