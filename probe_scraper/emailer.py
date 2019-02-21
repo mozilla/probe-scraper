@@ -55,7 +55,7 @@ def send_ses(fromaddr,
             "    To:" + recipients,
             "    Subject: " + subject,
             "    Body: " + body])
-        print email_txt
+        print(email_txt)
         return
 
     msg = MIMEMultipart()

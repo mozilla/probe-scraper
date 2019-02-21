@@ -224,14 +224,14 @@ def get_differences(a, b, path="", sep=" / "):
 def print_and_test(expected, result):
     pp = pprint.PrettyPrinter(indent=2)
 
-    print "\nresult:"
+    print("\nresult:")
     pp.pprint(result)
 
-    print "\nExpected:"
+    print("\nExpected:")
     pp.pprint(expected)
 
-    print "\nDifferences:"
-    print '\n'.join([' - '.join(v) for v in get_differences(expected, result)])
+    print("\nDifferences:")
+    print('\n'.join([' - '.join(v) for v in get_differences(expected, result)]))
 
     assert(result == expected)
 
@@ -263,7 +263,7 @@ def test_transform_by_hash():
     timestamps = {
         repo: {
             "abcdef{}".format(i): str(i)
-            for i in xrange(1, 4)
+            for i in range(1, 4)
         } for repo in REPOS
     }
 

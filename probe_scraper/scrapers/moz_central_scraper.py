@@ -65,7 +65,7 @@ def load_tags(channel):
 def extract_tag_data(tag_data, channel):
     tag_regex = CHANNELS[channel]['tag_regex']
     tip_node_id = tag_data["node"]
-    tags = filter(lambda t: re.match(tag_regex, t["tag"]), tag_data["tags"])
+    tags = [t for t in tag_data["tags"] if re.match(tag_regex, t["tag"])]
     results = []
 
     for tag in tags:
@@ -114,7 +114,7 @@ def download_files(channel, node, temp_dir, error_cache):
             results[ptype] = []
         results[ptype].append(disk_path)
 
-    all_files = [(k, x) for k, l in REGISTRY_FILES.items() for x in l]
+    all_files = [(k, x) for k, l in list(REGISTRY_FILES.items()) for x in l]
     for (ptype, rel_path) in all_files:
         disk_path = os.path.join(node_path, rel_path)
         if os.path.exists(disk_path):
@@ -183,18 +183,18 @@ def scrape(folder=None):
     requests_cache.install_cache('probe_scraper_cache')
     results = defaultdict(dict)
 
-    for channel in CHANNELS.iterkeys():
+    for channel in CHANNELS.keys():
         tags = load_tags(channel)
         versions = extract_tag_data(tags, channel)
         save_error_cache(folder, error_cache)
 
-        print "\n" + channel + " - extracted version data:"
+        print("\n" + channel + " - extracted version data:")
         for v in versions:
-            print "  " + str(v)
+            print("  " + str(v))
 
-        print "\n" + channel + " - loading files:"
+        print("\n" + channel + " - loading files:")
         for v in versions:
-            print "  from: " + str(v)
+            print("  from: " + str(v))
             files = download_files(channel, v['node'], folder, error_cache)
             results[channel][v['node']] = {
                 'channel': channel,

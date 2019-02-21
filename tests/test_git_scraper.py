@@ -57,7 +57,7 @@ def get_repo(repo_name):
     repo = Repo.init(directory)
 
     base_path = "{base_dir}/{repo_name}".format(base_dir=base_dir, repo_name=repo_name)
-    for i in xrange(1000):
+    for i in range(1000):
         files_dir = "{base_path}/{index}".format(base_path=base_path, index=i)
         if not os.path.exists(files_dir):
             break

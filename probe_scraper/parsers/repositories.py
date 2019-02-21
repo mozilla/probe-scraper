@@ -47,7 +47,7 @@ class Repository(object):
     def to_dict(self):
         # Remove null elements
         # https://google.github.io/styleguide/jsoncstyleguide.xml#Empty/Null_Property_Values
-        return {k: v for k, v in self.__dict__.items() if v is not None}
+        return {k: v for k, v in list(self.__dict__.items()) if v is not None}
 
 
 class RepositoriesParser(object):
@@ -79,5 +79,5 @@ class RepositoriesParser(object):
         return [
             Repository(name, definition)
             for name, definition
-            in repos.items()
+            in list(repos.items())
         ]

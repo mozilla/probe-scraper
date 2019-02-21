@@ -6,3 +6,4 @@ pyyaml
 requests
 requests_cache
 schema
+urllib3==1.23 # See https://github.com/urllib3/urllib3/issues/1456#issuecomment-430404098

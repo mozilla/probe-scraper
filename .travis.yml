@@ -1,6 +1,9 @@
 language: python
+# For 3.7 support, see https://github.com/travis-ci/travis-ci/issues/9815
+dist: xenial
+sudo: yes
 python:
-  - "2.7"
+  - "3.7"
 # command to install dependencies
 install:
   - pip install -r requirements.txt -r test_requirements.txt

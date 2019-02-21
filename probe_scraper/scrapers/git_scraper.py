@@ -13,7 +13,7 @@ import traceback
 def get_commits(repo, filename):
     sep = ":"
     commits = repo.git.log('--format="%H{}%ct"'.format(sep), filename)
-    return dict((c.strip('"').encode('ascii').split(sep) for c in commits.split("\n")))
+    return dict((c.strip('"').split(sep) for c in commits.split("\n")))
 
 
 def get_file_at_hash(repo, _hash, filename):
@@ -33,7 +33,7 @@ def retrieve_files(repo_info, cache_dir):
     try:
         for (ptype, rel_path) in all_files:
             hashes = get_commits(repo, rel_path)
-            for _hash, ts in hashes.iteritems():
+            for _hash, ts in hashes.items():
                 disk_path = os.path.join(base_path, _hash, rel_path)
                 if not os.path.exists(disk_path):
                     contents = get_file_at_hash(repo, _hash, rel_path)
@@ -42,7 +42,7 @@ def retrieve_files(repo_info, cache_dir):
                     if not os.path.exists(dir):
                         os.makedirs(dir)
                     with open(disk_path, 'wb') as f:
-                        f.write(contents)
+                        f.write(contents.encode("UTF-8"))
 
                 results[_hash][ptype].append(disk_path)
                 timestamps[_hash] = ts

@@ -2,7 +2,7 @@ from probe_scraper.parsers.events import EventsParser
 
 
 def is_string(s):
-    return isinstance(s, basestring)
+    return isinstance(s, str)
 
 
 def test_event_parser():
@@ -21,7 +21,7 @@ def test_event_parser():
       "methods", "objects", "extra_keys", "record_in_processes"
     ]
 
-    for name, data in parsed_events.iteritems():
+    for name, data in parsed_events.items():
         assert is_string(name)
 
         # Make sure we have all the required fields and details.
