@@ -181,8 +181,8 @@ def transform(probe_data, node_data, break_by_channel):
             node_id = entry['node_id']
 
             readable_version = str(entry["version"])
-            print "  from: " + str({"node": node_id, "version": readable_version})
-            for probe_type, probes in probe_data[channel][node_id].iteritems():
+            print("  from: " + str({"node": node_id, "version": readable_version}))
+            for probe_type, probes in probe_data[channel][node_id].items():
                 # Group the probes by the release channel, if requested
                 extract_node_data(node_id, channel, probe_type, probes, result_data,
                                   readable_version, break_by_channel)

@@ -134,7 +134,7 @@ class Buildhub(object):
         total_hits = 0
         results = []
 
-        for i in xrange(2**20):
+        for i in range(2**20):
             data = self._paginate_revision_dates(i, channel, min_version, product, locale,
                                                  platform, max_version, verbose, window)
 

@@ -193,10 +193,10 @@ class EventData:
         # Check extra_keys.
         extra_keys = definition.get('extra_keys', {})
         if len(extra_keys.keys()) > MAX_EXTRA_KEYS_COUNT:
-            raise ValueError, "%s: number of extra_keys exceeds limit %d" %\
-                              (self.identifier, MAX_EXTRA_KEYS_COUNT)
+            raise ValueError("%s: number of extra_keys exceeds limit %d" %\
+                              (self.identifier, MAX_EXTRA_KEYS_COUNT))
         if strict_type_checks:
-            for key in extra_keys.iterkeys():
+            for key in extra_keys.keys():
                 string_check(self.identifier, field='extra_keys', value=key,
                              min_length=1, max_length=MAX_EXTRA_KEY_NAME_LENGTH,
                              regex=IDENTIFIER_PATTERN)
@@ -326,7 +326,7 @@ def load_events(filename, strict_type_checks=True):
     #       <event definition>
     #      ...
     #   ...
-    for category_name, category in events.iteritems():
+    for category_name, category in events.items():
         if(strict_type_checks):
             string_check("top level structure", field='category', value=category_name,
                          min_length=1, max_length=MAX_CATEGORY_NAME_LENGTH,
@@ -336,7 +336,7 @@ def load_events(filename, strict_type_checks=True):
         if strict_type_checks and not category or len(category) == 0:
             raise ValueError(category_name + ' must contain at least one entry')
 
-        for name, entry in category.iteritems():
+        for name, entry in category.items():
             if(strict_type_checks):
                 string_check(category_name, field='event name', value=name,
                              min_length=1, max_length=MAX_METHOD_NAME_LENGTH,

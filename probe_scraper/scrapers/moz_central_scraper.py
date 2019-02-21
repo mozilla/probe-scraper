@@ -8,7 +8,7 @@ import json
 import tempfile
 import requests
 import requests_cache
-from buildhub import Buildhub
+from .buildhub import Buildhub
 
 from collections import defaultdict
 
@@ -241,7 +241,7 @@ def scrape(folder=None, min_fx_version=None, max_fx_version=None):
     return results
 
 
-def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=None):
+def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
     """
     Returns data in the format:
     {
@@ -266,19 +266,22 @@ def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=No
     bh = Buildhub()
     results = defaultdict(dict)
 
-    for channel in CHANNELS.iterkeys():
+    if channels is None:
+        channels = CHANNELS.keys()
 
-        print "\nRetreiving Buildhub results for channel " + channel
+    for channel in channels:
+
+        print("\nRetreiving Buildhub results for channel " + channel)
 
         revision_dates = bh.get_revision_dates(channel, min_fx_version, max_version=max_fx_version)
         num_revisions = len(revision_dates)
 
-        print "  " + str(num_revisions) + " revisions found"
+        print("  " + str(num_revisions) + " revisions found")
 
         for i, rd in enumerate(revision_dates):
             revision = rd["revision"]
 
-            print "  Downloading files for revision number " + str(i+1) + "/" + str(num_revisions)
+            print("  Downloading files for revision number " + str(i+1) + "/" + str(num_revisions))
             files = download_files(channel, revision, folder, error_cache)
 
             results[channel][revision] = {

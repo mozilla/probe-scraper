@@ -5,7 +5,7 @@ from datetime import datetime
 
 FX_RELEASE_62_0_3 = {
     "revision": "c9ed11ae5c79df3dcb69075e1c9da0317d1ecb1b",
-    "date": datetime(2018, 10, 01, 18, 40, 35),
+    "date": datetime(2018, 10, 1, 18, 40, 35),
     "version": "62.0.3rc1"
 }
 

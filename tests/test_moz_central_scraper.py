@@ -16,12 +16,12 @@ def test_channel_revisions():
     tmp_dir = "./.test-files"
     min_fx_version = 62
     max_fx_version = 62
-
-    res = moz_central_scraper.scrape_channel_revisions(tmp_dir, min_fx_version,
-                                                       max_fx_version=max_fx_version)
-
     channel = "release"
     revision = "c9ed11ae5c79df3dcb69075e1c9da0317d1ecb1b"
+
+    res = moz_central_scraper.scrape_channel_revisions(tmp_dir, min_fx_version,
+                                                       max_fx_version=max_fx_version,
+                                                       channels=[channel])
 
     registries = {
         probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
@@ -29,7 +29,7 @@ def test_channel_revisions():
     }
 
     record = {
-        "date": datetime(2018, 10, 01, 15, 55, 45),
+        "date": datetime(2018, 10, 1, 18, 40, 35),
         "version": 62,
         "registries": registries
     }

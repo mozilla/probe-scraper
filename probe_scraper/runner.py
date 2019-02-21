@@ -124,7 +124,7 @@ def parse_moz_central_probes(scraped_data):
 
 
 def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
-    for channel, probes in list(probes_by_channel.items()):
+    for channel, probes in probes_by_channel.items():
         for probe_id, info in probes.items():
             if channel == "all":
                 dates = first_appeared_dates[probe_id]
