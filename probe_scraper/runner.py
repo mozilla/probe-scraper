@@ -114,9 +114,9 @@ def parse_moz_central_probes(scraped_data):
     """
 
     probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for channel, revisions in scraped_data.iteritems():
-        for revision, details in revisions.iteritems():
-            for probe_type, paths in details["registries"].iteritems():
+    for channel, revisions in scraped_data.items():
+        for revision, details in revisions.items():
+            for probe_type, paths in details["registries"].items():
                 results = PARSERS[probe_type].parse(paths, details["version"], channel)
                 probes[channel][revision][probe_type] = results
 
