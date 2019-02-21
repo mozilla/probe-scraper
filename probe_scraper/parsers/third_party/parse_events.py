@@ -192,13 +192,14 @@ class EventData:
 
         # Check extra_keys.
         extra_keys = definition.get('extra_keys', {})
-        if len(list(extra_keys.keys())) > MAX_EXTRA_KEYS_COUNT:
-            raise ValueError("%s: number of extra_keys exceeds limit %d" %\
-                              (self.identifier, MAX_EXTRA_KEYS_COUNT))
-        for key in extra_keys.keys():
-            string_check(self.identifier, field='extra_keys', value=key,
-                         min_length=1, max_length=MAX_EXTRA_KEY_NAME_LENGTH,
-                         regex=IDENTIFIER_PATTERN)
+        if len(extra_keys.keys()) > MAX_EXTRA_KEYS_COUNT:
+            raise ValueError, "%s: number of extra_keys exceeds limit %d" %\
+                              (self.identifier, MAX_EXTRA_KEYS_COUNT)
+        if strict_type_checks:
+            for key in extra_keys.iterkeys():
+                string_check(self.identifier, field='extra_keys', value=key,
+                             min_length=1, max_length=MAX_EXTRA_KEY_NAME_LENGTH,
+                             regex=IDENTIFIER_PATTERN)
 
         # Check expiry.
         if not 'expiry_version' in definition and not 'expiry_date' in definition:
