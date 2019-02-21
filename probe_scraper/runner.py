@@ -99,8 +99,8 @@ def write_repositories_data(repos, out_dir):
 def parse_moz_central_probes(scraped_data):
     """
     Parse probe data from files into the form:
-    channel_name -> {
-      node_id -> {
+    channel_name: {
+      node_id: {
         histogram: {
           name: ...,
           ...

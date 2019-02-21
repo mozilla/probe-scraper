@@ -77,12 +77,12 @@ class Buildhub(object):
 
             date = None
             try:
-                date = datetime.strptime(d, Buildhub.date_formats[0])
+                date = datetime.strptime(d, self.date_formats[0])
             except ValueError:
                 pass
 
             if date is None:
-                date = datetime.strptime(d, Buildhub.date_formats[1])
+                date = datetime.strptime(d, self.date_formats[1])
 
             entry = {
                 "date": date,

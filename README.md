@@ -11,7 +11,6 @@ The data is pulled from two different sources:
 
 A web tool to explore the data is available [here](https://telemetry.mozilla.org/probe-dictionary/).
 
-
 ## Adding a New Git Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
