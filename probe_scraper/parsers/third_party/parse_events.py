@@ -325,19 +325,21 @@ def load_events(filename, strict_type_checks=True):
     #       <event definition>
     #      ...
     #   ...
-    for category_name, category in events.items():
-        string_check("top level structure", field='category', value=category_name,
-                     min_length=1, max_length=MAX_CATEGORY_NAME_LENGTH,
-                     regex=IDENTIFIER_PATTERN)
+    for category_name, category in events.iteritems():
+        if(strict_type_checks):
+            string_check("top level structure", field='category', value=category_name,
+                         min_length=1, max_length=MAX_CATEGORY_NAME_LENGTH,
+                         regex=IDENTIFIER_PATTERN)
 
         # Make sure that the category has at least one entry in it.
-        if not category or len(category) == 0:
+        if strict_type_checks and not category or len(category) == 0:
             raise ValueError(category_name + ' must contain at least one entry')
 
-        for name, entry in category.items():
-            string_check(category_name, field='event name', value=name,
-                         min_length=1, max_length=MAX_METHOD_NAME_LENGTH,
-                         regex=IDENTIFIER_PATTERN)
+        for name, entry in category.iteritems():
+            if(strict_type_checks):
+                string_check(category_name, field='event name', value=name,
+                             min_length=1, max_length=MAX_METHOD_NAME_LENGTH,
+                             regex=IDENTIFIER_PATTERN)
             event_list.append(EventData(category_name, name, entry,
                                         strict_type_checks=strict_type_checks))
 

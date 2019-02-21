@@ -11,7 +11,7 @@ def test_event_parser():
     parsed_events = parser.parse(["tests/test_events.yaml"], 55)
 
     # Make sure we loaded all the events.
-    assert len(parsed_events) == 4
+    assert len(parsed_events) == 5
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
