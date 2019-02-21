@@ -34,7 +34,7 @@ def test_event_parser():
 
 def parse(channel, version):
     parser = EventsParser()
-    return  parser.parse(["tests/test_events.yaml"], version, channel)
+    return parser.parse(["tests/test_events.yaml"], version, channel)
 
 
 def test_channel_version_ignore():
