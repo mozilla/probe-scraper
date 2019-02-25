@@ -120,6 +120,7 @@ def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
             })
 
     results = sorted(results, key=lambda r: r["version"])
+    latest_version += 1
 
     # Add tip revision, if we're including the most recent version
     if (tip_node_id != results[-1]["node"] and
