@@ -58,9 +58,7 @@ def test_histogram_parser():
 
     # Parse the histograms from the test definitions.
     parser = HistogramsParser()
-    parsed_histograms, errs = parser.parse(FILES, "55")
-
-    assert errs == []
+    parsed_histograms = parser.parse(FILES, "55")
 
     # Check that all expected histogram keys are present.
     ALL_KEYS = HISTOGRAMS + USE_COUNTERS + DEPRECATED_OPERATIONS

@@ -282,13 +282,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args.cache_dir,
          args.out_dir,
-<<<<<<< HEAD
          args.firefox_version,
-         args.only_moz_central_probes,
-         args.only_git_probes,
-=======
          args.moz_central,
          args.glean,
->>>>>>> WIP: Glean Parsing
          args.repositories_file,
          args.dry_run)

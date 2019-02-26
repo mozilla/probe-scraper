@@ -8,7 +8,7 @@ def is_string(s):
 def test_metrics_parser():
     # Parse the histograms from the test definitions.
     parser = MetricsParser()
-    parsed_metrics, errs = parser.parse(["tests/resources/metrics.yaml"], "55")
+    parsed_metrics, errs = parser.parse(["tests/resources/metrics.yaml"], {})
 
     assert errs == []
 
