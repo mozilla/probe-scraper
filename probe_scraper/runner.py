@@ -17,7 +17,7 @@ from . import transform_revisions
 from .emailer import send_ses
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
-from .parsers.metrics import MetricsParser
+from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
@@ -43,7 +43,7 @@ PARSERS = {
     'scalar': ScalarsParser(),
 }
 
-GLEAN_PARSER = MetricsParser()
+GLEAN_PARSER = GleanMetricsParser()
 
 
 def general_data():

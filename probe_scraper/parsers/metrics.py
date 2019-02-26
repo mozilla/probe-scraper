@@ -6,7 +6,13 @@ from glean_parser.parser import parse_metrics
 from pathlib import Path
 
 
-class MetricsParser:
+class GleanMetricsParser:
+    """
+    Use the [Glean Parser]
+    (https://mozilla.github.io/glean_parser)
+    to parse the metrics.yaml files.
+    """
+
     def parse(self, filenames, config):
         paths = [Path(fname) for fname in filenames]
         results = parse_metrics(paths, config)
