@@ -1,10 +1,7 @@
-# NOTE: Please don't add new repositories below this point. Consider adding
-# them earlier in the file and leave the mobile_metrics_example as the last
-# one for readability.
-mobile_metrics_example:
-  app_id: mobile_metrics_example
+glean:
+  app_id: glean
   notification_emails:
     - frank@mozilla.com
-  url: 'https://github.com/fbertsch/mobile-metrics-example'
-  metrics_file_paths:
-    - metrics.yaml
+  url: 'https://github.com/mozilla-mobile/android-components'
+  metrics_files:
+    - 'components/service/glean/metrics.yaml'

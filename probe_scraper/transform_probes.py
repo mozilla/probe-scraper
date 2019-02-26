@@ -4,7 +4,7 @@
 
 
 from collections import defaultdict
-
+from datetime import datetime
 
 DATES_KEY = "dates"
 COMMITS_KEY = "git-commits"
@@ -206,6 +206,10 @@ def get_minimum_date(probe_data, revision_data, revision_dates):
     return min_dates
 
 
+def pretty_ts(ts):
+    return datetime.utcfromtimestamp(ts).isoformat(' ')
+
+
 def make_commit_hash_metric_definition(definition, commit, commit_timestamps):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
@@ -214,13 +218,13 @@ def make_commit_hash_metric_definition(definition, commit, commit_timestamps):
             "last": commit
         }
         definition[DATES_KEY] = {
-            "first": commit_timestamps[commit],
-            "last": commit_timestamps[commit]
+            "first": pretty_ts(commit_timestamps[commit]),
+            "last": pretty_ts(commit_timestamps[commit])
         }
     else:
         # we've seen this definition, update the `last` commit
         definition[COMMITS_KEY]["last"] = commit
-        definition[DATES_KEY]["last"] = commit_timestamps[commit]
+        definition[DATES_KEY]["last"] = pretty_ts(commit_timestamps[commit])
 
     return definition
 
@@ -249,17 +253,18 @@ def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_t
     # If we've seen this metric before, check previous definitions
     if metric in repo_metrics:
         prev_defns = repo_metrics[metric][HISTORY_KEY]
+        max_defn = max(prev_defns, key = lambda x: datetime.fromisoformat(x[DATES_KEY]["last"]))
 
         # If equal to previous commit, update date and commit on existing definition
-        if metrics_equal(definition, prev_defns[0]):
+        if metrics_equal(definition, max_defn):
             new_defn = make_commit_hash_metric_definition(prev_defns[0], commit_hash, commit_timestamps)
             repo_metrics[metric][HISTORY_KEY][0] = new_defn
 
         # Otherwise, prepend changed definition for existing metric
         else:
             new_defn = make_commit_hash_metric_definition(definition, commit_hash, commit_timestamps)
-            repo_metrics[metric][HISTORY_KEY] = \
-                [new_defn] + prev_defns
+            repo_metrics[metric][HISTORY_KEY] = prev_defns + [new_defn]
+
 
     # We haven't seen this metric before, add it
     else:

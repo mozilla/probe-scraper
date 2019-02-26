@@ -126,11 +126,13 @@ def test_normal_repo(normal_repo):
     duration = 'example.duration'
     os_metric = 'example.os'
 
-    # they each have one definition
+    # duration has 1 definition
     assert len(metrics[duration][HISTORY_KEY]) == 1
-    assert len(metrics[os_metric][HISTORY_KEY]) == 1
 
-    # duration was in 2 commits
+    # os has 3 definitions
+    assert len(metrics[os_metric][HISTORY_KEY]) == 3
+
+    # duration different begin/end commits
     assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 2
 
     # os was in 1 commit
@@ -143,10 +145,12 @@ def test_normal_repo(normal_repo):
 def test_improper_metrics_repo(improper_metrics_repo):
     runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
 
-    # should be no output, since it was an improper file
     path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
+    with open(path, 'r') as data:
+        metrics = json.load(data)
 
-    assert not Path(path).exists()
+    # should be empty output, since it was an improper file
+    assert not metrics
 
     with open(EMAIL_FILE, 'r') as email_file:
         emails = yaml.load(email_file)

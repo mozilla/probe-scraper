@@ -202,7 +202,8 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
             try:
-                results, errs = GLEAN_PARSER.parse(paths)
+                config = {'allow_reserved': repo_name == 'glean'}
+                results, errs = GLEAN_PARSER.parse(paths, config)
                 metrics[repo_name][commit_hash] = results
             except Exception:
                 msg = "Improper file in {}\n{}".format(', '.join(paths), traceback.format_exc())

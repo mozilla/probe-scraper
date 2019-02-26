@@ -8,9 +8,9 @@ from pathlib import Path
 
 
 class MetricsParser:
-    def parse(self, filenames, version=None):
+    def parse(self, filenames, config):
         paths = [Path(fname) for fname in filenames]
-        results = parse_metrics(paths)
+        results = parse_metrics(paths, config)
         errors = [err for err in results]
 
         return (

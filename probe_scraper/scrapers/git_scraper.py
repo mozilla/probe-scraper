@@ -8,8 +8,13 @@ import os
 import shutil
 import tempfile
 import traceback
+from datetime import datetime, timedelta
 
 
+MIN_DATES = {
+    # Previous versions of the file were not schema-compatible
+    "glean": "2019-01-25 00:00:00"
+}
 
 def get_commits(repo, filename):
     sep = ":"
@@ -28,6 +33,12 @@ def retrieve_files(repo_info, cache_dir):
     base_path = os.path.join(cache_dir, repo_info.name)
     metric_files = repo_info.get_metrics_file_paths()
 
+    min_date = None
+    if repo_info.name in MIN_DATES:
+        # See https://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp
+        # for why we're calculating this UTC timestamp explicitly
+        min_date = (datetime.fromisoformat(MIN_DATES[repo_info.name]) - datetime(1970, 1, 1)) / timedelta(seconds=1)
+
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
     repo = Repo.clone_from(repo_info.url, repo_info.name)
@@ -36,6 +47,8 @@ def retrieve_files(repo_info, cache_dir):
         for rel_path in metric_files:
             hashes = get_commits(repo, rel_path)
             for _hash, ts in hashes.items():
+                if (min_date and ts < min_date):
+                    continue 
                 disk_path = os.path.join(base_path, _hash, rel_path)
                 if not os.path.exists(disk_path):
                     contents = get_file_at_hash(repo, _hash, rel_path)

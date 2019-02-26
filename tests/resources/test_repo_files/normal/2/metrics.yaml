@@ -19,7 +19,7 @@ example:
     send_in_pings:
       - baseline
     description: |
-      don't
+      pop
     bugs:
       - 1497894
     data_reviews:
