@@ -8,6 +8,7 @@ import json
 import tempfile
 import requests
 import requests_cache
+from .buildhub import Buildhub
 
 from collections import defaultdict
 
@@ -62,39 +63,68 @@ def load_tags(channel):
     return data
 
 
-def extract_tag_data(tag_data, channel):
+def extract_major_version(version_str):
+    """
+    Given a version string, e.g. "62.0a1",
+    extract the major version as an int.
+    """
+    search = re.search(r"^(\d+)\.", version_str)
+    if search is not None:
+        return int(search.group(1))
+    else:
+        raise Exception("Invalid version string " + version_str)
+
+
+def extract_tag_version(channel, version_str):
+    """
+    Given a tag, e.g. FIREFOX_65_0_RELEASE,
+    extract the major version as an int.
+    """
+    if channel == "release":
+        return int(version_str.split('_')[1])
+    elif channel in ["beta", "nightly"]:
+        return int(version_str.split('_')[2])
+    else:
+        raise Exception("Unsupported channel " + channel)
+
+
+def adjust_version(channel, version):
+    """
+    We work with tags that are the start of version N.
+    We want to treat those revisions as the end of version N-1 instead.
+    Nightly only has tags of the type FIREFOX_AURORA_NN_BASE, so it doesn't
+    need this.
+    """
+    if channel != "nightly":
+        return version - 1
+    return version
+
+
+def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
     tag_regex = CHANNELS[channel]['tag_regex']
     tip_node_id = tag_data["node"]
     tags = [t for t in tag_data["tags"] if re.match(tag_regex, t["tag"])]
     results = []
+    latest_version = -1
 
     for tag in tags:
-        version = ""
-        if channel == "release":
-            version = tag["tag"].split('_')[1]
-        elif channel in ["beta", "nightly"]:
-            version = tag["tag"].split('_')[2]
-        else:
-            raise Exception("Unsupported channel " + channel)
+        version = extract_tag_version(channel, tag["tag"])
+        version = adjust_version(channel, version)
+        latest_version = max(version, latest_version)
 
-        # We work with tags that are the start of version N.
-        # We want to treat those revisions as the end of version N-1 instead.
-        # Nightly only has tags of the type FIREFOX_AURORA_NN_BASE, so it doesn't
-        # need this.
-        if channel != "nightly":
-            version = str(int(version) - 1)
-
-        if int(version) >= MIN_FIREFOX_VERSION:
+        if (version >= min_fx_version and
+           (max_fx_version is None or version <= max_fx_version)):
             results.append({
                 "node": tag["node"],
                 "version": version,
             })
 
-    results = sorted(results, key=lambda r: int(r["version"]))
+    results = sorted(results, key=lambda r: r["version"])
+    latest_version += 1
 
-    # Add tip revision.
-    if tip_node_id != results[-1]["node"]:
-        latest_version = str(int(results[-1]["version"]) + 1)
+    # Add tip revision, if we're including the most recent version
+    if (tip_node_id != results[-1]["node"] and
+       (max_fx_version is None or latest_version <= max_fx_version)):
         results.append({
             "node": tip_node_id,
             "version": latest_version,
@@ -161,31 +191,37 @@ def save_error_cache(folder, error_cache):
         json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
-def scrape(folder=None):
+def scrape(folder=None, min_fx_version=None, max_fx_version=None):
     """
     Returns data in the format:
     {
-      node_id: {
-        channels: [channel_name, ...],
-        version: string,
-        registries: {
-          histogram: [path, ...]
-          event: [path, ...]
-          scalar: [path, ...]
-        }
+      <channel>: {
+        <revision>: {
+          "channel": <channel>,
+          "version": <major-version>,
+          "registries": {
+            "event": [<path>, ...],
+            "histogram": [<path>, ...],
+            "scalar": [<path>, ...]
+          }
+        },
+        ...
       },
       ...
     }
     """
+    if min_fx_version is None:
+        min_fx_version = MIN_FIREFOX_VERSION
     if folder is None:
         folder = tempfile.mkdtemp()
+
     error_cache = load_error_cache(folder)
     requests_cache.install_cache('probe_scraper_cache')
     results = defaultdict(dict)
 
     for channel in CHANNELS.keys():
         tags = load_tags(channel)
-        versions = extract_tag_data(tags, channel)
+        versions = extract_tag_data(tags, channel, min_fx_version, max_fx_version)
         save_error_cache(folder, error_cache)
 
         print("\n" + channel + " - extracted version data:")
@@ -202,5 +238,57 @@ def scrape(folder=None):
                 'registries': files,
             }
             save_error_cache(folder, error_cache)
+
+    return results
+
+
+def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
+    """
+    Returns data in the format:
+    {
+      <channel>: {
+        <revision>: {
+          "date": <date>,
+          "version": <version>,
+          "registries": {
+            "histogram": [path, ...],
+            "event": [path, ...],
+            "scalar": [path, ...]
+          }
+        }
+      },
+      ...
+    }
+    """
+    if min_fx_version is None:
+        min_fx_version = MIN_FIREFOX_VERSION
+
+    error_cache = load_error_cache(folder)
+    bh = Buildhub()
+    results = defaultdict(dict)
+
+    if channels is None:
+        channels = CHANNELS.keys()
+
+    for channel in channels:
+
+        print("\nRetreiving Buildhub results for channel " + channel)
+
+        revision_dates = bh.get_revision_dates(channel, min_fx_version, max_version=max_fx_version)
+        num_revisions = len(revision_dates)
+
+        print("  " + str(num_revisions) + " revisions found")
+
+        for i, rd in enumerate(revision_dates):
+            revision = rd["revision"]
+
+            print("  Downloading files for revision number " + str(i+1) + "/" + str(num_revisions))
+            files = download_files(channel, revision, folder, error_cache)
+
+            results[channel][revision] = {
+                'date': rd['date'],
+                'version': extract_major_version(rd["version"]),
+                'registries': files
+            }
 
     return results

@@ -192,13 +192,14 @@ class EventData:
 
         # Check extra_keys.
         extra_keys = definition.get('extra_keys', {})
-        if len(list(extra_keys.keys())) > MAX_EXTRA_KEYS_COUNT:
+        if len(extra_keys.keys()) > MAX_EXTRA_KEYS_COUNT:
             raise ValueError("%s: number of extra_keys exceeds limit %d" %\
                               (self.identifier, MAX_EXTRA_KEYS_COUNT))
-        for key in extra_keys.keys():
-            string_check(self.identifier, field='extra_keys', value=key,
-                         min_length=1, max_length=MAX_EXTRA_KEY_NAME_LENGTH,
-                         regex=IDENTIFIER_PATTERN)
+        if strict_type_checks:
+            for key in extra_keys.keys():
+                string_check(self.identifier, field='extra_keys', value=key,
+                             min_length=1, max_length=MAX_EXTRA_KEY_NAME_LENGTH,
+                             regex=IDENTIFIER_PATTERN)
 
         # Check expiry.
         if not 'expiry_version' in definition and not 'expiry_date' in definition:
@@ -326,18 +327,20 @@ def load_events(filename, strict_type_checks=True):
     #      ...
     #   ...
     for category_name, category in events.items():
-        string_check("top level structure", field='category', value=category_name,
-                     min_length=1, max_length=MAX_CATEGORY_NAME_LENGTH,
-                     regex=IDENTIFIER_PATTERN)
+        if(strict_type_checks):
+            string_check("top level structure", field='category', value=category_name,
+                         min_length=1, max_length=MAX_CATEGORY_NAME_LENGTH,
+                         regex=IDENTIFIER_PATTERN)
 
         # Make sure that the category has at least one entry in it.
-        if not category or len(category) == 0:
+        if strict_type_checks and not category or len(category) == 0:
             raise ValueError(category_name + ' must contain at least one entry')
 
         for name, entry in category.items():
-            string_check(category_name, field='event name', value=name,
-                         min_length=1, max_length=MAX_METHOD_NAME_LENGTH,
-                         regex=IDENTIFIER_PATTERN)
+            if(strict_type_checks):
+                string_check(category_name, field='event name', value=name,
+                             min_length=1, max_length=MAX_METHOD_NAME_LENGTH,
+                             regex=IDENTIFIER_PATTERN)
             event_list.append(EventData(category_name, name, entry,
                                         strict_type_checks=strict_type_checks))
 

@@ -34,7 +34,7 @@ def transform_scalar_info(probes):
 
 
 class ScalarsParser:
-    def parse(self, filenames, version=None):
+    def parse(self, filenames, version=None, channel=None):
         if len(filenames) > 1:
             raise Exception('We don\'t support loading from more than one file.')
 

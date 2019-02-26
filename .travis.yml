@@ -11,4 +11,4 @@ install:
 before_script:
   - flake8 --max-line-length 100 .
 # command to run tests
-script: pytest tests
+script: pytest tests/ --run-web-tests

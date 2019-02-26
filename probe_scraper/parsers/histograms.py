@@ -72,7 +72,7 @@ def transform_probe_info(probes):
 
 
 class HistogramsParser:
-    def parse(self, filenames, version=None):
+    def parse(self, filenames, version=None, channel=None):
         # Call the histogram tools for each file.
         parsed_probes = list(histogram_tools.from_files(filenames))
 

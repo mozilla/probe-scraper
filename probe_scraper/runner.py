@@ -30,7 +30,8 @@ class DummyParser:
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
 DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
-
+FIRST_APPEARED_DATE_KEY = "first_added"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 PARSERS = {
     # This lists the available probe registry parsers:
@@ -95,29 +96,55 @@ def write_repositories_data(repos, out_dir):
     dump_json(json_data, os.path.join(out_dir, "mobile-metrics"), "repositories")
 
 
-def load_moz_central_probes(cache_dir, out_dir):
-    # Scrape probe data from repositories.
-    node_data = moz_central_scraper.scrape(cache_dir)
+def parse_moz_central_probes(scraped_data):
+    """
+    Parse probe data from files into the form:
+    channel_name: {
+      node_id: {
+        histogram: {
+          name: ...,
+          ...
+        },
+        scalar: {
+          ...
+        },
+      },
+      ...
+    }
+    """
 
-    # Parse probe data from files into the form:
-    # channel_name -> {
-    #   node_id -> {
-    #     histogram: {
-    #       name: ...,
-    #       ...
-    #     },
-    #     scalar: {
-    #       ...
-    #     },
-    #   },
-    #   ...
-    # }
     probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for channel, nodes in node_data.items():
-        for node_id, details in nodes.items():
-            for probe_type, paths in details['registries'].items():
-                results = PARSERS[probe_type].parse(paths, details["version"])
-                probes[channel][node_id][probe_type] = results
+    for channel, revisions in scraped_data.items():
+        for revision, details in revisions.items():
+            for probe_type, paths in details["registries"].items():
+                results = PARSERS[probe_type].parse(paths, details["version"], channel)
+                probes[channel][revision][probe_type] = results
+
+    return probes
+
+
+def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
+    for channel, probes in probes_by_channel.items():
+        for probe_id, info in probes.items():
+            if channel == "all":
+                dates = first_appeared_dates[probe_id]
+            else:
+                dates = {k: v for k, v in first_appeared_dates[probe_id].items() if k == channel}
+
+            dates = {k: v.strftime(DATE_FORMAT) for k, v in dates.items()}
+            probes_by_channel[channel][probe_id][FIRST_APPEARED_DATE_KEY] = dates
+
+    return probes_by_channel
+
+
+def load_moz_central_probes(cache_dir, out_dir, fx_version):
+
+    # Scrape probe data from repositories.
+    node_data = moz_central_scraper.scrape(cache_dir,
+                                           min_fx_version=fx_version,
+                                           max_fx_version=fx_version)
+
+    probes = parse_moz_central_probes(node_data)
 
     # Transform extracted data: get both the monolithic and by channel probe data.
     revisions = transform_revisions.transform(node_data)
@@ -126,8 +153,22 @@ def load_moz_central_probes(cache_dir, out_dir):
     probes_by_channel["all"] = transform_probes.transform(probes, node_data,
                                                           break_by_channel=False)
 
+    # Scrape all revisions from buildhub
+    revision_data = moz_central_scraper.scrape_channel_revisions(cache_dir,
+                                                                 min_fx_version=fx_version,
+                                                                 max_fx_version=fx_version)
+    revision_probes = parse_moz_central_probes(revision_data)
+
+    # Get the minimum revision and date per probe-channel
+    revision_dates = transform_revisions.transform(revision_data)
+    first_appeared_dates = transform_probes.get_minimum_date(revision_probes, revision_data,
+                                                             revision_dates)
+
+    # Add in the first appeared dates
+    probes_by_channel_with_dates = add_first_appeared_dates(probes_by_channel, first_appeared_dates)
+
     # Serialize the probe data to disk.
-    write_moz_central_probe_data(probes_by_channel, revisions, out_dir)
+    write_moz_central_probe_data(probes_by_channel_with_dates, revisions, out_dir)
 
 
 def check_git_probe_structure(data):
@@ -193,6 +234,7 @@ def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
 
 def main(cache_dir,
          out_dir,
+         firefox_version,
          process_moz_central_probes,
          process_git_probes,
          repositories_file,
@@ -200,7 +242,7 @@ def main(cache_dir,
 
     process_both = not (process_moz_central_probes or process_git_probes)
     if process_moz_central_probes or process_both:
-        load_moz_central_probes(cache_dir, out_dir)
+        load_moz_central_probes(cache_dir, out_dir, firefox_version)
     if process_git_probes or process_both:
         load_git_probes(cache_dir, out_dir, repositories_file, dry_run)
 
@@ -215,6 +257,11 @@ if __name__ == "__main__":
                         help='Directory to store output files in.',
                         action='store',
                         default='.')
+    parser.add_argument('--firefox-version',
+                        help='Version of Firefox to scrape',
+                        action='store',
+                        type=int,
+                        required=False)
     parser.add_argument('--repositories-file',
                         help='Repositories YAML file location.',
                         action='store',
@@ -234,6 +281,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args.cache_dir,
          args.out_dir,
+         args.firefox_version,
          args.only_moz_central_probes,
          args.only_git_probes,
          args.repositories_file,

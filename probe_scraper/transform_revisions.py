@@ -10,7 +10,8 @@ def transform(node_data):
     for channel, nodes in node_data.items():
         for node_id, details in nodes.items():
             results[channel][node_id] = {
-                'version': details['version'],
+                'version': details.get('version'),
+                'date': details.get('date')
             }
 
     return results
