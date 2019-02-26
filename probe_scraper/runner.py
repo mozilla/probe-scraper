@@ -21,7 +21,8 @@ from .parsers.metrics import MetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
-from schema import And, Optional, Schema
+from schema import And, Schema
+
 
 class DummyParser:
     def parse(self, files):
@@ -213,7 +214,8 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
                 })
             else:
                 if errs:
-                    msg = "Error in processing commit {}\nErrors: [{}]".format(commit_hash, ".".join(errs))
+                    msg = ("Error in processing commit {}\n"
+                           "Errors: [{}]").format(commit_hash, ".".join(errs))
                     emails[repo_name]["emails"].append({
                         "subject": "Probe Scraper: Error on Metric Parsing",
                         "message": msg

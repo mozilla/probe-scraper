@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
 from glean_parser.parser import parse_metrics
 from pathlib import Path
 
@@ -21,4 +20,3 @@ class MetricsParser:
             },
             errors
         )
-

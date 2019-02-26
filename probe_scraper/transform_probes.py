@@ -210,7 +210,7 @@ def pretty_ts(ts):
     return datetime.utcfromtimestamp(ts).isoformat(' ')
 
 
-def make_commit_hash_metric_definition(definition, commit, commit_timestamps):
+def make_metric_defn(definition, commit, commit_timestamps):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
         definition[COMMITS_KEY] = {
@@ -253,22 +253,22 @@ def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_t
     # If we've seen this metric before, check previous definitions
     if metric in repo_metrics:
         prev_defns = repo_metrics[metric][HISTORY_KEY]
-        max_defn = max(prev_defns, key = lambda x: datetime.fromisoformat(x[DATES_KEY]["last"]))
+        max_defn = max(prev_defns,
+                       key=lambda x: datetime.fromisoformat(x[DATES_KEY]["last"]))
 
         # If equal to previous commit, update date and commit on existing definition
         if metrics_equal(definition, max_defn):
-            new_defn = make_commit_hash_metric_definition(prev_defns[0], commit_hash, commit_timestamps)
+            new_defn = make_metric_defn(prev_defns[0], commit_hash, commit_timestamps)
             repo_metrics[metric][HISTORY_KEY][0] = new_defn
 
         # Otherwise, prepend changed definition for existing metric
         else:
-            new_defn = make_commit_hash_metric_definition(definition, commit_hash, commit_timestamps)
+            new_defn = make_metric_defn(definition, commit_hash, commit_timestamps)
             repo_metrics[metric][HISTORY_KEY] = prev_defns + [new_defn]
-
 
     # We haven't seen this metric before, add it
     else:
-        defn = make_commit_hash_metric_definition(definition, commit_hash, commit_timestamps)
+        defn = make_metric_defn(definition, commit_hash, commit_timestamps)
         repo_metrics[metric] = {
             TYPE_KEY: defn[TYPE_KEY],
             NAME_KEY: metric,
@@ -330,10 +330,10 @@ def transform_by_hash(commit_timestamps, metric_data):
         for commit_hash, metrics in sorted_commits:
             for metric, definition in metrics.items():
                 repo_metrics = update_or_add_metric(repo_metrics,
-                                                   commit_hash,
-                                                   metric,
-                                                   definition,
-                                                   commit_timestamps[repo_name])
+                                                    commit_hash,
+                                                    metric,
+                                                    definition,
+                                                    commit_timestamps[repo_name])
 
         all_metrics[repo_name] = repo_metrics
 
