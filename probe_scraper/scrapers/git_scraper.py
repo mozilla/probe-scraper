@@ -42,7 +42,7 @@ def retrieve_files(repo_info, cache_dir):
 
     min_date = None
     if repo_info.name in MIN_DATES:
-        min_date = utc_timestamp(datetime.fromisformat(MIN_DATES[repo_info.name]))
+        min_date = utc_timestamp(datetime.fromisoformat(MIN_DATES[repo_info.name]))
 
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
@@ -113,6 +113,7 @@ def scrape(folder=None, repos=None):
             results[repo_info.name] = commits
             timestamps[repo_info.name] = ts
         except Exception:
+            raise
             emails[repo_info.name]["emails"].append({
                 "subject": "Probe Scraper: Failed Probe Import",
                 "message": traceback.format_exc()
