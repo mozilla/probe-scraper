@@ -1,4 +1,4 @@
-from probe_scraper.parsers.metrics import MetricsParser
+from probe_scraper.parsers.metrics import GleanMetricsParser
 
 
 def is_string(s):
@@ -7,7 +7,7 @@ def is_string(s):
 
 def test_metrics_parser():
     # Parse the histograms from the test definitions.
-    parser = MetricsParser()
+    parser = GleanMetricsParser()
     parsed_metrics, errs = parser.parse(["tests/resources/metrics.yaml"], {})
 
     assert errs == []
