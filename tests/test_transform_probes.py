@@ -21,7 +21,6 @@ from datetime import datetime
 #   }
 
 CHANNELS = ["release", "beta"]
-REPOS = ["mobile_metrics_example_1", "mobile_metrics_example_2"]
 
 IN_NODE_DATA = {
     channel: {
@@ -56,14 +55,56 @@ REVISION_DATES = {
     for channel in CHANNELS
 }
 
+REPOS = {"test-repo-0", "test-repo-1"}
 
-def in_probe_data(moz_central=True):
-    if moz_central:
-        top_levels = CHANNELS
-        secondary_level_prefix = "node_id_"
-    else:
-        top_levels = REPOS
-        secondary_level_prefix = "abcdef"
+IN_METRICS_DATA = {
+    repo: {
+        str(i): {
+            "example.duration": {
+                "type": "timespan",
+                "description": "  The duration of the last foreground session.",
+                "time_unit": "second",
+                "send_in_pings": ["baseline"],
+                "bugs": [1497894, 1519120],
+                "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                "notification_emails": ["telemetry-client-dev@mozilla.com"]
+            }
+        } for i in range(4)
+    } for repo in REPOS
+}
+
+OUT_METRICS_DATA = {
+    repo: {
+        "example.duration": {
+            "type": "timespan",
+            "name": "example.duration",
+            "history": [
+                {
+                    "type": "timespan",
+                    "description": "  The duration of the last foreground session.",
+                    "time_unit": "second",
+                    "send_in_pings": ["baseline"],
+                    "bugs": [1497894, 1519120],
+                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                    "git-commits": {
+                        "first": "0",
+                        "last": "3"
+                    },
+                    "dates": {
+                        "first": "1970-01-01 00:00:00",
+                        "last": "1970-01-01 00:00:03"
+                    }
+                }
+            ]
+        }
+    } for repo in REPOS
+}
+
+
+def in_probe_data():
+    top_levels = CHANNELS
+    secondary_level_prefix = "node_id_"
 
     secondary_level = {
         secondary_level_prefix + "1": {
@@ -122,7 +163,7 @@ def in_probe_data(moz_central=True):
     return {top_level: secondary_level for top_level in top_levels}
 
 
-def out_probe_data(by_channel=False, include_versions=True):
+def out_probe_data(by_channel=False):
 
     probes = [
         {
@@ -152,37 +193,25 @@ def out_probe_data(by_channel=False, include_versions=True):
         }
     ]
 
-    if include_versions:
-        probes[0]['revisions'] = {
-            'first': 'node_id_2',
-            'last': 'node_id_3'
-        }
-        probes[0]['versions'] = {
-            'first': '51',
-            'last': '52'
-        }
+    probes[0]['revisions'] = {
+        'first': 'node_id_2',
+        'last': 'node_id_3'
+    }
+    probes[0]['versions'] = {
+        'first': '51',
+        'last': '52'
+    }
 
-        probes[1]['revisions'] = {
-            'first': 'node_id_1',
-            'last': 'node_id_1'
-        }
-        probes[1]['versions'] = {
-            'first': '50',
-            'last': '50'
-        }
+    probes[1]['revisions'] = {
+        'first': 'node_id_1',
+        'last': 'node_id_1'
+    }
+    probes[1]['versions'] = {
+        'first': '50',
+        'last': '50'
+    }
 
-        allowed_channels = CHANNELS
-    else:
-        probes[0]['git-commits'] = {
-            'first': 'abcdef2',
-            'last': 'abcdef3'
-        }
-        probes[1]['git-commits'] = {
-            'first': 'abcdef1',
-            'last': 'abcdef1'
-        }
-
-        allowed_channels = REPOS
+    allowed_channels = CHANNELS
 
     if by_channel:
         return {
@@ -282,13 +311,12 @@ def test_transform_by_channel():
 def test_transform_by_hash():
     timestamps = {
         repo: {
-            "abcdef{}".format(i): str(i)
-            for i in range(1, 4)
+            str(i): i for i in range(4)
         } for repo in REPOS
     }
 
-    result = transform.transform_by_hash(timestamps, in_probe_data(False))
-    expected = out_probe_data(by_channel=True, include_versions=False)
+    result = transform.transform_by_hash(timestamps, IN_METRICS_DATA)
+    expected = OUT_METRICS_DATA
 
     print_and_test(expected, result)
 

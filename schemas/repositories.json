@@ -2,10 +2,7 @@
   "$schema": "http://json-schema.org/schema#", 
   "additionalProperties": {
     "properties": {
-      "app_name": {
-        "type": "string"
-      },
-      "os": {
+      "app_id": {
         "type": "string"
       },
       "notification_emails": {
@@ -19,29 +16,16 @@
         "type": "string",
         "format": "uri"
       },
-      "histogram_file_paths": {
+      "metrics_files": {
         "type": "array",
         "items": {
           "type": "string",
-          "pattern": "(json|yaml)$"
-        }
-      },
-      "scalar_file_paths": {
-        "type": "array",
-        "items": {
-          "type": "string",
-          "pattern": "yaml$"
-        }
-      },
-      "event_file_paths": {
-        "type": "array",
-        "items": {
-          "type": "string",
-          "pattern": "yaml$"
+          "pattern": "metrics\\.yaml$"
         }
       }
     },
     "required": [
+      "app_id",
       "url",
       "notification_emails"
     ],

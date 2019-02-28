@@ -8,7 +8,7 @@ def is_string(s):
 def test_scalar_parser():
     # Parse the histograms from the test definitions.
     parser = ScalarsParser()
-    parsed_scalars = parser.parse(["tests/test_scalars.yaml"], "55")
+    parsed_scalars = parser.parse(["tests/resources/test_scalars.yaml"], "55")
 
     # Make sure we loaded all the scalars.
     assert len(parsed_scalars) == 16

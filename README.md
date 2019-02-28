@@ -7,26 +7,18 @@ Also, probes outside of Histograms.json - like the CSS use counters - are includ
 
 The data is pulled from two different sources:
 - From [`hg.mozilla.org`](https://hg.mozilla.org) for Firefox data.
-- From a [configurable set of Github repositories](repositories.yaml).
+- From a [configurable set of Github repositories](repositories.yaml) that use [Glean](https://github.com/mozilla-mobile/android-components/tree/master/components/service/glean).
 
 A web tool to explore the data is available [here](https://telemetry.mozilla.org/probe-dictionary/).
 
-## Adding a New Git Repository
+## Adding a New Glean Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
-Currently all repositories are assumed to be for mobile-metrics. The `app_name` and `os` should
-match the corresponding fields in the [mobile metrics ping](https://github.com/mozilla-services/mozilla-pipeline-schemas/blob/dev/schemas/telemetry/mobile-metrics/mobile-metrics.1.schema.json).
 
 - `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
 will be just about your specific repository.
 - `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
-- `histogram_file_paths`: A list of relative paths to `Histograms.json` files
-- `scalar_file_paths`: A list of relative paths to `Scalars.yaml` files
-
-Future work:
-- `Events.yaml` support
-- `Histograms.yaml` support
-- Support for repos containing addon Scalar and Event definitions
+- `metrics_files`: A list of relative paths to `metrics.yaml` files
 
 ## Developing the probe-scraper
 Install the requirements:
@@ -59,12 +51,18 @@ These will not run by default, but will run on CI.
 
 ### Performing a Dry-Run
 
-Before opening a PR, it's good to test the code you wrote on the production data.
+Before opening a PR, it's good to test the code you wrote on the production data. You can specify a specific Firefox
+version to run on by using `first-version`:
+```
+python -m probe_scraper.runner --firefox-version 65 --dry-run
+```
 
-1. Change `MIN_FIREFOX_VERSION` in `scrapers/moz_central_scraper.py` to something larger, e.g. `60`.
-   This will facilitate a faster scraping (so it's not searching through all of the historical commits).
-2. Run `python probe_scraper/runner.py`
-3. Check the output of the various files listed, and that the changes you expected to happen, did
+Additionally, you can test just on Glean repositories:
+```
+python -m probe_scraper.runner --glean --dry-run
+```
+
+Including `--dry-run` means emails will not be sent.
 
 ## Module overview
 
@@ -192,67 +190,35 @@ This file contains the data for the probes. The data might be spread across mult
 
 Please refer to the Telemetry data collection [documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/collection/index.html) for a detailed explaination of the field information reported for each probe (e.g. `cpp_guard`).
 
-## Git Repository Probe Data Files
-The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has a `git-commits` key, which contains the
-first and last commits that definition has been seen in.
+## Glean Metrics Data Files
+The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has `git-commits` and `dates` keys, which contains the
+first and last commits that definition has been seen in, and when those commits were committed.
 
 ```
 {
-  "<probe type>/<probe name>": {
-    "history": {
-      "<repository-name>": [
-        {
-          "cpp_guard": <string or null>,
-          "description": "<string>",
-          "details": {
-            "<type specific detail>": "<detail data>",
-            ...
-            "record_in_processes": [
-              "<string>",
-              ...
-            ]
-          },
-          "expiry_version": "<string>",
-          "optout": <bool>,
-          "git-commits": {
-            "first": "<commit-hash>",
-            "last": "<commit-hash>"
-          },
+  "<metric name>": {
+    "history": [
+      {
+        "type": "timespan",
+        "description": "  The duration of the last foreground session.",
+        "time_unit": "second",
+        "send_in_pings": ["baseline"],
+        "bugs": [1497894, 1519120],
+        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+        "notification_emails": ["telemetry-client-dev@mozilla.com"],
+        "git-commits": {
+          "first": "<commit-hash>",
+          "last": "<commit-hash>"
         },
-        ...
-      ]
-    },
-    "name": "<probe name>",
-    "type": "<probe type>"
-  },
-  ...
-  "histogram/EXAMPLE_EXPONENTIAL_HISTOGRAM": {
-    "history": {
-      "mobile_metrics_example": [
-        {
-          "git-commits": {
-            "first": "71f9c017fb75c46e4f5167a92d549f12dc088f1c", 
-            "last": "ebb0e4637ebb1c665d384c094ee71c79656b1acd"
-          }, 
-          "dates": {
-            "first": "20180504", 
-            "last": "20180510"
-          }, 
-          "description": "An example exponential histogram, sent on prerelease and release, recorded in the engine process", 
-          "details": {
-            "high": 1000, 
-            "keyed": false, 
-            "kind": "exponential", 
-            "low": 1, 
-            "n_buckets": 50
-          }, 
-          "expiry_version": "2", 
-          "optout": false
-        }
-      ]
-    }, 
-    "name": "EXAMPLE_EXPONENTIAL_HISTOGRAM", 
-    "type": "histogram"
+        "dates": {
+          "first": "2019-01-01 12:12:12",
+          "last": "2019-02-01 14:14:14"
+        },
+      },
+      ...
+    ]
+    "name": "<metric name>",
+    "type": "<metric type>"
   },
   ...
 }
@@ -271,3 +237,15 @@ The processed probe data is serialized to the disk in a directory hierarchy star
 For example, all the JSON probe data in the [main ping]() for the *Firefox Nightly* channel can be accessed with the followign path: `firefox/nightly/main/all_probes`. The probe data for all the channels (same product and ping) can be accessed instead using `firefox/all/main/all_probes`.
 
 The root directory for the output generated from the scheduled job can be found at: https://probeinfo.telemetry.mozilla.org/ . All the probe data for Firefox coming from the main ping can be found [here](https://probeinfo.telemetry.mozilla.org/firefox/all/main/all_probes).
+
+## Accessing `Glean` metrics data
+Glean data is generally laid out as follows:
+
+  | -- glean
+      | -- repositories
+      | -- general
+      | -- repository-name
+           | -- general
+           | -- metrics
+
+For example, the data for a repository called `browser` would be found at `/glean/browser/metrics`. A list of available repositories is at `/glean/repositories`.

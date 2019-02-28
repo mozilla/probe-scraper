@@ -12,15 +12,16 @@ import os
 import tempfile
 import traceback
 
+from . import transform_probes
+from . import transform_revisions
 from .emailer import send_ses
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
-from .parsers.scalars import ScalarsParser
+from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
+from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
-from schema import And, Optional, Schema
-from . import transform_probes
-from . import transform_revisions
+from schema import And, Schema
 
 
 class DummyParser:
@@ -33,13 +34,16 @@ DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
 FIRST_APPEARED_DATE_KEY = "first_added"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+
 PARSERS = {
     # This lists the available probe registry parsers:
     # parser type -> parser
+    'event': EventsParser(),
     'histogram': HistogramsParser(),
     'scalar': ScalarsParser(),
-    'event': EventsParser(),
 }
+
+GLEAN_PARSER = GleanMetricsParser()
 
 
 def general_data():
@@ -79,21 +83,20 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
         dump_json(channel_probes, data_dir, "all_probes")
 
 
-def write_external_probe_data(repo_data, out_dir):
-    # Save all our files to "outdir/<repo>/..." to mimic a REST API.
+def write_glean_metric_data(repo_data, out_dir):
+    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
     for repo, probe_data in repo_data.items():
-        base_dir = os.path.join(out_dir, repo)
+        base_dir = os.path.join(out_dir, "glean", repo)
 
         print("\nwriting output:")
-        dump_json(general_data(), base_dir, "general")
 
-        data_dir = os.path.join(base_dir, "mobile-metrics")
-        dump_json(probe_data, data_dir, "all_probes")
+        dump_json(general_data(), base_dir, "general")
+        dump_json(probe_data, base_dir, "metrics")
 
 
 def write_repositories_data(repos, out_dir):
     json_data = [r.to_dict() for r in repos]
-    dump_json(json_data, os.path.join(out_dir, "mobile-metrics"), "repositories")
+    dump_json(json_data, os.path.join(out_dir, "glean"), "repositories")
 
 
 def parse_moz_central_probes(scraped_data):
@@ -171,58 +174,56 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version):
     write_moz_central_probe_data(probes_by_channel_with_dates, revisions, out_dir)
 
 
-def check_git_probe_structure(data):
+def check_glean_metric_structure(data):
     schema = Schema({
         str: {
-            And(str, lambda x: len(x) == 40): {
-                Optional("histogram"): [And(str, lambda x: os.path.exists(x))],
-                Optional("event"): [And(str, lambda x: os.path.exists(x))],
-                Optional("scalar"): [And(str, lambda x: os.path.exists(x))]
-            }
+            And(str, lambda x: len(x) == 40): [And(str, lambda x: os.path.exists(x))]
         }
     })
 
     schema.validate(data)
 
 
-def load_git_probes(cache_dir, out_dir, repositories_file, dry_run):
+def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
     repositories = RepositoriesParser().parse(repositories_file)
-    commit_timestamps, repos_probes_data, emails = git_scraper.scrape(cache_dir, repositories)
+    commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(cache_dir, repositories)
 
-    check_git_probe_structure(repos_probes_data)
+    check_glean_metric_structure(repos_metrics_data)
 
-    # Parse probe data from files into the form:
-    # <repo_name> -> {
-    #   <commit-hash> -> {
-    #     "histogram": {
-    #       <histogram_name>: {
-    #         ...
-    #       },
-    #       ...
-    #     },
-    #     "scalar": {
+    # Parse metric data from files into the form:
+    # <repo_name>:  {
+    #   <commit-hash>:  {
+    #     <metric-name>: {
     #       ...
     #     },
     #   },
     #   ...
     # }
-    probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for repo_name, commits in repos_probes_data.items():
-        for commit_hash, probe_types in commits.items():
-            for probe_type, paths in probe_types.items():
-                try:
-                    results = PARSERS[probe_type].parse(paths)
-                    probes[repo_name][commit_hash][probe_type] = results
-                except Exception:
-                    msg = "Improper file in {}\n{}".format(', '.join(paths), traceback.format_exc())
+    metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    for repo_name, commits in repos_metrics_data.items():
+        for commit_hash, paths in commits.items():
+            try:
+                config = {'allow_reserved': repo_name == 'glean'}
+                results, errs = GLEAN_PARSER.parse(paths, config)
+                metrics[repo_name][commit_hash] = results
+            except Exception:
+                msg = "Improper file in {}\n{}".format(', '.join(paths), traceback.format_exc())
+                emails[repo_name]["emails"].append({
+                    "subject": "Probe Scraper: Improper File",
+                    "message": msg
+                })
+            else:
+                if errs:
+                    msg = ("Error in processing commit {}\n"
+                           "Errors: [{}]").format(commit_hash, ".".join(errs))
                     emails[repo_name]["emails"].append({
-                        "subject": "Probe Scraper: Improper File",
+                        "subject": "Probe Scraper: Error on Metric Parsing",
                         "message": msg
                     })
 
-    probes_by_repo = transform_probes.transform_by_hash(commit_timestamps, probes)
+    metrics_by_repo = transform_probes.transform_by_hash(commit_timestamps, metrics)
 
-    write_external_probe_data(probes_by_repo, out_dir)
+    write_glean_metric_data(metrics_by_repo, out_dir)
 
     write_repositories_data(repositories, out_dir)
 
@@ -236,15 +237,15 @@ def main(cache_dir,
          out_dir,
          firefox_version,
          process_moz_central_probes,
-         process_git_probes,
+         process_glean_metrics,
          repositories_file,
          dry_run):
 
-    process_both = not (process_moz_central_probes or process_git_probes)
+    process_both = not (process_moz_central_probes or process_glean_metrics)
     if process_moz_central_probes or process_both:
         load_moz_central_probes(cache_dir, out_dir, firefox_version)
-    if process_git_probes or process_both:
-        load_git_probes(cache_dir, out_dir, repositories_file, dry_run)
+    if process_glean_metrics or process_both:
+        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run)
 
 
 if __name__ == "__main__":
@@ -271,18 +272,18 @@ if __name__ == "__main__":
                         action='store_true')
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--only-moz-central-probes',
+    group.add_argument('--moz-central',
                        help='Only scrape moz-central probes',
                        action='store_true')
-    group.add_argument('--only-git-probes',
-                       help='Only scrape probes in remote git repos',
+    group.add_argument('--glean',
+                       help='Only scrape metrics in remote glean repos',
                        action='store_true')
 
     args = parser.parse_args()
     main(args.cache_dir,
          args.out_dir,
          args.firefox_version,
-         args.only_moz_central_probes,
-         args.only_git_probes,
+         args.moz_central,
+         args.glean,
          args.repositories_file,
          args.dry_run)

@@ -8,7 +8,7 @@ def is_string(s):
 def test_event_parser():
     # Parse the events from the test definitions.
     parser = EventsParser()
-    parsed_events = parser.parse(["tests/test_events.yaml"], 55)
+    parsed_events = parser.parse(["tests/resources/test_events.yaml"], "55")
 
     # Make sure we loaded all the events.
     assert len(parsed_events) == 5
@@ -34,7 +34,7 @@ def test_event_parser():
 
 def parse(channel, version):
     parser = EventsParser()
-    return parser.parse(["tests/test_events.yaml"], version, channel)
+    return parser.parse(["tests/resources/test_events.yaml"], version, channel)
 
 
 def test_channel_version_ignore():
