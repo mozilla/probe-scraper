@@ -241,11 +241,13 @@ The root directory for the output generated from the scheduled job can be found 
 ## Accessing `Glean` metrics data
 Glean data is generally laid out as follows:
 
-  | -- glean
-      | -- repositories
-      | -- general
-      | -- repository-name
-           | -- general
-           | -- metrics
+```
+| -- glean
+    | -- repositories
+    | -- general
+    | -- repository-name
+        | -- general
+        | -- metrics
+```
 
 For example, the data for a repository called `browser` would be found at `/glean/browser/metrics`. A list of available repositories is at `/glean/repositories`.
