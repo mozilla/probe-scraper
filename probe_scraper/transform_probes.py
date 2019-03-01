@@ -165,15 +165,38 @@ def sorted_node_lists_by_channel(node_data):
     return channels
 
 
-def transform(probe_data, node_data, break_by_channel):
+def sorted_node_lists_by_date(node_data, revision_dates):
+    def get_date(revision):
+        return revision_dates[channel][revision]["date"]
+
+    channels = defaultdict(list)
+    for channel, nodes in node_data.items():
+        for node_id, data in nodes.items():
+            channels[channel].append({
+                'node_id': node_id,
+                'version': data['version'],
+            })
+
+    for channel, data in channels.items():
+        channels[channel] = sorted(data, key=lambda x: get_date(x["node_id"]), reverse=True)
+
+    return channels
+
+
+def transform(probe_data, node_data, break_by_channel, revision_dates=None):
     """ Transform the probe data into the final format.
 
     :param probe_data: the preprocessed probe data.
     :param node_data: the raw probe data.
     :param break_by_channel: True if we want the probe output grouped by
            release channel.
+    :param revision_dates: (optional) A dictionary of channel-revisions
+           and their publish date, used to sort the revisions
     """
-    channels = sorted_node_lists_by_channel(node_data)
+    if revision_dates is None:
+        channels = sorted_node_lists_by_channel(node_data)
+    else:
+        channels = sorted_node_lists_by_date(node_data, revision_dates)
 
     result_data = {}
     for channel, channel_data in channels.items():
@@ -192,7 +215,8 @@ def transform(probe_data, node_data, break_by_channel):
 
 
 def get_minimum_date(probe_data, revision_data, revision_dates):
-    probe_histories = transform(probe_data, revision_data, break_by_channel=True)
+    probe_histories = transform(probe_data, revision_data, break_by_channel=True,
+                                revision_dates=revision_dates)
     min_dates = defaultdict(lambda: defaultdict(str))
 
     for channel, probes in probe_histories.items():

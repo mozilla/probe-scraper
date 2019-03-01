@@ -30,6 +30,9 @@ IN_NODE_DATA = {
         "node_id_2": {
             "version": "51",
         },
+        "node_id_4": {
+            "version": "52",
+        },
         "node_id_3": {
             "version": "52",
         },
@@ -50,6 +53,10 @@ REVISION_DATES = {
         "node_id_3": {
             "version": "52",
             "date": datetime(2018, 3, 3, 10, 11, 12)
+        },
+        "node_id_4": {
+            "version": "52",
+            "date": datetime(2018, 1, 1, 1, 1, 1)
         },
     }
     for channel in CHANNELS
@@ -157,6 +164,23 @@ def in_probe_data():
                     },
                 }
             }
+        },
+        secondary_level_prefix + "4": {
+            "histogram": {
+                "TEST_HISTOGRAM_1": {
+                    "cpp_guard": None,
+                    "description": "A description.",
+                    "expiry_version": "53.0",
+                    "optout": True,
+                    "details": {
+                        "low": 1,
+                        "high": 10,
+                        "keyed": False,
+                        "kind": "exponential",
+                        "n_buckets": 5,
+                    },
+                }
+            }
         }
     }
 
@@ -195,7 +219,7 @@ def out_probe_data(by_channel=False):
 
     probes[0]['revisions'] = {
         'first': 'node_id_2',
-        'last': 'node_id_3'
+        'last': 'node_id_4'
     }
     probes[0]['versions'] = {
         'first': '51',
@@ -324,9 +348,11 @@ def test_transform_by_hash():
 def test_get_minimum_date():
     expected = {
         "histogram/TEST_HISTOGRAM_1": {
-            "release": datetime(2018, 1, 1, 10, 11, 12),
-            "beta": datetime(2018, 1, 1, 10, 11, 12)
+            "release": datetime(2018, 1, 1, 1, 1, 1),
+            "beta": datetime(2018, 1, 1, 1, 1, 1)
         }
     }
 
-    assert transform.get_minimum_date(in_probe_data(), IN_NODE_DATA, REVISION_DATES) == expected
+    result = transform.get_minimum_date(in_probe_data(), IN_NODE_DATA, REVISION_DATES)
+
+    print_and_test(expected, result)
