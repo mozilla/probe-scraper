@@ -10,3 +10,4 @@ example:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
     notification_emails:
       - telemetry-client-dev@mozilla.com
+    expires: never
