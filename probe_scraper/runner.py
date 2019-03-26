@@ -21,7 +21,7 @@ from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
-from schema import And, Schema
+from schema import And, Optional, Schema
 
 
 class DummyParser:
@@ -177,7 +177,7 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version):
 def check_glean_metric_structure(data):
     schema = Schema({
         str: {
-            And(str, lambda x: len(x) == 40): [And(str, lambda x: os.path.exists(x))]
+            Optional(And(str, lambda x: len(x) == 40)): [And(str, lambda x: os.path.exists(x))]
         }
     })
 
@@ -221,7 +221,8 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
                         "message": msg
                     })
 
-    metrics_by_repo = transform_probes.transform_by_hash(commit_timestamps, metrics)
+    metrics_by_repo = {repo: {} for repo in repos_metrics_data}
+    metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
 
     write_glean_metric_data(metrics_by_repo, out_dir)
 

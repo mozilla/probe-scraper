@@ -13,7 +13,17 @@ from datetime import datetime, timedelta
 
 MIN_DATES = {
     # Previous versions of the file were not schema-compatible
-    "glean": "2019-01-25 00:00:00"
+    "glean": "2019-03-15 00:00:00"
+}
+
+IGNORE_COMMITS = {
+    "fenix": [
+        "0e9400730b1168396ed4a19a5e3bae87300a1b75",
+        "71a155c8f115df7ddfb0ee0ca8aee549d98948b1",
+        "786592e8d09de140ef84749ecc1ba1a3bfaa235d",
+        "32f8e06e987e2c7ebbd7858769d7dd293ab2d95e",
+        "51e778ead5b3b4b54bc10f1b4d7120ccfbf33e51"
+    ]
 }
 
 
@@ -44,6 +54,8 @@ def retrieve_files(repo_info, cache_dir):
     if repo_info.name in MIN_DATES:
         min_date = utc_timestamp(datetime.fromisoformat(MIN_DATES[repo_info.name]))
 
+    ignore_commits = IGNORE_COMMITS.get(repo_info.name, [])
+
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
     repo = Repo.clone_from(repo_info.url, repo_info.name)
@@ -53,6 +65,9 @@ def retrieve_files(repo_info, cache_dir):
             hashes = get_commits(repo, rel_path)
             for _hash, ts in hashes.items():
                 if (min_date and ts < min_date):
+                    continue
+
+                if _hash in ignore_commits:
                     continue
 
                 disk_path = os.path.join(base_path, _hash, rel_path)
