@@ -1,3 +1,5 @@
+$schema: moz://mozilla.org/schemas/glean/metrics/1-0-0 
+
 example:
   duration:
     type: timespan

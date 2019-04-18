@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from glean_parser.parser import parse_metrics
+from glean_parser.parser import parse_objects
 from pathlib import Path
 
 
@@ -15,7 +15,7 @@ class GleanMetricsParser:
 
     def parse(self, filenames, config):
         paths = [Path(fname) for fname in filenames]
-        results = parse_metrics(paths, config)
+        results = parse_objects(paths, config)
         errors = [err for err in results]
 
         return (
