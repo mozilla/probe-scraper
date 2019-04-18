@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 
 MIN_DATES = {
     # Previous versions of the file were not schema-compatible
-    "glean": "2019-03-15 00:00:00"
+    "glean": "2019-04-11 00:00:00"
 }
 
 IGNORE_COMMITS = {
