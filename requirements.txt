@@ -1,6 +1,6 @@
 GitPython
 boto3
-glean_parser==0.23.1
+glean_parser==0.24
 jsonschema
 python-dateutil
 pyyaml
