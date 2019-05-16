@@ -1,0 +1,193 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+The `kotlin-dsl` plugin applied to project ':buildSrc' enables experimental Kotlin compiler features. For more information see https://docs.gradle.org/4.10.1/userguide/kotlin_dsl.html#sec:kotlin-dsl_plugin
+Local configuration: loaded local.properties
+Local configuration: application-services substitution path missing. Specify it via 'substitutions.application-services.dir' setting.
+
+> Configure project :app
+WARNING: The option setting 'android.enableUnitTestBinaryResources=true' is experimental and unsupported.
+The current default is 'false'.
+
+WARNING: The option setting 'android.enableR8.fullMode=true' is experimental and unsupported.
+The current default is 'false'.
+
+Generated versionCode: 11361145
+
+----------------------------------------------
+Variant name: aarch64Raptor
+Build type:   raptor
+Flavor:       aarch64
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: aarch64Debug
+Build type:   debug
+Flavor:       aarch64
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: aarch64Nightly
+Build type:   nightly
+Flavor:       aarch64
+Version code: 11361146
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: aarch64Beta
+Build type:   beta
+Flavor:       aarch64
+Version code: 11361146
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Raptor
+Build type:   raptor
+Flavor:       x86
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Debug
+Build type:   debug
+Flavor:       x86
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Nightly
+Build type:   nightly
+Flavor:       x86
+Version code: 11361147
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Beta
+Build type:   beta
+Flavor:       x86
+Version code: 11361147
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armRaptor
+Build type:   raptor
+Flavor:       arm
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armDebug
+Build type:   debug
+Flavor:       arm
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armNightly
+Build type:   nightly
+Flavor:       arm
+Version code: 11361145
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armBeta
+Build type:   beta
+Flavor:       arm
+Version code: 11361145
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+
+> Configure project :architecture
+WARNING: The option setting 'android.enableUnitTestBinaryResources=true' is experimental and unsupported.
+The current default is 'false'.
+
+WARNING: The option setting 'android.enableR8.fullMode=true' is experimental and unsupported.
+The current default is 'false'.
+
+WARNING: API 'variant.getPackageLibrary()' is obsolete and has been replaced with 'variant.getPackageLibraryProvider()'.
+It will be removed at the end of 2019.
+For more information, see https://d.android.com/r/tools/task-configuration-avoidance.
+To determine what is calling variant.getPackageLibrary(), use -Pandroid.debug.obsoleteApi=true on the command line to display a stack trace.
+
+> Task :app:dependencies
+
+------------------------------------------------------------
+Project :app
+------------------------------------------------------------
+
+implementation - Implementation only dependencies for 'main' sources. (n)
++--- org.jetbrains.kotlin:kotlin-android-extensions-runtime:1.3.30 (n)
++--- project architecture (n)
++--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.30 (n)
++--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.0-alpha-2 (n)
++--- androidx.appcompat:appcompat:1.1.0-alpha05 (n)
++--- androidx.constraintlayout:constraintlayout:2.0.0-beta1 (n)
++--- io.reactivex.rxjava2:rxandroid:2.1.0 (n)
++--- io.reactivex.rxjava2:rxkotlin:2.3.0 (n)
++--- com.jakewharton.rxbinding3:rxbinding:3.0.0-alpha2 (n)
++--- com.uber.autodispose:autodispose:1.1.0 (n)
++--- com.uber.autodispose:autodispose-android:1.1.0 (n)
++--- com.uber.autodispose:autodispose-android-archcomponents:1.1.0 (n)
++--- org.jetbrains.anko:anko-commons:0.10.8 (n)
++--- org.jetbrains.anko:anko-sdk25:0.10.8 (n)
++--- org.jetbrains.anko:anko-constraint-layout:0.10.8 (n)
++--- io.sentry:sentry-android:1.7.10 (n)
++--- com.leanplum:leanplum-core:4.3.1 (n)
++--- org.mozilla.components:concept-engine:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:concept-storage:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:concept-toolbar:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:concept-sync:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-awesomebar:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-downloads:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-domains:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-icons:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-engine-gecko-nightly:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-session:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-storage-sync:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:browser-toolbar:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-accounts:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-awesomebar:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-contextmenu:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-customtabs:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-intent:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-prompts:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-qr:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-session:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-sync:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-toolbar:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-tabs:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-findinpage:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-session-bundling:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-sitepermissions:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:feature-readerview:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:service-firefox-accounts:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:service-fretboard:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:service-glean:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:support-ktx:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:support-rustlog:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:ui-colors:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:ui-icons:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:lib-crash:0.53.0-SNAPSHOT (n)
++--- org.mozilla.components:lib-fetch-httpurlconnection:0.53.0-SNAPSHOT (n)
++--- androidx.legacy:legacy-support-v4:1.0.0 (n)
++--- androidx.preference:preference-ktx:1.1.0-alpha05 (n)
++--- androidx.fragment:fragment:1.1.0-alpha08 (n)
++--- androidx.navigation:navigation-fragment:2.1.0-alpha03 (n)
++--- androidx.navigation:navigation-ui:2.1.0-alpha03 (n)
++--- androidx.recyclerview:recyclerview:1.1.0-alpha05 (n)
++--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha01 (n)
++--- androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0-alpha01 (n)
++--- androidx.core:core:1.2.0-alpha01 (n)
++--- androidx.transition:transition:1.1.0-rc01 (n)
++--- com.adjust.sdk:adjust-android:4.11.4 (n)
++--- com.android.installreferrer:installreferrer:1.0 (n)
++--- com.google.android.gms:play-services-ads-identifier:16.0.0 (n)
++--- androidx.fragment:fragment-testing:1.1.0-alpha08 (n)
+\--- com.github.bumptech.glide:glide:4.9.0 (n)
+
+(n) - Not resolved (configuration is not meant to be resolved)
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 13s
+1 actionable task: 1 executed

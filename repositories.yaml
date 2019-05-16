@@ -6,6 +6,7 @@ glean:
   url: 'https://github.com/mozilla-mobile/android-components'
   metrics_files:
     - 'components/service/glean/metrics.yaml'
+  maven_package: org.mozilla.components:service-glean
 fenix:
   app_id: org-mozilla-fenix
   notification_emails:
