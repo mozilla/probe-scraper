@@ -29,8 +29,11 @@ IGNORE_COMMITS = {
 
 def get_commits(repo, filename):
     sep = ":"
-    commits = repo.git.log('--format="%H{}%ct"'.format(sep), filename)
-    with_ts = dict((c.strip('"').split(sep) for c in commits.split("\n")))
+    log_format = '--format="%H{}%ct"'.format(sep)
+    change_commits = repo.git.log(log_format, filename).split('\n')
+    most_recent_commit = repo.git.log('-n', '1', log_format).split('\n')
+    commits = set(change_commits) | set(most_recent_commit)
+    with_ts = dict((c.strip('"').split(sep) for c in commits))
     return {k: int(v) for k, v in with_ts.items()}
 
 

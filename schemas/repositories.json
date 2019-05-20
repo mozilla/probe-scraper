@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/schema#", 
+  "$schema": "http://json-schema.org/schema#",
   "additionalProperties": {
     "properties": {
       "app_id": {
@@ -21,6 +21,22 @@
         "items": {
           "type": "string",
           "pattern": "metrics\\.yaml$"
+        }
+      },
+      "dependencies_url": {
+        "type": "string",
+        "format": "uri"
+      },
+      "dependencies_format": {
+        "type": "string",
+        "enum": [
+          "gradle"
+        ]
+      },
+      "library_names": {
+        "type": "array",
+        "item": {
+          "type": "string"
         }
       }
     },
