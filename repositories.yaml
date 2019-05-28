@@ -16,6 +16,10 @@ fenix:
   url: 'https://github.com/mozilla-mobile/fenix'
   metrics_files:
     - 'app/metrics.yaml'
+  depdendencies_files:
+    - build.gradle
+    - app/build.gradle
+    - buildSrc/src/main/java/Dependencies.kt
   dependencies_url: 'https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.branch.master.revision.{commit_hash}/artifacts/public/dependencies.txt'
   dependencies_format: gradle
 reference-browser:

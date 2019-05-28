@@ -51,7 +51,6 @@ def retrieve_files(repo_info, cache_dir):
     results = defaultdict(list)
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_info.name)
-    metric_files = repo_info.get_metrics_file_paths()
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -64,7 +63,7 @@ def retrieve_files(repo_info, cache_dir):
     repo = Repo.clone_from(repo_info.url, repo_info.name)
 
     try:
-        for rel_path in metric_files:
+        for rel_path in repo_info.get_change_files():
             hashes = get_commits(repo, rel_path)
             for _hash, ts in hashes.items():
                 if (min_date and ts < min_date):

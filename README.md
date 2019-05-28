@@ -22,8 +22,8 @@ will be just about your specific repository.
 
 ### Adding an application
 
-All **applications** in `repositories.yaml` must also define `dependencies_url` and
-`dependencies_format`.
+All **applications** in `repositories.yaml` must also define `dependencies_url`,
+`dependencies_format` and `dependencies_files`.
 
 Glean metrics are emitted by the application using Glean, any libraries it uses
 that use Glean, as well as Glean itself. Therefore, probe scraper needs a way to
@@ -48,6 +48,11 @@ of the build system in use (currently only `gradle` is supported).
 For example, [here were the
 changes](https://github.com/mozilla-mobile/fenix/pull/1996) to make this work
 for Fenix, which uses Taskcluster for CI.
+
+Set the `dependencies_files` parameter to a list of files that change when
+dependencies of of the application change. For example, in an Android project,
+this would usually be all `build.gradle` files, but might include more if the
+build is more complex.
 
 ### Adding a library
 
@@ -267,7 +272,8 @@ first and last commits that definition has been seen in, and when those commits 
 The Glean dependency file contains information about the dependencies of an
 application in `repositories.yaml`.
 
-The format is similar for Glean metrics data files. The only data point tracked
+The format is similar for Glean metrics data files. Each entry in the top-level
+object represents a dependency of the application. The only data point tracked
 in the `history` log is `version`, which is the version number of the
 dependency. At the top-level of each entry is:
 
