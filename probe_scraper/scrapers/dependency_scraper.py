@@ -9,6 +9,8 @@ import re
 import requests
 from requests_file import FileAdapter
 
+# Add support for file:// URLs to the requests library.
+# This is required for testing.
 session = requests.Session()
 session.mount('file://', FileAdapter())
 
@@ -19,6 +21,14 @@ def fetch_dependency_file(url, commit_hash):
     return session.get(url)
 
 
+"""
+A regular expression to parse Gradle dependency lines that look like this:
+
++--- org.mozilla.components:service-glean:0.53.0-SNAPSHOT (n)
++--- com.google.android.gms:play-services-ads-identifier:16.0.0 (n)
++--- androidx.fragment:fragment-testing:1.1.0-alpha08 (n)
+\--- com.github.bumptech.glide:glide:4.9.0 (n)
+"""
 GRADLE_DEPENDENCY_LINE_REGEX = re.compile(
     r'\s*[+\\]---\s+(?P<org>[^:]+):(?P<lib>[^:]+):(?P<version>\S+).*'
 )
