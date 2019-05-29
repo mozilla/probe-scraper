@@ -21,7 +21,7 @@ def fetch_dependency_file(url, commit_hash):
     return session.get(url)
 
 
-"""
+r"""
 A regular expression to parse Gradle dependency lines that look like this:
 
 +--- org.mozilla.components:service-glean:0.53.0-SNAPSHOT (n)
