@@ -6,6 +6,8 @@ glean:
   url: 'https://github.com/mozilla-mobile/android-components'
   metrics_files:
     - 'components/service/glean/metrics.yaml'
+  library_names:
+    - org.mozilla.components:service-glean
 fenix:
   app_id: org-mozilla-fenix
   notification_emails:
@@ -14,6 +16,12 @@ fenix:
   url: 'https://github.com/mozilla-mobile/fenix'
   metrics_files:
     - 'app/metrics.yaml'
+  depdendencies_files:
+    - build.gradle
+    - app/build.gradle
+    - buildSrc/src/main/java/Dependencies.kt
+  dependencies_url: 'https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.branch.master.revision.{commit_hash}/artifacts/public/dependencies.txt'
+  dependencies_format: gradle
 reference-browser:
   app_id: org-mozilla-reference-browser
   notification_emails:

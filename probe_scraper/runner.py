@@ -20,7 +20,7 @@ from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
-from .scrapers import git_scraper, moz_central_scraper
+from .scrapers import dependency_scraper, git_scraper, moz_central_scraper
 from schema import And, Optional, Schema
 
 
@@ -83,15 +83,18 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
         dump_json(channel_probes, data_dir, "all_probes")
 
 
-def write_glean_metric_data(repo_data, out_dir):
+def write_glean_metric_data(metrics, dependencies, out_dir):
     # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
-    for repo, probe_data in repo_data.items():
+    for repo, metrics_data in metrics.items():
+        dependencies_data = dependencies[repo]
+
         base_dir = os.path.join(out_dir, "glean", repo)
 
         print("\nwriting output:")
 
         dump_json(general_data(), base_dir, "general")
-        dump_json(probe_data, base_dir, "metrics")
+        dump_json(metrics_data, base_dir, "metrics")
+        dump_json(dependencies_data, base_dir, "dependencies")
 
 
 def write_repositories_data(repos, out_dir):
@@ -187,6 +190,7 @@ def check_glean_metric_structure(data):
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
     repositories = RepositoriesParser().parse(repositories_file)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(cache_dir, repositories)
+    repositories_by_name = dict((x.name, x) for x in repositories)
 
     check_glean_metric_structure(repos_metrics_data)
 
@@ -200,6 +204,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
     #   ...
     # }
     metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    dependencies = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
             try:
@@ -220,11 +225,18 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
                         "subject": "Probe Scraper: Error on Metric Parsing",
                         "message": msg
                     })
+            dependencies[repo_name][commit_hash] = dependency_scraper.parse_dependencies(
+                repositories_by_name[repo_name],
+                commit_hash
+            )
 
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
 
-    write_glean_metric_data(metrics_by_repo, out_dir)
+    dependencies_by_repo = {repo: {} for repo in repos_metrics_data}
+    dependencies_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, dependencies))
+
+    write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
 
     write_repositories_data(repositories, out_dir)
 

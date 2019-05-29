@@ -29,8 +29,11 @@ IGNORE_COMMITS = {
 
 def get_commits(repo, filename):
     sep = ":"
-    commits = repo.git.log('--format="%H{}%ct"'.format(sep), filename)
-    with_ts = dict((c.strip('"').split(sep) for c in commits.split("\n")))
+    log_format = '--format="%H{}%ct"'.format(sep)
+    change_commits = repo.git.log(log_format, filename).split('\n')
+    most_recent_commit = repo.git.log('-n', '1', log_format).split('\n')
+    commits = set(change_commits) | set(most_recent_commit)
+    with_ts = dict((c.strip('"').split(sep) for c in commits))
     return {k: int(v) for k, v in with_ts.items()}
 
 
@@ -48,7 +51,6 @@ def retrieve_files(repo_info, cache_dir):
     results = defaultdict(list)
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_info.name)
-    metric_files = repo_info.get_metrics_file_paths()
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -61,7 +63,7 @@ def retrieve_files(repo_info, cache_dir):
     repo = Repo.clone_from(repo_info.url, repo_info.name)
 
     try:
-        for rel_path in metric_files:
+        for rel_path in repo_info.get_change_files():
             hashes = get_commits(repo, rel_path)
             for _hash, ts in hashes.items():
                 if (min_date and ts < min_date):

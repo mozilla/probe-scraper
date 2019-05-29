@@ -84,7 +84,11 @@ def normal_repo():
             "app_id": "normal_app_name",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
-            "metrics_files": ["metrics.yaml"]
+            "metrics_files": ["metrics.yaml"],
+            "dependencies_url": (
+                Path(__file__).parent / "resources" / "dependencies.txt"
+            ).as_uri(),
+            "dependencies_format": "gradle"
         }
     }
 
@@ -140,6 +144,17 @@ def test_normal_repo(normal_repo):
 
     # There should have been no errors
     assert not Path(EMAIL_FILE).exists()
+
+    path = os.path.join(out_dir, "glean", normal_repo_name, "dependencies")
+
+    with open(path, 'r') as data:
+        dependencies = json.load(data)
+
+    assert len(dependencies) == 4
+
+    assert dependencies[
+        'org.mozilla.components:service-glean'
+    ][HISTORY_KEY][0]['version'] == '0.53.0-SNAPSHOT'
 
 
 def test_improper_metrics_repo(improper_metrics_repo):
