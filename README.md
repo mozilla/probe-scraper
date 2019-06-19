@@ -331,4 +331,7 @@ Glean data is generally laid out as follows:
         | -- metrics
 ```
 
-For example, the data for a repository called `browser` would be found at `/glean/browser/metrics`. A list of available repositories is at `/glean/repositories`.
+For example, the data for a repository called `fenix` would be found at [`/glean/fenix/metrics`](https://probeinfo.telemetry.mozilla.org/glean/fenix/metrics). The time the data was last updated for that project can be found at [`glean/fenix/general`](https://probeinfo.telemetry.mozilla.org/glean/fenix/general). 
+
+A list of available repositories is at [`/glean/repositories`](https://probeinfo.telemetry.mozilla.org/glean/repositories).
+
