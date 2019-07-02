@@ -28,3 +28,15 @@ reference-browser:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
   url: 'https://github.com/mozilla-mobile/reference-browser'
+fenix-nightly:
+  app_id: org-mozilla-fenix-nightly
+  notification_emails:
+    - frank@mozilla.com
+  url: 'https://github.com/mozilla-mobile/fenix'
+  metrics_files:
+    - 'app/metrics.yaml'
+firefox-for-fire-tv:
+  app_id: org-mozilla-tv-firefox
+  notification_emails:
+    - frank@mozilla.com
+  url: 'https://github.com/mozilla-mobile/firefox-tv'
