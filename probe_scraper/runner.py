@@ -46,6 +46,7 @@ PARSERS = {
 GLEAN_PARSER = GleanMetricsParser()
 GLEAN_METRICS_FILENAME = 'metrics.yaml'
 
+
 def general_data():
     return {
         "lastUpdate": datetime.datetime.now(tzlocal()).isoformat(),
@@ -216,7 +217,8 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
             except Exception:
-                msg = "Improper file in {}\n{}".format(', '.join(metrics_files), traceback.format_exc())
+                msg = "Improper file in {}\n{}".format(', '.join(metrics_files),
+                                                       traceback.format_exc())
                 emails[repo_name]["emails"].append({
                     "subject": "Probe Scraper: Improper File",
                     "message": msg

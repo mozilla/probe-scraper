@@ -18,6 +18,7 @@ MIN_DATES = {
     "fenix-nightly": "2019-03-24 00:00:00",
 }
 
+
 def get_commits(repo, filename):
     sep = ":"
     log_format = '--format="%H{}%ct"'.format(sep)
