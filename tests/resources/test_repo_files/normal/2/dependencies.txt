@@ -1,0 +1,129 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+The `kotlin-dsl` plugin applied to project ':buildSrc' enables experimental Kotlin compiler features. For more information see https://docs.gradle.org/4.10.1/userguide/kotlin_dsl.html#sec:kotlin-dsl_plugin
+Local configuration: loaded local.properties
+Local configuration: application-services substitution path missing. Specify it via 'substitutions.application-services.dir' setting.
+
+> Configure project :app
+WARNING: The option setting 'android.enableUnitTestBinaryResources=true' is experimental and unsupported.
+The current default is 'false'.
+
+WARNING: The option setting 'android.enableR8.fullMode=true' is experimental and unsupported.
+The current default is 'false'.
+
+Generated versionCode: 11361145
+
+----------------------------------------------
+Variant name: aarch64Raptor
+Build type:   raptor
+Flavor:       aarch64
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: aarch64Debug
+Build type:   debug
+Flavor:       aarch64
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: aarch64Nightly
+Build type:   nightly
+Flavor:       aarch64
+Version code: 11361146
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: aarch64Beta
+Build type:   beta
+Flavor:       aarch64
+Version code: 11361146
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Raptor
+Build type:   raptor
+Flavor:       x86
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Debug
+Build type:   debug
+Flavor:       x86
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Nightly
+Build type:   nightly
+Flavor:       x86
+Version code: 11361147
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: x86Beta
+Build type:   beta
+Flavor:       x86
+Version code: 11361147
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armRaptor
+Build type:   raptor
+Flavor:       arm
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armDebug
+Build type:   debug
+Flavor:       arm
+Version code: 1
+Adjust token: --
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armNightly
+Build type:   nightly
+Flavor:       arm
+Version code: 11361145
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+----------------------------------------------
+Variant name: armBeta
+Build type:   beta
+Flavor:       arm
+Version code: 11361145
+Adjust token: (Added from .adjust_token file)
+Leanplum token: X_X
+
+> Configure project :architecture
+WARNING: The option setting 'android.enableUnitTestBinaryResources=true' is experimental and unsupported.
+The current default is 'false'.
+
+WARNING: The option setting 'android.enableR8.fullMode=true' is experimental and unsupported.
+The current default is 'false'.
+
+WARNING: API 'variant.getPackageLibrary()' is obsolete and has been replaced with 'variant.getPackageLibraryProvider()'.
+It will be removed at the end of 2019.
+For more information, see https://d.android.com/r/tools/task-configuration-avoidance.
+To determine what is calling variant.getPackageLibrary(), use -Pandroid.debug.obsoleteApi=true on the command line to display a stack trace.
+
+> Task :app:dependencies
+
+------------------------------------------------------------
+Project :app
+------------------------------------------------------------
+
+implementation - Implementation only dependencies for 'main' sources. (n)
++--- org.mozilla.components:service-glean:0.53.0-SNAPSHOT (n)
++--- com.google.android.gms:play-services-ads-identifier:16.0.0 (n)
++--- androidx.fragment:fragment-testing:1.1.0-alpha08 (n)
+\--- com.github.bumptech.glide:glide:4.9.0 (n)
+
+(n) - Not resolved (configuration is not meant to be resolved)
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 13s
+1 actionable task: 1 executed
