@@ -54,7 +54,6 @@ def run_before_tests():
 
 
 def get_repo(repo_name):
-
     directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
 
@@ -66,6 +65,7 @@ def get_repo(repo_name):
 
         files = os.listdir(files_dir)
         for filename in files:
+            print("Copying file " + filename)
             path = os.path.join(base_path, str(i), filename)
             destination = os.path.join(directory, filename)
             shutil.copyfile(path, destination)
@@ -85,9 +85,10 @@ def normal_repo():
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
             "metrics_files": ["metrics.yaml"],
+            "dependencies_files": ["dependencies.txt"],
             "dependencies_url": (
-                Path(__file__).parent / "resources" / "dependencies.txt"
-            ).as_uri(),
+                Path(location) / "dependencies.txt"
+            ).resolve().as_uri(),
             "dependencies_format": "gradle"
         }
     }

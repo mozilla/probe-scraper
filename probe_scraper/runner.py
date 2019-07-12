@@ -44,6 +44,7 @@ PARSERS = {
 }
 
 GLEAN_PARSER = GleanMetricsParser()
+GLEAN_METRICS_FILENAME = 'metrics.yaml'
 
 
 def general_data():
@@ -207,12 +208,17 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
     dependencies = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
+            metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
+            dependency_files = [p for p in paths if not p.endswith(GLEAN_METRICS_FILENAME)]
+
             try:
                 config = {'allow_reserved': repo_name == 'glean'}
-                results, errs = GLEAN_PARSER.parse(paths, config)
-                metrics[repo_name][commit_hash] = results
+                if metrics_files:
+                    results, errs = GLEAN_PARSER.parse(metrics_files, config)
+                    metrics[repo_name][commit_hash] = results
             except Exception:
-                msg = "Improper file in {}\n{}".format(', '.join(paths), traceback.format_exc())
+                msg = "Improper file in {}\n{}".format(', '.join(metrics_files),
+                                                       traceback.format_exc())
                 emails[repo_name]["emails"].append({
                     "subject": "Probe Scraper: Improper File",
                     "message": msg
@@ -225,10 +231,12 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
                         "subject": "Probe Scraper: Error on Metric Parsing",
                         "message": msg
                     })
-            dependencies[repo_name][commit_hash] = dependency_scraper.parse_dependencies(
-                repositories_by_name[repo_name],
-                commit_hash
-            )
+
+            if dependency_files:
+                dependencies[repo_name][commit_hash] = dependency_scraper.parse_dependencies(
+                    repositories_by_name[repo_name],
+                    commit_hash
+                )
 
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
