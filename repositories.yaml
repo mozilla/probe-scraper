@@ -72,6 +72,8 @@ engine-gecko:
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
+    - android-components-team@mozilla.com
+    - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
   branch: release
   metrics_files:
@@ -83,6 +85,8 @@ engine-gecko-beta:
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
+    - android-components-team@mozilla.com
+    - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
   branch: beta
   metrics_files:
@@ -94,6 +98,8 @@ engine-gecko-nightly:
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
+    - android-components-team@mozilla.com
+    - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
   metrics_files:
     - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
