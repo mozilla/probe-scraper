@@ -51,6 +51,7 @@ def retrieve_files(repo_info, cache_dir):
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
     repo = Repo.clone_from(repo_info.url, repo_info.name)
+    repo.git.checkout(repo_info.branch)
 
     try:
         for rel_path in repo_info.get_change_files():
