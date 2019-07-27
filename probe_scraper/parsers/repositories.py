@@ -26,6 +26,7 @@ class Repository(object):
         self.dependencies_url = definition.get("dependencies_url", None)
         self.dependencies_format = definition.get("dependencies_format", None)
         self.dependencies_files = definition.get("dependencies_files", [])
+        self.dependencies = definition.get("dependencies", [])
 
     def get_metrics_file_paths(self):
         return self.metrics_file_paths

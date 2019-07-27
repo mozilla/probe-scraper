@@ -53,6 +53,9 @@ def parse_dependencies(repository, commit_hash):
     Loads and parses the dependencies for the given repository at the given
     commit hash.
     """
+    if len(repository.dependencies):
+        return dict((x, {"type": "dependency"}) for x in repository.dependencies)
+
     if repository.dependencies_url is None:
         return {}
 
