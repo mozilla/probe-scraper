@@ -28,6 +28,13 @@ reference-browser:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
   url: 'https://github.com/mozilla-mobile/reference-browser'
+  dependencies_files:
+    - build.gradle
+    - app/build.gradle
+    - buildSrc/src/main/java/Dependencies.kt
+  dependencies:
+    - org.mozilla.components:service-glean
+    - org.mozilla.components:lib-crash
 fenix-nightly:
   app_id: org-mozilla-fenix-nightly
   notification_emails:
@@ -46,6 +53,10 @@ firefox-for-fire-tv:
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/mozilla-mobile/firefox-tv'
+  dependencies_files:
+    - build.gradle
+    - app/build.gradle
+    - buildSrc/src/main/java/Dependencies.kt
 lib-crash:
   app_id: lib-crash
   notification_emails:
@@ -57,4 +68,3 @@ lib-crash:
     - 'components/lib/crash/metrics.yaml'
   library_names:
     - org.mozilla.components:lib-crash
-  
