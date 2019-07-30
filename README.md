@@ -54,6 +54,8 @@ dependencies of of the application change. For example, in an Android project,
 this would usually be all `build.gradle` files, but might include more if the
 build is more complex.
 
+> **Note:** There is an alternative method to hardcode the dependencies in the `repositories.yaml` file, but this is not recommended for regular use since it requires keeping the dependencies manually in sync with the application. To use this method, set the `dependencies` parameter to a list of library names. There is no guarantee this parameter will be supported going forward.
+
 ### Adding a library
 
 All **libraries** must define `library_names`.
