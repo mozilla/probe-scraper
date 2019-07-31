@@ -56,7 +56,6 @@ firefox-for-fire-tv:
   dependencies_files:
     - build.gradle
     - app/build.gradle
-    - buildSrc/src/main/java/Dependencies.kt
 lib-crash:
   app_id: lib-crash
   notification_emails:
