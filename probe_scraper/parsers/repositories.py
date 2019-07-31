@@ -23,7 +23,6 @@ class Repository(object):
         self.app_id = definition.get("app_id")
         self.metrics_file_paths = definition.get("metrics_files", [])
         self.library_names = definition.get("library_names", None)
-        self.dependencies_url = definition.get("dependencies_url", None)
         self.dependencies_format = definition.get("dependencies_format", None)
         self.dependencies_files = definition.get("dependencies_files", [])
         self.dependencies = definition.get("dependencies", [])

@@ -20,7 +20,6 @@ fenix:
     - build.gradle
     - app/build.gradle
     - buildSrc/src/main/java/Dependencies.kt
-  dependencies_url: 'https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.branch.master.revision.{commit_hash}/artifacts/public/dependencies.txt'
   dependencies_format: gradle
 reference-browser:
   app_id: org-mozilla-reference-browser
@@ -46,7 +45,6 @@ fenix-nightly:
     - build.gradle
     - app/build.gradle
     - buildSrc/src/main/java/Dependencies.kt
-  dependencies_url: 'https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.branch.master.revision.{commit_hash}/artifacts/public/dependencies.txt'
   dependencies_format: gradle
 firefox-for-fire-tv:
   app_id: org-mozilla-tv-firefox

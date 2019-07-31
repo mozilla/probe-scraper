@@ -3,22 +3,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-import functools
+import io
+import os
 import re
-
-import requests
-from requests_file import FileAdapter
-
-# Add support for file:// URLs to the requests library.
-# This is required for testing.
-session = requests.Session()
-session.mount('file://', FileAdapter())
-
-
-@functools.lru_cache()
-def fetch_dependency_file(url, commit_hash):
-    url = url.format(commit_hash=commit_hash)
-    return session.get(url)
+import subprocess
 
 
 r"""
@@ -36,8 +24,7 @@ GRADLE_DEPENDENCY_LINE_REGEX = re.compile(
 
 def parse_gradle_dependencies(response):
     dependencies = {}
-    for line in response.iter_lines():
-        line = line.decode('utf8', 'replace')
+    for line in response.readlines():
         match = GRADLE_DEPENDENCY_LINE_REGEX.match(line)
         if match:
             data = match.groupdict()
@@ -48,22 +35,34 @@ def parse_gradle_dependencies(response):
     return dependencies
 
 
-def parse_dependencies(repository, commit_hash):
+def get_gradle_dependencies(repo_path, repository):
+    process = subprocess.run(
+        [
+            os.path.join(os.path.abspath(repo_path), 'gradlew'),
+            'app:dependencies',
+            '--configuration',
+            'implementation'
+        ],
+        capture_output=True,
+        cwd=repo_path,
+        encoding='utf-8'
+    )
+    output = io.StringIO(process.stdout)
+    return parse_gradle_dependencies(output)
+
+
+def parse_dependencies(repo_path, repository):
     """
-    Loads and parses the dependencies for the given repository at the given
-    commit hash.
+    Checks out the given repository to the given commit_hash, and runs
+    the appropriate script to parse the dependencies at that commit.
     """
     if len(repository.dependencies):
         return dict((x, {"type": "dependency"}) for x in repository.dependencies)
 
-    if repository.dependencies_url is None:
-        return {}
-
-    response = fetch_dependency_file(repository.dependencies_url, commit_hash)
-    if response.status_code != 200:
+    if repository.dependencies_format is None:
         return {}
 
     if repository.dependencies_format == 'gradle':
-        return parse_gradle_dependencies(response)
+        return get_gradle_dependencies(repo_path, repository)
     else:
         print(f"Unknown dependency format '{repository.dependencies_format}'")

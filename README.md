@@ -22,7 +22,7 @@ will be just about your specific repository.
 
 ### Adding an application
 
-All **applications** in `repositories.yaml` must also define `dependencies_url`,
+All **applications** in `repositories.yaml` must also define
 `dependencies_format` and `dependencies_files`.
 
 Glean metrics are emitted by the application using Glean, any libraries it uses
@@ -33,21 +33,11 @@ that application.
 Currently, probe-scraper has support for reading dependencies from the following
 platforms and build systems:
 
-- **gradle for Android:** Obtain the dependencies for your application using
-  `./gradlew app:dependencies --configuration implementation`
+- `gradle`: `probe_scraper` will obtain the dependencies for your
+  application using `./gradlew app:dependencies --configuration implementation`
 
-Configure the application's CI system to store the output of one of the above
-commands at a publicly accessible URL that contains the git commit hash of the
-application that generated it.
-
-Set the `dependencies_url` parameter for the application in `repositories.yaml`
-to this URL, using the `{commit_hash}` marker to indicate the part that should be replaced
-with a git commit hash. Also set the `dependencies_format` parameter to the name
+Set the `dependencies_format` parameter to the name
 of the build system in use (currently only `gradle` is supported).
-
-For example, [here were the
-changes](https://github.com/mozilla-mobile/fenix/pull/1996) to make this work
-for Fenix, which uses Taskcluster for CI.
 
 Set the `dependencies_files` parameter to a list of files that change when
 dependencies of of the application change. For example, in an Android project,

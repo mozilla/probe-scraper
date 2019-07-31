@@ -10,6 +10,8 @@ import tempfile
 import traceback
 from datetime import datetime, timedelta
 
+from . import dependency_scraper
+
 
 MIN_DATES = {
     # Previous versions of the file were not schema-compatible
@@ -42,6 +44,7 @@ def utc_timestamp(d):
 def retrieve_files(repo_info, cache_dir):
     results = defaultdict(list)
     timestamps = dict()
+    dependencies = defaultdict(list)
     base_path = os.path.join(cache_dir, repo_info.name)
 
     min_date = None
@@ -71,13 +74,27 @@ def retrieve_files(repo_info, cache_dir):
 
                 results[_hash].append(disk_path)
                 timestamps[_hash] = ts
+
+        all_hashes = {}
+        for rel_path in repo_info.dependencies_files:
+            all_hashes.update(get_commits(repo, rel_path))
+        for _hash, ts in all_hashes.items():
+            if (min_date and ts < min_date):
+                continue
+
+            if repo_info.dependencies_format is not None:
+                repo.git.checkout(_hash)
+                dependencies[_hash] = dependency_scraper.parse_dependencies(
+                    repo_info.name, repo_info
+                )
+
     except Exception:
         # without this, the error will be silently discarded
         raise
     finally:
         shutil.rmtree(repo_info.name)
 
-    return timestamps, results
+    return timestamps, results, dependencies
 
 
 def scrape(folder=None, repos=None):
@@ -104,6 +121,7 @@ def scrape(folder=None, repos=None):
     results = {}
     timestamps = {}
     emails = {}
+    all_dependencies = {}
 
     for repo_info in repos:
         print("Getting commits for repository " + repo_info.name)
@@ -112,10 +130,11 @@ def scrape(folder=None, repos=None):
         emails[repo_info.name] = {"addresses": repo_info.notification_emails, "emails": []}
 
         try:
-            ts, commits = retrieve_files(repo_info, folder)
+            ts, commits, dependencies = retrieve_files(repo_info, folder)
             print("  Got {} commits".format(len(commits)))
             results[repo_info.name] = commits
             timestamps[repo_info.name] = ts
+            all_dependencies[repo_info.name] = dependencies
         except Exception:
             raise
             emails[repo_info.name]["emails"].append({
@@ -123,4 +142,4 @@ def scrape(folder=None, repos=None):
                 "message": traceback.format_exc()
             })
 
-    return timestamps, results, emails
+    return timestamps, results, all_dependencies, emails

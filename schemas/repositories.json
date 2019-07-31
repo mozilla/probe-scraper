@@ -23,10 +23,6 @@
           "pattern": "metrics\\.yaml$"
         }
       },
-      "dependencies_url": {
-        "type": "string",
-        "format": "uri"
-      },
       "dependencies_format": {
         "type": "string",
         "enum": [
