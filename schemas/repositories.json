@@ -16,6 +16,9 @@
         "type": "string",
         "format": "uri"
       },
+      "branch": {
+        "type": "string"
+      },
       "metrics_files": {
         "type": "array",
         "items": {
