@@ -19,6 +19,7 @@ class Repository(object):
     def __init__(self, name, definition):
         self.name = name
         self.url = definition.get("url")
+        self.branch = definition.get("branch", "master")
         self.notification_emails = definition.get("notification_emails")
         self.app_id = definition.get("app_id")
         self.metrics_file_paths = definition.get("metrics_files", [])
