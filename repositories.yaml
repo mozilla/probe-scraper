@@ -67,3 +67,13 @@ lib-crash:
     - 'components/lib/crash/metrics.yaml'
   library_names:
     - org.mozilla.components:lib-crash
+sync:
+  app_id: sync
+  notification_emails:
+    - frank@mozilla.com
+    - lina@mozilla.com
+  url: 'https://github.com/mozilla-mobile/android-components'
+  metrics_files:
+    - 'components/browser/storage-sync/metrics.yaml'
+  library_names:
+    - org.mozilla.components:browser-storage-sync
