@@ -28,6 +28,8 @@ reference-browser:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
   url: 'https://github.com/mozilla-mobile/reference-browser'
+  metrics_files:
+    - 'app/metrics.yaml'
   dependencies_files:
     - build.gradle
     - app/build.gradle
