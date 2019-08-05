@@ -69,3 +69,51 @@ lib-crash:
     - 'components/lib/crash/metrics.yaml'
   library_names:
     - org.mozilla.components:lib-crash
+sync:
+  app_id: sync
+  notification_emails:
+    - frank@mozilla.com
+    - lina@mozilla.com
+  url: 'https://github.com/mozilla-mobile/android-components'
+  metrics_files:
+    - 'components/browser/storage-sync/metrics.yaml'
+  library_names:
+    - org.mozilla.components:browser-storage-sync
+engine-gecko:
+  app_id: engine-gecko
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+    - android-components-team@mozilla.com
+    - geckoview-team@mozilla.com
+  url: 'https://github.com/mozilla/gecko-dev'
+  branch: release
+  metrics_files:
+    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
+  library_names:
+    - org.mozilla.components:browser-engine-gecko
+engine-gecko-beta:
+  app_id: engine-gecko-beta
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+    - android-components-team@mozilla.com
+    - geckoview-team@mozilla.com
+  url: 'https://github.com/mozilla/gecko-dev'
+  branch: beta
+  metrics_files:
+    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
+  library_names:
+    - org.mozilla.components:browser-engine-gecko-beta
+engine-gecko-nightly:
+  app_id: engine-gecko-nightly
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+    - android-components-team@mozilla.com
+    - geckoview-team@mozilla.com
+  url: 'https://github.com/mozilla/gecko-dev'
+  metrics_files:
+    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
+  library_names:
+    - org.mozilla.components:browser-engine-gecko-nightly

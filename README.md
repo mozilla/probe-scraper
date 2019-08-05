@@ -18,6 +18,7 @@ To scrape a git repository for probe definitions, an entry needs to be added in 
 - `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
 will be just about your specific repository.
 - `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
+- `branch` (optional): The branch in the repository to use. (Defaults to `master`).
 - `metrics_files`: A list of relative paths to `metrics.yaml` files
 
 ### Adding an application
