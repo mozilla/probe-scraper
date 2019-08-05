@@ -33,6 +33,12 @@
           "gradle"
         ]
       },
+      "dependencies": {
+        "type": "array",
+        "item": {
+          "type": "string"
+        }
+      },
       "library_names": {
         "type": "array",
         "item": {
