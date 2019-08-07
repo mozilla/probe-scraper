@@ -88,8 +88,6 @@ engine-gecko:
     - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
   branch: release
-  metrics_files:
-    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
   library_names:
     - org.mozilla.components:browser-engine-gecko
 engine-gecko-beta:
@@ -101,8 +99,6 @@ engine-gecko-beta:
     - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
   branch: beta
-  metrics_files:
-    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
   library_names:
     - org.mozilla.components:browser-engine-gecko-beta
 engine-gecko-nightly:
