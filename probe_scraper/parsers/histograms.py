@@ -6,7 +6,7 @@ from .third_party import histogram_tools
 from .utils import set_in_nested_dict, get_major_version
 
 
-def extract_histogram_data(histogram):
+def extract_histogram_data(histogram, version):
     props = {
         # source_field: target_field
         "cpp_guard": "cpp_guard",
@@ -49,6 +49,13 @@ def extract_histogram_data(histogram):
     optout = False
     if hasattr(histogram, "dataset"):
         optout = getattr(histogram, "dataset")().endswith('_OPTOUT')
+
+    # Use Counters are shipped on release since 65.
+    # If the parsers would set this flag, we couldn't differentiate between versions.
+    if int(version) >= 65:
+        if histogram.name().startswith("USE_COUNTER2_"):
+            optout = True
+
     data["optout"] = optout
 
     # Normalize some field values.
@@ -67,8 +74,8 @@ def extract_histogram_data(histogram):
     return data
 
 
-def transform_probe_info(probes):
-    return dict((probe.name(), extract_histogram_data(probe)) for probe in probes)
+def transform_probe_info(probes, version):
+    return dict((probe.name(), extract_histogram_data(probe, version)) for probe in probes)
 
 
 class HistogramsParser:
@@ -77,4 +84,4 @@ class HistogramsParser:
         parsed_probes = list(histogram_tools.from_files(filenames))
 
         # Get the probe information in a standard format.
-        return transform_probe_info(parsed_probes)
+        return transform_probe_info(parsed_probes, version)
