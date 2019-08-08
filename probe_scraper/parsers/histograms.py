@@ -52,7 +52,7 @@ def extract_histogram_data(histogram, version):
 
     # Use Counters are shipped on release since 65.
     # If the parsers would set this flag, we couldn't differentiate between versions.
-    if version >= "65":
+    if int(version) >= 65:
         if histogram.name().startswith("USE_COUNTER2_"):
             optout = True
 
