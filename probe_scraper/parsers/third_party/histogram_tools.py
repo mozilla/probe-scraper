@@ -114,6 +114,10 @@ symbol that should guard C/C++ definitions associated with the histogram."""
         self._is_use_counter = name.startswith("USE_COUNTER2_")
         if self._is_use_counter:
             definition.setdefault('record_in_processes', ['main', 'content'])
+            # Use Counters are opt-out by default since 65, but we can't mark them as such here,
+            # as it would apply to all old and new versions.
+            # They are special-cased in the probe-scraper parser later.
+            #definition.setdefault('releaseChannelCollection', 'opt-out')
         self.verify_attributes(name, definition)
         self._name = name
         self._description = definition['description']

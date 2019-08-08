@@ -5,7 +5,7 @@ def is_string(s):
     return isinstance(s, str)
 
 
-def test_histogram_parser():
+def histogram_parser(version, usecounter_optout):
     FILES = [
         "tests/resources/Histograms.json",
         "tests/resources/nsDeprecatedOperationList.h",
@@ -58,7 +58,7 @@ def test_histogram_parser():
 
     # Parse the histograms from the test definitions.
     parser = HistogramsParser()
-    parsed_histograms = parser.parse(FILES, "55")
+    parsed_histograms = parser.parse(FILES, version)
 
     # Check that all expected histogram keys are present.
     ALL_KEYS = HISTOGRAMS + USE_COUNTERS + DEPRECATED_OPERATIONS
@@ -83,3 +83,16 @@ def test_histogram_parser():
         # Check that we have all the needed details.
         for field in REQUIRED_DETAILS:
             assert field in data['details']
+
+        if name.startswith("USE_COUNTER2_"):
+            assert data["optout"] == usecounter_optout
+
+
+# Test for an old Firefox version.
+def test_histogram_parser_old():
+    histogram_parser("55", usecounter_optout=False)
+
+
+# Test for a newer Firefox version with Use Counters on release
+def test_histogram_parser_new():
+    histogram_parser("70", usecounter_optout=True)
