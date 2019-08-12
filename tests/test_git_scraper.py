@@ -118,7 +118,7 @@ def improper_metrics_repo():
 
 
 def test_normal_repo(normal_repo):
-    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
+    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True, None)
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
 
@@ -159,7 +159,7 @@ def test_normal_repo(normal_repo):
 
 
 def test_improper_metrics_repo(improper_metrics_repo):
-    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True)
+    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True, None)
 
     path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
     with open(path, 'r') as data:
