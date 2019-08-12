@@ -188,8 +188,8 @@ def check_glean_metric_structure(data):
     schema.validate(data)
 
 
-def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run):
-    repositories = RepositoriesParser().parse(repositories_file)
+def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
+    repositories = RepositoriesParser().parse(repositories_file, glean_repo)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(cache_dir, repositories)
     repositories_by_name = dict((x.name, x) for x in repositories)
 
@@ -260,13 +260,14 @@ def main(cache_dir,
          process_moz_central_probes,
          process_glean_metrics,
          repositories_file,
-         dry_run):
+         dry_run,
+         glean_repo):
 
     process_both = not (process_moz_central_probes or process_glean_metrics)
     if process_moz_central_probes or process_both:
         load_moz_central_probes(cache_dir, out_dir, firefox_version)
     if process_glean_metrics or process_both:
-        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run)
+        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo)
 
 
 if __name__ == "__main__":
@@ -291,6 +292,10 @@ if __name__ == "__main__":
     parser.add_argument('--dry-run',
                         help='Whether emails should be sent.',
                         action='store_true')
+    parser.add_argument('--glean-repo',
+                        help='The Glean Repository to scrape. If unspecified, scrapes all.',
+                        type=str,
+                        required=False)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--moz-central',
@@ -307,4 +312,5 @@ if __name__ == "__main__":
          args.moz_central,
          args.glean,
          args.repositories_file,
-         args.dry_run)
+         args.dry_run,
+         args.glean_repo)
