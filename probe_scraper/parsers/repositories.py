@@ -63,7 +63,7 @@ class RepositoriesParser(object):
 
         jsonschema.validate(repos, schema)
 
-    def parse(self, filename=None):
+    def parse(self, filename=None, glean_repo=None):
         self.validate(filename)
         repos = self._get_repos(filename)
 
@@ -71,4 +71,6 @@ class RepositoriesParser(object):
             Repository(name, definition)
             for name, definition
             in list(repos.items())
+            if (glean_repo is None
+                or glean_repo == name)
         ]

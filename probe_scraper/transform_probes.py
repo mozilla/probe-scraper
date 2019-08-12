@@ -277,13 +277,14 @@ def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_t
     # If we've seen this metric before, check previous definitions
     if metric in repo_metrics:
         prev_defns = repo_metrics[metric][HISTORY_KEY]
-        max_defn = max(prev_defns,
-                       key=lambda x: datetime.fromisoformat(x[DATES_KEY]["last"]))
+        max_defn_i = max(range(len(prev_defns)),
+                         key=lambda i: datetime.fromisoformat(prev_defns[i][DATES_KEY]["last"]))
+        max_defn = prev_defns[max_defn_i]
 
         # If equal to previous commit, update date and commit on existing definition
         if metrics_equal(definition, max_defn):
-            new_defn = make_metric_defn(prev_defns[0], commit_hash, commit_timestamps)
-            repo_metrics[metric][HISTORY_KEY][0] = new_defn
+            new_defn = make_metric_defn(max_defn, commit_hash, commit_timestamps)
+            repo_metrics[metric][HISTORY_KEY][max_defn_i] = new_defn
 
         # Otherwise, prepend changed definition for existing metric
         else:

@@ -356,3 +356,99 @@ def test_get_minimum_date():
     result = transform.get_minimum_date(in_probe_data(), IN_NODE_DATA, REVISION_DATES)
 
     print_and_test(expected, result)
+
+
+def test_sort_ordering():
+    # See https://github.com/mozilla/probe-scraper/issues/108
+    probes = {
+        "test-repo-0": {
+            "0": {
+                "example.duration": {
+                    "type": "timespan",
+                    "description": "  The duration of the last foreground session.",
+                    "time_unit": "second",
+                    "send_in_pings": ["baseline"],
+                    "bugs": [1497894, 1519120],
+                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                },
+            },
+            "1": {
+                "example.duration": {
+                    "type": "timespan",
+                    "description": "  The duration of the last foreground session.",
+                    "time_unit": "second",
+                    "send_in_pings": ["all_pings"],
+                    "bugs": [1497894, 1519120],
+                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                }
+            },
+            "2": {
+                "example.duration": {
+                    "type": "timespan",
+                    "description": "  The duration of the last foreground session.",
+                    "time_unit": "second",
+                    "send_in_pings": ["all_pings"],
+                    "bugs": [1497894, 1519120],
+                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                },
+            },
+        }
+    }
+
+    timestamps = {
+        "test-repo-0": {
+            "0": 0,
+            "1": 60 * 60 * 24,
+            "2": 2 * 60 * 60 * 24,
+        }
+    }
+
+    expected_out = {
+        "test-repo-0": {
+            "example.duration": {
+                "type": "timespan",
+                "name": "example.duration",
+                "history": [
+                    {
+                        "type": "timespan",
+                        "description": "  The duration of the last foreground session.",
+                        "time_unit": "second",
+                        "send_in_pings": ["baseline"],
+                        "bugs": [1497894, 1519120],
+                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                        "git-commits": {
+                            "first": "0",
+                            "last": "0"
+                        },
+                        "dates": {
+                            "first": "1970-01-01 00:00:00",
+                            "last": "1970-01-01 00:00:00",
+                        }
+                    },
+                    {
+                        "type": "timespan",
+                        "description": "  The duration of the last foreground session.",
+                        "time_unit": "second",
+                        "send_in_pings": ["all_pings"],
+                        "bugs": [1497894, 1519120],
+                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                        "git-commits": {
+                            "first": "1",
+                            "last": "2"
+                        },
+                        "dates": {
+                            "first": "1970-01-02 00:00:00",
+                            "last": "1970-01-03 00:00:00",
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    assert transform.transform_by_hash(timestamps, probes) == expected_out
