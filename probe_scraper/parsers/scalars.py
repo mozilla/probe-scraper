@@ -24,7 +24,8 @@ def extract_scalar_data(s):
         "details": {
             "keyed": s.keyed,
             "kind": s.kind,
-            "record_in_processes": s.record_in_processes
+            "record_in_processes": s.record_in_processes,
+            "record_into_store": s.record_into_store
         }
     }
 

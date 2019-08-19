@@ -102,6 +102,7 @@ class ScalarType:
             'cpp_guard': str,
             'release_channel_collection': str,
             'keyed': bool,
+            'record_into_store': list,
         }
 
         # The types for the data within the fields that hold lists.
@@ -109,6 +110,7 @@ class ScalarType:
             'bug_numbers': int,
             'notification_emails': str,
             'record_in_processes': str,
+            'record_into_store': str,
         }
 
         # Concatenate the required and optional field definitions.
@@ -280,6 +282,11 @@ class ScalarType:
     def cpp_guard(self):
         """Get the cpp guard for this scalar"""
         return self._definition.get('cpp_guard')
+
+    @property
+    def record_into_store(self):
+        """Get the list of stores this probe should be recorded into"""
+        return self._definition.get('record_into_store', ['main'])
 
 
 def load_scalars(filename, strict_type_checks=True):

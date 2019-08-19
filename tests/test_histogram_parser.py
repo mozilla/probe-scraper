@@ -36,6 +36,7 @@ def histogram_parser(version, usecounter_optout):
         "TELEMETRY_TEST_ALL_CHILDS",
         "EXPRESSION_IN_LOW_HIGH_ATTRIBUTE",
         "NON_INTEGER_IN_HIGH_ATTRIBUTE",
+        "HISTOGRAM_WITH_MULTISTORE",
     ]
 
     USE_COUNTERS = [
@@ -70,7 +71,7 @@ def histogram_parser(version, usecounter_optout):
     ]
 
     REQUIRED_DETAILS = [
-        "low", "high", "keyed", "kind", "n_buckets", "record_in_processes"
+        "low", "high", "keyed", "kind", "n_buckets", "record_in_processes", "record_into_store"
     ]
 
     for name, data in parsed_histograms.items():
@@ -83,6 +84,13 @@ def histogram_parser(version, usecounter_optout):
         # Check that we have all the needed details.
         for field in REQUIRED_DETAILS:
             assert field in data['details']
+
+        # If multiple stores set, they should be both listed
+        if name == "HISTOGRAM_WITH_MULTISTORE":
+            assert ["main", "store2"] == data['details']['record_into_store']
+        else:
+            # Default multistore if unspecified is just "main"
+            assert ["main"] == data['details']['record_into_store']
 
         if name.startswith("USE_COUNTER2_"):
             assert data["optout"] == usecounter_optout
