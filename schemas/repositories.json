@@ -23,10 +23,16 @@
         "type": "array",
         "items": {
           "type": "string",
-          "pattern": "metrics\\.yaml$"
+          "pattern": "(metrics|pings)\\.yaml$"
         }
       },
       "dependencies": {
+        "type": "array",
+        "item": {
+          "type": "string"
+        }
+      },
+      "dependencies_files": {
         "type": "array",
         "item": {
           "type": "string"
@@ -44,7 +50,8 @@
       "url",
       "notification_emails"
     ],
-    "type": "object"
+    "type": "object",
+    "additionalProperties": false
   },
   "type": "object"
 }
