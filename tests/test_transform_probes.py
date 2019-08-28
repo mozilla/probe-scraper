@@ -127,6 +127,7 @@ def in_probe_data():
                         "keyed": False,
                         "kind": "exponential",
                         "n_buckets": 5,
+                        "record_in_processes": ["main", "content"],
                     },
                 }
              }
@@ -144,6 +145,7 @@ def in_probe_data():
                         "keyed": False,
                         "kind": "exponential",
                         "n_buckets": 5,
+                        "record_in_processes": ["main", "content"],
                     },
                 }
              }
@@ -161,6 +163,7 @@ def in_probe_data():
                         "keyed": False,
                         "kind": "exponential",
                         "n_buckets": 5,
+                        "record_in_processes": ["content"],
                     },
                 }
             }
@@ -178,6 +181,7 @@ def in_probe_data():
                         "keyed": False,
                         "kind": "exponential",
                         "n_buckets": 5,
+                        "record_in_processes": ["content"],
                     },
                 }
             }
@@ -198,10 +202,19 @@ def out_probe_data(by_channel=False):
                 'keyed': False,
                 'kind': 'exponential',
                 'low': 1,
-                'n_buckets': 5
+                'n_buckets': 5,
+                'record_in_processes': ['content'],
             },
             'expiry_version': '53.0',
             'optout': True,
+            'revisions': {
+                'first': 'node_id_3',
+                'last': 'node_id_4',
+            },
+            'versions': {
+                'first': '52',
+                'last': '52'
+            }
         }, {
             'cpp_guard': None,
             'description': 'A description.',
@@ -210,30 +223,42 @@ def out_probe_data(by_channel=False):
                 'keyed': False,
                 'kind': 'exponential',
                 'low': 1,
-                'n_buckets': 5
+                'n_buckets': 5,
+                'record_in_processes': ['main', 'content'],
+            },
+            'expiry_version': '53.0',
+            'optout': True,
+            'revisions': {
+                'first': 'node_id_2',
+                'last': 'node_id_2',
+            },
+            'versions': {
+                'first': '51',
+                'last': '51'
+            }
+        }, {
+            'cpp_guard': None,
+            'description': 'A description.',
+            'details': {
+                'high': 10,
+                'keyed': False,
+                'kind': 'exponential',
+                'low': 1,
+                'n_buckets': 5,
+                'record_in_processes': ['main', 'content'],
             },
             'expiry_version': '53.0',
             'optout': False,
+            'revisions': {
+                'first': 'node_id_1',
+                'last': 'node_id_1',
+            },
+            'versions': {
+                'first': '50',
+                'last': '50'
+            }
         }
     ]
-
-    probes[0]['revisions'] = {
-        'first': 'node_id_2',
-        'last': 'node_id_4'
-    }
-    probes[0]['versions'] = {
-        'first': '51',
-        'last': '52'
-    }
-
-    probes[1]['revisions'] = {
-        'first': 'node_id_1',
-        'last': 'node_id_1'
-    }
-    probes[1]['versions'] = {
-        'first': '50',
-        'last': '50'
-    }
 
     allowed_channels = CHANNELS
 
@@ -314,8 +339,11 @@ def test_probes_equal():
     histogram_node1 = DATA["node_id_1"]["histogram"]["TEST_HISTOGRAM_1"]
     histogram_node2 = DATA["node_id_2"]["histogram"]["TEST_HISTOGRAM_1"]
     histogram_node3 = DATA["node_id_3"]["histogram"]["TEST_HISTOGRAM_1"]
+    histogram_node4 = DATA["node_id_4"]["histogram"]["TEST_HISTOGRAM_1"]
+
     assert(not transform.probes_equal(histogram_node1, histogram_node2))
-    assert(transform.probes_equal(histogram_node2, histogram_node3))
+    assert(not transform.probes_equal(histogram_node2, histogram_node3))
+    assert(transform.probes_equal(histogram_node3, histogram_node4))
 
 
 def test_transform_monolithic():
