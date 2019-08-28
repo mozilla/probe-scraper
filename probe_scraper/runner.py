@@ -20,7 +20,7 @@ from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
-from .scrapers import dependency_scraper, git_scraper, moz_central_scraper
+from .scrapers import git_scraper, moz_central_scraper
 from schema import And, Optional, Schema
 
 
@@ -209,13 +209,16 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
-            dependency_files = [p for p in paths if not p.endswith(GLEAN_METRICS_FILENAME)]
 
             try:
                 config = {'allow_reserved': repo_name == 'glean'}
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
+                    dependencies[repo_name][commit_hash] = dict(
+                        (x, {'type': 'dependency'})
+                        for x in repositories_by_name[repo_name].dependencies
+                    )
             except Exception:
                 msg = "Improper file in {}\n{}".format(', '.join(metrics_files),
                                                        traceback.format_exc())
@@ -231,12 +234,6 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                         "subject": "Probe Scraper: Error on Metric Parsing",
                         "message": msg
                     })
-
-            if dependency_files:
-                dependencies[repo_name][commit_hash] = dependency_scraper.parse_dependencies(
-                    repositories_by_name[repo_name],
-                    commit_hash
-                )
 
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))

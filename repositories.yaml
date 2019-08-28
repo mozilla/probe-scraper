@@ -16,12 +16,11 @@ fenix:
   url: 'https://github.com/mozilla-mobile/fenix'
   metrics_files:
     - 'app/metrics.yaml'
-  dependencies_files:
-    - build.gradle
-    - app/build.gradle
-    - buildSrc/src/main/java/Dependencies.kt
-  dependencies_url: 'https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.branch.master.revision.{commit_hash}/artifacts/public/dependencies.txt'
-  dependencies_format: gradle
+  dependencies:
+    - org.mozilla.components:service-glean
+    - org.mozilla.components:lib-crash
+    - org.mozilla.components:browser-storage-sync
+    - org.mozilla.components:browser-engine-gecko-beta
 reference-browser:
   app_id: org-mozilla-reference-browser
   notification_emails:
@@ -30,10 +29,6 @@ reference-browser:
   url: 'https://github.com/mozilla-mobile/reference-browser'
   metrics_files:
     - 'app/metrics.yaml'
-  dependencies_files:
-    - build.gradle
-    - app/build.gradle
-    - buildSrc/src/main/java/Dependencies.kt
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:lib-crash
@@ -44,20 +39,18 @@ fenix-nightly:
   url: 'https://github.com/mozilla-mobile/fenix'
   metrics_files:
     - 'app/metrics.yaml'
-  dependencies_files:
-    - build.gradle
-    - app/build.gradle
-    - buildSrc/src/main/java/Dependencies.kt
-  dependencies_url: 'https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.branch.master.revision.{commit_hash}/artifacts/public/dependencies.txt'
-  dependencies_format: gradle
+  dependencies:
+    - org.mozilla.components:service-glean
+    - org.mozilla.components:lib-crash
+    - org.mozilla.components:browser-storage-sync
+    - org.mozilla.components:browser-engine-gecko-nightly
 firefox-for-fire-tv:
   app_id: org-mozilla-tv-firefox
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/mozilla-mobile/firefox-tv'
-  dependencies_files:
-    - build.gradle
-    - app/build.gradle
+  dependencies:
+    - org.mozilla.components:service-glean
 lib-crash:
   app_id: lib-crash
   notification_emails:
