@@ -191,7 +191,6 @@ def check_glean_metric_structure(data):
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
     repositories = RepositoriesParser().parse(repositories_file, glean_repo)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(cache_dir, repositories)
-    repositories_by_name = dict((x.name, x) for x in repositories)
 
     check_glean_metric_structure(repos_metrics_data)
 
@@ -205,7 +204,6 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     #   ...
     # }
     metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    dependencies = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
@@ -215,10 +213,6 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
-                    dependencies[repo_name][commit_hash] = dict(
-                        (x, {'type': 'dependency'})
-                        for x in repositories_by_name[repo_name].dependencies
-                    )
             except Exception:
                 msg = "Improper file in {}\n{}".format(', '.join(metrics_files),
                                                        traceback.format_exc())
@@ -238,8 +232,15 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
 
-    dependencies_by_repo = {repo: {} for repo in repos_metrics_data}
-    dependencies_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, dependencies))
+    dependencies_by_repo = {}
+    for repo in repositories:
+        dependencies = {}
+        for dependency in repo.dependencies:
+            dependencies[dependency] = {
+                "type": "dependency",
+                "name": dependency
+            }
+        dependencies_by_repo[repo.name] = dependencies
 
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
 
