@@ -48,6 +48,7 @@ def probes_equal(probe1, probe2):
         "details/n_values",
         "details/low",
         "details/high",
+        "details/record_in_processes",
         # Events.
         "details/methods",
         "details/objects",
