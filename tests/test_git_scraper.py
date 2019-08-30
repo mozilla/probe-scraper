@@ -245,7 +245,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     # should send 1 email
     assert len(emails) == 1
 
-    assert "'example.duration': from normal, duplicate" in emails[0]['body']
+    assert "'example.duration': exists in normal, duplicate" in emails[0]['body']
     assert set(emails[0]['recipients'].split(',')) == set([
         # Metrics owners
         'alice@example.com',
