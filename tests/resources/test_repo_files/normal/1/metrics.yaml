@@ -13,7 +13,7 @@ example:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
     notification_emails:
-      - telemetry-client-dev@mozilla.com
+      - charlie@example.com
     expires: '2015-07-11'
 
   os:

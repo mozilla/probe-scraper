@@ -7,11 +7,13 @@ from git import Repo
 from probe_scraper import runner
 from probe_scraper.emailer import EMAIL_FILE
 from probe_scraper.transform_probes import HISTORY_KEY, COMMITS_KEY
+import datetime
 from pathlib import Path
 import json
 import os
 import pytest
 import shutil
+import time
 import yaml
 
 
@@ -58,6 +60,12 @@ def get_repo(repo_name):
     directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
 
+    # We need to synthesize the time stamps of commits to each be a second
+    # apart, otherwise the commits may be at exactly the same second, which
+    # means they won't always sort in order, and this the merging of identical
+    # metrics in adjacent commits may not happen correctly.
+    base_time = time.time()
+
     base_path = os.path.join(base_dir, repo_name)
     for i in range(num_commits):
         files_dir = os.path.join(base_path, str(i))
@@ -72,7 +80,12 @@ def get_repo(repo_name):
             shutil.copyfile(path, destination)
 
         repo.index.add("*")
-        repo.index.commit("Commit {index}".format(index=i))
+        commit_date = datetime.datetime.fromtimestamp(base_time + i).isoformat()
+        commit_date = commit_date[:commit_date.find('.')]
+        repo.index.commit(
+            "Commit {index}".format(index=i),
+            commit_date=commit_date
+        )
 
     return directory
 
@@ -143,14 +156,17 @@ def test_normal_repo(normal_repo):
     duration = 'example.duration'
     os_metric = 'example.os'
 
-    # duration has 1 definition
-    assert len(metrics[duration][HISTORY_KEY]) == 1
+    # duration has 2 definition
+    assert len(metrics[duration][HISTORY_KEY]) == 2
 
     # os has 3 definitions
     assert len(metrics[os_metric][HISTORY_KEY]) == 3
 
-    # duration different begin/end commits
-    assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 2
+    # duration same begin/end commits for first history entry
+    assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
+
+    # duration same begin/end commits for first history entry
+    assert len(set(metrics[duration][HISTORY_KEY][1][COMMITS_KEY].values())) == 2
 
     # os was in 1 commit
     assert len(set(metrics[os_metric][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
@@ -197,14 +213,14 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     repositories_info = {
         normal_repo_name: {
             "app_id": "normal_app_name",
-            "notification_emails": ["frank@mozilla.com"],
+            "notification_emails": ["repo_alice@example.com"],
             "url": normal_duplicate_repo,
             "metrics_files": ["metrics.yaml"],
             "dependencies": ["duplicate_library"]
         },
         duplicate_repo_name: {
             "app_id": "duplicate_library_name",
-            "notification_emails": ["frank@mozilla.com"],
+            "notification_emails": ["repo_bob@example.com"],
             "url": duplicate_repo,
             "metrics_files": ["metrics.yaml"],
             "library_names": ["duplicate_library"]
@@ -230,3 +246,14 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     assert len(emails) == 1
 
     assert "'example.duration': from normal, duplicate" in emails[0]['body']
+    assert set(emails[0]['recipients'].split(',')) == set([
+        # Metrics owners
+        'alice@example.com',
+        'bob@example.com',
+        'charlie@example.com',
+        # Repo owners
+        'repo_alice@example.com',
+        'repo_bob@example.com',
+        # Everything goes here
+        'dev-telemetry-alerts@mozilla.com'
+    ])

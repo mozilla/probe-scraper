@@ -32,9 +32,11 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     duplicate metrics.
     """
     repo_by_library_name = {}
+    repo_by_name = {}
     for repo in repositories:
         for library_name in repo.library_names or []:
             repo_by_library_name[library_name] = repo.name
+        repo_by_name[repo.name] = repo
 
     for repo in repositories:
         dependencies = [repo.name] + [
@@ -46,15 +48,34 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
             for metric in metrics_by_repo[dependency].keys():
                 metric_sources.setdefault(metric, []).append(dependency)
 
-        if any(len(x) > 1 for x in metric_sources.values()):
-            msg = ["Duplicate metrics:"]
-            for name, sources in metric_sources.items():
-                if len(sources) > 1:
-                    msg.append("{!r}: from {}".format(name, ", ".join(sources)))
-            msg = "\n".join(msg)
-            emails[repo.name]["emails"].append(
-                {"subject": "Probe scraper: Duplicate metric names", "message": msg}
-            )
+        duplicate_sources = dict(
+            (k, v) for (k, v) in metric_sources.items() if len(v) > 1
+        )
+
+        if len(duplicate_sources):
+            for name, sources in duplicate_sources.items():
+                msg = "Duplicate metric: {!r}: exists in {}".format(
+                    name, ", ".join(sources)
+                )
+
+                addresses = set()
+                for source in sources:
+                    # Send to the repository contacts
+                    addresses.update(repo_by_name[source].notification_emails)
+
+                    # Also send to the metric's contacts
+                    for history_entry in metrics_by_repo[source][name]["history"]:
+                        addresses.update(history_entry["notification_emails"])
+
+                emails[name] = {
+                    "emails": [
+                        {
+                            "subject": "Probe scraper: Duplicate metric identifiers",
+                            "message": msg,
+                        }
+                    ],
+                    "addresses": list(addresses),
+                }
 
             # Delete metrics for the given repo
             metrics_by_repo[repo.name] = {}
