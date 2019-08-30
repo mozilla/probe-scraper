@@ -23,7 +23,7 @@
         "type": "array",
         "items": {
           "type": "string",
-          "pattern": "(metrics|pings)\\.yaml$"
+          "pattern": "metrics\\.yaml$"
         }
       },
       "dependencies": {
