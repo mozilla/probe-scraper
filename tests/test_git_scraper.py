@@ -62,7 +62,7 @@ def get_repo(repo_name):
 
     # We need to synthesize the time stamps of commits to each be a second
     # apart, otherwise the commits may be at exactly the same second, which
-    # means they won't always sort in order, and this the merging of identical
+    # means they won't always sort in order, and thus the merging of identical
     # metrics in adjacent commits may not happen correctly.
     base_time = time.time()
 
