@@ -15,13 +15,13 @@ import traceback
 from . import transform_probes
 from . import transform_revisions
 from .emailer import send_ses
+from . import glean_checks
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
-from schema import And, Optional, Schema
 
 
 class DummyParser:
@@ -191,21 +191,11 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
     write_moz_central_probe_data(probes_by_channel_with_dates, revisions, out_dir)
 
 
-def check_glean_metric_structure(data):
-    schema = Schema({
-        str: {
-            Optional(And(str, lambda x: len(x) == 40)): [And(str, lambda x: os.path.exists(x))]
-        }
-    })
-
-    schema.validate(data)
-
-
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
     repositories = RepositoriesParser().parse(repositories_file, glean_repo)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(cache_dir, repositories)
 
-    check_glean_metric_structure(repos_metrics_data)
+    glean_checks.check_glean_metric_structure(repos_metrics_data)
 
     # Parse metric data from files into the form:
     # <repo_name>:  {
@@ -255,8 +245,9 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             }
         dependencies_by_repo[repo.name] = dependencies
 
-    write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
+    glean_checks.check_for_duplicate_metrics(repositories, metrics_by_repo, emails)
 
+    write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
 
     for repo_name, email_info in list(emails.items()):

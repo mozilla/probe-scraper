@@ -33,6 +33,7 @@ out_dir = ".out"
 # names of the test repos
 normal_repo_name = "normal"
 improper_repo_name = "improper"
+duplicate_repo_name = "duplicate"
 
 
 def rm_if_exists(*paths):
@@ -88,9 +89,19 @@ def normal_repo():
             "dependencies": [
                 'org.mozilla.components:service-glean',
                 'org.mozilla.components:lib-crash',
-                'org.mozilla.components:browser-storage-sync',
-                'org.mozilla.components:browser-engine-gecko-beta'
             ]
+        },
+        "glean": {
+            "app_id": "glean",
+            "notification_emails": ["frank@mozilla.com"],
+            "url": location,
+            "library_names": ["org.mozilla.components:service-glean"]
+        },
+        "lib-crash": {
+            "app_id": "lib-crash",
+            "notification_emails": ["frank@mozilla.com"],
+            "url": location,
+            "library_names": ["org.mozilla.components:lib-crash"]
         }
     }
 
@@ -152,7 +163,7 @@ def test_normal_repo(normal_repo):
     with open(path, 'r') as data:
         dependencies = json.load(data)
 
-    assert len(dependencies) == 4
+    assert len(dependencies) == 2
 
 
 def test_improper_metrics_repo(improper_metrics_repo):
@@ -170,3 +181,52 @@ def test_improper_metrics_repo(improper_metrics_repo):
 
     # should send 1 email
     assert len(emails) == 1
+
+
+@pytest.fixture
+def normal_duplicate_repo():
+    return get_repo(normal_repo_name)
+
+
+@pytest.fixture
+def duplicate_repo():
+    return get_repo(duplicate_repo_name)
+
+
+def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
+    repositories_info = {
+        normal_repo_name: {
+            "app_id": "normal_app_name",
+            "notification_emails": ["frank@mozilla.com"],
+            "url": normal_duplicate_repo,
+            "metrics_files": ["metrics.yaml"],
+            "dependencies": ["duplicate_library"]
+        },
+        duplicate_repo_name: {
+            "app_id": "duplicate_library_name",
+            "notification_emails": ["frank@mozilla.com"],
+            "url": duplicate_repo,
+            "metrics_files": ["metrics.yaml"],
+            "library_names": ["duplicate_library"]
+        }
+    }
+
+    with open(repositories_file, "w") as f:
+        f.write(yaml.dump(repositories_info))
+
+    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True, None)
+
+    path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
+    with open(path, 'r') as data:
+        metrics = json.load(data)
+
+    # should be empty output, since it was an improper file
+    assert not metrics
+
+    with open(EMAIL_FILE, 'r') as email_file:
+        emails = yaml.load(email_file)
+
+    # should send 1 email
+    assert len(emails) == 1
+
+    assert "'example.duration': from normal, duplicate" in emails[0]['body']
