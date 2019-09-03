@@ -25,9 +25,44 @@ def check_glean_metric_structure(data):
     schema.validate(data)
 
 
+DUPLICATE_METRICS_EMAIL_TEMPLATE = """
+Glean has detected duplicated metric identifiers coming from the product '{repo.name}'.
+
+{duplicates}
+
+What to do about this:
+
+1. File a bug to track your investigation. You can just copy this email into the bug Description to get you started.
+2. Reply-All to this email to let the list know that you are investigating. Include the bug number so we can help out.
+3. Rename the most recently added metric to be more specific. See [1]
+
+If you have any problems, please ask for help on the #glean Slack channel. We'll give you a hand.
+
+What this is:
+
+We have a system called probe-scraper [2] that scrapes the metric information from all Mozilla products using the Glean SDK. All the scraped data is available on the probeinfo service [3]. The scraped definition is used to build things such as the probe-dictionary [4] and other data tools. It detected that one metric that was recently added has an identifier collision with some metric that already existed in the application namespace. So it sent this email out, encouraging you to fix the problem.
+
+What happens if you don't fix this:
+
+The metrics will compete to send their data in pings, making the data unreliable at best.
+
+You can do this!
+
+Your Friendly, Neighbourhood Glean Team
+
+[1] - https://mozilla.github.io/glean/book/user/adding-new-metrics.html#naming-things
+[2] - https://github.com/mozilla/probe-scraper
+[3] - https://probeinfo.telemetry.mozilla.org/
+[4] - https://telemetry.mozilla.org/probe-dictionary/
+"""
+
+
 def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     """
     Checks for duplicate metric names across all libraries used by a particular application.
+    It only checks for metrics that exist in the latest (master) commit in each repo, so that
+    it's possible to remove (or disable) the metric in the latest commit and not have this
+    check repeatedly fail.
     Queues a warning e-mail if any are found, and removes all metrics for the app with
     duplicate metrics.
     """
@@ -45,37 +80,52 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         metric_sources = {}
         for dependency in dependencies:
-            for metric in metrics_by_repo[dependency].keys():
-                metric_sources.setdefault(metric, []).append(dependency)
+            for metric_name, metric in metrics_by_repo[dependency].items():
+                # Add the metric to possible duplicates if the last revision
+                # isn't disabled
+                if (
+                    len(metric["history"])
+                    and metric["history"][-1]["disabled"] is False
+                ):
+                    metric_sources.setdefault(metric_name, []).append(dependency)
 
         duplicate_sources = dict(
             (k, v) for (k, v) in metric_sources.items() if len(v) > 1
         )
 
-        if len(duplicate_sources):
-            for name, sources in duplicate_sources.items():
-                msg = "Duplicate metric: {!r}: exists in {}".format(
-                    name, ", ".join(sources)
+        if not len(duplicate_sources):
+            continue
+
+        addresses = set()
+        duplicates = []
+        for name, sources in duplicate_sources.items():
+            duplicates.append(
+                "- {!r} defined more than once in {}".format(
+                    name, ", ".join(sorted(sources))
                 )
+            )
 
-                addresses = set()
-                for source in sources:
-                    # Send to the repository contacts
-                    addresses.update(repo_by_name[source].notification_emails)
+            for source in sources:
+                # Send to the repository contacts
+                addresses.update(repo_by_name[source].notification_emails)
 
-                    # Also send to the metric's contacts
-                    for history_entry in metrics_by_repo[source][name]["history"]:
-                        addresses.update(history_entry["notification_emails"])
+                # Also send to the metric's contacts
+                for history_entry in metrics_by_repo[source][name]["history"]:
+                    addresses.update(history_entry["notification_emails"])
 
-                emails[name] = {
-                    "emails": [
-                        {
-                            "subject": "Probe scraper: Duplicate metric identifiers",
-                            "message": msg,
-                        }
-                    ],
-                    "addresses": list(addresses),
+        duplicates = "\n".join(duplicates)
+
+        emails[f"duplicate_metrics_{repo.name}"] = {
+            "emails": [
+                {
+                    "subject": "Glean: Duplicate metric identifiers detected",
+                    "message": DUPLICATE_METRICS_EMAIL_TEMPLATE.format(
+                        duplicates=duplicates, repo=repo
+                    ),
                 }
+            ],
+            "addresses": list(addresses),
+        }
 
-            # Delete metrics for the given repo
-            metrics_by_repo[repo.name] = {}
+        # Delete metrics for the given repo
+        metrics_by_repo[repo.name] = {}

@@ -156,7 +156,7 @@ def test_normal_repo(normal_repo):
     duration = 'example.duration'
     os_metric = 'example.os'
 
-    # duration has 2 definition
+    # duration has 2 definitions
     assert len(metrics[duration][HISTORY_KEY]) == 2
 
     # os has 3 definitions
@@ -245,7 +245,13 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     # should send 1 email
     assert len(emails) == 1
 
-    assert "'example.duration': exists in normal, duplicate" in emails[0]['body']
+    # There are two duplicate metrics between the two repos:
+    #   'example.duration' exists on the last commit, so is considered a proper duplicate
+    #   'example.os' exists only on the first, but not the last, commit, so it is not a
+    #     proper duplicate and should not be considered an error.
+    assert "'example.duration' defined more than once" in emails[0]['body']
+    assert "example.os" not in emails[0]['body']
+
     assert set(emails[0]['recipients'].split(',')) == set([
         # Metrics owners
         'alice@example.com',

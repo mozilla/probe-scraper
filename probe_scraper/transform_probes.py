@@ -353,8 +353,20 @@ def transform_by_hash(commit_timestamps, metric_data):
         sorted_commits = sorted(iter(commits.items()),
                                 key=lambda x_y: commit_timestamps[repo_name][x_y[0]])
 
+        # Not only do we need to know when metrics were added or changed, we also
+        # need to know when metrics were removed.  Therefore, we collect all of the
+        # metrics we've ever seen throughout history, and then for revisions where
+        # they aren't present, {"disabled": True} chunks are added.
+        all_metric_names = set()
+        for commit in commits.values():
+            all_metric_names.update(commit.keys())
+
         for commit_hash, metrics in sorted_commits:
-            for metric, definition in metrics.items():
+            for metric in all_metric_names:
+                if metric in metrics:
+                    definition = metrics[metric]
+                else:
+                    definition = {"disabled": True}
                 repo_metrics = update_or_add_metric(repo_metrics,
                                                     commit_hash,
                                                     metric,
