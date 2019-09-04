@@ -230,14 +230,12 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     with open(repositories_file, "w") as f:
         f.write(yaml.dump(repositories_info))
 
-    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True, None)
-
-    path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
-    with open(path, 'r') as data:
-        metrics = json.load(data)
-
-    # should be empty output, since it was an improper file
-    assert not metrics
+    try:
+        runner.main(cache_dir, out_dir, None, False, True, repositories_file, True, None)
+    except ValueError:
+        pass
+    else:
+        assert False, "Expected exception"
 
     with open(EMAIL_FILE, 'r') as email_file:
         emails = yaml.load(email_file)
@@ -263,3 +261,31 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         # Everything goes here
         'dev-telemetry-alerts@mozilla.com'
     ])
+
+
+def test_deleted_metrics(duplicate_repo):
+    repositories_info = {
+        duplicate_repo_name: {
+            "app_id": "duplicate_library_name",
+            "notification_emails": ["repo_bob@example.com"],
+            "url": duplicate_repo,
+            "metrics_files": ["metrics.yaml"],
+            "library_names": ["duplicate_library"]
+        }
+    }
+
+    with open(repositories_file, "w") as f:
+        f.write(yaml.dump(repositories_info))
+
+    runner.main(cache_dir, out_dir, None, False, True, repositories_file, True, None)
+
+    path = os.path.join(out_dir, "glean", duplicate_repo_name, "metrics")
+    with open(path, 'r') as data:
+        metrics = json.load(data)
+
+    # For the removed metric, only `disabled` and the injected metadata should be present
+    last_entry = metrics['example.os']['history'][-1]
+
+    assert last_entry['disabled'] is True
+    assert set(['disabled', 'dates', 'git-commits']) == set(last_entry.keys())
+
