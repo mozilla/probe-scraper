@@ -35,6 +35,7 @@ What to do about this:
 1. File a bug to track your investigation. You can just copy this email into the bug Description to get you started.
 2. Reply-All to this email to let the list know that you are investigating. Include the bug number so we can help out.
 3. Rename the most recently added metric to be more specific. See [1]
+4. Make sure a Glean team member reviews any patches. Care needs to be taken that the resolution of this problem is schema-compatible.
 
 If you have any problems, please ask for help on the #glean Slack channel. We'll give you a hand.
 
