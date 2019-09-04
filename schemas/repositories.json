@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/schema#",
+  "propertyNames": {
+    "pattern": "^[a-z][a-z0-9-]{0,29}$"
+  },
   "additionalProperties": {
     "properties": {
       "app_id": {
@@ -32,6 +35,12 @@
           "type": "string"
         }
       },
+      "dependencies_files": {
+        "type": "array",
+        "item": {
+          "type": "string"
+        }
+      },
       "library_names": {
         "type": "array",
         "item": {
@@ -44,7 +53,8 @@
       "url",
       "notification_emails"
     ],
-    "type": "object"
+    "type": "object",
+    "additionalProperties": false
   },
   "type": "object"
 }

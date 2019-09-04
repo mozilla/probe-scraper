@@ -21,7 +21,7 @@ def parser():
 @pytest.fixture
 def incorrect_repos_file():
     data = {
-        "some_repo": {
+        "some-repo": {
             # missing `notification_emails`
             "app_id": "mobile-metrics-example",
             "url": "www.github.com/fbertsch/mobile-metrics-example",
@@ -46,13 +46,32 @@ def correct_repos_file():
     return write_to_temp_file(data)
 
 
+@pytest.fixture
+def not_kebab_case_repos_file():
+    data = {
+        "some_repo": {
+            "app_id": "mobile-metrics-example",
+            "url": "www.github.com/fbertsch/mobile-metrics-example",
+            "notification_emails": ["frank@mozilla.com"],
+            "metrics_files": ["metrics.yaml"]
+        }
+    }
+
+    return write_to_temp_file(data)
+
+
 def test_repositories(parser):
     parser.validate()
 
 
-def test_repositories_parser_correct(parser, incorrect_repos_file):
+def test_repositories_parser_incorrect(parser, incorrect_repos_file):
     with pytest.raises(jsonschema.exceptions.ValidationError):
         parser.validate(incorrect_repos_file)
+
+
+def test_repositories_parser_not_kebab_case(parser, not_kebab_case_repos_file):
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        parser.validate(not_kebab_case_repos_file)
 
 
 def test_repositories_class(parser, correct_repos_file):
