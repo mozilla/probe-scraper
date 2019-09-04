@@ -2,18 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from collections import defaultdict
-from dateutil.tz import tzlocal
 import argparse
+from collections import defaultdict
 import datetime
+from dateutil.tz import tzlocal
 import errno
 import json
 import os
 import tempfile
 import traceback
 
-from . import transform_probes
-from . import transform_revisions
 from .emailer import send_ses
 from . import glean_checks
 from .parsers.events import EventsParser
@@ -22,6 +20,8 @@ from .parsers.metrics import GleanMetricsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
+from . import transform_probes
+from . import transform_revisions
 
 
 class DummyParser:
