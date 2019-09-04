@@ -64,8 +64,7 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     It only checks for metrics that exist in the latest (master) commit in each repo, so that
     it's possible to remove (or disable) the metric in the latest commit and not have this
     check repeatedly fail.
-    Queues a warning e-mail if any are found, and removes all metrics for the app with
-    duplicate metrics.
+    If duplicates are found, e-mails are queued and this returns True.
     """
     found_duplicates = False
 
@@ -131,8 +130,5 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
             ],
             "addresses": list(addresses),
         }
-
-        # Delete metrics for the given repo
-        metrics_by_repo[repo.name] = {}
 
     return found_duplicates
