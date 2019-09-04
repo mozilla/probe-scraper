@@ -55,7 +55,7 @@ Your Friendly, Neighbourhood Glean Team
 [2] - https://github.com/mozilla/probe-scraper
 [3] - https://probeinfo.telemetry.mozilla.org/
 [4] - https://telemetry.mozilla.org/probe-dictionary/
-"""
+""" # noqa
 
 
 def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
