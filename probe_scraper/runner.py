@@ -232,6 +232,8 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                         "message": msg
                     })
 
+    abort_after_emails = False
+
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
 
@@ -245,7 +247,9 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             }
         dependencies_by_repo[repo.name] = dependencies
 
-    glean_checks.check_for_duplicate_metrics(repositories, metrics_by_repo, emails)
+    abort_after_emails |= glean_checks.check_for_duplicate_metrics(
+        repositories, metrics_by_repo, emails
+    )
 
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
@@ -254,6 +258,9 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
         for email in email_info["emails"]:
             send_ses(FROM_EMAIL, email["subject"], email["message"], addresses, dryrun=dry_run)
+
+    if abort_after_emails:
+        raise ValueError("Errors processing Glean metrics")
 
 
 def main(cache_dir,

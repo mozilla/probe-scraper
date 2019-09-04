@@ -67,6 +67,8 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     Queues a warning e-mail if any are found, and removes all metrics for the app with
     duplicate metrics.
     """
+    found_duplicates = False
+
     repo_by_library_name = {}
     repo_by_name = {}
     for repo in repositories:
@@ -96,6 +98,8 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         if not len(duplicate_sources):
             continue
+
+        found_duplicates = True
 
         addresses = set()
         duplicates = []
@@ -130,3 +134,5 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         # Delete metrics for the given repo
         metrics_by_repo[repo.name] = {}
+
+    return found_duplicates
