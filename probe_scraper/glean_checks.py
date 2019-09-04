@@ -49,7 +49,7 @@ The metrics will compete to send their data in pings, making the data unreliable
 
 You can do this!
 
-Your Friendly, Neighbourhood Glean Team
+Your Friendly, Neighborhood Glean Team
 
 [1] - https://mozilla.github.io/glean/book/user/adding-new-metrics.html#naming-things
 [2] - https://github.com/mozilla/probe-scraper
