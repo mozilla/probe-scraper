@@ -85,11 +85,12 @@ def normal_repo():
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
             "metrics_files": ["metrics.yaml"],
-            "dependencies_files": ["dependencies.txt"],
-            "dependencies_url": (
-                Path(location) / "dependencies.txt"
-            ).resolve().as_uri(),
-            "dependencies_format": "gradle"
+            "dependencies": [
+                'org.mozilla.components:service-glean',
+                'org.mozilla.components:lib-crash',
+                'org.mozilla.components:browser-storage-sync',
+                'org.mozilla.components:browser-engine-gecko-beta'
+            ]
         }
     }
 
@@ -152,10 +153,6 @@ def test_normal_repo(normal_repo):
         dependencies = json.load(data)
 
     assert len(dependencies) == 4
-
-    assert dependencies[
-        'org.mozilla.components:service-glean'
-    ][HISTORY_KEY][0]['version'] == '0.53.0-SNAPSHOT'
 
 
 def test_improper_metrics_repo(improper_metrics_repo):

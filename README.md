@@ -23,48 +23,20 @@ will be just about your specific repository.
 
 ### Adding an application
 
-All **applications** in `repositories.yaml` must also define `dependencies_url`,
-`dependencies_format` and `dependencies_files`.
-
-Glean metrics are emitted by the application using Glean, any libraries it uses
-that use Glean, as well as Glean itself. Therefore, probe scraper needs a way to
-find all of the dependencies in order to determine all of the metrics emitted by
+For a given application, Glean metrics are emitted by the application itself, any libraries it uses
+that also use Glean, as well as the Glean library proper. Therefore, probe scraper needs a way to
+find all of the dependencies to determine all of the metrics emitted by
 that application.
 
-Currently, probe-scraper has support for reading dependencies from the following
-platforms and build systems:
-
-- **gradle for Android:** Obtain the dependencies for your application using
-  `./gradlew app:dependencies --configuration implementation`
-
-Configure the application's CI system to store the output of one of the above
-commands at a publicly accessible URL that contains the git commit hash of the
-application that generated it.
-
-Set the `dependencies_url` parameter for the application in `repositories.yaml`
-to this URL, using the `{commit_hash}` marker to indicate the part that should be replaced
-with a git commit hash. Also set the `dependencies_format` parameter to the name
-of the build system in use (currently only `gradle` is supported).
-
-For example, [here were the
-changes](https://github.com/mozilla-mobile/fenix/pull/1996) to make this work
-for Fenix, which uses Taskcluster for CI.
-
-Set the `dependencies_files` parameter to a list of files that change when
-dependencies of of the application change. For example, in an Android project,
-this would usually be all `build.gradle` files, but might include more if the
-build is more complex.
-
-> **Note:** There is an alternative method to hardcode the dependencies in the `repositories.yaml` file, but this is not recommended for regular use since it requires keeping the dependencies manually in sync with the application. To use this method, set the `dependencies` parameter to a list of library names. There is no guarantee this parameter will be supported going forward.
+Therefore, each application should specify a `dependencies` parameter, which is a list of Glean-using libraries used by the application.  Each entry should be a library name as specified by the library's `library_names` parameter.
 
 ### Adding a library
 
 All **libraries** must define `library_names`.
 
-Probe scraper also needs a way to map dependencies (which are specified in a
-build-system-dependent way) back to an entry in the `repositories.yaml` file.
-Therefore, any libraries defined should also include their build-system-specific
-library names in the `library_names` parameter.
+Probe scraper also needs a way to map dependencies back to an entry in the
+`repositories.yaml` file. Therefore, any libraries defined should also include
+their build-system-specific library names in the `library_names` parameter.
 
 ## Developing the probe-scraper
 Install the requirements:
