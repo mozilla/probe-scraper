@@ -193,5 +193,16 @@
     "high": "5000",
     "n_buckets": 10,
     "extended_statistics_ok": true
+  },
+  "HISTOGRAM_WITH_MULTISTORE": {
+    "alert_emails": ["telemetry-client-dev@mozilla.com"],
+    "expires_in_version": "never",
+    "kind": "linear",
+    "low": 1,
+    "high": 10000,
+    "n_buckets": 10,
+    "bug_numbers": [1335343,1363725],
+    "description": "a testing histogram; not meant to be touched",
+    "record_into_store": ["main", "store2"]
   }
 }

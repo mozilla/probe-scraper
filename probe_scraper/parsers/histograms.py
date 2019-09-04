@@ -21,6 +21,7 @@ def extract_histogram_data(histogram, version):
         "keyed": "details/keyed",
         "kind": "details/kind",
         "record_in_processes": "details/record_in_processes",
+        "record_into_store": "details/record_into_store",
     }
 
     defaults = {

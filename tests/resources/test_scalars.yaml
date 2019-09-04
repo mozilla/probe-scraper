@@ -171,3 +171,17 @@ other.test:
     cpp_guard: 'XP_WIN'
     notification_emails:
       - telemetry-client-dev@mozilla.com
+
+  multistore_probe:
+    bug_numbers:
+      - 1276190
+    description: >
+      This is a test uint type with a really long description, maybe spanning even multiple
+      lines, to just prove a point: everything works just fine.
+    expires: never
+    kind: uint
+    notification_emails:
+      - telemetry-client-dev@mozilla.com
+    record_into_store:
+      - main
+      - store2

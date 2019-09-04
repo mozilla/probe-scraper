@@ -76,7 +76,7 @@ def exponential_buckets(dmin, dmax, n_buckets):
 
 always_allowed_keys = ['kind', 'description', 'cpp_guard', 'expires_in_version',
                        'alert_emails', 'keyed', 'releaseChannelCollection',
-                       'bug_numbers', 'record_in_processes']
+                       'bug_numbers', 'record_in_processes', 'record_into_store']
 
 whitelists = None
 try:
@@ -207,6 +207,10 @@ associated with the histogram.  Returns None if no guarding is necessary."""
     def record_in_processes_enum(self):
         """Get the non-empty list of flags representing the processes to record data in"""
         return [utils.process_name_to_enum(p) for p in self.record_in_processes]
+
+    def record_into_store(self):
+        """Get the non-empty list of stores to record into"""
+        return self._definition.get('record_into_store', ['main'])
 
     def ranges(self):
         """Return an array of lower bounds for each bucket in the histogram."""
