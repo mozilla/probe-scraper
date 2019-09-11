@@ -82,14 +82,8 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         metric_sources = {}
         for dependency in dependencies:
-            for metric_name, metric in metrics_by_repo[dependency].items():
-                # Add the metric to possible duplicates if the last revision
-                # isn't disabled
-                if (
-                    len(metric["history"])
-                    and metric["history"][-1]["disabled"] is False
-                ):
-                    metric_sources.setdefault(metric_name, []).append(dependency)
+            for metric_name in metrics_by_repo[dependency].keys():
+                metric_sources.setdefault(metric_name, []).append(dependency)
 
         duplicate_sources = dict(
             (k, v) for (k, v) in metric_sources.items() if len(v) > 1

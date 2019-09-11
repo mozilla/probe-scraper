@@ -14,18 +14,3 @@ example:
     notification_emails:
       - alice@example.com
     expires: '2100-07-11'
-
-  os:
-    type: string
-    lifetime: application
-    send_in_pings:
-      - baseline
-    description: |
-      pop
-    bugs:
-      - 1497894
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
-    notification_emails:
-      - david@mozilla.com
-    expires: never
