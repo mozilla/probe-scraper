@@ -11,6 +11,10 @@ def test_extract_major_version():
         moz_central_scraper.extract_major_version("helloworld")
 
 
+def path_is_in_version(path, version):
+    return moz_central_scraper.relative_path_is_in_version(path, version)
+
+
 @pytest.mark.web_dependency
 def test_channel_revisions():
     tmp_dir = "./.test-files"
@@ -24,8 +28,10 @@ def test_channel_revisions():
                                                        channels=[channel])
 
     registries = {
-        probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
-        for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
+        probe_type: [
+            os.path.join(tmp_dir, "hg", revision, path)
+            for path in paths if path_is_in_version(path, 62)
+        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
     }
 
     record = {
@@ -49,8 +55,10 @@ def test_scrape():
     revision = "84219fbf133cacfc6e31c9471ad20ee7162a02af"
 
     registries = {
-        probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
-        for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
+        probe_type: [
+            os.path.join(tmp_dir, "hg", revision, path)
+            for path in paths if path_is_in_version(path, 62)
+        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
     }
 
     record = {
@@ -77,8 +85,10 @@ def test_artificial_tag():
     revision = "fd2934cca1ae7b492f29a4d240915aa9ec5b4977"
 
     registries = {
-        probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
-        for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
+        probe_type: [
+            os.path.join(tmp_dir, "hg", revision, path)
+            for path in paths if path_is_in_version(path, 71)
+        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
     }
 
     record = {

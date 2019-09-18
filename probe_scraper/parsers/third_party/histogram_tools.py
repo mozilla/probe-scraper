@@ -6,6 +6,7 @@ import collections
 import itertools
 import json
 import math
+import runpy
 import os
 import re
 import sys
@@ -517,10 +518,69 @@ def from_nsDeprecatedOperationList(filename):
 
     return histograms
 
+
+def to_camel_case(property_name):
+    return re.sub("(^|_|-)([a-z0-9])",
+                  lambda m: m.group(2).upper(),
+                  property_name.strip("_").strip("-"))
+
+
+def add_css_property_counters(histograms, property_name):
+    def add_counter(context):
+        name = 'USE_COUNTER2_CSS_PROPERTY_%s_%s' % (to_camel_case(property_name), context.upper())
+        histograms[name] = {
+            'expires_in_version': 'never',
+            'kind': 'boolean',
+            'description': 'Whether a %s used the CSS property %s' % (context, property_name)
+        }
+
+    add_counter('document')
+    add_counter('page')
+
+
+def from_counted_unknown_properties(filename):
+    histograms = collections.OrderedDict()
+    properties = runpy.run_path(filename)["COUNTED_UNKNOWN_PROPERTIES"]
+
+    # NOTE(emilio): Unlike ServoCSSProperties, `prop` here is just the property
+    # name.
+    #
+    # We use the same naming as CSS properties so that we don't get
+    # discontinuity when we implement or prototype them.
+    for prop in properties:
+        add_css_property_counters(histograms, prop)
+    return histograms
+
+
+def from_properties_db(filename):
+    histograms = collections.OrderedDict()
+    with open(filename, 'r') as f:
+        in_css_properties = False
+
+        for line in f:
+            if not in_css_properties:
+                if line.startswith("exports.CSS_PROPERTIES = {"):
+                    in_css_properties = True
+                continue
+
+            if line.startswith("};"):
+                break
+
+            if not line.startswith("  \""):
+                continue
+
+            name = line.split("\"")[1]
+            add_css_property_counters(histograms, name)
+    return histograms
+
+
 FILENAME_PARSERS = {
     'Histograms.json': from_Histograms_json,
     'nsDeprecatedOperationList.h': from_nsDeprecatedOperationList,
+    'counted_unknown_properties.py': from_counted_unknown_properties,
+    'properties-db.js': from_properties_db,
 }
+
 
 # Similarly to the dance above with buildconfig, usecounters may not be
 # available, so handle that gracefully.
