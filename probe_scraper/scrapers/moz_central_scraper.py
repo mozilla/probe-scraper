@@ -31,6 +31,13 @@ CHANNELS = {
     'nightly': {
         'base_uri': 'https://hg.mozilla.org/mozilla-central/',
         'tag_regex': '^FIREFOX_(AURORA|BETA)_[0-9]+_BASE$',
+        'artificial_tags': [
+            {
+                'date': [1567362726.0, 0],
+                'node': 'fd2934cca1ae7b492f29a4d240915aa9ec5b4977',
+                'tag': 'FIREFOX_BETA_71_BASE',
+            }
+        ]
     },
     'beta': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-beta/',
@@ -44,6 +51,7 @@ CHANNELS = {
 
 MIN_FIREFOX_VERSION = 30
 ERROR_CACHE_FILENAME = 'probe_scraper_errors_cache.json'
+ARTIFICIAL_TAG = 'artificial'
 
 
 def load_tags(channel):
@@ -59,6 +67,11 @@ def load_tags(channel):
     data = r.json()
     if not data or "node" not in data or "tags" not in data:
         raise Exception("Result JSON doesn't have the right format for " + uri)
+
+    data['tags'] += [
+        {**d, **{ARTIFICIAL_TAG: True}}
+        for d in CHANNELS[channel].get('artificial_tags', [])
+    ]
 
     return data
 
@@ -110,7 +123,10 @@ def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
     for tag in tags:
         version = extract_tag_version(channel, tag["tag"])
         version = adjust_version(channel, version)
-        latest_version = max(version, latest_version)
+
+        if not tag.get(ARTIFICIAL_TAG, False):
+            # Ignore artificial tags for determining latest version
+            latest_version = max(version, latest_version)
 
         if (version >= min_fx_version and
            (max_fx_version is None or version <= max_fx_version)):
