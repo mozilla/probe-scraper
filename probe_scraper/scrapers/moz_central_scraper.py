@@ -27,20 +27,7 @@ REGISTRY_FILES = {
     ],
 }
 
-"""
-A bit of info about `json-tags`
 
-They are a set of tags that represent the first and
-last commit hat a release_channel went out on. For example,
-`FIREFOX_BETA_N_BASE` is the first release of Beta
-version N. `FIREFOX_NIGHTLY_N_END` is the last commit
-that nightly v. N released; the next nightly was version
-N+1.
-
-As such tags only get updated once a cycle, and they never
-change. (In reality they can change, but that has only happened
-once in the last ten versions).
-"""
 CHANNELS = {
     'nightly': {
         'base_uri': 'https://hg.mozilla.org/mozilla-central/',
@@ -69,6 +56,20 @@ ARTIFICIAL_TAG = 'artificial'
 
 
 def load_tags(channel):
+    """
+    A bit of info about `json-tags`
+
+    They are a set of tags that represent the first and
+    last commit hat a release_channel went out on. For example,
+    `FIREFOX_BETA_N_BASE` is the first release of Beta
+    version N. `FIREFOX_NIGHTLY_N_END` is the last commit
+    that nightly v. N released; the next nightly was version
+    N+1.
+
+    As such tags only get updated once a cycle, and they never
+    change. (In reality they can change, but that has only happened
+    once in the last ten versions).
+    """
     uri = CHANNELS[channel]['base_uri'] + "json-tags"
     r = requests.get(uri)
     if r.status_code != requests.codes.ok:
