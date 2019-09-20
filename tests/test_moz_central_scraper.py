@@ -60,3 +60,31 @@ def test_scrape():
     }
 
     assert res[channel][revision] == record
+
+
+@pytest.mark.web_dependency
+def test_artificial_tag():
+    tmp_dir = "./.test-files"
+    min_fx_version = 71
+    max_fx_version = 71
+
+    channel = "nightly"
+
+    res = moz_central_scraper.scrape(tmp_dir, min_fx_version,
+                                     max_fx_version=max_fx_version,
+                                     channels=[channel])
+
+    revision = "fd2934cca1ae7b492f29a4d240915aa9ec5b4977"
+
+    registries = {
+        probe_type: [os.path.join(tmp_dir, "hg", revision, path) for path in paths]
+        for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
+    }
+
+    record = {
+        "channel": channel,
+        "version": 71,
+        "registries": registries
+    }
+
+    assert res[channel][revision] == record
