@@ -149,7 +149,7 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
     if fx_version:
         min_fx_version = fx_version
         max_fx_version = fx_version
-    elif min_fx_version:
+    else:
         max_fx_version = None
 
     if firefox_channel:
