@@ -27,10 +27,18 @@ REGISTRY_FILES = {
     ],
 }
 
+
 CHANNELS = {
     'nightly': {
         'base_uri': 'https://hg.mozilla.org/mozilla-central/',
         'tag_regex': '^FIREFOX_(AURORA|BETA)_[0-9]+_BASE$',
+        'artificial_tags': [
+            {
+                'date': [1567362726.0, 0],
+                'node': 'fd2934cca1ae7b492f29a4d240915aa9ec5b4977',
+                'tag': 'FIREFOX_BETA_71_BASE',
+            }
+        ]
     },
     'beta': {
         'base_uri': 'https://hg.mozilla.org/releases/mozilla-beta/',
@@ -44,9 +52,24 @@ CHANNELS = {
 
 MIN_FIREFOX_VERSION = 30
 ERROR_CACHE_FILENAME = 'probe_scraper_errors_cache.json'
+ARTIFICIAL_TAG = 'artificial'
 
 
 def load_tags(channel):
+    """
+    A bit of info about `json-tags`
+
+    They are a set of tags that represent the first and
+    last commit hat a release_channel went out on. For example,
+    `FIREFOX_BETA_N_BASE` is the first release of Beta
+    version N. `FIREFOX_NIGHTLY_N_END` is the last commit
+    that nightly v. N released; the next nightly was version
+    N+1.
+
+    As such tags only get updated once a cycle, and they never
+    change. (In reality they can change, but that has only happened
+    once in the last ten versions).
+    """
     uri = CHANNELS[channel]['base_uri'] + "json-tags"
     r = requests.get(uri)
     if r.status_code != requests.codes.ok:
@@ -59,6 +82,11 @@ def load_tags(channel):
     data = r.json()
     if not data or "node" not in data or "tags" not in data:
         raise Exception("Result JSON doesn't have the right format for " + uri)
+
+    data['tags'] += [
+        {**d, **{ARTIFICIAL_TAG: True}}
+        for d in CHANNELS[channel].get('artificial_tags', [])
+    ]
 
     return data
 
@@ -110,7 +138,10 @@ def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
     for tag in tags:
         version = extract_tag_version(channel, tag["tag"])
         version = adjust_version(channel, version)
-        latest_version = max(version, latest_version)
+
+        if not tag.get(ARTIFICIAL_TAG, False):
+            # Ignore artificial tags for determining latest version
+            latest_version = max(version, latest_version)
 
         if (version >= min_fx_version and
            (max_fx_version is None or version <= max_fx_version)):
@@ -191,7 +222,7 @@ def save_error_cache(folder, error_cache):
         json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
-def scrape(folder=None, min_fx_version=None, max_fx_version=None):
+def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
     """
     Returns data in the format:
     {
@@ -219,7 +250,10 @@ def scrape(folder=None, min_fx_version=None, max_fx_version=None):
     requests_cache.install_cache('probe_scraper_cache')
     results = defaultdict(dict)
 
-    for channel in CHANNELS.keys():
+    if channels is None:
+        channels = CHANNELS.keys()
+
+    for channel in channels:
         tags = load_tags(channel)
         versions = extract_tag_data(tags, channel, min_fx_version, max_fx_version)
         save_error_cache(folder, error_cache)
