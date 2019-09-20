@@ -191,7 +191,7 @@ def save_error_cache(folder, error_cache):
         json.dump(error_cache, f, sort_keys=True, indent=2)
 
 
-def scrape(folder=None, min_fx_version=None, max_fx_version=None):
+def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
     """
     Returns data in the format:
     {
@@ -219,7 +219,10 @@ def scrape(folder=None, min_fx_version=None, max_fx_version=None):
     requests_cache.install_cache('probe_scraper_cache')
     results = defaultdict(dict)
 
-    for channel in CHANNELS.keys():
+    if channels is None:
+        channels = CHANNELS.keys()
+
+    for channel in channels:
         tags = load_tags(channel)
         versions = extract_tag_data(tags, channel, min_fx_version, max_fx_version)
         save_error_cache(folder, error_cache)

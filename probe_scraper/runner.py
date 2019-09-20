@@ -144,12 +144,24 @@ def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
     return probes_by_channel
 
 
-def load_moz_central_probes(cache_dir, out_dir, fx_version):
+def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, firefox_channel):
+
+    if fx_version:
+        min_fx_version = fx_version
+        max_fx_version = fx_version
+    elif min_fx_version:
+        max_fx_version = None
+
+    if firefox_channel:
+        channels = [firefox_channel]
+    else:
+        channels = None
 
     # Scrape probe data from repositories.
     node_data = moz_central_scraper.scrape(cache_dir,
-                                           min_fx_version=fx_version,
-                                           max_fx_version=fx_version)
+                                           min_fx_version=min_fx_version,
+                                           max_fx_version=max_fx_version,
+                                           channels=channels)
 
     probes = parse_moz_central_probes(node_data)
 
@@ -162,8 +174,9 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version):
 
     # Scrape all revisions from buildhub
     revision_data = moz_central_scraper.scrape_channel_revisions(cache_dir,
-                                                                 min_fx_version=fx_version,
-                                                                 max_fx_version=fx_version)
+                                                                 min_fx_version=min_fx_version,
+                                                                 max_fx_version=max_fx_version,
+                                                                 channels=channels)
     revision_probes = parse_moz_central_probes(revision_data)
 
     # Get the minimum revision and date per probe-channel
@@ -255,15 +268,17 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
 def main(cache_dir,
          out_dir,
          firefox_version,
+         min_firefox_version,
          process_moz_central_probes,
          process_glean_metrics,
          repositories_file,
          dry_run,
-         glean_repo):
+         glean_repo,
+         firefox_channel):
 
     process_both = not (process_moz_central_probes or process_glean_metrics)
     if process_moz_central_probes or process_both:
-        load_moz_central_probes(cache_dir, out_dir, firefox_version)
+        load_moz_central_probes(cache_dir, out_dir, firefox_version, min_firefox_version, firefox_channel)
     if process_glean_metrics or process_both:
         load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo)
 
@@ -278,11 +293,6 @@ if __name__ == "__main__":
                         help='Directory to store output files in.',
                         action='store',
                         default='.')
-    parser.add_argument('--firefox-version',
-                        help='Version of Firefox to scrape',
-                        action='store',
-                        type=int,
-                        required=False)
     parser.add_argument('--repositories-file',
                         help='Repositories YAML file location.',
                         action='store',
@@ -294,21 +304,39 @@ if __name__ == "__main__":
                         help='The Glean Repository to scrape. If unspecified, scrapes all.',
                         type=str,
                         required=False)
+    parser.add_argument('--firefox-channel',
+                        help='The Fx channel to scrape. If unspecified, scrapes all.',
+                        type=str,
+                        required=False)
 
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--moz-central',
+    application = parser.add_mutually_exclusive_group()
+    application.add_argument('--moz-central',
                        help='Only scrape moz-central probes',
                        action='store_true')
-    group.add_argument('--glean',
+    application.add_argument('--glean',
                        help='Only scrape metrics in remote glean repos',
                        action='store_true')
+
+    versions = parser.add_mutually_exclusive_group()
+    versions.add_argument('--firefox-version',
+                        help='Version of Firefox to scrape',
+                        action='store',
+                        type=int,
+                        required=False)
+    versions.add_argument('--min-firefox-version',
+                        help='Min version of Firefox to scrape',
+                        action='store',
+                        type=int,
+                        required=False)
 
     args = parser.parse_args()
     main(args.cache_dir,
          args.out_dir,
          args.firefox_version,
+         args.min_firefox_version,
          args.moz_central,
          args.glean,
          args.repositories_file,
          args.dry_run,
-         args.glean_repo)
+         args.glean_repo,
+         args.firefox_channel)
