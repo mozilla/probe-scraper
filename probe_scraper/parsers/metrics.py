@@ -14,6 +14,9 @@ class GleanMetricsParser:
     """
 
     def parse(self, filenames, config):
+        config = config.copy()
+        config["do_not_disable_expired"] = True
+
         paths = [Path(fname) for fname in filenames]
         results = parse_objects(paths, config)
         errors = [err for err in results]
