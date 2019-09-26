@@ -7,11 +7,13 @@ from git import Repo
 from probe_scraper import runner
 from probe_scraper.emailer import EMAIL_FILE
 from probe_scraper.transform_probes import HISTORY_KEY, COMMITS_KEY
+import datetime
 from pathlib import Path
 import json
 import os
 import pytest
 import shutil
+import time
 import yaml
 
 
@@ -33,6 +35,7 @@ out_dir = ".out"
 # names of the test repos
 normal_repo_name = "normal"
 improper_repo_name = "improper"
+duplicate_repo_name = "duplicate"
 
 
 def rm_if_exists(*paths):
@@ -57,6 +60,12 @@ def get_repo(repo_name):
     directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
 
+    # We need to synthesize the time stamps of commits to each be a second
+    # apart, otherwise the commits may be at exactly the same second, which
+    # means they won't always sort in order, and thus the merging of identical
+    # metrics in adjacent commits may not happen correctly.
+    base_time = time.time()
+
     base_path = os.path.join(base_dir, repo_name)
     for i in range(num_commits):
         files_dir = os.path.join(base_path, str(i))
@@ -71,7 +80,12 @@ def get_repo(repo_name):
             shutil.copyfile(path, destination)
 
         repo.index.add("*")
-        repo.index.commit("Commit {index}".format(index=i))
+        commit_date = datetime.datetime.fromtimestamp(base_time + i).isoformat()
+        commit_date = commit_date[:commit_date.find('.')]
+        repo.index.commit(
+            "Commit {index}".format(index=i),
+            commit_date=commit_date
+        )
 
     return directory
 
@@ -88,9 +102,19 @@ def normal_repo():
             "dependencies": [
                 'org.mozilla.components:service-glean',
                 'org.mozilla.components:lib-crash',
-                'org.mozilla.components:browser-storage-sync',
-                'org.mozilla.components:browser-engine-gecko-beta'
             ]
+        },
+        "glean": {
+            "app_id": "glean",
+            "notification_emails": ["frank@mozilla.com"],
+            "url": location,
+            "library_names": ["org.mozilla.components:service-glean"]
+        },
+        "lib-crash": {
+            "app_id": "lib-crash",
+            "notification_emails": ["frank@mozilla.com"],
+            "url": location,
+            "library_names": ["org.mozilla.components:lib-crash"]
         }
     }
 
@@ -132,14 +156,17 @@ def test_normal_repo(normal_repo):
     duration = 'example.duration'
     os_metric = 'example.os'
 
-    # duration has 1 definition
-    assert len(metrics[duration][HISTORY_KEY]) == 1
+    # duration has 2 definitions
+    assert len(metrics[duration][HISTORY_KEY]) == 2
 
     # os has 3 definitions
     assert len(metrics[os_metric][HISTORY_KEY]) == 3
 
-    # duration different begin/end commits
-    assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 2
+    # duration same begin/end commits for first history entry
+    assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
+
+    # duration same begin/end commits for first history entry
+    assert len(set(metrics[duration][HISTORY_KEY][1][COMMITS_KEY].values())) == 2
 
     # os was in 1 commit
     assert len(set(metrics[os_metric][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
@@ -152,7 +179,7 @@ def test_normal_repo(normal_repo):
     with open(path, 'r') as data:
         dependencies = json.load(data)
 
-    assert len(dependencies) == 4
+    assert len(dependencies) == 2
 
 
 def test_improper_metrics_repo(improper_metrics_repo):
@@ -170,3 +197,65 @@ def test_improper_metrics_repo(improper_metrics_repo):
 
     # should send 1 email
     assert len(emails) == 1
+
+
+@pytest.fixture
+def normal_duplicate_repo():
+    return get_repo(normal_repo_name)
+
+
+@pytest.fixture
+def duplicate_repo():
+    return get_repo(duplicate_repo_name)
+
+
+def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
+    repositories_info = {
+        normal_repo_name: {
+            "app_id": "normal_app_name",
+            "notification_emails": ["repo_alice@example.com"],
+            "url": normal_duplicate_repo,
+            "metrics_files": ["metrics.yaml"],
+            "dependencies": ["duplicate_library"]
+        },
+        duplicate_repo_name: {
+            "app_id": "duplicate_library_name",
+            "notification_emails": ["repo_bob@example.com"],
+            "url": duplicate_repo,
+            "metrics_files": ["metrics.yaml"],
+            "library_names": ["duplicate_library"]
+        }
+    }
+
+    with open(repositories_file, "w") as f:
+        f.write(yaml.dump(repositories_info))
+
+    try:
+        runner.main(
+            cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None
+        )
+    except ValueError:
+        pass
+    else:
+        assert False, "Expected exception"
+
+    with open(EMAIL_FILE, 'r') as email_file:
+        emails = yaml.load(email_file)
+
+    # should send 1 email
+    assert len(emails) == 1
+
+    assert "'example.duration' defined more than once" in emails[0]['body']
+    assert "example.os" not in emails[0]['body']
+
+    assert set(emails[0]['recipients'].split(',')) == set([
+        # Metrics owners
+        'alice@example.com',
+        'bob@example.com',
+        'charlie@example.com',
+        # Repo owners
+        'repo_alice@example.com',
+        'repo_bob@example.com',
+        # Everything goes here
+        'dev-telemetry-alerts@mozilla.com'
+    ])
