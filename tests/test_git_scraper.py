@@ -231,7 +231,9 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         f.write(yaml.dump(repositories_info))
 
     try:
-        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
+        runner.main(
+            cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None
+        )
     except ValueError:
         pass
     else:
