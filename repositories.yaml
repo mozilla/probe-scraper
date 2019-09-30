@@ -19,7 +19,7 @@ fenix:
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:lib-crash
-    - org.mozilla.components:browser-storage-sync
+    - org.mozilla.components:support-sync-telemetry
     - org.mozilla.components:browser-engine-gecko-beta
 reference-browser:
   app_id: org-mozilla-reference-browser
@@ -42,7 +42,7 @@ fenix-nightly:
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:lib-crash
-    - org.mozilla.components:browser-storage-sync
+    - org.mozilla.components:support-sync-telemetry
     - org.mozilla.components:browser-engine-gecko-nightly
 firefox-for-fire-tv:
   app_id: org-mozilla-tv-firefox
@@ -67,11 +67,12 @@ sync:
   notification_emails:
     - frank@mozilla.com
     - lina@mozilla.com
+    - grisha@mozilla.com
   url: 'https://github.com/mozilla-mobile/android-components'
   metrics_files:
-    - 'components/browser/storage-sync/metrics.yaml'
+    - 'components/support/sync-telemetry/metrics.yaml'
   library_names:
-    - org.mozilla.components:browser-storage-sync
+    - org.mozilla.components:support-sync-telemetry
 engine-gecko:
   app_id: engine-gecko
   notification_emails:
