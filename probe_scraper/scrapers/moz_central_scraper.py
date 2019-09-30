@@ -18,6 +18,8 @@ REGISTRY_FILES = {
         'toolkit/components/telemetry/Histograms.json',
         'dom/base/UseCounters.conf',
         'dom/base/nsDeprecatedOperationList.h',
+        'servo/components/style/properties/counted_unknown_properties.py',
+        'devtools/shared/css/generated/properties-db.js',
     ],
     'scalar': [
         'toolkit/components/telemetry/Scalars.yaml',
@@ -164,7 +166,16 @@ def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
     return results
 
 
-def download_files(channel, node, temp_dir, error_cache):
+def relative_path_is_in_version(rel_path, version):
+    # The devtools file exists in a bunch of versions, but we only care for it
+    # since firefox 71 (bug 1578661).
+    if rel_path == 'devtools/shared/css/generated/properties-db.js' or \
+       rel_path == 'servo/components/style/properties/counted_unknown_properties.py':
+        return version >= 71
+    return True
+
+
+def download_files(channel, node, temp_dir, error_cache, version):
     base_uri = CHANNELS[channel]['base_uri'] + 'raw-file/' + node + '/'
     node_path = os.path.join(temp_dir, 'hg', node)
 
@@ -186,6 +197,9 @@ def download_files(channel, node, temp_dir, error_cache):
         # requests_cache doesn't cache on error status codes.
         # We just use our own cache for these for now.
         if uri in error_cache:
+            continue
+
+        if not relative_path_is_in_version(rel_path, int(version)):
             continue
 
         req = requests.get(uri)
@@ -265,7 +279,7 @@ def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None)
         print("\n" + channel + " - loading files:")
         for v in versions:
             print("  from: " + str(v))
-            files = download_files(channel, v['node'], folder, error_cache)
+            files = download_files(channel, v['node'], folder, error_cache, v['version'])
             results[channel][v['node']] = {
                 'channel': channel,
                 'version': v['version'],
@@ -317,11 +331,12 @@ def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=No
             revision = rd["revision"]
 
             print("  Downloading files for revision number " + str(i+1) + "/" + str(num_revisions))
-            files = download_files(channel, revision, folder, error_cache)
+            version = extract_major_version(rd["version"])
+            files = download_files(channel, revision, folder, error_cache, version)
 
             results[channel][revision] = {
                 'date': rd['date'],
-                'version': extract_major_version(rd["version"]),
+                'version': version,
                 'registries': files
             }
 
