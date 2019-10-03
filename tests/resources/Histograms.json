@@ -63,6 +63,15 @@
     ],
     "description": "a testing histogram; not meant to be touched"
   },
+  "TELEMETRY_TEST_CATEGORICAL_EMPTY_LABELS": {
+    "alert_emails": ["telemetry-client-dev@mozilla.com"],
+    "bug_numbers": [1188888],
+    "expires_in_version": "never",
+    "kind": "categorical",
+    "labels": [
+    ],
+    "description": "a testing histogram; not meant to be touched"
+  },
   "TELEMETRY_TEST_KEYED_COUNT_INIT_NO_RECORD": {
     "alert_emails": ["telemetry-client-dev@mozilla.com"],
     "expires_in_version": "never",

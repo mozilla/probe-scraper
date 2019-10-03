@@ -46,6 +46,10 @@ def extract_histogram_data(histogram, version):
             value = defaults[source_field]
         set_in_nested_dict(data, target_field, value)
 
+    # Only include labels if the histogram is categorical.
+    if histogram.kind() == "categorical":
+        set_in_nested_dict(data, "details/labels", histogram.labels())
+
     # We only care about opt-out or opt-in really.
     optout = False
     if hasattr(histogram, "dataset"):

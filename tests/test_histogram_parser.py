@@ -20,6 +20,7 @@ def histogram_parser(version, usecounter_optout):
         "TELEMETRY_TEST_CATEGORICAL",
         "TELEMETRY_TEST_CATEGORICAL_OPTOUT",
         "TELEMETRY_TEST_CATEGORICAL_NVALUES",
+        "TELEMETRY_TEST_CATEGORICAL_EMPTY_LABELS",
         "TELEMETRY_TEST_KEYED_COUNT_INIT_NO_RECORD",
         "TELEMETRY_TEST_KEYED_FLAG",
         "TELEMETRY_TEST_KEYED_COUNT",
@@ -91,6 +92,14 @@ def histogram_parser(version, usecounter_optout):
         else:
             # Default multistore if unspecified is just "main"
             assert ["main"] == data['details']['record_into_store']
+
+        # Categorical histograms should have a non-empty `details["labels"]`.
+        if data['details']['kind'] == 'categorical':
+            assert ('labels' in data['details'].keys() and isinstance(
+                data['details']['labels'], list
+            ))
+        else:
+            assert 'labels' not in data['details'].keys()
 
         if name.startswith("USE_COUNTER2_"):
             assert data["optout"] == usecounter_optout
