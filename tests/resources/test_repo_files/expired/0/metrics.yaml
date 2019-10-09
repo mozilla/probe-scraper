@@ -1,0 +1,32 @@
+$schema: moz://mozilla.org/schemas/glean/metrics/1-0-0
+
+example:
+  duration:
+    type: timespan
+    description: |
+      The duration of the last foreground session.
+    time_unit: second
+    send_in_pings:
+      - baseline
+    bugs:
+      - 1497894, 1519120
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
+    notification_emails:
+      - bob@example.com
+    expires: '2019-01-01'
+
+  os:
+    type: string
+    lifetime: application
+    send_in_pings:
+      - baseline
+    description: |
+      Stop
+    bugs:
+      - 1497894
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
+    notification_emails:
+      - telemetry-client-dev@mozilla.com
+    expires: never

@@ -6,6 +6,7 @@
 This file contains various sanity checks for Glean.
 """
 
+import datetime
 import os
 
 from schema import And, Optional, Schema
@@ -55,7 +56,7 @@ Your Friendly, Neighborhood Glean Team
 [2] - https://github.com/mozilla/probe-scraper
 [3] - https://probeinfo.telemetry.mozilla.org/
 [4] - https://telemetry.mozilla.org/probe-dictionary/
-""" # noqa
+"""  # noqa
 
 
 def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
@@ -126,3 +127,81 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
         }
 
     return found_duplicates
+
+
+EXPIRED_METRICS_EMAIL_TEMPLATE = """
+The following metrics in {repo_name} will expire in the next {expire_days} days or have already expired.
+
+{expired_metrics}
+
+What to do about this:
+
+1. If the metric is no longer needed, remove it from the `metrics.yaml` file.
+2. If the metric is still required, resubmit a data review [1] and extend its expiration date.
+
+If you have any problems, please ask for help on the #glean Slack channel. We'll give you a hand.
+
+What happens if you don't fix this:
+
+The metrics will automatically stop collecting data after their expiration date, and you will continue to get this e-mail as a daily reminder.
+
+Your Friendly, Neighborhood Glean Team
+
+[1] https://wiki.mozilla.org/Firefox/Data_Collection
+"""  # noqa
+
+
+def check_for_expired_metrics(
+    repositories, repos_metrics, commit_timestamps, emails, expire_days=14
+):
+    """
+    Checks for all expired metrics and generates e-mails, one per repository.
+    """
+    expiration_cutoff = (
+        datetime.datetime.utcnow().date() +
+        datetime.timedelta(days=expire_days)
+    )
+
+    repo_by_name = {}
+    for repo in repositories:
+        repo_by_name[repo.name] = repo
+
+    for repo_name, commits in repos_metrics.items():
+        timestamps = list(commit_timestamps[repo_name].items())
+        timestamps.sort(key=lambda x: -x[1])
+        last_commit_hash = timestamps[0][0]
+        metrics = commits[last_commit_hash]
+
+        addresses = set()
+        addresses.update(repo_by_name[repo_name].notification_emails)
+
+        expired_metrics = []
+        for metric_name, metric in metrics.items():
+            if metric["expires"] == "never":
+                continue
+            expires = datetime.datetime.strptime(
+                metric["expires"], "%Y-%m-%d"
+            ).date()
+            if expiration_cutoff >= expires:
+                expired_metrics.append(
+                    f"- {metric_name} on {expires}"
+                )
+                addresses.update(metric["notification_emails"])
+        expired_metrics.sort()
+
+        if len(expired_metrics) == 0:
+            continue
+
+        emails[f"expired_metrics_{repo_name}"] = {
+            "emails": [
+                {
+                    "subject": f"Glean: Expired metrics in {repo_name}",
+                    "message": EXPIRED_METRICS_EMAIL_TEMPLATE.format(
+                        repo_name=repo_name,
+                        expire_days=expire_days,
+                        expired_metrics="\n".join(expired_metrics),
+                    ),
+                }
+            ],
+            "addresses": list(addresses),
+        }

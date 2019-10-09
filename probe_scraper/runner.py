@@ -250,6 +250,9 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     abort_after_emails |= glean_checks.check_for_duplicate_metrics(
         repositories, metrics_by_repo, emails
     )
+    glean_checks.check_for_expired_metrics(
+        repositories, metrics, commit_timestamps, emails
+    )
 
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
