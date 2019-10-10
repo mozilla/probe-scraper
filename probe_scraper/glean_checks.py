@@ -148,6 +148,8 @@ The metrics listed above will stop collecting data from builds built after this 
 Your Friendly, Neighborhood Glean Team
 
 [1] https://wiki.mozilla.org/Firefox/Data_Collection
+
+This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
 
 
