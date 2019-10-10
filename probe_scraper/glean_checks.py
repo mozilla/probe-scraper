@@ -143,7 +143,7 @@ If you have any problems, please ask for help on the #glean Slack channel. We'll
 
 What happens if you don't fix this:
 
-The metrics will automatically stop collecting data after their expiration date, and you will continue to get this e-mail as a daily reminder.
+The metrics listed above will stop collecting data from builds built after this expiration date, and you will continue to get this e-mail as a daily reminder.
 
 Your Friendly, Neighborhood Glean Team
 
