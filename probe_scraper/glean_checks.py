@@ -136,8 +136,8 @@ The following metrics in {repo_name} will expire in the next {expire_days} days 
 
 What to do about this:
 
-1. If the metric is no longer needed, remove it from the `metrics.yaml` file.
-2. If the metric is still required, resubmit a data review [1] and extend its expiration date.
+1. If the metric is no longer needed, remove it from the `metrics.yaml` [1] file.
+2. If the metric is still required, resubmit a data review [2] and extend its expiration date.
 
 If you have any problems, please ask for help on the #glean Slack channel. We'll give you a hand.
 
@@ -147,7 +147,9 @@ The metrics listed above will stop collecting data from builds built after this 
 
 Your Friendly, Neighborhood Glean Team
 
-[1] https://wiki.mozilla.org/Firefox/Data_Collection
+[1] One of these files:
+{metrics_yaml_url}
+[2] https://wiki.mozilla.org/Firefox/Data_Collection
 
 This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
@@ -159,9 +161,8 @@ def check_for_expired_metrics(
     """
     Checks for all expired metrics and generates e-mails, one per repository.
     """
-    expiration_cutoff = (
-        datetime.datetime.utcnow().date() +
-        datetime.timedelta(days=expire_days)
+    expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
+        days=expire_days
     )
 
     repo_by_name = {}
@@ -169,30 +170,31 @@ def check_for_expired_metrics(
         repo_by_name[repo.name] = repo
 
     for repo_name, commits in repos_metrics.items():
+        repo = repo_by_name[repo_name]
         timestamps = list(commit_timestamps[repo_name].items())
         timestamps.sort(key=lambda x: -x[1])
         last_commit_hash = timestamps[0][0]
         metrics = commits[last_commit_hash]
 
         addresses = set()
-        addresses.update(repo_by_name[repo_name].notification_emails)
+        addresses.update(repo.notification_emails)
 
         expired_metrics = []
         for metric_name, metric in metrics.items():
             if metric["expires"] == "never":
                 continue
-            expires = datetime.datetime.strptime(
-                metric["expires"], "%Y-%m-%d"
-            ).date()
+            expires = datetime.datetime.strptime(metric["expires"], "%Y-%m-%d").date()
             if expiration_cutoff >= expires:
-                expired_metrics.append(
-                    f"- {metric_name} on {expires}"
-                )
+                expired_metrics.append(f"- {metric_name} on {expires}")
                 addresses.update(metric["notification_emails"])
         expired_metrics.sort()
 
         if len(expired_metrics) == 0:
             continue
+
+        metrics_yaml_url = "\n".join(
+            f"{repo.url}/tree/master/{file}" for file in repo.metrics_file_paths
+        )
 
         emails[f"expired_metrics_{repo_name}"] = {
             "emails": [
@@ -202,6 +204,7 @@ def check_for_expired_metrics(
                         repo_name=repo_name,
                         expire_days=expire_days,
                         expired_metrics="\n".join(expired_metrics),
+                        metrics_yaml_url=metrics_yaml_url,
                     ),
                 }
             ],
