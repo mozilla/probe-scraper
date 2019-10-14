@@ -160,7 +160,13 @@ def check_for_expired_metrics(
 ):
     """
     Checks for all expired metrics and generates e-mails, one per repository.
+
+    This check is only performed on Mondays, to avoid daily spamming.
     """
+    # Only perform the check on Mondays.
+    if datetime.date.today().weekday() != 0:
+        return
+
     expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
         days=expire_days
     )
