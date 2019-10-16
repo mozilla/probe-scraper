@@ -280,7 +280,20 @@ def test_check_for_expired_metrics(expired_repo):
     with open(repositories_file, "w") as f:
         f.write(yaml.dump(repositories_info))
 
-    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
+    # Mock `datetime.date.today` so it's a Monday, the only day that
+    # expirations are checked.
+    class MockDate(datetime.date):
+        @classmethod
+        def today(cls):
+            return datetime.date(2019, 10, 14)
+
+    original_date = datetime.date
+    datetime.date = MockDate
+
+    try:
+        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
+    finally:
+        datetime.date = original_date
 
     with open(EMAIL_FILE, 'r') as email_file:
         emails = yaml.load(email_file)
