@@ -36,6 +36,7 @@ out_dir = ".out"
 normal_repo_name = "normal"
 improper_repo_name = "improper"
 duplicate_repo_name = "duplicate"
+expired_repo_name = "expired"
 
 
 def rm_if_exists(*paths):
@@ -256,6 +257,44 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         # Repo owners
         'repo_alice@example.com',
         'repo_bob@example.com',
+        # Everything goes here
+        'dev-telemetry-alerts@mozilla.com'
+    ])
+
+
+@pytest.fixture
+def expired_repo():
+    return get_repo(expired_repo_name)
+
+
+def test_check_for_expired_metrics(expired_repo):
+    repositories_info = {
+        expired_repo_name: {
+            "app_id": "expired_app_name",
+            "notification_emails": ["repo_alice@example.com"],
+            "url": expired_repo,
+            "metrics_files": ["metrics.yaml"],
+        },
+    }
+
+    with open(repositories_file, "w") as f:
+        f.write(yaml.dump(repositories_info))
+
+    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
+
+    with open(EMAIL_FILE, 'r') as email_file:
+        emails = yaml.load(email_file)
+
+    # should send 1 email
+    assert len(emails) == 1
+
+    assert "example.duration on 2019-01-01" in emails[0]['body']
+
+    assert set(emails[0]['recipients'].split(',')) == set([
+        # Metrics owners
+        'bob@example.com',
+        # Repo owners
+        'repo_alice@example.com',
         # Everything goes here
         'dev-telemetry-alerts@mozilla.com'
     ])
