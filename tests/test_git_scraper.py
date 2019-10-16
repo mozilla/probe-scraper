@@ -14,6 +14,7 @@ import os
 import pytest
 import shutil
 import time
+import unittest.mock
 import yaml
 
 
@@ -287,13 +288,10 @@ def test_check_for_expired_metrics(expired_repo):
         def today(cls):
             return datetime.date(2019, 10, 14)
 
-    original_date = datetime.date
-    datetime.date = MockDate
-
-    try:
-        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
-    finally:
-        datetime.date = original_date
+    with unittest.mock.patch("probe_scraper.glean_checks.datetime.date", new=MockDate):
+        runner.main(
+            cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None
+        )
 
     with open(EMAIL_FILE, 'r') as email_file:
         emails = yaml.load(email_file)
