@@ -39,6 +39,12 @@ Probe scraper also needs a way to map dependencies back to an entry in the
 their build-system-specific library names in the `library_names` parameter.
 
 ## Developing the probe-scraper
+
+You can choose to develop using the container, or locally. Using the container will be slower, since changes will trigger a rebuild of the container.
+But using the container method will ensure that your PR passes CircleCI build/test phases.
+
+### Local development
+
 Install the requirements:
 ```
 pip install -r requirements.txt
@@ -58,7 +64,25 @@ pytest tests/ --run-web-tests
 
 To test whether the code conforms to the style rules, you can run:
 ```
-flake8
+flake8 --max-line-length 100 .
+```
+
+### Developing using the container
+
+Run tests in container. This does not run tests that require a web connection:
+```
+export COMMAND='pytest tests/'
+make run"
+```
+
+To run all tests, including those that require a web connection:
+```
+make test
+```
+
+To test whether the code conforms to the style rules, you can run:
+```
+make lint
 ```
 
 ### Tests with Web Dependencies
@@ -72,10 +96,20 @@ These will not run by default, but will run on CI.
 Before opening a PR, it's good to test the code you wrote on the production data. You can specify a specific Firefox
 version to run on by using `first-version`:
 ```
+export COMMAND='python -m probe_scraper.runner --firefox-version 65 --dry-run'
+make run
+```
+or locally via:
+```
 python -m probe_scraper.runner --firefox-version 65 --dry-run
 ```
 
 Additionally, you can test just on Glean repositories:
+```
+export COMMAND='python -m probe_scraper.runner --glean --dry-run'
+make run
+```
+or locally via:
 ```
 python -m probe_scraper.runner --glean --dry-run
 ```
