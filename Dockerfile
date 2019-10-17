@@ -31,6 +31,7 @@ COPY . ${HOME}
 
 RUN pip install -r requirements.txt
 RUN pip install -r test_requirements.txt
+RUN pip install .
 
 # Drop root and change ownership of the application folder to the user
 RUN chown -R ${USER_ID}:${GROUP_ID} ${HOME}
