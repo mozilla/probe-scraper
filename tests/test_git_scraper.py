@@ -145,7 +145,8 @@ def improper_metrics_repo():
 
 
 def test_normal_repo(normal_repo):
-    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
+    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
+                True, None, None, None, None, 'dev')
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
 
@@ -185,7 +186,8 @@ def test_normal_repo(normal_repo):
 
 
 def test_improper_metrics_repo(improper_metrics_repo):
-    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None)
+    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
+                True, None, None, None, None, 'dev')
 
     path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
     with open(path, 'r') as data:
@@ -233,9 +235,8 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         f.write(yaml.dump(repositories_info))
 
     try:
-        runner.main(
-            cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None
-        )
+        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
+                    True, None, None, None, None, 'dev')
     except ValueError:
         pass
     else:
@@ -289,9 +290,8 @@ def test_check_for_expired_metrics(expired_repo):
             return datetime.date(2019, 10, 14)
 
     with unittest.mock.patch("probe_scraper.glean_checks.datetime.date", new=MockDate):
-        runner.main(
-            cache_dir, out_dir, None, None, False, True, repositories_file, True, None, None
-        )
+        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
+                    True, None, None, None, None, 'dev')
 
     with open(EMAIL_FILE, 'r') as email_file:
         emails = yaml.load(email_file)
