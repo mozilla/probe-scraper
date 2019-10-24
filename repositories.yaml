@@ -3,9 +3,9 @@ glean:
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
-  url: 'https://github.com/mozilla-mobile/android-components'
+  url: 'https://github.com/mozilla/glean'
   metrics_files:
-    - 'components/service/glean/metrics.yaml'
+    - 'glean-core/android/metrics.yaml'
   library_names:
     - org.mozilla.components:service-glean
 fenix:
