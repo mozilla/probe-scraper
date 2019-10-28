@@ -9,6 +9,7 @@ from dateutil.tz import tzlocal
 import errno
 import json
 import os
+import sys
 import tempfile
 import traceback
 
@@ -266,6 +267,41 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
         raise ValueError("Errors processing Glean metrics")
 
 
+def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir):
+    # Create the output directory
+    os.mkdir(out_dir)
+
+    # Sync the cache directory
+    cache_loc = f"s3://{cache_bucket}/cache/probe-scraper"
+    print("Syncing cache from {} with {}".format(cache_loc, cache_dir))
+    sync_command = f"aws s3 sync {cache_loc} {cache_dir}"
+    os.system(sync_command)
+    return cache_loc
+
+
+def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, cache_path):
+    # Check output dir and then sync with cloudfront
+    if not os.listdir(out_dir):
+        print("{} is empty".format(out_dir))
+        sys.exit(1)
+    else:
+        print("Syncing output dir {}/ with s3://{}/".format(out_dir, output_bucket))
+        # The cloudfront dist will automatically gzip objects. Upload to s3.
+        sync_cft_cmd = (
+            f"aws s3 sync {out_dir}/ s3://{output_bucket}/ "
+            f"--delete "
+            f"--content-type 'application/json' "
+            f"--cache-control 'max-age=28800' "
+            f"--acl public-read"
+        )
+        os.system(sync_cft_cmd)
+
+        # Sync cache data
+        print("Syncing cache dir {}/ with s3://{}/".format(cache_dir, cache_path))
+        sync_cache_cmd = f"aws s3 sync {cache_dir} {cache_path}"
+        os.system(sync_cache_cmd)
+
+
 def main(cache_dir,
          out_dir,
          firefox_version,
@@ -275,7 +311,17 @@ def main(cache_dir,
          repositories_file,
          dry_run,
          glean_repo,
-         firefox_channel):
+         firefox_channel,
+         output_bucket,
+         cache_bucket,
+         env):
+
+    # Sync dirs with s3 if we are not running pytest or local dryruns
+    if env == 'prod':
+        cache_path = setup_output_and_cache_dirs(output_bucket,
+                                                 cache_bucket,
+                                                 out_dir,
+                                                 cache_dir)
 
     process_both = not (process_moz_central_probes or process_glean_metrics)
     if process_moz_central_probes or process_both:
@@ -283,6 +329,14 @@ def main(cache_dir,
                                 min_firefox_version, firefox_channel)
     if process_glean_metrics or process_both:
         load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo)
+
+    # Sync results with s3 if we are not running pytest or local dryruns
+    if env == 'prod':
+        sync_output_and_cache_dirs(output_bucket,
+                                   cache_bucket,
+                                   out_dir,
+                                   cache_dir,
+                                   cache_path)
 
 
 if __name__ == "__main__":
@@ -310,6 +364,19 @@ if __name__ == "__main__":
                         help='The Fx channel to scrape. If unspecified, scrapes all.',
                         type=str,
                         required=False)
+    parser.add_argument('--output-bucket',
+                        help='The output s3 cloudfront bucket where out-dir will be syncd.',
+                        type=str,
+                        default='net-mozaws-prod-us-west-2-data-pitmo')
+    parser.add_argument('--cache-bucket',
+                        help='The cache bucket for probe scraper.',
+                        type=str,
+                        default='telemetry-airflow-cache')
+    parser.add_argument('--env',
+                        help="We set this to 'prod' when we need to run actual s3 syncs",
+                        type=str,
+                        choices=['dev', 'prod'],
+                        default='dev')
 
     application = parser.add_mutually_exclusive_group()
     application.add_argument('--moz-central',
@@ -332,6 +399,7 @@ if __name__ == "__main__":
                           required=False)
 
     args = parser.parse_args()
+
     main(args.cache_dir,
          args.out_dir,
          args.firefox_version,
@@ -341,4 +409,7 @@ if __name__ == "__main__":
          args.repositories_file,
          args.dry_run,
          args.glean_repo,
-         args.firefox_channel)
+         args.firefox_channel,
+         args.output_bucket,
+         args.cache_bucket,
+         args.env)
