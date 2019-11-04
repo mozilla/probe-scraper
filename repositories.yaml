@@ -107,3 +107,14 @@ engine-gecko-nightly:
     - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
   library_names:
     - org.mozilla.components:browser-engine-gecko-nightly
+firefox-reality:
+  app_id: org-mozilla-vrbrowser
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+    - dmu@mozilla.com
+  url: 'https://github.com/MozillaReality/FirefoxReality'
+  metrics_files:
+    - 'app/metrics.yaml'
+  dependencies:
+    - org.mozilla.components:service-glean
