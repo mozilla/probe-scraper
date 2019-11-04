@@ -118,3 +118,4 @@ firefox-reality:
     - 'app/metrics.yaml'
   dependencies:
     - org.mozilla.components:service-glean
+    - org.mozilla.components:support-sync-telemetry
