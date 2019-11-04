@@ -30,6 +30,12 @@ that application.
 
 Therefore, each application should specify a `dependencies` parameter, which is a list of Glean-using libraries used by the application.  Each entry should be a library name as specified by the library's `library_names` parameter.
 
+For Android applications, if you're not sure what the dependencies of the application are, you can run the following command at the root of the project folder:
+
+```bash
+$ ./gradlew :app:dependencies
+```
+
 ### Adding a library
 
 All **libraries** must define `library_names`.
