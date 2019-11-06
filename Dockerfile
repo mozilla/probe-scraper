@@ -1,6 +1,8 @@
 FROM python:3
 MAINTAINER Harold Woo <hwoo@mozilla.com>
 
+ENV PYTHONUNBUFFERED=1
+
 ARG APP_NAME=probe-scraper
 ENV APP_NAME=${APP_NAME}
 
