@@ -246,7 +246,7 @@ This file contains the data for the probes. The data might be spread across mult
 }
 ```
 
-Please refer to the Telemetry data collection [documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/collection/index.html) for a detailed explaination of the field information reported for each probe (e.g. `cpp_guard`).
+Please refer to the Telemetry data collection [documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/collection/index.html) for a detailed explanation of the field information reported for each probe (e.g. `cpp_guard`).
 
 ## Glean Metrics Data Files
 The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has `git-commits` and `dates` keys, which contains the
