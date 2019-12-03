@@ -81,6 +81,8 @@ engine-gecko:
     - android-components-team@mozilla.com
     - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
+  metrics_files:
+    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
   branch: release
   library_names:
     - org.mozilla.components:browser-engine-gecko
@@ -92,6 +94,8 @@ engine-gecko-beta:
     - android-components-team@mozilla.com
     - geckoview-team@mozilla.com
   url: 'https://github.com/mozilla/gecko-dev'
+  metrics_files:
+    - 'toolkit/components/telemetry/geckoview/streaming/metrics.yaml'
   branch: beta
   library_names:
     - org.mozilla.components:browser-engine-gecko-beta
