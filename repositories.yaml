@@ -136,6 +136,14 @@ firefox-reality:
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:support-sync-telemetry
+lockwise-ios:
+  app_id: org.mozilla.ios.Lockbox
+  notification_emails:
+    - frank@mozilla.com
+    - tlong@mozilla.com
+  url: 'https://github.com/mozilla-lockwise/lockwise-ios'
+  dependencies:
+    - org.mozilla.components:service-glean
 logins-store:
   app_id: logins-store
   notification_emails:
