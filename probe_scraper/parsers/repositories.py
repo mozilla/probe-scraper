@@ -23,14 +23,18 @@ class Repository(object):
         self.notification_emails = definition.get("notification_emails")
         self.app_id = definition.get("app_id")
         self.metrics_file_paths = definition.get("metrics_files", [])
+        self.ping_file_paths = definition.get("ping_files", [])
         self.library_names = definition.get("library_names", None)
         self.dependencies = definition.get("dependencies", [])
 
     def get_metrics_file_paths(self):
         return self.metrics_file_paths
 
+    def get_ping_file_paths(self):
+        return self.ping_file_paths
+
     def get_change_files(self):
-        return self.metrics_file_paths
+        return self.metrics_file_paths + self.ping_file_paths
 
     def to_dict(self):
         # Remove null elements

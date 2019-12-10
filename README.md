@@ -20,6 +20,7 @@ will be just about your specific repository.
 - `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
 - `branch` (optional): The branch in the repository to use. (Defaults to `master`).
 - `metrics_files`: A list of relative paths to `metrics.yaml` files
+- `ping_files`: A list of relative paths to `pings.yaml` files
 
 ### Adding an application
 
@@ -346,7 +347,7 @@ Glean data is generally laid out as follows:
         | -- metrics
 ```
 
-For example, the data for a repository called `fenix` would be found at [`/glean/fenix/metrics`](https://probeinfo.telemetry.mozilla.org/glean/fenix/metrics). The time the data was last updated for that project can be found at [`glean/fenix/general`](https://probeinfo.telemetry.mozilla.org/glean/fenix/general). 
+For example, the data for a repository called `fenix` would be found at [`/glean/fenix/metrics`](https://probeinfo.telemetry.mozilla.org/glean/fenix/metrics). The time the data was last updated for that project can be found at [`glean/fenix/general`](https://probeinfo.telemetry.mozilla.org/glean/fenix/general).
 
 A list of available repositories is at [`/glean/repositories`](https://probeinfo.telemetry.mozilla.org/glean/repositories).
 
