@@ -23,6 +23,7 @@ from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
 from . import transform_probes
+from . import transform_pings
 from . import transform_revisions
 
 
@@ -100,6 +101,13 @@ def write_glean_metric_data(metrics, dependencies, out_dir):
         dump_json(general_data(), base_dir, "general")
         dump_json(metrics_data, base_dir, "metrics")
         dump_json(dependencies_data, base_dir, "dependencies")
+
+
+def write_glean_ping_data(pings, out_dir):
+    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+    for repo, pings_data in pings.items():
+        base_dir = os.path.join(out_dir, "glean", repo)
+        dump_json(pings_data, base_dir, "pings")
 
 
 def write_repositories_data(repos, out_dir):
@@ -264,6 +272,9 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
 
+    pings_by_repo = {repo: {} for repo in repos_metrics_data}
+    pings_by_repo.update(transform_pings.transform_by_hash(commit_timestamps, pings))
+
     dependencies_by_repo = {}
     for repo in repositories:
         dependencies = {}
@@ -282,6 +293,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     )
 
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
+    write_glean_ping_data(pings_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
 
     for repo_name, email_info in list(emails.items()):
