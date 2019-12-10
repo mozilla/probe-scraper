@@ -6,6 +6,7 @@ glean:
   url: 'https://github.com/mozilla/glean'
   metrics_files:
     - 'glean-core/android/metrics.yaml'
+    - 'glean-core/metrics.yaml'
   library_names:
     - org.mozilla.components:service-glean
 fenix:
