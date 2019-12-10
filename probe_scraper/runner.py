@@ -18,6 +18,7 @@ from . import glean_checks
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
+from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
@@ -45,7 +46,9 @@ PARSERS = {
 }
 
 GLEAN_PARSER = GleanMetricsParser()
+GLEAN_PINGS_PARSER = GleanPingsParser()
 GLEAN_METRICS_FILENAME = 'metrics.yaml'
+GLEAN_PINGS_FILENAME = 'pings.yaml'
 
 
 def general_data():
@@ -208,9 +211,11 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     #   ...
     # }
     metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
+            pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
 
             try:
                 config = {'allow_reserved': repo_name == 'glean'}
@@ -230,6 +235,27 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                            "Errors: [{}]").format(commit_hash, ".".join(errs))
                     emails[repo_name]["emails"].append({
                         "subject": "Probe Scraper: Error on Metric Parsing",
+                        "message": msg
+                    })
+
+            try:
+                config = {'allow_reserved': repo_name == 'glean'}
+                if pings_files:
+                    results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
+                    pings[repo_name][commit_hash] = results
+            except Exception:
+                msg = "Improper file in {}\n{}".format(', '.join(pings_files),
+                                                       traceback.format_exc())
+                emails[repo_name]["emails"].append({
+                    "subject": "Probe Scraper: Improper File",
+                    "message": msg
+                })
+            else:
+                if errs:
+                    msg = ("Error in processing commit {}\n"
+                           "Errors: [{}]").format(commit_hash, ".".join(errs))
+                    emails[repo_name]["emails"].append({
+                        "subject": "Probe Scraper: Error on Ping Parsing",
                         "message": msg
                     })
 
