@@ -144,6 +144,13 @@ fogotype:
   url: 'https://github.com/mozilla/gecko-dev'
   dependencies:
     - org.mozilla.components:service-glean
+lockwise-android:
+  app_id: mozilla.Lockbox
+  notification_emails:
+    - frank@mozilla.com
+  url: 'https://github.com/mozilla-lockwise/lockwise-android'
+  dependencies:
+    - org.mozilla.components:service-glean
 lockwise-ios:
   app_id: org.mozilla.ios.Lockbox
   notification_emails:
