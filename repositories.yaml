@@ -148,6 +148,7 @@ lockwise-android:
   app_id: mozilla.Lockbox
   notification_emails:
     - frank@mozilla.com
+    - lockwise-dev@mozilla.com
   url: 'https://github.com/mozilla-lockwise/lockwise-android'
   dependencies:
     - org.mozilla.components:service-glean
@@ -156,6 +157,7 @@ lockwise-ios:
   notification_emails:
     - frank@mozilla.com
     - tlong@mozilla.com
+    - lockwise-dev@mozilla.com
   url: 'https://github.com/mozilla-lockwise/lockwise-ios'
   dependencies:
     - org.mozilla.components:service-glean
