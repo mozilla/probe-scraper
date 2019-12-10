@@ -85,7 +85,6 @@ class RepositoriesParser(object):
             or repo.name == glean_repo
         ]
 
-
     def parse(self, filename=None, glean_repo=None):
         self.validate(filename)
         repos = self._get_repos(filename)
