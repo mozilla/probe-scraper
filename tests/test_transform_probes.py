@@ -360,14 +360,14 @@ def test_transform_by_channel():
     print_and_test(expected, result)
 
 
-def test_transform_by_hash():
+def test_transform_metrics_by_hash():
     timestamps = {
         repo: {
             str(i): i for i in range(4)
         } for repo in REPOS
     }
 
-    result = transform.transform_by_hash(timestamps, IN_METRICS_DATA)
+    result = transform.transform_metrics_by_hash(timestamps, IN_METRICS_DATA)
     expected = OUT_METRICS_DATA
 
     print_and_test(expected, result)
@@ -479,4 +479,4 @@ def test_sort_ordering():
         }
     }
 
-    assert transform.transform_by_hash(timestamps, probes) == expected_out
+    assert transform.transform_metrics_by_hash(timestamps, probes) == expected_out
