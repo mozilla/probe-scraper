@@ -283,7 +283,7 @@ def metric_ctor(defn, metric):
     }
 
 
-def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_timestamps, type_ctor):
+def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_timestamps, equal_fn, type_ctor):
     # If we've seen this metric before, check previous definitions
     if metric in repo_metrics:
         prev_defns = repo_metrics[metric][HISTORY_KEY]
@@ -292,7 +292,7 @@ def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_t
         max_defn = prev_defns[max_defn_i]
 
         # If equal to previous commit, update date and commit on existing definition
-        if metrics_equal(definition, max_defn):
+        if equal_fn(definition, max_defn):
             new_defn = make_metric_defn(max_defn, commit_hash, commit_timestamps)
             repo_metrics[metric][HISTORY_KEY][max_defn_i] = new_defn
 
@@ -365,6 +365,7 @@ def transform_by_hash(commit_timestamps, metric_data):
                                                     metric,
                                                     definition,
                                                     commit_timestamps[repo_name],
+                                                    metrics_equal,
                                                     metric_ctor)
 
         all_metrics[repo_name] = repo_metrics
