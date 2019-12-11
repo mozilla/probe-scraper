@@ -294,7 +294,8 @@ def ping_ctor(defn, metric):
     }
 
 
-def update_or_add_item(repo_items, commit_hash, item, definition, commit_timestamps, equal_fn, type_ctor):
+def update_or_add_item(repo_items, commit_hash, item, definition, commit_timestamps,
+                       equal_fn, type_ctor):
     # If we've seen this item before, check previous definitions
     if item in repo_items:
         prev_defns = repo_items[item][HISTORY_KEY]
@@ -383,8 +384,10 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
 
     return all_items
 
+
 def transform_metrics_by_hash(commit_timestamps, metric_data):
     return transform_by_hash(commit_timestamps, metric_data, metrics_equal, metric_ctor)
+
 
 def transform_pings_by_hash(commit_timestamps, ping_data):
     return transform_by_hash(commit_timestamps, ping_data, ping_equal, ping_ctor)
