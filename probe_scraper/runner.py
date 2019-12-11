@@ -23,7 +23,6 @@ from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
 from . import transform_probes
-from . import transform_pings
 from . import transform_revisions
 
 
@@ -273,7 +272,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     metrics_by_repo.update(transform_probes.transform_metrics_by_hash(commit_timestamps, metrics))
 
     pings_by_repo = {repo: {} for repo in repos_metrics_data}
-    pings_by_repo.update(transform_pings.transform_by_hash(commit_timestamps, pings))
+    pings_by_repo.update(transform_probes.transform_pings_by_hash(commit_timestamps, pings))
 
     dependencies_by_repo = {}
     for repo in repositories:
