@@ -309,7 +309,7 @@ def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_t
     return repo_metrics
 
 
-def transform_by_hash(commit_timestamps, metric_data):
+def transform_by_hash(commit_timestamps, data):
     """
     :param commit_timestamps - of the form
       <repo_name>: {
@@ -317,7 +317,7 @@ def transform_by_hash(commit_timestamps, metric_data):
         ...
       }
 
-    :param metric_data - of the form
+    :param data - of the form
       <repo_name>: {
         <commit-hash>: {
           <metric-name>: {
@@ -329,7 +329,7 @@ def transform_by_hash(commit_timestamps, metric_data):
 
     Outputs deduplicated data of the form
         <repo_name>: {
-            <metric_name>: {
+            <name>: {
                 "type": <type>,
                 "name": <name>,
                 "history": [
@@ -350,17 +350,17 @@ def transform_by_hash(commit_timestamps, metric_data):
         }
     """
 
-    all_metrics = {}
-    for repo_name, commits in metric_data.items():
-        repo_metrics = {}
+    all_items = {}
+    for repo_name, commits in data.items():
+        repo_items = {}
 
         # iterate through commits, sorted by timestamp of the commit
         sorted_commits = sorted(iter(commits.items()),
                                 key=lambda x_y: commit_timestamps[repo_name][x_y[0]])
 
-        for commit_hash, metrics in sorted_commits:
-            for metric, definition in metrics.items():
-                repo_metrics = update_or_add_metric(repo_metrics,
+        for commit_hash, items in sorted_commits:
+            for metric, definition in items.items():
+                repo_items = update_or_add_metric(repo_items,
                                                     commit_hash,
                                                     metric,
                                                     definition,
@@ -368,6 +368,6 @@ def transform_by_hash(commit_timestamps, metric_data):
                                                     metrics_equal,
                                                     metric_ctor)
 
-        all_metrics[repo_name] = repo_metrics
+        all_items[repo_name] = repo_items
 
-    return all_metrics
+    return all_items
