@@ -276,7 +276,17 @@ def metrics_equal(def1, def2):
 
 
 def ping_equal(def1, def2):
-    return def1 == def2
+    return all((
+        def1.get(l) == def2.get(l)
+        for l in {
+            'bugs',
+            'data_reviews',
+            'description',
+            'notification_emails',
+            'include_client_id',
+            'send_if_empty',
+        }
+    ))
 
 
 def metric_ctor(defn, metric):
