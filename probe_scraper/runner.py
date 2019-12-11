@@ -270,7 +270,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     abort_after_emails = False
 
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
-    metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
+    metrics_by_repo.update(transform_probes.transform_metrics_by_hash(commit_timestamps, metrics))
 
     pings_by_repo = {repo: {} for repo in repos_metrics_data}
     pings_by_repo.update(transform_pings.transform_by_hash(commit_timestamps, pings))

@@ -309,7 +309,7 @@ def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_t
     return repo_metrics
 
 
-def transform_by_hash(commit_timestamps, data):
+def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
     """
     :param commit_timestamps - of the form
       <repo_name>: {
@@ -365,9 +365,12 @@ def transform_by_hash(commit_timestamps, data):
                                                     metric,
                                                     definition,
                                                     commit_timestamps[repo_name],
-                                                    metrics_equal,
-                                                    metric_ctor)
+                                                    equal_fn,
+                                                    type_ctor)
 
         all_items[repo_name] = repo_items
 
     return all_items
+
+def transform_metrics_by_hash(commit_timestamps, metric_data):
+    return transform_by_hash(commit_timestamps, metric_data, metrics_equal, metric_ctor)
