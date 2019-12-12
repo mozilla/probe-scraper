@@ -276,16 +276,13 @@ def metrics_equal(def1, def2):
 
 
 def ping_equal(def1, def2):
+    # Test all keys except the ones the probe-scraper adds
+    ignored_keys = set([DATES_KEY, COMMITS_KEY, HISTORY_KEY])
+    all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
+
     return all((
         def1.get(l) == def2.get(l)
-        for l in {
-            'bugs',
-            'data_reviews',
-            'description',
-            'notification_emails',
-            'include_client_id',
-            'send_if_empty',
-        }
+        for l in all_keys
     ))
 
 
