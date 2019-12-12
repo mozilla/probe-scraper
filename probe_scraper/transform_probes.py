@@ -286,7 +286,7 @@ def ping_equal(def1, def2):
     ))
 
 
-def metric_ctor(defn, metric):
+def metric_constructor(defn, metric):
     return {
         TYPE_KEY: defn[TYPE_KEY],
         NAME_KEY: metric,
@@ -294,7 +294,7 @@ def metric_ctor(defn, metric):
     }
 
 
-def ping_ctor(defn, metric):
+def ping_constructor(defn, metric):
     return {
         NAME_KEY: metric,
         HISTORY_KEY: [defn]
@@ -393,8 +393,8 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
 
 
 def transform_metrics_by_hash(commit_timestamps, metric_data):
-    return transform_by_hash(commit_timestamps, metric_data, metrics_equal, metric_ctor)
+    return transform_by_hash(commit_timestamps, metric_data, metrics_equal, metric_constructor)
 
 
 def transform_pings_by_hash(commit_timestamps, ping_data):
-    return transform_by_hash(commit_timestamps, ping_data, ping_equal, ping_ctor)
+    return transform_by_hash(commit_timestamps, ping_data, ping_equal, ping_constructor)
