@@ -229,29 +229,13 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
-            except Exception:
-                msg = "Improper file in {}\n{}".format(', '.join(metrics_files),
-                                                       traceback.format_exc())
-                emails[repo_name]["emails"].append({
-                    "subject": "Probe Scraper: Improper File",
-                    "message": msg
-                })
-            else:
-                if errs:
-                    msg = ("Error in processing commit {}\n"
-                           "Errors: [{}]").format(commit_hash, ".".join(errs))
-                    emails[repo_name]["emails"].append({
-                        "subject": "Probe Scraper: Error on Metric Parsing",
-                        "message": msg
-                    })
 
-            try:
-                config = {'allow_reserved': repo_name == 'glean'}
                 if pings_files:
                     results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
                     pings[repo_name][commit_hash] = results
             except Exception:
-                msg = "Improper file in {}\n{}".format(', '.join(pings_files),
+                files = metrics_files + pings_files
+                msg = "Improper file in {}\n{}".format(', '.join(files),
                                                        traceback.format_exc())
                 emails[repo_name]["emails"].append({
                     "subject": "Probe Scraper: Improper File",
@@ -262,7 +246,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                     msg = ("Error in processing commit {}\n"
                            "Errors: [{}]").format(commit_hash, ".".join(errs))
                     emails[repo_name]["emails"].append({
-                        "subject": "Probe Scraper: Error on Ping Parsing",
+                        "subject": "Probe Scraper: Error on parsing metric or ping files",
                         "message": msg
                     })
 
