@@ -7,6 +7,8 @@ glean:
   metrics_files:
     - 'glean-core/android/metrics.yaml'
     - 'glean-core/metrics.yaml'
+  ping_files:
+    - 'glean-core/pings.yaml'
   library_names:
     - org.mozilla.components:service-glean
 fenix:
@@ -17,6 +19,8 @@ fenix:
   url: 'https://github.com/mozilla-mobile/fenix'
   metrics_files:
     - 'app/metrics.yaml'
+  ping_files:
+    - 'app/pings.yaml'
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:lib-crash
@@ -40,6 +44,8 @@ fenix-nightly:
   url: 'https://github.com/mozilla-mobile/fenix'
   metrics_files:
     - 'app/metrics.yaml'
+  ping_files:
+    - 'app/pings.yaml'
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:lib-crash
@@ -72,6 +78,8 @@ sync:
   url: 'https://github.com/mozilla-mobile/android-components'
   metrics_files:
     - 'components/support/sync-telemetry/metrics.yaml'
+  ping_files:
+    - 'components/support/sync-telemetry/pings.yaml'
   library_names:
     - org.mozilla.components:support-sync-telemetry
 engine-gecko:
@@ -121,6 +129,8 @@ firefox-reality:
   url: 'https://github.com/MozillaReality/FirefoxReality'
   metrics_files:
     - 'app/metrics.yaml'
+  ping_files:
+    - 'app/pings.yaml'
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:support-sync-telemetry
