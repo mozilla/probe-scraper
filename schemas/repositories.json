@@ -29,6 +29,13 @@
           "pattern": "metrics\\.yaml$"
         }
       },
+      "ping_files": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "pings\\.yaml$"
+        }
+      },
       "dependencies": {
         "type": "array",
         "item": {

@@ -236,7 +236,7 @@ def pretty_ts(ts):
     return datetime.utcfromtimestamp(ts).isoformat(' ')
 
 
-def make_metric_defn(definition, commit, commit_timestamps):
+def make_item_defn(definition, commit, commit_timestamps):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
         definition[COMMITS_KEY] = {
@@ -275,37 +275,60 @@ def metrics_equal(def1, def2):
      ))
 
 
-def update_or_add_metric(repo_metrics, commit_hash, metric, definition, commit_timestamps):
-    # If we've seen this metric before, check previous definitions
-    if metric in repo_metrics:
-        prev_defns = repo_metrics[metric][HISTORY_KEY]
+def ping_equal(def1, def2):
+    # Test all keys except the ones the probe-scraper adds
+    ignored_keys = set([DATES_KEY, COMMITS_KEY, HISTORY_KEY])
+    all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
+
+    return all((
+        def1.get(l) == def2.get(l)
+        for l in all_keys
+    ))
+
+
+def metric_constructor(defn, metric):
+    return {
+        TYPE_KEY: defn[TYPE_KEY],
+        NAME_KEY: metric,
+        HISTORY_KEY: [defn]
+    }
+
+
+def ping_constructor(defn, metric):
+    return {
+        NAME_KEY: metric,
+        HISTORY_KEY: [defn]
+    }
+
+
+def update_or_add_item(repo_items, commit_hash, item, definition, commit_timestamps,
+                       equal_fn, type_ctor):
+    # If we've seen this item before, check previous definitions
+    if item in repo_items:
+        prev_defns = repo_items[item][HISTORY_KEY]
         max_defn_i = max(range(len(prev_defns)),
                          key=lambda i: datetime.fromisoformat(prev_defns[i][DATES_KEY]["last"]))
         max_defn = prev_defns[max_defn_i]
 
         # If equal to previous commit, update date and commit on existing definition
-        if metrics_equal(definition, max_defn):
-            new_defn = make_metric_defn(max_defn, commit_hash, commit_timestamps)
-            repo_metrics[metric][HISTORY_KEY][max_defn_i] = new_defn
+        if equal_fn(definition, max_defn):
+            new_defn = make_item_defn(max_defn, commit_hash, commit_timestamps)
+            repo_items[item][HISTORY_KEY][max_defn_i] = new_defn
 
-        # Otherwise, prepend changed definition for existing metric
+        # Otherwise, prepend changed definition for existing item
         else:
-            new_defn = make_metric_defn(definition, commit_hash, commit_timestamps)
-            repo_metrics[metric][HISTORY_KEY] = prev_defns + [new_defn]
+            new_defn = make_item_defn(definition, commit_hash, commit_timestamps)
+            repo_items[item][HISTORY_KEY] = prev_defns + [new_defn]
 
-    # We haven't seen this metric before, add it
+    # We haven't seen this item before, add it
     else:
-        defn = make_metric_defn(definition, commit_hash, commit_timestamps)
-        repo_metrics[metric] = {
-            TYPE_KEY: defn[TYPE_KEY],
-            NAME_KEY: metric,
-            HISTORY_KEY: [defn]
-        }
+        defn = make_item_defn(definition, commit_hash, commit_timestamps)
+        repo_items[item] = type_ctor(defn, item)
 
-    return repo_metrics
+    return repo_items
 
 
-def transform_by_hash(commit_timestamps, metric_data):
+def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
     """
     :param commit_timestamps - of the form
       <repo_name>: {
@@ -313,10 +336,10 @@ def transform_by_hash(commit_timestamps, metric_data):
         ...
       }
 
-    :param metric_data - of the form
+    :param data - of the form
       <repo_name>: {
         <commit-hash>: {
-          <metric-name>: {
+          <item-name>: {
             ...
           },
         },
@@ -325,13 +348,13 @@ def transform_by_hash(commit_timestamps, metric_data):
 
     Outputs deduplicated data of the form
         <repo_name>: {
-            <metric_name>: {
+            <name>: {
                 "type": <type>,
                 "name": <name>,
                 "history": [
                     {
                         "bugs": [<bug#>, ...],
-                        ...other metrics.yaml info...,
+                        ...other info (from metrics.yaml or pings.yaml)...,
                         "git-commits": {
                             "first": <hash>,
                             "last": <hash>
@@ -346,22 +369,32 @@ def transform_by_hash(commit_timestamps, metric_data):
         }
     """
 
-    all_metrics = {}
-    for repo_name, commits in metric_data.items():
-        repo_metrics = {}
+    all_items = {}
+    for repo_name, commits in data.items():
+        repo_items = {}
 
         # iterate through commits, sorted by timestamp of the commit
         sorted_commits = sorted(iter(commits.items()),
                                 key=lambda x_y: commit_timestamps[repo_name][x_y[0]])
 
-        for commit_hash, metrics in sorted_commits:
-            for metric, definition in metrics.items():
-                repo_metrics = update_or_add_metric(repo_metrics,
-                                                    commit_hash,
-                                                    metric,
-                                                    definition,
-                                                    commit_timestamps[repo_name])
+        for commit_hash, items in sorted_commits:
+            for item, definition in items.items():
+                repo_items = update_or_add_item(repo_items,
+                                                commit_hash,
+                                                item,
+                                                definition,
+                                                commit_timestamps[repo_name],
+                                                equal_fn,
+                                                type_ctor)
 
-        all_metrics[repo_name] = repo_metrics
+        all_items[repo_name] = repo_items
 
-    return all_metrics
+    return all_items
+
+
+def transform_metrics_by_hash(commit_timestamps, metric_data):
+    return transform_by_hash(commit_timestamps, metric_data, metrics_equal, metric_constructor)
+
+
+def transform_pings_by_hash(commit_timestamps, ping_data):
+    return transform_by_hash(commit_timestamps, ping_data, ping_equal, ping_constructor)

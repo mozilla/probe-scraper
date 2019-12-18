@@ -108,6 +108,47 @@ OUT_METRICS_DATA = {
     } for repo in REPOS
 }
 
+IN_PING_DATA = {
+    repo: {
+        str(i): {
+            "metrics": {
+                "description": "Metrics ping",
+                "bugs": ["https://bugzilla.mozilla.org/1512938"],
+                "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                "include_client_id": True,
+                "send_if_empty": False,
+            }
+        } for i in range(4)
+    } for repo in REPOS
+}
+
+OUT_PING_DATA = {
+    repo: {
+        "metrics": {
+            "name": "metrics",
+            "history": [
+                {
+                    "description": "Metrics ping",
+                    "bugs": ["https://bugzilla.mozilla.org/1512938"],
+                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                    "include_client_id": True,
+                    "send_if_empty": False,
+                    "git-commits": {
+                        "first": "0",
+                        "last": "3"
+                    },
+                    "dates": {
+                        "first": "1970-01-01 00:00:00",
+                        "last": "1970-01-01 00:00:03"
+                    }
+                }
+            ]
+        }
+    } for repo in REPOS
+}
+
 
 def in_probe_data():
     top_levels = CHANNELS
@@ -360,15 +401,28 @@ def test_transform_by_channel():
     print_and_test(expected, result)
 
 
-def test_transform_by_hash():
+def test_transform_metrics_by_hash():
     timestamps = {
         repo: {
             str(i): i for i in range(4)
         } for repo in REPOS
     }
 
-    result = transform.transform_by_hash(timestamps, IN_METRICS_DATA)
+    result = transform.transform_metrics_by_hash(timestamps, IN_METRICS_DATA)
     expected = OUT_METRICS_DATA
+
+    print_and_test(expected, result)
+
+
+def test_transform_pings_by_hash():
+    timestamps = {
+        repo: {
+            str(i): i for i in range(4)
+        } for repo in REPOS
+    }
+
+    result = transform.transform_pings_by_hash(timestamps, IN_PING_DATA)
+    expected = OUT_PING_DATA
 
     print_and_test(expected, result)
 
@@ -479,4 +533,4 @@ def test_sort_ordering():
         }
     }
 
-    assert transform.transform_by_hash(timestamps, probes) == expected_out
+    assert transform.transform_metrics_by_hash(timestamps, probes) == expected_out

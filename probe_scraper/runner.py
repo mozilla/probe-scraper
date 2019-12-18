@@ -18,6 +18,7 @@ from . import glean_checks
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
+from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
@@ -45,7 +46,9 @@ PARSERS = {
 }
 
 GLEAN_PARSER = GleanMetricsParser()
+GLEAN_PINGS_PARSER = GleanPingsParser()
 GLEAN_METRICS_FILENAME = 'metrics.yaml'
+GLEAN_PINGS_FILENAME = 'pings.yaml'
 
 
 def general_data():
@@ -97,6 +100,13 @@ def write_glean_metric_data(metrics, dependencies, out_dir):
         dump_json(general_data(), base_dir, "general")
         dump_json(metrics_data, base_dir, "metrics")
         dump_json(dependencies_data, base_dir, "dependencies")
+
+
+def write_glean_ping_data(pings, out_dir):
+    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+    for repo, pings_data in pings.items():
+        base_dir = os.path.join(out_dir, "glean", repo)
+        dump_json(pings_data, base_dir, "pings")
 
 
 def write_repositories_data(repos, out_dir):
@@ -208,17 +218,24 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     #   ...
     # }
     metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
+            pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
 
             try:
                 config = {'allow_reserved': repo_name == 'glean'}
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
+
+                if pings_files:
+                    results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
+                    pings[repo_name][commit_hash] = results
             except Exception:
-                msg = "Improper file in {}\n{}".format(', '.join(metrics_files),
+                files = metrics_files + pings_files
+                msg = "Improper file in {}\n{}".format(', '.join(files),
                                                        traceback.format_exc())
                 emails[repo_name]["emails"].append({
                     "subject": "Probe Scraper: Improper File",
@@ -229,14 +246,17 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                     msg = ("Error in processing commit {}\n"
                            "Errors: [{}]").format(commit_hash, ".".join(errs))
                     emails[repo_name]["emails"].append({
-                        "subject": "Probe Scraper: Error on Metric Parsing",
+                        "subject": "Probe Scraper: Error on parsing metric or ping files",
                         "message": msg
                     })
 
     abort_after_emails = False
 
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
-    metrics_by_repo.update(transform_probes.transform_by_hash(commit_timestamps, metrics))
+    metrics_by_repo.update(transform_probes.transform_metrics_by_hash(commit_timestamps, metrics))
+
+    pings_by_repo = {repo: {} for repo in repos_metrics_data}
+    pings_by_repo.update(transform_probes.transform_pings_by_hash(commit_timestamps, pings))
 
     dependencies_by_repo = {}
     for repo in repositories:
@@ -256,6 +276,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     )
 
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
+    write_glean_ping_data(pings_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
 
     for repo_name, email_info in list(emails.items()):
