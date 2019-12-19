@@ -5,6 +5,15 @@
 from glean_parser.parser import parse_objects
 from pathlib import Path
 
+PING_NAME_NORMALIZATION = {
+    'deletion_request': 'deletion-request',
+    'bookmarks_sync': 'bookmarks-sync',
+    'history_sync': 'history-sync',
+    'session_end': 'session-end',
+}
+
+def normalize_ping_name(name):
+    return PING_NAME_NORMALIZATION.get(name, name)
 
 class GleanPingsParser:
     """
@@ -21,7 +30,7 @@ class GleanPingsParser:
 
         return (
             {
-                ping_name: ping_data.serialize()
+                normalize_ping_name(ping_name): ping_data.serialize()
                 for category, pings in results.value.items()
                 for ping_name, ping_data in pings.items()
             },
