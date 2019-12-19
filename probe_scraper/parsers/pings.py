@@ -12,8 +12,10 @@ PING_NAME_NORMALIZATION = {
     'session_end': 'session-end',
 }
 
+
 def normalize_ping_name(name):
     return PING_NAME_NORMALIZATION.get(name, name)
+
 
 class GleanPingsParser:
     """
