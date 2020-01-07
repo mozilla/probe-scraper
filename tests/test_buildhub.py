@@ -12,6 +12,7 @@ FX_RELEASE_62_0_3 = {
 
 VERBOSE = True
 
+
 @pytest.fixture
 def records():
     return [
@@ -26,6 +27,7 @@ def records():
             "target": {"version": "2"}
         }}
     ]
+
 
 @pytest.mark.web_dependency
 def test_nightly_count():
