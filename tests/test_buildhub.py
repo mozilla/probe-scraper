@@ -6,11 +6,26 @@ from datetime import datetime
 FX_RELEASE_62_0_3 = {
     "revision": "c9ed11ae5c79df3dcb69075e1c9da0317d1ecb1b",
     "date": datetime(2018, 10, 1, 18, 40, 35),
-    "version": "62.0.3rc1"
+    "version": "62.0.3rc1",
+    "tree": "releases/mozilla-release"
 }
 
 VERBOSE = True
 
+@pytest.fixture
+def records():
+    return [
+        {"_source": {
+            "download": {"date": "2019-01-28T23:49:22.717388+00:00"},
+            "source": {"revision": "abc", "tree": "releases/mozilla-release"},
+            "target": {"version": "1"}
+        }},
+        {"_source": {
+            "download": {"date": "2019-01-29T23:49:22Z"},
+            "source": {"revision": "def", "tree": "releases/mozilla-release"},
+            "target": {"version": "2"}
+        }}
+    ]
 
 @pytest.mark.web_dependency
 def test_nightly_count():
@@ -86,52 +101,34 @@ def test_version_100():
         bh.get_revision_dates(channel, min_version, verbose=VERBOSE)
 
 
-def test_cleaned_dates():
+def test_cleaned_dates(records):
     bh = Buildhub()
-    records = [
-        {"_source": {
-            "download": {"date": "2019-01-28T23:49:22.717388+00:00"},
-            "source": {"revision": "abc"},
-            "target": {"version": "1"}
-        }},
-        {"_source": {
-            "download": {"date": "2019-01-29T23:49:22Z"},
-            "source": {"revision": "def"},
-            "target": {"version": "2"}
-        }}
-    ]
 
     expected = [
         {"revision": "abc",
          "date": datetime(2019, 1, 28, 23, 49, 22, 717388),
-         "version": "1"},
+         "version": "1",
+         "tree": "releases/mozilla-release"},
         {"revision": "def",
          "date": datetime(2019, 1, 29, 23, 49, 22),
-         "version": "2"}
+         "version": "2",
+         "tree": "releases/mozilla-release"}
     ]
 
     assert bh._distinct_and_clean(records) == expected
 
 
-def test_unique_sorted():
+def test_unique_sorted(records):
     bh = Buildhub()
-    records = [
-        {"_source": {
-            "download": {"date": "2019-01-28T23:49:22.717388+00:00"},
-            "source": {"revision": "abc"},
-            "target": {"version": "1"}
-        }},
-        {"_source": {
-            "download": {"date": "2019-01-22T23:49:22Z"},
-            "source": {"revision": "abc"},
-            "target": {"version": "2"}
-        }}
-    ]
+
+    records[1]["_source"]["source"]["revision"] = "abc"
+    records[1]["_source"]["download"]["date"] = "2019-01-22T23:49:22Z"
 
     expected = [
         {"revision": "abc",
          "date": datetime(2019, 1, 22, 23, 49, 22),
-         "version": "2"},
+         "version": "2",
+         "tree": "releases/mozilla-release"},
     ]
 
     assert bh._distinct_and_clean(records) == expected
