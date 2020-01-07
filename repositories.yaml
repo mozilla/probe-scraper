@@ -26,6 +26,7 @@ fenix:
     - org.mozilla.components:lib-crash
     - org.mozilla.components:support-sync-telemetry
     - org.mozilla.components:browser-engine-gecko-beta
+    - org.mozilla.appservices:logins
 reference-browser:
   app_id: org-mozilla-reference-browser
   notification_emails:
@@ -51,6 +52,7 @@ fenix-nightly:
     - org.mozilla.components:lib-crash
     - org.mozilla.components:support-sync-telemetry
     - org.mozilla.components:browser-engine-gecko-nightly
+    - org.mozilla.appservices:logins
 firefox-for-fire-tv:
   app_id: org-mozilla-tv-firefox
   notification_emails:
@@ -134,3 +136,14 @@ firefox-reality:
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:support-sync-telemetry
+logins-store:
+  app_id: logins-store
+  notification_emails:
+    - rfkelly@mozilla.com
+    - lina@mozilla.com
+    - application-services@mozilla.com
+  url: 'https://github.com/mozilla/application-services'
+  metrics_files:
+    - 'components/logins/android/metrics.yaml'
+  library_names:
+    - org.mozilla.appservices:logins
