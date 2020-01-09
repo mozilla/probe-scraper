@@ -181,6 +181,10 @@ def download_files(channel, node, temp_dir, error_cache, version, tree=None):
     if tree is None:
         uri = CHANNELS[channel]['base_uri']
     else:
+        # mozilla-release and mozilla-beta need to be prefixed with "release/"
+        # sometimes they aren't from buildhub, add them if they are missing
+        if not tree.startswith("releases/") and tree != "mozilla-central":
+            tree = f"releases/{tree}"
         uri = f'{BASE_URI}/{tree}'
 
     base_uri = f'{uri}/raw-file/{node}/'
@@ -337,7 +341,8 @@ def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=No
         for i, rd in enumerate(revision_dates):
             revision = rd["revision"]
 
-            print("  Downloading files for revision number " + str(i+1) + "/" + str(num_revisions))
+            print((f"  Downloading files for revision number {str(i+1)}/{str(num_revisions)}"
+                   f" - revision: {revision}, tree: {rd['tree']}, version: {str(rd['version'])}"))
             version = extract_major_version(rd["version"])
             files = download_files(channel, revision, folder, error_cache, version, tree=rd["tree"])
 
