@@ -87,7 +87,8 @@ class Buildhub(object):
             entry = {
                 "date": date,
                 "revision": record["_source"]["source"]["revision"],
-                "version": record["_source"]["target"]["version"]
+                "version": record["_source"]["target"]["version"],
+                "tree": record["_source"]["source"]["tree"]
             }
 
             revision = entry["revision"]
@@ -111,6 +112,11 @@ class Buildhub(object):
         the result set and include the build with the earliest publication
         date.
 
+        Tree is the source tree, usually one of:
+            - mozilla-central
+            - mozilla-beta
+            - mozilla-release
+
         :param channel: The release channel
         :param min_version: The minimum version to include
         :param product: Defaults to firefox
@@ -125,6 +131,7 @@ class Buildhub(object):
             "date": <date>
             "revision": <revision>,
             "version": <version>,
+            "tree": <tree>
         }
         """
 

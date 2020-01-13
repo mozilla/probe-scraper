@@ -12,6 +12,7 @@ from .buildhub import Buildhub
 
 from collections import defaultdict
 
+BASE_URI = 'https://hg.mozilla.org'
 
 REGISTRY_FILES = {
     'histogram': [
@@ -32,7 +33,7 @@ REGISTRY_FILES = {
 
 CHANNELS = {
     'nightly': {
-        'base_uri': 'https://hg.mozilla.org/mozilla-central/',
+        'base_uri': f'{BASE_URI}/mozilla-central',
         'tag_regex': '^FIREFOX_(AURORA|BETA)_[0-9]+_BASE$',
         'artificial_tags': [
             {
@@ -43,11 +44,11 @@ CHANNELS = {
         ]
     },
     'beta': {
-        'base_uri': 'https://hg.mozilla.org/releases/mozilla-beta/',
+        'base_uri': f'{BASE_URI}/releases/mozilla-beta',
         'tag_regex': '^FIREFOX_BETA_[0-9]+_BASE$',
     },
     'release': {
-        'base_uri': 'https://hg.mozilla.org/releases/mozilla-release/',
+        'base_uri': f'{BASE_URI}/releases/mozilla-release',
         'tag_regex': '^FIREFOX_[0-9]+_0_RELEASE$',
     },
 }
@@ -72,7 +73,7 @@ def load_tags(channel):
     change. (In reality they can change, but that has only happened
     once in the last ten versions).
     """
-    uri = CHANNELS[channel]['base_uri'] + "json-tags"
+    uri = f"{CHANNELS[channel]['base_uri']}/json-tags"
     r = requests.get(uri)
     if r.status_code != requests.codes.ok:
         raise Exception("Request returned status " + str(r.status_code) + " for " + uri)
@@ -175,8 +176,18 @@ def relative_path_is_in_version(rel_path, version):
     return True
 
 
-def download_files(channel, node, temp_dir, error_cache, version):
-    base_uri = CHANNELS[channel]['base_uri'] + 'raw-file/' + node + '/'
+def download_files(channel, node, temp_dir, error_cache, version, tree=None):
+
+    if tree is None:
+        uri = CHANNELS[channel]['base_uri']
+    else:
+        # mozilla-release and mozilla-beta need to be prefixed with "release/"
+        # sometimes they aren't from buildhub, add them if they are missing
+        if not tree.startswith("releases/") and tree != "mozilla-central":
+            tree = f"releases/{tree}"
+        uri = f'{BASE_URI}/{tree}'
+
+    base_uri = f'{uri}/raw-file/{node}/'
     node_path = os.path.join(temp_dir, 'hg', node)
 
     results = {}
@@ -330,9 +341,10 @@ def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=No
         for i, rd in enumerate(revision_dates):
             revision = rd["revision"]
 
-            print("  Downloading files for revision number " + str(i+1) + "/" + str(num_revisions))
+            print((f"  Downloading files for revision number {str(i+1)}/{str(num_revisions)}"
+                   f" - revision: {revision}, tree: {rd['tree']}, version: {str(rd['version'])}"))
             version = extract_major_version(rd["version"])
-            files = download_files(channel, revision, folder, error_cache, version)
+            files = download_files(channel, revision, folder, error_cache, version, tree=rd["tree"])
 
             results[channel][revision] = {
                 'date': rd['date'],
