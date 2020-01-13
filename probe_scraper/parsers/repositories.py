@@ -36,6 +36,9 @@ class Repository(object):
     def get_change_files(self):
         return self.metrics_file_paths + self.ping_file_paths
 
+    def get_dependencies(self):
+        return self.dependencies
+
     def to_dict(self):
         # Remove null elements
         # https://google.github.io/styleguide/jsoncstyleguide.xml#Empty/Null_Property_Values
@@ -64,14 +67,32 @@ class RepositoriesParser(object):
 
         jsonschema.validate(repos, schema)
 
+    def keep_dependencies(self, repos, glean_repo):
+        if glean_repo is None:
+            return repos
+
+        repo = [r for r in repos if r.name == glean_repo][0]
+        dependencies = set(repo.get_dependencies())
+        to_keep = [
+            repo.name for repo in repos
+            if repo.library_names is not None
+            and dependencies & set(repo.library_names)
+        ]
+
+        return [
+            repo for repo in repos
+            if repo.name in to_keep
+            or repo.name == glean_repo
+        ]
+
     def parse(self, filename=None, glean_repo=None):
         self.validate(filename)
         repos = self._get_repos(filename)
 
-        return [
+        repos = [
             Repository(name, definition)
             for name, definition
             in list(repos.items())
-            if (glean_repo is None
-                or glean_repo == name)
         ]
+
+        return self.keep_dependencies(repos, glean_repo)
