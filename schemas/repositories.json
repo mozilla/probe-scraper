@@ -6,7 +6,8 @@
   "additionalProperties": {
     "properties": {
       "app_id": {
-        "type": "string"
+        "type": "string",
+        "format": "^[a-zA-Z][a-zA-Z-]*$"
       },
       "notification_emails": {
         "type": "array",
