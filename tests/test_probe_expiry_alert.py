@@ -31,7 +31,6 @@ def test_find_expiring_probes_no_expiring():
         }
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
-        datetime.date(2020, 3, 10),
         probes,
         RELEASE_DATES,
     )
@@ -39,7 +38,7 @@ def test_find_expiring_probes_no_expiring():
     assert expiring_probes == expected
 
 
-def test_find_expiring_probes_expiring():
+def test_find_expiring_probes_expiring_same_day():
     probes = {
         "p1": {
             "name": "p1",
@@ -68,9 +67,10 @@ def test_find_expiring_probes_expiring():
         }
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
-        datetime.date(2020, 3, 10),
         probes,
         RELEASE_DATES,
+        base_date=datetime.date(2020, 3, 10),
+        expire_days=14,
     )
     expected = {
         "beta": {
@@ -79,6 +79,32 @@ def test_find_expiring_probes_expiring():
         "release": {
             "p2": [probe_expiry_alert.DEFAULT_TO_EMAIL]
         },
+    }
+    assert expiring_probes == expected
+
+
+def test_find_expiring_probes_expiring_future():
+    probes = {
+        "p1": {
+            "name": "p1",
+            "history": {
+                "beta": [{
+                    "expiry_version": "75",
+                    "notification_emails": ["test@email.com"],
+                }]
+            },
+        }
+    }
+    expiring_probes = probe_expiry_alert.find_expiring_probes(
+        probes,
+        RELEASE_DATES,
+        base_date=datetime.date(2020, 3, 1),
+        expire_days=14,
+    )
+    expected = {
+        "beta": {
+            "p1": ["test@email.com", probe_expiry_alert.DEFAULT_TO_EMAIL]
+        }
     }
     assert expiring_probes == expected
 
@@ -100,9 +126,10 @@ def test_find_expiring_probes_use_latest_revision():
         }
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
-        datetime.date(2020, 3, 10),
         probes,
         RELEASE_DATES,
+        datetime.date(2020, 3, 10),
+        expire_days=14,
     )
     expected = {
         "beta": {
@@ -123,9 +150,10 @@ def test_find_expiring_probes_version_not_found():
         }
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
-        datetime.date(2020, 3, 10),
         probes,
         RELEASE_DATES,
+        datetime.date(2020, 3, 10),
+        expire_days=14,
     )
     expected = {}
     assert expiring_probes == expected
@@ -139,7 +167,6 @@ def test_send_email_dryrun_doesnt_send(mock_boto_client):
         }
     }
     probe_expiry_alert.send_emails_for_expiring_probes(
-        datetime.date(2020, 1, 1),
         expiring_probes,
         dryrun=False,
     )
@@ -147,7 +174,6 @@ def test_send_email_dryrun_doesnt_send(mock_boto_client):
     mock_boto_client().send_raw_email.assert_called_once()
 
     probe_expiry_alert.send_emails_for_expiring_probes(
-        datetime.date(2020, 1, 1),
         expiring_probes,
         dryrun=True,
     )
@@ -174,7 +200,6 @@ def test_send_email(mock_send_email):
     mock_send_email.side_effect = update_call_args
 
     probe_expiry_alert.send_emails_for_expiring_probes(
-        datetime.date(2020, 1, 1),
         expiring_probes,
         dryrun=True,
     )
