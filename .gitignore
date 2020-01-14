@@ -99,4 +99,5 @@ _out/
 _temp/
 
 *.json
+!tests/resources/*.json
 !schemas/*.json

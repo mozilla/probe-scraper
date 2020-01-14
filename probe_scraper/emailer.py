@@ -52,7 +52,7 @@ def send_ses(fromaddr,
         email_txt = "\n".join([
             "New Email",
             "    From: " + fromaddr,
-            "    To:" + recipients,
+            "    To: " + recipients,
             "    Subject: " + subject,
             "    Body: " + body])
         print(email_txt)

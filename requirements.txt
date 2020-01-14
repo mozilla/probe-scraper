@@ -1,4 +1,5 @@
 awscli==1.16.263
+beautifulsoup4==4.8.2
 GitPython==3.0.3
 boto3==1.9.250
 glean_parser==1.15.5
