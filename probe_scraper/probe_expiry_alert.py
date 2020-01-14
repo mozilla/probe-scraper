@@ -104,6 +104,10 @@ def parse_args():
 
 
 def main(dryrun):
+    # Only run on Mondays
+    if datetime.date.today().weekday() != 1:
+        return
+
     probe_info = requests.get(PROBE_INFO_BASE_URL + "firefox/all/main/all_probes").json()
 
     release_dates = release_calendar.get_release_dates()
