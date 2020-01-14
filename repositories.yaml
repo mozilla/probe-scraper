@@ -137,7 +137,7 @@ firefox-reality:
     - org.mozilla.components:service-glean
     - org.mozilla.components:support-sync-telemetry
 fogotype:
-  app_id: org.mozilla.fogotype
+  app_id: org-mozilla-fogotype
   notification_emails:
     - frank@mozilla.com
     - chutten@mozilla.com
@@ -145,7 +145,7 @@ fogotype:
   dependencies:
     - org.mozilla.components:service-glean
 lockwise-android:
-  app_id: mozilla.Lockbox
+  app_id: mozilla-Lockbox
   notification_emails:
     - frank@mozilla.com
     - lockwise-dev@mozilla.com
@@ -153,7 +153,7 @@ lockwise-android:
   dependencies:
     - org.mozilla.components:service-glean
 lockwise-ios:
-  app_id: org.mozilla.ios.Lockbox
+  app_id: org-mozilla-ios-Lockbox
   notification_emails:
     - frank@mozilla.com
     - tlong@mozilla.com
