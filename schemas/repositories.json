@@ -7,7 +7,7 @@
     "properties": {
       "app_id": {
         "type": "string",
-        "format": "^[a-zA-Z][a-zA-Z-]*$"
+        "pattern": "^[a-z][a-z-]{0,1023}$"
       },
       "notification_emails": {
         "type": "array",
