@@ -144,6 +144,8 @@ fogotype:
   url: 'https://github.com/mozilla/gecko-dev'
   dependencies:
     - org.mozilla.components:service-glean
+  ping_files:
+    - 'toolkit/components/telemetry/fog/pings.yaml'
 lockwise-android:
   app_id: mozilla-Lockbox
   notification_emails:
