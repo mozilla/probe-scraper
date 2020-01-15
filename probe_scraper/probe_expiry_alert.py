@@ -5,11 +5,12 @@
 from collections import defaultdict
 import argparse
 import datetime
+import logging
 
 import requests
 
 from probe_scraper import emailer
-from probe_scraper.scrapers import release_calendar
+from probe_scraper.parsers.utils import get_major_version
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
 DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
@@ -17,7 +18,7 @@ EMAIL_DAYS_BEFORE = 14
 PROBE_INFO_BASE_URL = "https://probeinfo.telemetry.mozilla.org/"
 
 EMAIL_BODY_FORMAT_STRING = """
-The following Firefox probes will expire in the next {expire_days} days or have already expired.
+The following Firefox probes have either expired or will expire in the next major Firefox release: version {release} on the release channel, {beta} on the beta channel, and {nightly} on the nightly channel.
 
 {per_channel_probes}
 
@@ -35,14 +36,25 @@ This is an automated message sent from probe-scraper.  See https://github.com/mo
 """  # noqa
 
 PER_CHANNEL_FORMAT_STRING = """
-These probes are expiring on the {channel} channel:
+The following probes {verb} on the {channel} channel in Firefox version {version}:
 {probes}
 """
 
 
-def find_expiring_probes(probes, release_dates, base_date=datetime.date.today(), expire_days=14):
+def get_latest_firefox_versions():
+    versions = requests.get("https://product-details.mozilla.org/1.0/firefox_versions.json").json()
+
+    return {
+        "release": get_major_version(versions['LATEST_FIREFOX_VERSION']),
+        "beta": get_major_version(versions['LATEST_FIREFOX_RELEASED_DEVEL_VERSION']),
+        "nightly": get_major_version(versions["FIREFOX_NIGHTLY"]),
+    }
+
+
+def find_expiring_probes(probes, target_versions):
     """
-    Find probes expiring in the next {expire_days} days using output of the probe info service
+    Find probes expiring in the next release or expired in the last release
+    using output of the probe info service
 
     Returns dict of form:
     {
@@ -59,38 +71,56 @@ def find_expiring_probes(probes, release_dates, base_date=datetime.date.today(),
             if expiry_version == "never":
                 continue
 
-            expiry = release_dates[channel].get(expiry_version)
-            if expiry is None:
-                continue
-            if base_date <= expiry <= base_date + datetime.timedelta(days=expire_days):
+            if expiry_version == target_versions[channel]:
                 expiring_histograms_by_channel[channel][probe["name"]] = (
-                    details.get("notification_emails", []) + [DEFAULT_TO_EMAIL])
+                        details.get("notification_emails", []) + [DEFAULT_TO_EMAIL])
 
     return expiring_histograms_by_channel
 
 
-def send_emails_for_expiring_probes(expiring_histograms_by_channel, expire_days=14, dryrun=True):
-    histograms_by_email = defaultdict(lambda: defaultdict(list))
+def send_emails_for_expiring_probes(expired_probes_by_channel, expiring_probes_by_channel,
+                                    versions, dryrun=True):
+    probes_by_email_by_state_by_channel = defaultdict(
+        lambda: defaultdict(lambda: defaultdict(list)))
 
-    for channel, histograms in expiring_histograms_by_channel.items():
-        for name, emails in histograms.items():
+    # Get expired probes for each email
+    for channel, probes in expired_probes_by_channel.items():
+        for name, emails in probes.items():
             for email in emails:
-                histograms_by_email[email][channel].append(name)
+                probes_by_email_by_state_by_channel[email]["expired"][channel].append(name)
 
-    for email, histograms_by_channel in histograms_by_email.items():
+    # Get expiring probes for each email
+    for channel, probes in expiring_probes_by_channel.items():
+        for name, emails in probes.items():
+            for email in emails:
+                probes_by_email_by_state_by_channel[email]["expiring"][channel].append(name)
+
+    for email in probes_by_email_by_state_by_channel.keys():
         per_channel_format_strings = [
-            PER_CHANNEL_FORMAT_STRING.format(channel=channel, probes="\n".join(histogram_names))
-            for channel, histogram_names
-            in histograms_by_channel.items()
+            PER_CHANNEL_FORMAT_STRING.format(
+                channel=channel, verb='are expiring',
+                version=int(versions[channel]) + 1, probes="\n".join(probe_names))
+            for channel, probe_names
+            in probes_by_email_by_state_by_channel[email]["expiring"].items()
+        ] + [
+            PER_CHANNEL_FORMAT_STRING.format(
+                channel=channel, verb='have expired',
+                version=versions[channel], probes="\n".join(probe_names))
+            for channel, probe_names
+            in probes_by_email_by_state_by_channel[email]["expired"].items()
         ]
 
         email_body = EMAIL_BODY_FORMAT_STRING.format(
-            expire_days=expire_days,
+            release=versions['release'],
+            beta=versions['beta'],
+            nightly=versions['nightly'],
             per_channel_probes="\n".join(per_channel_format_strings)
         )
 
         emailer.send_ses(FROM_EMAIL, "Telemetry Probe Expiry",
                          body=email_body, recipients=email, dryrun=dryrun)
+
+    logging.info(f"Sent emails to {len(probes_by_email_by_state_by_channel)} recipients")
 
 
 def parse_args():
@@ -103,20 +133,31 @@ def parse_args():
     return parser.parse_args()
 
 
-def main(dryrun):
-    # Only run on Mondays
-    if datetime.date.today().weekday() != 1:
-        return
-
+def main(current_date, dryrun):
     probe_info = requests.get(PROBE_INFO_BASE_URL + "firefox/all/main/all_probes").json()
 
-    release_dates = release_calendar.get_release_dates()
+    current_versions = get_latest_firefox_versions()
+    next_versions = {
+        channel: str(int(version) + 1) for channel, version in current_versions.items()}
 
-    expiring_probes = find_expiring_probes(probe_info, release_dates, expire_days=EMAIL_DAYS_BEFORE)
+    logging.info(f"Retrieved current versions: {current_versions}")
 
-    send_emails_for_expiring_probes(expiring_probes, EMAIL_DAYS_BEFORE, dryrun)
+    expired_probes = find_expiring_probes(probe_info, current_versions)
+    expiring_probes = find_expiring_probes(probe_info, next_versions)
+
+    for channel, probes in expired_probes.items():
+        print(f"Found {len(probes)} expired probes in {channel}")
+    for channel, probes in expiring_probes.items():
+        print(f"Found {len(probes)} expiring probes in {channel}")
+
+    # Only send emails on Tuesdays, run the rest for debugging/error detection
+    if current_date.weekday() != 1:
+        logging.info("Skipping emails because it is not Tuesday")
+        return
+
+    send_emails_for_expiring_probes(expired_probes, expiring_probes, next_versions, dryrun)
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.dry_run)
+    main(datetime.date.today(), args.dry_run)
