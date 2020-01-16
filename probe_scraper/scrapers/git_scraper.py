@@ -14,8 +14,8 @@ from datetime import datetime, timedelta
 MIN_DATES = {
     # Previous versions of the file were not schema-compatible
     "glean": "2019-04-11 00:00:00",
-    "fenix": "2019-06-27 00:00:00",
-    "fenix-nightly": "2019-06-27 00:00:00",
+    "fenix": "2019-06-04 00:00:00",
+    "fenix-nightly": "2019-06-04 00:00:00",
     "reference-browser": "2019-04-01 00:00:00"
 }
 
