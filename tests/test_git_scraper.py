@@ -97,7 +97,7 @@ def normal_repo():
     location = get_repo(normal_repo_name)
     repositories_info = {
         normal_repo_name: {
-            "app_id": "normal_app_name",
+            "app_id": "normal-app-name",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
             "metrics_files": ["metrics.yaml"],
@@ -131,7 +131,7 @@ def improper_metrics_repo():
     location = get_repo(improper_repo_name)
     repositories_info = {
         improper_repo_name: {
-            "app_id": "improper_app_name",
+            "app_id": "improper-app-name",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
             "metrics_files": ["metrics.yaml"]
@@ -216,14 +216,14 @@ def duplicate_repo():
 def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     repositories_info = {
         normal_repo_name: {
-            "app_id": "normal_app_name",
+            "app_id": "normal-app-name",
             "notification_emails": ["repo_alice@example.com"],
             "url": normal_duplicate_repo,
             "metrics_files": ["metrics.yaml"],
             "dependencies": ["duplicate_library"]
         },
         duplicate_repo_name: {
-            "app_id": "duplicate_library_name",
+            "app_id": "duplicate-library-name",
             "notification_emails": ["repo_bob@example.com"],
             "url": duplicate_repo,
             "metrics_files": ["metrics.yaml"],
@@ -272,7 +272,7 @@ def expired_repo():
 def test_check_for_expired_metrics(expired_repo):
     repositories_info = {
         expired_repo_name: {
-            "app_id": "expired_app_name",
+            "app_id": "expired-app-name",
             "notification_emails": ["repo_alice@example.com"],
             "url": expired_repo,
             "metrics_files": ["metrics.yaml"],

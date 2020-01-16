@@ -149,7 +149,7 @@ fogotype:
   ping_files:
     - 'toolkit/components/telemetry/fog/pings.yaml'
 lockwise-android:
-  app_id: mozilla-Lockbox
+  app_id: mozilla-lockbox
   notification_emails:
     - frank@mozilla.com
     - lockwise-dev@mozilla.com
@@ -157,7 +157,7 @@ lockwise-android:
   dependencies:
     - org.mozilla.components:service-glean
 lockwise-ios:
-  app_id: org-mozilla-ios-Lockbox
+  app_id: org-mozilla-ios-lockbox
   notification_emails:
     - frank@mozilla.com
     - tlong@mozilla.com
