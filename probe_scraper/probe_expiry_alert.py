@@ -14,7 +14,6 @@ from probe_scraper.parsers.utils import get_major_version
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
 DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
-EMAIL_DAYS_BEFORE = 14
 PROBE_INFO_BASE_URL = "https://probeinfo.telemetry.mozilla.org/"
 
 EMAIL_BODY_FORMAT_STRING = """
