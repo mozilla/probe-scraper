@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 # Changing these dates can cause files that had metrics to
 # stop being scraped. When the probe-info-service
 # stops reporting those files, the schema-generator
-# will not add them to the schemas, resulting in a 
+# will not add them to the schemas, resulting in a
 # schema-incompatible change that breaks the pipeline.
 MIN_DATES = {
     # Previous versions of the file were not schema-compatible
