@@ -17,11 +17,15 @@ from datetime import datetime, timedelta
 # stops reporting those files, the schema-generator
 # will not add them to the schemas, resulting in a
 # schema-incompatible change that breaks the pipeline.
+FENIX_DATE = "2019-06-04 00:00:00"
 MIN_DATES = {
     # Previous versions of the file were not schema-compatible
     "glean": "2019-04-11 00:00:00",
-    "fenix": "2019-06-04 00:00:00",
-    "fenix-nightly": "2019-06-04 00:00:00",
+    "fenix": FENIX_DATE,
+    "fenix-nightly": FENIX_DATE,
+    "firefox-android-nightly": FENIX_DATE,
+    "firefox-android-beta": FENIX_DATE,
+    "firefox-android-release": FENIX_DATE,
     "reference-browser": "2019-04-01 00:00:00"
 }
 
