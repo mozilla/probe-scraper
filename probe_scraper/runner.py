@@ -268,9 +268,12 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             }
         dependencies_by_repo[repo.name] = dependencies
 
-    abort_after_emails |= glean_checks.check_for_duplicate_metrics(
-        repositories, metrics_by_repo, emails
-    )
+    if glean_repo is None:
+        # Don't need to check for duplicate metrics if we're only parsing
+        # 1 glean repository (otherwise this would crash)
+        abort_after_emails |= glean_checks.check_for_duplicate_metrics(
+            repositories, metrics_by_repo, emails
+        )
     glean_checks.check_for_expired_metrics(
         repositories, metrics, commit_timestamps, emails
     )
