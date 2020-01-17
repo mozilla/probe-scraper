@@ -17,9 +17,9 @@ DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
 PROBE_INFO_BASE_URL = "https://probeinfo.telemetry.mozilla.org/"
 
 EMAIL_BODY_FORMAT_STRING = """
-The following Firefox probes have either expired or will expire in the next major Firefox release: version {release} on the release channel, {beta} on the beta channel, and {nightly} on the nightly channel.
+The following Firefox probes have either expired or will expire in the next major Firefox nightly release: version {next_version}.
 
-{per_channel_probes}
+{probes}
 
 What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their definitions files (Histograms.json, Scalars.yaml, Events.yaml).
@@ -34,92 +34,78 @@ Your Friendly, Neighborhood Telemetry Team
 This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
 
-PER_CHANNEL_FORMAT_STRING = """
-The following probes {verb} on the {channel} channel in Firefox version {version}:
+PROBE_LIST_FORMAT_STRING = """
+The following probes {verb} in Firefox version {version}:
 {probes}
 """
 
 
-def get_latest_firefox_versions():
+def get_latest_nightly_version():
     versions = requests.get("https://product-details.mozilla.org/1.0/firefox_versions.json").json()
-
-    return {
-        "release": get_major_version(versions['LATEST_FIREFOX_VERSION']),
-        "beta": get_major_version(versions['LATEST_FIREFOX_RELEASED_DEVEL_VERSION']),
-        "nightly": get_major_version(versions["FIREFOX_NIGHTLY"]),
-    }
+    return get_major_version(versions["FIREFOX_NIGHTLY"])
 
 
-def find_expiring_probes(probes, target_versions):
+def find_expiring_probes(probes, target_version):
     """
-    Find probes expiring in the next release or expired in the last release
-    using output of the probe info service
+    Find probes expiring in the target version using output of the probe info service
 
     Returns dict of form:
     {
-      channel: {
         histogram_name: [notification_emails...]
-      }
     }
     """
-    expiring_histograms_by_channel = defaultdict(dict)
+    expiring_probes = defaultdict(dict)
     for probe in probes.values():
-        for channel, details in probe["history"].items():
-            details = details[0]
-            expiry_version = details["expiry_version"]
-            if expiry_version == "never":
-                continue
+        details = probe["history"].get("nightly")
+        if details is None or len(details) == 0:
+            continue
+        details = details[0]
+        expiry_version = details["expiry_version"]
+        if expiry_version == "never":
+            continue
 
-            if expiry_version == target_versions[channel]:
-                expiring_histograms_by_channel[channel][probe["name"]] = (
-                        details.get("notification_emails", []) + [DEFAULT_TO_EMAIL])
+        if expiry_version == target_version:
+            expiring_probes[probe["name"]] = (
+                    details.get("notification_emails", []) + [DEFAULT_TO_EMAIL])
 
-    return expiring_histograms_by_channel
+    return expiring_probes
 
 
-def send_emails_for_expiring_probes(expired_probes_by_channel, expiring_probes_by_channel,
-                                    versions, dryrun=True):
-    probes_by_email_by_state_by_channel = defaultdict(
-        lambda: defaultdict(lambda: defaultdict(list)))
+def send_emails_for_expiring_probes(expired_probes, expiring_probes,
+                                    current_version, dryrun=True):
+    probes_by_email_by_state = defaultdict(lambda: defaultdict(list))
 
     # Get expired probes for each email
-    for channel, probes in expired_probes_by_channel.items():
-        for name, emails in probes.items():
-            for email in emails:
-                probes_by_email_by_state_by_channel[email]["expired"][channel].append(name)
+    for name, emails in expired_probes.items():
+        for email in emails:
+            probes_by_email_by_state[email]["expired"].append(name)
 
     # Get expiring probes for each email
-    for channel, probes in expiring_probes_by_channel.items():
-        for name, emails in probes.items():
-            for email in emails:
-                probes_by_email_by_state_by_channel[email]["expiring"][channel].append(name)
+    for name, emails in expiring_probes.items():
+        for email in emails:
+            probes_by_email_by_state[email]["expiring"].append(name)
 
-    for email in probes_by_email_by_state_by_channel.keys():
-        per_channel_format_strings = [
-            PER_CHANNEL_FORMAT_STRING.format(
-                channel=channel, verb='are expiring',
-                version=int(versions[channel]) + 1, probes="\n".join(probe_names))
-            for channel, probe_names
-            in probes_by_email_by_state_by_channel[email]["expiring"].items()
-        ] + [
-            PER_CHANNEL_FORMAT_STRING.format(
-                channel=channel, verb='have expired',
-                version=versions[channel], probes="\n".join(probe_names))
-            for channel, probe_names
-            in probes_by_email_by_state_by_channel[email]["expired"].items()
-        ]
+    for email in probes_by_email_by_state.keys():
+        probe_list_format_strings = []
+        if len(probes_by_email_by_state[email]["expiring"]) > 0:
+            probe_list_format_strings.append(
+                PROBE_LIST_FORMAT_STRING.format(
+                    verb='are expiring', version=int(current_version) + 1,
+                    probes="\n".join(probes_by_email_by_state[email]["expiring"])))
+        if len(probes_by_email_by_state[email]["expired"]) > 0:
+            probe_list_format_strings.append(
+                PROBE_LIST_FORMAT_STRING.format(
+                    verb='have expired', version=current_version,
+                    probes="\n".join(probes_by_email_by_state[email]["expired"])))
 
         email_body = EMAIL_BODY_FORMAT_STRING.format(
-            release=versions['release'],
-            beta=versions['beta'],
-            nightly=versions['nightly'],
-            per_channel_probes="\n".join(per_channel_format_strings)
-        )
+            next_version=int(current_version) + 1,
+            probes="\n".join(probe_list_format_strings))
 
         emailer.send_ses(FROM_EMAIL, "Telemetry Probe Expiry",
                          body=email_body, recipients=email, dryrun=dryrun)
 
-    logging.info(f"Sent emails to {len(probes_by_email_by_state_by_channel)} recipients")
+    logging.info(f"Sent emails to {len(probes_by_email_by_state)} recipients")
 
 
 def parse_args():
@@ -135,26 +121,21 @@ def parse_args():
 def main(current_date, dryrun):
     probe_info = requests.get(PROBE_INFO_BASE_URL + "firefox/all/main/all_probes").json()
 
-    current_versions = get_latest_firefox_versions()
-    next_versions = {
-        channel: str(int(version) + 1) for channel, version in current_versions.items()}
+    current_version = get_latest_nightly_version()
+    next_version = str(int(current_version) + 1)
 
-    logging.info(f"Retrieved current versions: {current_versions}")
+    expired_probes = find_expiring_probes(probe_info, current_version)
+    expiring_probes = find_expiring_probes(probe_info, next_version)
 
-    expired_probes = find_expiring_probes(probe_info, current_versions)
-    expiring_probes = find_expiring_probes(probe_info, next_versions)
-
-    for channel, probes in expired_probes.items():
-        print(f"Found {len(probes)} expired probes in {channel}")
-    for channel, probes in expiring_probes.items():
-        print(f"Found {len(probes)} expiring probes in {channel}")
+    logging.info(f"Found {len(expired_probes)} expired probes in nightly {current_version}")
+    logging.info(f"Found {len(expiring_probes)} expiring probes in nightly {next_version}")
 
     # Only send emails on Tuesdays, run the rest for debugging/error detection
     if current_date.weekday() != 1:
         logging.info("Skipping emails because it is not Tuesday")
         return
 
-    send_emails_for_expiring_probes(expired_probes, expiring_probes, next_versions, dryrun)
+    send_emails_for_expiring_probes(expired_probes, expiring_probes, current_version, dryrun)
 
 
 if __name__ == "__main__":
