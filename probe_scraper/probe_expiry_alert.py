@@ -17,19 +17,20 @@ DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
 PROBE_INFO_BASE_URL = "https://probeinfo.telemetry.mozilla.org/"
 
 EMAIL_BODY_FORMAT_STRING = """
-The following Firefox probes have either expired or will expire in the next major Firefox nightly release: version {next_version}.
+The following Firefox probes have either expired or will expire in the next major Firefox nightly release: version {next_version} [1].
 
 {probes}
 
 What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their definitions files (Histograms.json, Scalars.yaml, Events.yaml).
-2. If one, some, or all of the metrics are still required, please submit a Data Collection Review and patch to extend their expiry.
+2. If one, some, or all of the metrics are still required, please submit a Data Collection Review [2] and patch to extend their expiry.
 
 If you have any problems, please ask for help on the #fx-metrics Slack channel. We'll give you a hand.
 
 Your Friendly, Neighborhood Telemetry Team
 
-[1] https://wiki.mozilla.org/Firefox/Data_Collection
+[1] https://wiki.mozilla.org/Release_Management/Calendar
+[2] https://wiki.mozilla.org/Firefox/Data_Collection
 
 This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
