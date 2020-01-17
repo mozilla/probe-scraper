@@ -67,23 +67,11 @@ class RepositoriesParser(object):
 
         jsonschema.validate(repos, schema)
 
-    def keep_dependencies(self, repos, glean_repo):
+    def filter_repos(self, repos, glean_repo):
         if glean_repo is None:
             return repos
 
-        repo = [r for r in repos if r.name == glean_repo][0]
-        dependencies = set(repo.get_dependencies())
-        to_keep = [
-            repo.name for repo in repos
-            if repo.library_names is not None
-            and dependencies & set(repo.library_names)
-        ]
-
-        return [
-            repo for repo in repos
-            if repo.name in to_keep
-            or repo.name == glean_repo
-        ]
+        return [r for r in repos if r.name == glean_repo]
 
     def parse(self, filename=None, glean_repo=None):
         self.validate(filename)
@@ -95,4 +83,4 @@ class RepositoriesParser(object):
             in list(repos.items())
         ]
 
-        return self.keep_dependencies(repos, glean_repo)
+        return self.filter_repos(repos, glean_repo)
