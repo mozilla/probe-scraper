@@ -3,6 +3,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from glean_parser.parser import parse_objects
+from .pings import normalize_ping_name
+
 from pathlib import Path
 
 
@@ -21,11 +23,14 @@ class GleanMetricsParser:
         results = parse_objects(paths, config)
         errors = [err for err in results]
 
-        return (
-            {
-                metric.identifier(): metric.serialize()
-                for category, probes in results.value.items()
-                for probe_name, metric in probes.items()
-            },
-            errors
-        )
+        metrics = {
+            metric.identifier(): metric.serialize()
+            for category, probes in results.value.items()
+            for probe_name, metric in probes.items()
+        }
+
+        for i, v in metrics.items():
+            v['send_in_pings'] = [normalize_ping_name(p)
+                                  for p in v['send_in_pings']]
+
+        return metrics, errors
