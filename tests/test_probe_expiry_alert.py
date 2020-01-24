@@ -234,7 +234,7 @@ def test_main_run(mock_send_emails, mock_get_version, mock_requests_get):
     mock_requests_get.return_value = ResponseWrapper(probes)
     mock_get_version.return_value = '75'
 
-    probe_expiry_alert.main(datetime.date(2020, 1, 7), True)
+    probe_expiry_alert.main(datetime.date(2020, 1, 8), True)
 
     expected_expired_probes = {
         "p2": [

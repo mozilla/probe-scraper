@@ -13,7 +13,7 @@ from probe_scraper import emailer
 from probe_scraper.parsers.utils import get_major_version
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
-DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
+DEFAULT_TO_EMAIL = "dev-telemetry-alerts@lists.mozilla.org"
 PROBE_INFO_BASE_URL = "https://probeinfo.telemetry.mozilla.org/"
 
 EMAIL_BODY_FORMAT_STRING = """
@@ -132,7 +132,7 @@ def main(current_date, dryrun):
     logging.info(f"Found {len(expiring_probes)} expiring probes in nightly {next_version}")
 
     # Only send emails on Tuesdays, run the rest for debugging/error detection
-    if current_date.weekday() != 1:
+    if current_date.weekday() != 2:
         logging.info("Skipping emails because it is not Tuesday")
         return
 
