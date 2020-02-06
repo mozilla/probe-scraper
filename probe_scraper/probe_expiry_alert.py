@@ -112,9 +112,9 @@ def send_emails_for_expiring_probes(expired_probes, expiring_probes,
     logging.info(f"Sent emails to {len(probes_by_email_by_state)} recipients")
 
 
-def download_file(url, output_filename):
+def download_file(url, output_filepath):
     content = requests.get(url).text
-    with open(os.path.join(tempfile.gettempdir(), output_filename), "w") as output_file:
+    with open(output_filepath, "w") as output_file:
         output_file.write(content)
 
 
