@@ -6,6 +6,8 @@ from collections import defaultdict
 import argparse
 import datetime
 import logging
+import os
+import tempfile
 
 import requests
 
@@ -112,8 +114,8 @@ def send_emails_for_expiring_probes(expired_probes, expiring_probes,
 
 def download_file(url, output_filename):
     content = requests.get(url).text
-    with open(output_filename, "w") as scalars_file:
-        scalars_file.write(content)
+    with open(os.path.join(tempfile.gettempdir(), output_filename), "w") as output_file:
+        output_file.write(content)
 
 
 def parse_args():
@@ -130,14 +132,20 @@ def main(current_date, dryrun):
     current_version = get_latest_nightly_version()
     next_version = str(int(current_version) + 1)
 
-    download_file(BASE_URI + EVENTS_FILE, "Events.yaml")
-    events = EventsParser().parse(["Events.yaml"])
+    events_file_path = os.path.join(tempfile.gettempdir(), "Events.yaml")
+    download_file(BASE_URI + EVENTS_FILE, events_file_path)
+    events = EventsParser().parse([os.path.join(tempfile.gettempdir(), events_file_path)])
 
-    download_file(BASE_URI + HISTOGRAMS_FILE, "Histograms.json")
-    histograms = HistogramsParser().parse(["Histograms.json"], version=next_version)
+    histograms_file_path = os.path.join(tempfile.gettempdir(), "Histograms.json")
+    download_file(BASE_URI + HISTOGRAMS_FILE, histograms_file_path)
+    histograms = HistogramsParser().parse(
+        [os.path.join(tempfile.gettempdir(), histograms_file_path)],
+        version=next_version
+    )
 
-    download_file(BASE_URI + SCALARS_FILE, "Scalars.yaml")
-    scalars = ScalarsParser().parse(["Scalars.yaml"])
+    scalars_file_path = os.path.join(tempfile.gettempdir(), "Scalars.yaml")
+    download_file(BASE_URI + SCALARS_FILE, scalars_file_path)
+    scalars = ScalarsParser().parse([os.path.join(tempfile.gettempdir(), scalars_file_path)])
 
     all_probes = events.copy()
     all_probes.update(histograms)
