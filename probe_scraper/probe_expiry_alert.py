@@ -133,15 +133,15 @@ def main(current_date, dryrun):
     next_version = str(int(current_version) + 1)
 
     with tempfile.TemporaryDirectory() as tempdir:
-        events_file_path = os.path.join(tempdir, "Events.yaml")
+        events_file_path = os.path.join(tempdir, EVENTS_FILE)
         download_file(BASE_URI + EVENTS_FILE, events_file_path)
         events = EventsParser().parse([events_file_path])
 
-        histograms_file_path = os.path.join(tempdir, "Histograms.json")
+        histograms_file_path = os.path.join(tempdir, HISTOGRAMS_FILE)
         download_file(BASE_URI + HISTOGRAMS_FILE, histograms_file_path)
         histograms = HistogramsParser().parse([histograms_file_path], version=next_version)
 
-        scalars_file_path = os.path.join(tempdir, "Scalars.yaml")
+        scalars_file_path = os.path.join(tempdir, SCALARS_FILE)
         download_file(BASE_URI + SCALARS_FILE, scalars_file_path)
         scalars = ScalarsParser().parse([scalars_file_path])
 
