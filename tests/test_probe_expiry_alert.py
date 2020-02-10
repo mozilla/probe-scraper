@@ -8,26 +8,16 @@ from probe_scraper import probe_expiry_alert
 
 @dataclass
 class ResponseWrapper:
-    json_value: dict
+    text: str
 
-    def json(self):
-        return self.json_value
+    def text(self):
+        return self.text
 
 
 def test_find_expiring_probes_no_expiring():
     probes = {
         "p1": {
-            "history": {
-                "nightly": [{
-                    "expiry_version": "never"
-                }],
-                "beta": [{
-                    "expiry_version": "never"
-                }],
-                "release": [{
-                    "expiry_version": "never"
-                }],
-            }
+            "expiry_version": "never"
         }
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
@@ -39,11 +29,7 @@ def test_find_expiring_probes_no_expiring():
 
 
 def test_find_expiring_probes_channel_no_probes():
-    probes = {
-        "p1": {
-            "history": {}
-        }
-    }
+    probes = {}
     expiring_probes = probe_expiry_alert.find_expiring_probes(
         probes,
         "75",
@@ -55,38 +41,15 @@ def test_find_expiring_probes_channel_no_probes():
 def test_find_expiring_probes_expiring():
     probes = {
         "p1": {
-            "name": "p1",
-            "history": {
-                "beta": [{
-                    "expiry_version": "75",
-                    "notification_emails": ["test@email.com"],
-                }],
-                "release": [{
-                    "expiry_version": "75",
-                    "notification_emails": ["test@email.com"],
-                }],
-            },
+            "expiry_version": "74",
+            "notification_emails": ["test@email.com"],
         },
         "p2": {
-            "name": "p2",
-            "history": {
-                "nightly": [{
-                    "expiry_version": "75",
-                    "notification_emails": ["test@email.com"],
-                }],
-                "beta": [{
-                    "expiry_version": "74",
-                    "notification_emails": ["test@email.com"],
-                }],
-            },
+            "expiry_version": "75",
+            "notification_emails": ["test@email.com"],
         },
         "p3": {
-            "name": "p3",
-            "history": {
-                "nightly": [{
-                    "expiry_version": "75"
-                }],
-            },
+            "expiry_version": "75"
         },
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
@@ -96,32 +59,6 @@ def test_find_expiring_probes_expiring():
     expected = {
         "p2": ["test@email.com", probe_expiry_alert.DEFAULT_TO_EMAIL],
         "p3": [probe_expiry_alert.DEFAULT_TO_EMAIL],
-    }
-    assert expiring_probes == expected
-
-
-def test_find_expiring_probes_use_latest_revision():
-    probes = {
-        "p1": {
-            "name": "p1",
-            "history": {
-                "nightly": [
-                    {
-                        "expiry_version": "75"
-                    },
-                    {
-                        "expiry_version": "never"
-                    },
-                ],
-            },
-        }
-    }
-    expiring_probes = probe_expiry_alert.find_expiring_probes(
-        probes,
-        "75",
-    )
-    expected = {
-        "p1": [probe_expiry_alert.DEFAULT_TO_EMAIL]
     }
     assert expiring_probes == expected
 
@@ -194,45 +131,52 @@ def test_send_email(mock_send_email):
     assert email_body.count("expired_probe_2") == 1
 
 
-@mock.patch("requests.get")
+@mock.patch("probe_scraper.parsers.events.EventsParser.parse")
+@mock.patch("probe_scraper.parsers.histograms.HistogramsParser.parse")
+@mock.patch("probe_scraper.parsers.scalars.ScalarsParser.parse")
+@mock.patch("probe_scraper.probe_expiry_alert.download_file")
 @mock.patch("probe_scraper.probe_expiry_alert.get_latest_nightly_version")
 @mock.patch("probe_scraper.probe_expiry_alert.send_emails_for_expiring_probes")
-def test_main_runs_once_per_week(mock_send_emails, mock_get_version, mock_requests_get):
-    mock_requests_get.return_value = ResponseWrapper({})
+def test_main_runs_once_per_week(mock_send_emails, mock_get_version, mock_download_file,
+                                 mock_scalars_parser, mock_histograms_parser, mock_events_parser):
+    mock_events_parser.return_value = {}
+    mock_histograms_parser.return_value = {}
+    mock_scalars_parser.return_value = {}
     mock_get_version.return_value = "75"
     for weekday in range(7):
         base_date = datetime.date(2020, 1, 1)
-        probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), True)
+        probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), False)
 
     mock_send_emails.assert_called_once()
 
 
-@mock.patch("requests.get")
+@mock.patch("probe_scraper.parsers.events.EventsParser.parse")
+@mock.patch("probe_scraper.parsers.histograms.HistogramsParser.parse")
+@mock.patch("probe_scraper.parsers.scalars.ScalarsParser.parse")
+@mock.patch("probe_scraper.probe_expiry_alert.download_file")
 @mock.patch("probe_scraper.probe_expiry_alert.get_latest_nightly_version")
 @mock.patch("probe_scraper.probe_expiry_alert.send_emails_for_expiring_probes")
-def test_main_run(mock_send_emails, mock_get_version, mock_requests_get):
-    probes = {
+def test_main_run(mock_send_emails, mock_get_version, mock_download_file,
+                  mock_scalars_parser, mock_histograms_parser, mock_events_parser):
+    mock_events_parser.return_value = {
         "p1": {
-            "name": "p1",
-            "history": {
-                "nightly": [{
-                    "expiry_version": "76",
-                    "notification_emails": ["test@email.com"]
-                }]
-            },
-        },
-        "p2": {
-            "name": "p2",
-            "history": {
-                "nightly": [{
-                    "expiry_version": "75",
-                    "notification_emails": ["test@email.com"],
-                }]
-            },
+            "expiry_version": "76",
+            "notification_emails": ["test@email.com"],
         }
     }
-    mock_requests_get.return_value = ResponseWrapper(probes)
-    mock_get_version.return_value = '75'
+    mock_histograms_parser.return_value = {
+        "p2": {
+            "expiry_version": "75",
+            "notification_emails": ["test@email.com"],
+        }
+    }
+    mock_scalars_parser.return_value = {
+        "p3": {
+            "expiry_version": "77",
+            "notification_emails": ["test@email.com"],
+        }
+    }
+    mock_get_version.return_value = "75"
 
     probe_expiry_alert.main(datetime.date(2020, 1, 8), True)
 
