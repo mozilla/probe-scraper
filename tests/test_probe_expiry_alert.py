@@ -145,7 +145,7 @@ def test_main_runs_once_per_week(mock_send_emails, mock_get_version, mock_downlo
     mock_get_version.return_value = "75"
     for weekday in range(7):
         base_date = datetime.date(2020, 1, 1)
-        probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), True)
+        probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), False)
 
     mock_send_emails.assert_called_once()
 

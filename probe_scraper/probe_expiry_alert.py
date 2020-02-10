@@ -132,20 +132,18 @@ def main(current_date, dryrun):
     current_version = get_latest_nightly_version()
     next_version = str(int(current_version) + 1)
 
-    events_file_path = os.path.join(tempfile.gettempdir(), "Events.yaml")
-    download_file(BASE_URI + EVENTS_FILE, events_file_path)
-    events = EventsParser().parse([os.path.join(tempfile.gettempdir(), events_file_path)])
+    with tempfile.TemporaryDirectory() as tempdir:
+        events_file_path = os.path.join(tempdir, "Events.yaml")
+        download_file(BASE_URI + EVENTS_FILE, events_file_path)
+        events = EventsParser().parse([events_file_path])
 
-    histograms_file_path = os.path.join(tempfile.gettempdir(), "Histograms.json")
-    download_file(BASE_URI + HISTOGRAMS_FILE, histograms_file_path)
-    histograms = HistogramsParser().parse(
-        [os.path.join(tempfile.gettempdir(), histograms_file_path)],
-        version=next_version
-    )
+        histograms_file_path = os.path.join(tempdir, "Histograms.json")
+        download_file(BASE_URI + HISTOGRAMS_FILE, histograms_file_path)
+        histograms = HistogramsParser().parse([histograms_file_path], version=next_version)
 
-    scalars_file_path = os.path.join(tempfile.gettempdir(), "Scalars.yaml")
-    download_file(BASE_URI + SCALARS_FILE, scalars_file_path)
-    scalars = ScalarsParser().parse([os.path.join(tempfile.gettempdir(), scalars_file_path)])
+        scalars_file_path = os.path.join(tempdir, "Scalars.yaml")
+        download_file(BASE_URI + SCALARS_FILE, scalars_file_path)
+        scalars = ScalarsParser().parse([scalars_file_path])
 
     all_probes = events.copy()
     all_probes.update(histograms)
@@ -158,7 +156,7 @@ def main(current_date, dryrun):
     logging.info(f"Found {len(expiring_probes)} expiring probes in nightly {next_version}")
 
     # Only send emails on Wednesdays, run the rest for debugging/error detection
-    if current_date.weekday() != 2:
+    if not dryrun and current_date.weekday() != 2:
         logging.info("Skipping emails because it is not Wednesday")
         return
 
