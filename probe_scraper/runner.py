@@ -51,10 +51,22 @@ GLEAN_METRICS_FILENAME = 'metrics.yaml'
 GLEAN_PINGS_FILENAME = 'pings.yaml'
 
 
-def general_data():
-    return {
+def general_data(revisions=None):
+    output_data = {
         "lastUpdate": datetime.datetime.now(tzlocal()).isoformat(),
     }
+
+    if revisions is not None:
+        latest_version_by_channel = defaultdict(int)
+        for channel, revision_list in revisions.items():
+            sorted_revisions = sorted(
+                [{'tag': tag, 'version': info['version']} for tag, info in revision_list.items()],
+                key=lambda x: x['version'], reverse=True
+            )
+            latest_version_by_channel[channel] = sorted_revisions[0]['tag']
+        output_data["tip"] = latest_version_by_channel
+
+    return output_data
 
 
 def dump_json(data, out_dir, file_name):
@@ -77,7 +89,7 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
     base_dir = os.path.join(out_dir, "firefox")
 
     print("\nwriting output:")
-    dump_json(general_data(), base_dir, "general")
+    dump_json(general_data(revisions), base_dir, "general")
     dump_json(revisions, base_dir, "revisions")
 
     # Break down the output by channel. We don't need to write a revisions
