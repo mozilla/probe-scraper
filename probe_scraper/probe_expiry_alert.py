@@ -129,7 +129,7 @@ def parse_args():
 
 def main(current_date, dryrun):
     probe_info = requests.get(
-        f"{PROBE_INFO_BASE_URL}firefox/all/main/all_probes?p={datetime.datetime.now()}").json()
+        f"{PROBE_INFO_BASE_URL}firefox/nightly/main/all_probes?p={datetime.datetime.now()}").json()
     latest_revision = get_latest_revision()
 
     current_version = get_latest_nightly_version()
