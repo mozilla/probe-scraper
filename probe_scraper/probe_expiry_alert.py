@@ -112,12 +112,9 @@ def send_emails_for_expiring_probes(expired_probes, expiring_probes,
 
 
 def get_latest_revision():
-    revision_info = requests.get(PROBE_INFO_BASE_URL + "firefox/revisions").json()["nightly"]
-    sorted_revisions = sorted(
-        [{'tag': tag, 'version': info['version']} for tag, info in revision_info.items()],
-        key=lambda x: x['version'], reverse=True
-    )
-    return sorted_revisions[0]['tag']
+    revision_info = requests.get(
+        f"{PROBE_INFO_BASE_URL}firefox/revisions?p={datetime.datetime.now()}").json()["nightly"]
+    return max(revision_info.items(), key=lambda x: x[1]['version'])[0]
 
 
 def parse_args():
@@ -131,7 +128,8 @@ def parse_args():
 
 
 def main(current_date, dryrun):
-    probe_info = requests.get(PROBE_INFO_BASE_URL + "firefox/all/main/all_probes").json()
+    probe_info = requests.get(
+        f"{PROBE_INFO_BASE_URL}firefox/all/main/all_probes?p={datetime.datetime.now()}").json()
     latest_revision = get_latest_revision()
 
     current_version = get_latest_nightly_version()
