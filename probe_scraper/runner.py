@@ -317,10 +317,19 @@ def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, 
         # which our files sometimes are. to work around this, we'll regzip the contents into a
         # temporary directory, and upload that with a special content encoding
         with tempfile.TemporaryDirectory() as tmpdirname:
-            for filename in os.listdir(out_dir):
-                with open(f'{out_dir}/{filename}', 'rb') as f1:
-                    with gzip.open(f'{tmpdirname}/{filename}', 'wb') as f2:
-                        f2.write(f1.read())
+            for root, dirnames, filenames in os.walk(out_dir):
+                for dirname in dirnames:
+                    os.mkdir(os.path.join(tmpdirname, dirname))
+                for filename in filenames:
+                    in_filename = os.path.join(root, filename)
+                    out_filename = os.path.join(
+                        tmpdirname,
+                        os.path.relpath(root, start=out_dir),
+                        filename
+                    )
+                    with open(in_filename, "rb") as f1:
+                        with gzip.open(out_filename, "wb") as f2:
+                            f2.write(f1.read())
 
             sync_cft_cmd = (
                 f"aws s3 sync {tmpdirname}/ s3://{output_bucket}/ "
