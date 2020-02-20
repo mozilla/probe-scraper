@@ -318,13 +318,14 @@ def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, 
         # temporary directory, and upload that with a special content encoding
         with tempfile.TemporaryDirectory() as tmpdirname:
             for root, dirnames, filenames in os.walk(out_dir):
+                rel_root = os.path.relpath(root, start=out_dir)
                 for dirname in dirnames:
-                    os.mkdir(os.path.join(tmpdirname, dirname))
+                    os.mkdir(os.path.join(tmpdirname, rel_root, dirname))
                 for filename in filenames:
                     in_filename = os.path.join(root, filename)
                     out_filename = os.path.join(
                         tmpdirname,
-                        os.path.relpath(root, start=out_dir),
+                        rel_root,
                         filename
                     )
                     with open(in_filename, "rb") as f1:
