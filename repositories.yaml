@@ -156,6 +156,7 @@ lockwise-android:
   url: 'https://github.com/mozilla-lockwise/lockwise-android'
   dependencies:
     - org.mozilla.components:service-glean
+    - org.mozilla.components:support-sync-telemetry
 lockwise-ios:
   app_id: org-mozilla-ios-lockbox
   notification_emails:
