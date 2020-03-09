@@ -33,11 +33,16 @@ MIN_DATES = {
 def get_commits(repo, filename):
     sep = ":"
     log_format = '--format="%H{}%ct"'.format(sep)
-    change_commits = repo.git.log(log_format, filename).split('\n')
-    most_recent_commit = repo.git.log('-n', '1', log_format).split('\n')
+    change_commits = enumerate(repo.git.log(log_format, filename).split('\n'))
+    most_recent_commit = enumerate(repo.git.log('-n', '1', log_format).split('\n'))
     commits = set(change_commits) | set(most_recent_commit)
-    with_ts = dict((c.strip('"').split(sep) for c in commits))
-    return {k: int(v) for k, v in with_ts.items()}
+
+    result = {}
+    for index, entry in commits:
+        commit, timestamp = entry.strip('"').split(sep)
+        result[commit] = (int(timestamp), index)
+
+    return result
 
 
 def get_file_at_hash(repo, _hash, filename):
@@ -67,7 +72,7 @@ def retrieve_files(repo_info, cache_dir):
     try:
         for rel_path in repo_info.get_change_files():
             hashes = get_commits(repo, rel_path)
-            for _hash, ts in hashes.items():
+            for _hash, (ts, index) in hashes.items():
                 if (min_date and ts < min_date):
                     continue
 
@@ -82,7 +87,7 @@ def retrieve_files(repo_info, cache_dir):
                         f.write(contents.encode("UTF-8"))
 
                 results[_hash].append(disk_path)
-                timestamps[_hash] = ts
+                timestamps[_hash] = (ts, index)
     except Exception:
         # without this, the error will be silently discarded
         raise
@@ -97,9 +102,13 @@ def scrape(folder=None, repos=None):
     Returns two data structures. The first is the commit timestamps:
     {
         repo: {
-            <commit-hash>: <commit-timestamp>
+            <commit-hash>: (<commit-timestamp>, <index>)
         }
     }
+
+    Since commits from the same PR may have the save timestamp, we also return
+    an index representing its position in the git log so the correct ordering
+    of commits can be preserved.
 
     The second is the probe data:
     {

@@ -244,13 +244,13 @@ def make_item_defn(definition, commit, commit_timestamps):
             "last": commit
         }
         definition[DATES_KEY] = {
-            "first": pretty_ts(commit_timestamps[commit]),
-            "last": pretty_ts(commit_timestamps[commit])
+            "first": pretty_ts(commit_timestamps[commit][0]),
+            "last": pretty_ts(commit_timestamps[commit][0])
         }
     else:
         # we've seen this definition, update the `last` commit
         definition[COMMITS_KEY]["last"] = commit
-        definition[DATES_KEY]["last"] = pretty_ts(commit_timestamps[commit])
+        definition[DATES_KEY]["last"] = pretty_ts(commit_timestamps[commit][0])
 
     return definition
 

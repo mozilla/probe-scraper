@@ -178,7 +178,7 @@ def check_for_expired_metrics(
     for repo_name, commits in repos_metrics.items():
         repo = repo_by_name[repo_name]
         timestamps = list(commit_timestamps[repo_name].items())
-        timestamps.sort(key=lambda x: -x[1])
+        timestamps.sort(key=lambda x: x[1], reverse=True)
         last_commit_hash = timestamps[0][0]
         metrics = commits[last_commit_hash]
 
