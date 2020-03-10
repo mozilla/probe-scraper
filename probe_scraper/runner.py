@@ -7,6 +7,7 @@ from collections import defaultdict
 import datetime
 from dateutil.tz import tzlocal
 import errno
+import gzip
 import json
 import os
 import sys
@@ -310,15 +311,36 @@ def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, 
         sys.exit(1)
     else:
         print("Syncing output dir {}/ with s3://{}/".format(out_dir, output_bucket))
-        # The cloudfront dist will automatically gzip objects. Upload to s3.
-        sync_cft_cmd = (
-            f"aws s3 sync {out_dir}/ s3://{output_bucket}/ "
-            f"--delete "
-            f"--content-type 'application/json' "
-            f"--cache-control 'max-age=28800' "
-            f"--acl public-read"
-        )
-        os.system(sync_cft_cmd)
+
+        # cloudfront is supposed to automatically gzip objects, but it won't do that
+        # if the object size is > 10 megabytes (https://webmasters.stackexchange.com/a/111734)
+        # which our files sometimes are. to work around this, we'll regzip the contents into a
+        # temporary directory, and upload that with a special content encoding
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            for root, dirnames, filenames in os.walk(out_dir):
+                rel_root = os.path.relpath(root, start=out_dir)
+                for dirname in dirnames:
+                    os.mkdir(os.path.join(tmpdirname, rel_root, dirname))
+                for filename in filenames:
+                    in_filename = os.path.join(root, filename)
+                    out_filename = os.path.join(
+                        tmpdirname,
+                        rel_root,
+                        filename
+                    )
+                    with open(in_filename, "rb") as f1:
+                        with gzip.open(out_filename, "wb") as f2:
+                            f2.write(f1.read())
+
+            sync_cft_cmd = (
+                f"aws s3 sync {tmpdirname}/ s3://{output_bucket}/ "
+                f"--delete "
+                f"--content-type 'application/json' "
+                f"--content-encoding 'gzip' "
+                f"--cache-control 'max-age=28800' "
+                f"--acl public-read"
+            )
+            os.system(sync_cft_cmd)
 
         # Sync cache data
         print("Syncing cache dir {}/ with s3://{}/".format(cache_dir, cache_path))
