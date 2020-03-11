@@ -11,6 +11,7 @@ COMMITS_KEY = "git-commits"
 HISTORY_KEY = "history"
 NAME_KEY = "name"
 TYPE_KEY = "type"
+REFLOG_KEY = "reflog-index"
 
 
 def is_test_probe(probe_type, name):
@@ -244,13 +245,18 @@ def make_item_defn(definition, commit, commit_timestamps):
             "last": commit
         }
         definition[DATES_KEY] = {
-            "first": pretty_ts(commit_timestamps[commit]),
-            "last": pretty_ts(commit_timestamps[commit])
+            "first": pretty_ts(commit_timestamps[commit][0]),
+            "last": pretty_ts(commit_timestamps[commit][0])
+        }
+        definition[REFLOG_KEY] = {
+            "first": commit_timestamps[commit][1],
+            "last": commit_timestamps[commit][1]
         }
     else:
         # we've seen this definition, update the `last` commit
         definition[COMMITS_KEY]["last"] = commit
-        definition[DATES_KEY]["last"] = pretty_ts(commit_timestamps[commit])
+        definition[DATES_KEY]["last"] = pretty_ts(commit_timestamps[commit][0])
+        definition[REFLOG_KEY]["last"] = commit_timestamps[commit][1]
 
     return definition
 
@@ -277,7 +283,7 @@ def metrics_equal(def1, def2):
 
 def ping_equal(def1, def2):
     # Test all keys except the ones the probe-scraper adds
-    ignored_keys = set([DATES_KEY, COMMITS_KEY, HISTORY_KEY])
+    ignored_keys = set([DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY])
     all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
 
     return all((
@@ -332,7 +338,7 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
     """
     :param commit_timestamps - of the form
       <repo_name>: {
-        <commit-hash>: <commit-timestamp>,
+        <commit-hash>: (<commit-timestamp>, <commit-index>),
         ...
       }
 
@@ -369,13 +375,20 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
         }
     """
 
+    # We need to sort by timestamp in ascending order, but reflog index in
+    # descending order.
+    def timestamp_sorter(entry):
+        return (entry[0], -entry[1])
+
     all_items = {}
     for repo_name, commits in data.items():
         repo_items = {}
 
         # iterate through commits, sorted by timestamp of the commit
-        sorted_commits = sorted(iter(commits.items()),
-                                key=lambda x_y: commit_timestamps[repo_name][x_y[0]])
+        sorted_commits = sorted(
+            iter(commits.items()),
+            key=lambda x_y: timestamp_sorter(commit_timestamps[repo_name][x_y[0]])
+        )
 
         for commit_hash, items in sorted_commits:
             for item, definition in items.items():
