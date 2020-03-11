@@ -95,12 +95,16 @@ OUT_METRICS_DATA = {
                     "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
                     "git-commits": {
-                        "first": "0",
-                        "last": "3"
+                        "first": "3",
+                        "last": "0"
                     },
                     "dates": {
-                        "first": "1970-01-01 00:00:00",
-                        "last": "1970-01-01 00:00:03"
+                        "first": "1969-12-31 23:59:57",
+                        "last": "1970-01-01 00:00:00"
+                    },
+                    "reflog-index": {
+                        "first": 3,
+                        "last": 0
                     }
                 }
             ]
@@ -136,12 +140,16 @@ OUT_PING_DATA = {
                     "include_client_id": True,
                     "send_if_empty": False,
                     "git-commits": {
-                        "first": "0",
-                        "last": "3"
+                        "first": "3",
+                        "last": "0"
                     },
                     "dates": {
-                        "first": "1970-01-01 00:00:00",
-                        "last": "1970-01-01 00:00:03"
+                        "first": "1969-12-31 23:59:57",
+                        "last": "1970-01-01 00:00:00"
+                    },
+                    "reflog-index": {
+                        "first": 3,
+                        "last": 0
                     }
                 }
             ]
@@ -404,7 +412,7 @@ def test_transform_by_channel():
 def test_transform_metrics_by_hash():
     timestamps = {
         repo: {
-            str(i): i for i in range(4)
+            str(i): (-i, i) for i in range(4)
         } for repo in REPOS
     }
 
@@ -417,7 +425,7 @@ def test_transform_metrics_by_hash():
 def test_transform_pings_by_hash():
     timestamps = {
         repo: {
-            str(i): i for i in range(4)
+            str(i): (-i, i) for i in range(4)
         } for repo in REPOS
     }
 
@@ -460,7 +468,7 @@ def test_sort_ordering():
                     "type": "timespan",
                     "description": "  The duration of the last foreground session.",
                     "time_unit": "second",
-                    "send_in_pings": ["all_pings"],
+                    "send_in_pings": ["custom"],
                     "bugs": [1497894, 1519120],
                     "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
                     "notification_emails": ["telemetry-client-dev@mozilla.com"]
@@ -477,14 +485,26 @@ def test_sort_ordering():
                     "notification_emails": ["telemetry-client-dev@mozilla.com"]
                 },
             },
+            "3": {
+                "example.duration": {
+                    "type": "timespan",
+                    "description": "  The duration of the last foreground session.",
+                    "time_unit": "second",
+                    "send_in_pings": ["all_pings"],
+                    "bugs": [1497894, 1519120],
+                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                },
+            },
         }
     }
 
     timestamps = {
         "test-repo-0": {
-            "0": 0,
-            "1": 60 * 60 * 24,
-            "2": 2 * 60 * 60 * 24,
+            "0": (2 * 60 * 60 * 24, 0),
+            "1": (60 * 60 * 24, 1),
+            "2": (60 * 60 * 24, 2),
+            "3": (0, 3),
         }
     }
 
@@ -498,6 +518,48 @@ def test_sort_ordering():
                         "type": "timespan",
                         "description": "  The duration of the last foreground session.",
                         "time_unit": "second",
+                        "send_in_pings": ["all_pings"],
+                        "bugs": [1497894, 1519120],
+                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                        "git-commits": {
+                            "first": "3",
+                            "last": "2"
+                        },
+                        "dates": {
+                            "first": "1970-01-01 00:00:00",
+                            "last": "1970-01-02 00:00:00"
+                        },
+                        "reflog-index": {
+                            "first": 3,
+                            "last": 2
+                        }
+                    },
+                    {
+                        "type": "timespan",
+                        "description": "  The duration of the last foreground session.",
+                        "time_unit": "second",
+                        "send_in_pings": ["custom"],
+                        "bugs": [1497894, 1519120],
+                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                        "git-commits": {
+                            "first": "1",
+                            "last": "1"
+                        },
+                        "dates": {
+                            "first": "1970-01-02 00:00:00",
+                            "last": "1970-01-02 00:00:00"
+                        },
+                        "reflog-index": {
+                            "first": 1,
+                            "last": 1
+                        }
+                    },
+                    {
+                        "type": "timespan",
+                        "description": "  The duration of the last foreground session.",
+                        "time_unit": "second",
                         "send_in_pings": ["baseline"],
                         "bugs": [1497894, 1519120],
                         "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
@@ -507,25 +569,12 @@ def test_sort_ordering():
                             "last": "0"
                         },
                         "dates": {
-                            "first": "1970-01-01 00:00:00",
-                            "last": "1970-01-01 00:00:00",
-                        }
-                    },
-                    {
-                        "type": "timespan",
-                        "description": "  The duration of the last foreground session.",
-                        "time_unit": "second",
-                        "send_in_pings": ["all_pings"],
-                        "bugs": [1497894, 1519120],
-                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-                        "notification_emails": ["telemetry-client-dev@mozilla.com"],
-                        "git-commits": {
-                            "first": "1",
-                            "last": "2"
+                            "first": "1970-01-03 00:00:00",
+                            "last": "1970-01-03 00:00:00"
                         },
-                        "dates": {
-                            "first": "1970-01-02 00:00:00",
-                            "last": "1970-01-03 00:00:00",
+                        "reflog-index": {
+                            "first": 0,
+                            "last": 0
                         }
                     }
                 ]

@@ -37,6 +37,9 @@ def get_commits(repo, filename):
     most_recent_commit = enumerate(repo.git.log('-n', '1', log_format).split('\n'))
     commits = set(change_commits) | set(most_recent_commit)
 
+    # Store the index in the ref-log as well as the timestamp, so that the
+    # ordering of commits will be deterministic and always in the correct
+    # order.
     result = {}
     for index, entry in commits:
         commit, timestamp = entry.strip('"').split(sep)
