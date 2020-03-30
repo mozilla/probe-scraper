@@ -20,6 +20,8 @@ from probe_scraper.parsers.utils import get_major_version
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
 DEFAULT_TO_EMAIL = "dev-telemetry-alerts@lists.mozilla.org"
 
+BUGZILLA_URL = "https://bugzilla-dev.allizom.org/rest/bug"
+
 BASE_URI = "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/telemetry/"
 HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
@@ -112,6 +114,10 @@ def send_emails_for_expiring_probes(expired_probes, expiring_probes,
     logging.info(f"Sent emails to {len(probes_by_email_by_state)} recipients")
 
 
+def file_bugs(expiring_probes, current_version, dryrun=True):
+    pass
+
+
 def download_file(url, output_filepath):
     content = requests.get(url).text
     with open(output_filepath, "w") as output_file:
@@ -158,9 +164,11 @@ def main(current_date, dryrun):
     # Only send emails on Wednesdays, run the rest for debugging/error detection
     if not dryrun and current_date.weekday() != 2:
         logging.info("Skipping emails because it is not Wednesday")
-        return
+        #return
 
-    send_emails_for_expiring_probes(expired_probes, expiring_probes, current_version, dryrun)
+    file_bugs(expiring_probes, current_version, dryrun)
+
+    #send_emails_for_expiring_probes(expired_probes, expiring_probes, current_version, dryrun)
 
 
 if __name__ == "__main__":
