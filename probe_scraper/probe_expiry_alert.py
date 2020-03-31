@@ -5,6 +5,7 @@
 from collections import defaultdict
 import argparse
 import datetime
+import hashlib
 import logging
 import os
 import tempfile
@@ -26,6 +27,9 @@ BASE_URI = "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/componen
 HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
 EVENTS_FILE = "Events.yaml"
+
+BUG_SUMMARY_TEMPLATE = "Remove or update probe expiring in Firefox {version}: {probe}"
+BUB_RESOLVED_COMMENT_TEMPLATE = "This probe is no longer expiring in Firefox {version}."
 
 EMAIL_BODY_FORMAT_STRING = """
 The following Firefox probes have either expired or will expire in the next major Firefox nightly release: version {next_version} [1].
@@ -72,7 +76,7 @@ def find_expiring_probes(probes, target_version):
 
         if expiry_version == target_version:
             expiring_probes[name] = (
-                    details.get("notification_emails", []) + [DEFAULT_TO_EMAIL])
+                    details.get("notification_emails", []))
 
     return expiring_probes
 
@@ -114,8 +118,65 @@ def send_emails_for_expiring_probes(expired_probes, expiring_probes,
     logging.info(f"Sent emails to {len(probes_by_email_by_state)} recipients")
 
 
-def file_bugs(expiring_probes, current_version, dryrun=True):
-    pass
+def file_bugs(probes, version, create_bugs=False, dryrun=True):
+    """
+    Search for bugs that have already been created by probe_expiry_alerts
+    for probes in the current version.
+    For each probe/bug:
+        - if a bug exists for a probe in the given list, do nothing
+        - if a bug exists for a probe that is not in the given list resolve the bug
+        - if no bug exists for a  given probe, create a bug
+    """
+    whiteboard_tag = 'probe-expiry-alert'
+
+    # search for previously created bugs
+    search_query_params = {
+        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=''),
+        "whiteboard": whiteboard_tag,
+        "status": ["NEW", "ASSIGNED"],
+    }
+    found_bugs = requests.get(BUGZILLA_URL, params=search_query_params).json()
+
+    # Close bugs for removed/updated probes
+    for bug in found_bugs["bugs"]:
+        probe_name = bug["summary"].substring(" ")[-1]
+        if probe_name not in probes.keys():
+            update_params = {
+                "status": "RESOLVED",
+                "resolution": "FIXED",
+                "comment": BUG_SUMMARY_TEMPLATE.format(version=version)
+            }
+            print(f"PUT: {update_params}")  # TODO
+            requests.put(BUGZILLA_URL + "/" + bug["id"], data=update_params)
+        probes.pop(probe_name)
+
+    # Create bugs new expiring probes
+    if create_bugs:
+        for probe_name, emails in probes.items():
+            def fudge_email(email):
+                e = email.split("@")
+                e[0] = hashlib.sha1(e[0].encode()).hexdigest()[:8]
+                return "@".join(e)
+
+            create_params = {
+                "product": "Toolkit",
+                "component": "Telemetry",
+                "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_name),
+                "version": "unspecified",
+                "type": "task",
+                "whiteboard": whiteboard_tag,
+                "flags": [
+                    {
+                        "name": "needinfo",
+                        "type_id": 800,
+                        "status": "?",
+                        "requestee": fudge_email(email),
+                    }
+                    for email in emails
+                ],
+            }
+            print(f"POST: {create_params}")  # TODO
+            requests.post(BUGZILLA_URL, data=create_params)
 
 
 def download_file(url, output_filepath):
@@ -166,7 +227,7 @@ def main(current_date, dryrun):
         logging.info("Skipping emails because it is not Wednesday")
         #return
 
-    file_bugs(expiring_probes, current_version, dryrun)
+    file_bugs(expiring_probes, next_version, create_bugs=True, dryrun=dryrun)
 
     #send_emails_for_expiring_probes(expired_probes, expiring_probes, current_version, dryrun)
 
