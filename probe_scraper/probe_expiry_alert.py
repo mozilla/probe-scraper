@@ -10,14 +10,10 @@ import tempfile
 
 import requests
 
-from probe_scraper import emailer
 from probe_scraper.parsers.events import EventsParser
 from probe_scraper.parsers.histograms import HistogramsParser
 from probe_scraper.parsers.scalars import ScalarsParser
 from probe_scraper.parsers.utils import get_major_version
-
-FROM_EMAIL = "telemetry-alerts@mozilla.com"
-DEFAULT_TO_EMAIL = "dev-telemetry-alerts@lists.mozilla.org"
 
 BUGZILLA_BUG_URL = "https://bugzilla-dev.allizom.org/rest/bug"
 BUGZILLA_USER_URL = "https://bugzilla-dev.allizom.org/rest/user"
@@ -46,7 +42,9 @@ Your Friendly, Neighborhood Telemetry Team
 [1] https://wiki.mozilla.org/Release_Management/Calendar
 [2] https://wiki.mozilla.org/Firefox/Data_Collection
 
-This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
+This is an automated bug created by probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
+
+{notes}
 """  # noqa
 
 PROBE_LIST_FORMAT_STRING = """
@@ -80,57 +78,19 @@ def find_expiring_probes(probes, target_version):
     return expiring_probes
 
 
-def send_emails_for_expiring_probes(expired_probes, expiring_probes,
-                                    current_version, dryrun=True):
-    probes_by_email_by_state = defaultdict(lambda: defaultdict(list))
-
-    # Get expired probes for each email
-    for name, emails in expired_probes.items():
-        for email in emails:
-            probes_by_email_by_state[email]["expired"].append(name)
-
-    # Get expiring probes for each email
-    for name, emails in expiring_probes.items():
-        for email in emails:
-            probes_by_email_by_state[email]["expiring"].append(name)
-
-    for email in probes_by_email_by_state.keys():
-        probe_list_format_strings = []
-        if len(probes_by_email_by_state[email]["expiring"]) > 0:
-            probe_list_format_strings.append(
-                PROBE_LIST_FORMAT_STRING.format(
-                    verb="are expiring", version=int(current_version) + 1,
-                    probes="\n".join(probes_by_email_by_state[email]["expiring"])))
-        if len(probes_by_email_by_state[email]["expired"]) > 0:
-            probe_list_format_strings.append(
-                PROBE_LIST_FORMAT_STRING.format(
-                    verb="have expired", version=current_version,
-                    probes="\n".join(probes_by_email_by_state[email]["expired"])))
-
-        email_body = BUG_DESCRIPTION_TEMPLATE.format(
-            next_version=int(current_version) + 1,
-            probes="\n".join(probe_list_format_strings))
-
-        emailer.send_ses(FROM_EMAIL, "Telemetry Probe Expiry",
-                         body=email_body, recipients=email, dryrun=dryrun)
-
-    print(f"Sent emails to {len(probes_by_email_by_state)} recipients")
-
-
 def check_bugzilla_user_exists(email, request_headers):
     user_response = requests.get(BUGZILLA_USER_URL + "?match=" + email, headers=request_headers)
     user_response.raise_for_status()
     return len(user_response.json()["users"]) > 0
 
 
-def file_bugs(probes, version, bugzilla_api_key, create_bugs=False, dryrun=True):
+def file_bugs(probes, version, bugzilla_api_key, create_bugs=False):
     """
     Search for bugs that have already been created by probe_expiry_alerts
     for probes in the current version.
     For each probe/bug:
         - if a bug exists for a probe in the given list, do nothing
-        - if a bug exists for a probe that is not in the given list resolve the bug
-        - if no bug exists for a  given probe, create a bug
+        - if no bug exists for a given probe, create a bug
     """
     request_header = {
         "X-BUGZILLA-API-KEY": bugzilla_api_key
@@ -143,43 +103,46 @@ def file_bugs(probes, version, bugzilla_api_key, create_bugs=False, dryrun=True)
         "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=''),
         "whiteboard": whiteboard_tag,
     }
-    found_bugs = requests.get(BUGZILLA_BUG_URL, params=search_query_params, headers=request_header).json()
+    found_bugs = requests.get(BUGZILLA_BUG_URL, params=search_query_params,
+                              headers=request_header).json()
+    print(f"Found {len(found_bugs)} previously created bugs for version {version}")
 
-    # Close bugs for removed/updated probes and prevent duplicates from being created
     for bug in found_bugs["bugs"]:
         probe_name = bug["summary"].split(" ")[-1]
-        if probe_name not in probes.keys() and bug["status"] != "RESOLVED":  # probe not expiring
-            update_params = {
-                "status": "RESOLVED",
-                "resolution": "FIXED",
-                "comment": {
-                    "body": BUG_RESOLVED_COMMENT_TEMPLATE.format(version=version)
-                }
-            }
-            print(f"PUT: {update_params}")  # TODO
-            print("update: " + str(requests.put(BUGZILLA_BUG_URL + "/" + str(bug["id"]), json=update_params, headers=request_header).json()))
-        elif probe_name in probes.keys():  # bug already exists
+        if probe_name in probes.keys():
             probes.pop(probe_name)
 
-    # Create bugs new expiring probes
-    if create_bugs:
-        for probe_name, emails in probes.items():
-            valid_emails = list(filter(
-                lambda email: check_bugzilla_user_exists(email, request_header), emails))
+    for probe_name, emails in probes.items():
+        valid_emails = list(filter(
+            lambda email: check_bugzilla_user_exists(email, request_header), emails))
 
-            create_params = {
-                "product": "Toolkit",
-                "component": "Telemetry",
-                "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_name),
-                "description": BUG_DESCRIPTION_TEMPLATE.format(version=version, probe_name=probe_name),
-                "version": "unspecified",
-                "type": "task",
-                "whiteboard": whiteboard_tag,
-                "cc": valid_emails,
-            }
-            print(f"POST: {create_params}")  # TODO
-            create_response = requests.post(BUGZILLA_BUG_URL, json=create_params, headers=request_header)
-            print("create: " + str(create_response.json()))
+        description_notes = ("No emails associated with the probe have a "
+                             "corresponding Bugzilla account" if len(valid_emails) > 0 else "")
+
+        create_params = {
+            "product": "Toolkit",
+            "component": "Telemetry",
+            "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_name),
+            "description": BUG_DESCRIPTION_TEMPLATE.format(
+                version=version, probe_name=probe_name, notes=description_notes),
+            "version": "unspecified",
+            "type": "task",
+            "whiteboard": whiteboard_tag,
+            "flags": [
+                {
+                    "name": "needinfo",
+                    "type_id": 800,
+                    "status": "?",
+                    "requestee": email,
+                }
+                for email in valid_emails
+            ],
+        }
+        if create_bugs:
+            create_response = requests.post(BUGZILLA_BUG_URL, json=create_params,
+                                            headers=request_header)
+            create_response.raise_for_status()
+            print(f"Created bug {str(create_response.json())} for probe {probe_name}")
 
 
 def download_file(url, output_filepath):
@@ -203,8 +166,7 @@ def parse_args():
 
 
 def main(current_date, dryrun, bugzilla_api_key):
-    current_version = get_latest_nightly_version()
-    next_version = str(int(current_version) + 1)
+    next_version = str(int(get_latest_nightly_version()) + 1)
 
     with tempfile.TemporaryDirectory() as tempdir:
         events_file_path = os.path.join(tempdir, EVENTS_FILE)
@@ -223,21 +185,14 @@ def main(current_date, dryrun, bugzilla_api_key):
     all_probes.update(histograms)
     all_probes.update(scalars)
 
-    expired_probes = find_expiring_probes(all_probes, current_version)
     expiring_probes = find_expiring_probes(all_probes, next_version)
 
-    print(f"Found {len(expired_probes)} expired probes in nightly {current_version}")
-    print(f"Found {len(expiring_probes)} expiring probes in nightly {next_version}")
+    print(f"Found {len(expiring_probes)} probes expiring in nightly {next_version}")
+    print(list(expiring_probes.keys()))
 
-    # Only send emails on Wednesdays, run the rest for debugging/error detection
-    if not dryrun and current_date.weekday() != 2:
-        print("Skipping emails because it is not Wednesday")
-        #return
-
-    file_bugs(expiring_probes, next_version, bugzilla_api_key,
-              create_bugs=True, dryrun=dryrun)
-
-    #send_emails_for_expiring_probes(expired_probes, expiring_probes, current_version, dryrun)
+    # Only send create bugs on Wednesdays, run the rest for debugging/error detection
+    create_bugs = not dryrun and current_date.weekday() == 2
+    file_bugs(expiring_probes, next_version, bugzilla_api_key, create_bugs=create_bugs)
 
 
 if __name__ == "__main__":
