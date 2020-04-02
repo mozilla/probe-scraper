@@ -145,22 +145,50 @@ def test_main_run(mock_file_bugs, mock_get_version, mock_download_file,
     mock_file_bugs.assert_called_once_with(expected_expiring_probes, "76", "", create_bugs=False)
 
 
-def test_bugs_created_for_new_probes():
-    pass
+@mock.patch("probe_scraper.probe_expiry_alert.search_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.create_bug")
+def test_bugs_created_only_for_new_probes(mock_create_bugs, mock_search_bugs):
+    mock_search_bugs.return_value = [
+        {"summary": "p2"},
+        {"summary": "p3"}
+    ]
+    probes = {
+        "p1": [],
+        "p2": [],
+        "p3": [],
+        "p4": [],
+    }
+    probe_expiry_alert.file_bugs(probes, "1", "", create_bugs=True)
+
+    assert mock_create_bugs.call_count == 2
+    mock_create_bugs.has_calls([
+        mock.call("p1", "1", [], mock.ANY),
+        mock.call("p4", "1", [], mock.ANY)
+    ], any_order=True)
 
 
-def test_bugs_not_created_for_existing_bugs():
-    pass
+@mock.patch("probe_scraper.probe_expiry_alert.check_bugzilla_user_exists")
+@mock.patch("probe_scraper.probe_expiry_alert.search_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.create_bug")
+def test_bugs_do_not_contain_invalid_accounts(mock_create_bugs, mock_search_bugs,
+                                              mock_account_check):
+    mock_search_bugs.return_value = []
+    mock_account_check.side_effect = lambda email, x: email.startswith("invalid")
+
+    probes = {
+        "p1": ["invalid1@test.com", "a@test.com", "invalid2@test.com"],
+    }
+    probe_expiry_alert.file_bugs(probes, "1", "", create_bugs=True)
+
+    mock_create_bugs.called_once_with("p1", "1", ["a@test.com"], mock.ANY)
 
 
-def test_bugs_do_not_contain_invalid_accounts():
-    pass
+@mock.patch("requests.get")
+def test_search_bugs_param_creation(mock_get):
+    probe_expiry_alert.search_bugs("123", {})
 
 
-def test_search_bugs_param_creation():
-    pass
-
-
-def test_create_bug_param_creation():
-    pass
+@mock.patch("requests.post")
+def test_create_bug_param_creation(mock_post):
+    probe_expiry_alert.create_bug("p1", "12", ["a@test.com", "b@test.com"], {})
 

@@ -139,7 +139,7 @@ def file_bugs(probes, version, bugzilla_api_key, create_bugs=False):
     print(f"Found {len(found_bugs)} previously created bugs for version {version}")
 
     for bug in found_bugs:
-        probe_name = bug["summary"].split(" ")[-1]
+        probe_name = bug["summary"].split()[-1]
         if probe_name in probes.keys():
             probes.pop(probe_name)
 
