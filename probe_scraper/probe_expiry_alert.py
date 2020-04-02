@@ -23,7 +23,7 @@ HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
 EVENTS_FILE = "Events.yaml"
 
-BUG_WHITEBOARD_TAG = 'probe-expiry-alert'
+BUG_WHITEBOARD_TAG = "probe-expiry-alert"
 BUG_SUMMARY_TEMPLATE = "Remove or update probe expiring in Firefox {version}: {probe}"
 BUG_RESOLVED_COMMENT_TEMPLATE = "This probe is no longer expiring in Firefox {version}."
 
@@ -87,7 +87,7 @@ def check_bugzilla_user_exists(email, request_headers):
 
 def search_bugs(version, request_header):
     search_query_params = {
-        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=''),
+        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=""),
         "whiteboard": BUG_WHITEBOARD_TAG,
     }
     return requests.get(BUGZILLA_BUG_URL, params=search_query_params,
