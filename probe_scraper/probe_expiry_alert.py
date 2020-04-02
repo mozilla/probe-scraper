@@ -23,6 +23,7 @@ HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
 EVENTS_FILE = "Events.yaml"
 
+BUG_WHITEBOARD_TAG = 'probe-expiry-alert'
 BUG_SUMMARY_TEMPLATE = "Remove or update probe expiring in Firefox {version}: {probe}"
 BUG_RESOLVED_COMMENT_TEMPLATE = "This probe is no longer expiring in Firefox {version}."
 
@@ -84,6 +85,44 @@ def check_bugzilla_user_exists(email, request_headers):
     return len(user_response.json()["users"]) > 0
 
 
+def search_bugs(version, request_header):
+    search_query_params = {
+        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=''),
+        "whiteboard": BUG_WHITEBOARD_TAG,
+    }
+    return requests.get(BUGZILLA_BUG_URL, params=search_query_params,
+                        headers=request_header).json()["bugs"]
+
+
+def create_bug(probe_name, version, emails, request_header):
+    description_notes = ("No emails associated with the probe have a "
+                         "corresponding Bugzilla account" if len(emails) > 0 else "")
+
+    create_params = {
+        "product": "Toolkit",
+        "component": "Telemetry",
+        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_name),
+        "description": BUG_DESCRIPTION_TEMPLATE.format(
+            version=version, probe_name=probe_name, notes=description_notes),
+        "version": "unspecified",
+        "type": "task",
+        "whiteboard": BUG_WHITEBOARD_TAG,
+        "flags": [
+            {
+                "name": "needinfo",
+                "type_id": 800,
+                "status": "?",
+                "requestee": email,
+            }
+            for email in emails
+        ],
+    }
+    create_response = requests.post(BUGZILLA_BUG_URL, json=create_params,
+                                    headers=request_header)
+    create_response.raise_for_status()
+    print(f"Created bug {str(create_response.json())} for probe {probe_name}")
+
+
 def file_bugs(probes, version, bugzilla_api_key, create_bugs=False):
     """
     Search for bugs that have already been created by probe_expiry_alerts
@@ -96,18 +135,10 @@ def file_bugs(probes, version, bugzilla_api_key, create_bugs=False):
         "X-BUGZILLA-API-KEY": bugzilla_api_key
     }
 
-    whiteboard_tag = 'probe-expiry-alert'
-
-    # search for previously created bugs
-    search_query_params = {
-        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=''),
-        "whiteboard": whiteboard_tag,
-    }
-    found_bugs = requests.get(BUGZILLA_BUG_URL, params=search_query_params,
-                              headers=request_header).json()
+    found_bugs = search_bugs(version, request_header)
     print(f"Found {len(found_bugs)} previously created bugs for version {version}")
 
-    for bug in found_bugs["bugs"]:
+    for bug in found_bugs:
         probe_name = bug["summary"].split(" ")[-1]
         if probe_name in probes.keys():
             probes.pop(probe_name)
@@ -116,33 +147,8 @@ def file_bugs(probes, version, bugzilla_api_key, create_bugs=False):
         valid_emails = list(filter(
             lambda email: check_bugzilla_user_exists(email, request_header), emails))
 
-        description_notes = ("No emails associated with the probe have a "
-                             "corresponding Bugzilla account" if len(valid_emails) > 0 else "")
-
-        create_params = {
-            "product": "Toolkit",
-            "component": "Telemetry",
-            "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_name),
-            "description": BUG_DESCRIPTION_TEMPLATE.format(
-                version=version, probe_name=probe_name, notes=description_notes),
-            "version": "unspecified",
-            "type": "task",
-            "whiteboard": whiteboard_tag,
-            "flags": [
-                {
-                    "name": "needinfo",
-                    "type_id": 800,
-                    "status": "?",
-                    "requestee": email,
-                }
-                for email in valid_emails
-            ],
-        }
         if create_bugs:
-            create_response = requests.post(BUGZILLA_BUG_URL, json=create_params,
-                                            headers=request_header)
-            create_response.raise_for_status()
-            print(f"Created bug {str(create_response.json())} for probe {probe_name}")
+            create_bug(probe_name, version, valid_emails, request_header)
 
 
 def download_file(url, output_filepath):
@@ -161,6 +167,7 @@ def parse_args():
     parser.add_argument(
         "--bugzilla-api-key",
         type=str,
+        required=True,
     )
     return parser.parse_args()
 
