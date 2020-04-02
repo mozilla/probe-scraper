@@ -92,8 +92,8 @@ def test_main_runs_once_per_week(mock_file_bugs, mock_get_version,
 @mock.patch("probe_scraper.probe_expiry_alert.get_latest_nightly_version")
 @mock.patch("probe_scraper.probe_expiry_alert.file_bugs")
 def test_dryrun_doesnt_create_bugs(mock_file_bugs, mock_get_version,
-                                 mock_download_file, mock_scalars_parser,
-                                 mock_histograms_parser, mock_events_parser):
+                                   mock_download_file, mock_scalars_parser,
+                                   mock_histograms_parser, mock_events_parser):
     mock_events_parser.return_value = {}
     mock_histograms_parser.return_value = {}
     mock_scalars_parser.return_value = {}
@@ -191,4 +191,3 @@ def test_search_bugs_param_creation(mock_get):
 @mock.patch("requests.post")
 def test_create_bug_param_creation(mock_post):
     probe_expiry_alert.create_bug("p1", "12", ["a@test.com", "b@test.com"], {})
-

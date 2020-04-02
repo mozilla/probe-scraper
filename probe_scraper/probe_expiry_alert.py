@@ -15,8 +15,8 @@ from probe_scraper.parsers.histograms import HistogramsParser
 from probe_scraper.parsers.scalars import ScalarsParser
 from probe_scraper.parsers.utils import get_major_version
 
-BUGZILLA_BUG_URL = "https://bugzilla-dev.allizom.org/rest/bug"
-BUGZILLA_USER_URL = "https://bugzilla-dev.allizom.org/rest/user"
+BUGZILLA_BUG_URL = "https://bugzilla.mozilla.org/rest/bug"
+BUGZILLA_USER_URL = "https://bugzilla.mozilla.org/rest/user"
 
 BASE_URI = "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/telemetry/"
 HISTOGRAMS_FILE = "Histograms.json"
@@ -96,7 +96,7 @@ def search_bugs(version, request_header):
 
 def create_bug(probe_name, version, emails, request_header):
     description_notes = ("No emails associated with the probe have a "
-                         "corresponding Bugzilla account" if len(emails) > 0 else "")
+                         "corresponding Bugzilla account." if len(emails) == 0 else "")
 
     create_params = {
         "product": "Toolkit",
