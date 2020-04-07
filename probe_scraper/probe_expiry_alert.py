@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 import argparse
 import datetime
 import os
@@ -13,14 +13,19 @@ import tempfile
 
 import requests
 
+from probe_scraper import emailer
 from probe_scraper.parsers.events import EventsParser
 from probe_scraper.parsers.histograms import HistogramsParser
 from probe_scraper.parsers.scalars import ScalarsParser
 from probe_scraper.parsers.utils import get_major_version
 
+FROM_EMAIL = "telemetry-alerts@mozilla.com"
+DEFAULT_TO_EMAIL = "dev-telemetry-alerts@lists.mozilla.org"
+
 BUGZILLA_BUG_URL = "https://bugzilla-dev.allizom.org/rest/bug"
 BUGZILLA_BUG_URL_2 = "https://bugzilla.mozilla.org/rest/bug"  # TODO: delete
 BUGZILLA_USER_URL = "https://bugzilla-dev.allizom.org/rest/user"
+BUGZILLA_BUG_LINK_TEMPLATE = "https://bugzilla-dev.allizom.org/show_bug.cgi?id={bug_id}"
 
 BASE_URI = "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/telemetry/"
 HISTOGRAMS_FILE = "Histograms.json"
@@ -37,6 +42,8 @@ The following Firefox probes will expire in the next major Firefox nightly relea
 {probes}
 ```
 
+{notes}
+
 What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their definitions files (Histograms.json, Scalars.yaml, Events.yaml).
 2. If one, some, or all of the metrics are still required, please submit a Data Collection Review [2] and patch to extend their expiry.
@@ -50,6 +57,10 @@ Your Friendly, Neighborhood Telemetry Team
 
 This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
+
+BUG_LINK_LIST_TEMPLATE = """The following bugs were filed for the above probes:
+{bug_links}
+"""
 
 
 @dataclass
@@ -123,7 +134,7 @@ def create_bug(probes: List[ProbeDetails], version: str,  api_key: str):
         "component": probes[0].component,
         "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_prefix),
         "description": BUG_DESCRIPTION_TEMPLATE.format(
-            version=version, probes="\n".join(probe_names)),
+            version=version, probes="\n".join(probe_names), notes=""),
         "version": "unspecified",
         "type": "task",
         "whiteboard": BUG_WHITEBOARD_TAG,
@@ -144,7 +155,9 @@ def create_bug(probes: List[ProbeDetails], version: str,  api_key: str):
         create_response.raise_for_status()
     except requests.HTTPError:
         print(create_response.json())
-    print(f"Created bug {str(create_response.json())} for {probe_prefix}")
+    else:
+        print(f"Created bug {str(create_response.json())} for {probe_prefix}")
+        return create_response.json()['id']
 
 
 def check_bugzilla_user_exists(email: str, api_key: str):
@@ -197,6 +210,31 @@ def find_expiring_probes(probes: dict, target_version: str,
     return expiring_probes
 
 
+def send_emails(probes_by_email: Dict[str, List[str]], probe_to_bug_id: Dict[str, str],
+                version: str, dryrun: bool = True):
+    email_count = 0
+    for email, probe_names in probes_by_email.items():
+        bug_links = {
+            BUGZILLA_BUG_LINK_TEMPLATE.format(bug_id=probe_to_bug_id[probe])
+            for probe in probe_names
+            if probe in probe_to_bug_id.keys()
+        }
+        if len(bug_links) == 0:
+            continue
+
+        email_body = BUG_DESCRIPTION_TEMPLATE.format(
+            version=version, probes='\n'.join(probe_names),
+            notes=BUG_LINK_LIST_TEMPLATE.format(bug_links='\n'.join(bug_links)))
+
+        emailer.send_ses(FROM_EMAIL, "Telemetry Probe Expiry",
+                         body=email_body, recipients=email, dryrun=dryrun)
+        email_count += 1
+
+    # TODO send to telemetry alerts
+
+    print(f"Sent emails to {email_count} recipients")
+
+
 def file_bugs(probes: List[ProbeDetails], version: str,
               bugzilla_api_key: str, create_bugs: bool = False):
     """
@@ -205,6 +243,8 @@ def file_bugs(probes: List[ProbeDetails], version: str,
     For each probe/bug:
         - if a bug exists for a probe in the given list, do nothing
         - if no bug exists for a given probe, create a bug
+
+    Return mapping of probe names to bug id for any newly created bugs
     """
     found_bugs = search_bugs(bugzilla_api_key)
 
@@ -227,11 +267,18 @@ def file_bugs(probes: List[ProbeDetails], version: str,
         probes_by_component_by_email_set[
             (probe.product, probe.component, ','.join(sorted(probe.emails)))].append(probe)
 
+    probe_to_bug_map = {}
+
     print(f"creating {len(probes_by_component_by_email_set)} new bugs")
 
     for grouping, probe_group in probes_by_component_by_email_set.items():
         if create_bugs:
-            create_bug(probe_group, version, bugzilla_api_key)
+            bug_id = create_bug(probe_group, version, bugzilla_api_key)
+            if bug_id is not None:  # TODO: remove
+                for probe in probe_group:
+                    probe_to_bug_map[probe.name] = bug_id
+
+    return probe_to_bug_map
 
 
 def main(current_date: datetime.datetime, dryrun: bool, bugzilla_api_key: str):
@@ -271,7 +318,10 @@ def main(current_date: datetime.datetime, dryrun: bool, bugzilla_api_key: str):
                 emails_wo_accounts[email].append(probe_name)
                 email_list.remove(email)
 
-    file_bugs(expiring_probes, next_version, bugzilla_api_key, create_bugs=create_bugs)
+    probe_to_bug_id = file_bugs(
+        expiring_probes, next_version, bugzilla_api_key, create_bugs=create_bugs)
+
+    send_emails(emails_wo_accounts, probe_to_bug_id, next_version, dryrun=True)  # TODO: change dryrun
 
 
 def parse_args():
