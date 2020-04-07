@@ -185,7 +185,7 @@ def test_bugs_do_not_contain_invalid_accounts(mock_create_bugs, mock_search_bugs
 
 @mock.patch("requests.get")
 def test_search_bugs_param_creation(mock_get):
-    probe_expiry_alert.search_bugs("123", {})
+    probe_expiry_alert.search_bugs({})
 
 
 @mock.patch("requests.post")
