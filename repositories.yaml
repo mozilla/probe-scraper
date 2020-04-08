@@ -239,3 +239,12 @@ firefox-android-release:
     - org.mozilla.components:browser-engine-gecko-beta
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
+mozregression:
+  app_id: org-mozilla-mozregression
+  notification_emails:
+    - wlachance@mozilla.com
+  url: 'https://github.com/mozilla/mozregression'
+  metrics_files:
+    - 'mozregression/metrics.yaml'
+  ping_files:
+    - 'mozregression/pings.yaml'
