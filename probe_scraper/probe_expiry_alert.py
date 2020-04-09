@@ -98,9 +98,9 @@ def find_existing_bugs(version: str, api_key: str) -> Set[str]:
 
     probes_with_bugs = set()
     for bug in found_bugs:
-        if re.search("release: version (\d+)", bug["description"]).group(1) != version:
+        if re.search(r"release: version (\d+)", bug["description"]).group(1) != version:
             continue
-        probes_in_bug = re.search("```(.*)```", bug["description"], re.DOTALL).group(1).split()
+        probes_in_bug = re.search(r"```(.*)```", bug["description"], re.DOTALL).group(1).split()
         for probe_name in probes_in_bug:
             probes_with_bugs.add(probe_name)
 
@@ -143,7 +143,7 @@ def get_longest_prefix(values: List[str], tolerance: int = 0) -> str:
     return sorted(prefix_count.items(), key=lambda item: item[1], reverse=True)[0][0] + '*'
 
 
-def create_bug(probes: List[ProbeDetails], version: str,  api_key: str) -> int:
+def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     probe_names = [probe.name for probe in probes]
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
 
