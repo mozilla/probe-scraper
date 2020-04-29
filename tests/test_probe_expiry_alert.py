@@ -1,9 +1,9 @@
-from dataclasses import dataclass
-from collections import defaultdict
-from unittest import mock
 import datetime
+from dataclasses import dataclass
+from unittest import mock
 
 from probe_scraper import probe_expiry_alert
+from probe_scraper.probe_expiry_alert import ProbeDetails
 
 
 @dataclass
@@ -23,8 +23,9 @@ def test_find_expiring_probes_no_expiring():
     expiring_probes = probe_expiry_alert.find_expiring_probes(
         probes,
         "75",
+        "",
     )
-    expected = {}
+    expected = []
     assert expiring_probes == expected
 
 
@@ -33,102 +34,54 @@ def test_find_expiring_probes_channel_no_probes():
     expiring_probes = probe_expiry_alert.find_expiring_probes(
         probes,
         "75",
+        "",
     )
-    expected = {}
+    expected = []
     assert expiring_probes == expected
 
 
-def test_find_expiring_probes_expiring():
+@mock.patch("probe_scraper.probe_expiry_alert.get_bug_component")
+def test_find_expiring_probes_expiring(mock_get_bug_component):
+    mock_get_bug_component.return_value = "prod", "comp"
+
     probes = {
         "p1": {
             "expiry_version": "74",
             "notification_emails": ["test@email.com"],
+            "bug_numbers": [],
         },
         "p2": {
             "expiry_version": "75",
             "notification_emails": ["test@email.com"],
+            "bug_numbers": [1],
         },
         "p3": {
-            "expiry_version": "75"
+            "expiry_version": "75",
+            "bug_numbers": [],
         },
     }
     expiring_probes = probe_expiry_alert.find_expiring_probes(
         probes,
         "75",
+        "",
     )
-    expected = {
-        "p2": ["test@email.com", probe_expiry_alert.DEFAULT_TO_EMAIL],
-        "p3": [probe_expiry_alert.DEFAULT_TO_EMAIL],
-    }
-    assert expiring_probes == expected
-
-
-@mock.patch("boto3.client")
-def test_send_email_dryrun_doesnt_send(mock_boto_client):
-    expiring_probes = {
-        "p1": ["email"]
-    }
-    probe_expiry_alert.send_emails_for_expiring_probes(
-        {},
-        expiring_probes,
-        "75",
-        dryrun=False,
-    )
-    # make sure send_raw_email is the right method
-    mock_boto_client().send_raw_email.assert_called_once()
-
-    probe_expiry_alert.send_emails_for_expiring_probes(
-        {},
-        expiring_probes,
-        "75",
-        dryrun=True,
-    )
-    mock_boto_client().send_raw_email.assert_called_once()
-
-
-@mock.patch("probe_scraper.emailer.send_ses")
-def test_send_email(mock_send_email):
-    expired_probes = {
-        "expired_probe_1": ["email1", "email2"],
-        "expired_probe_2": ["email1"],
-    }
-    expiring_probes = {
-        "expiring_probe_1": ["email1"],
-        "expiring_probe_2": ["email1"],
-    }
-
-    send_email_args = defaultdict(list)
-
-    def update_call_args(*args, **kwargs):
-        send_email_args[kwargs["recipients"]].append(kwargs["body"])
-
-    mock_send_email.side_effect = update_call_args
-
-    probe_expiry_alert.send_emails_for_expiring_probes(
-        expired_probes,
-        expiring_probes,
-        "75",
-        dryrun=True,
-    )
-
-    assert mock_send_email.call_count == 2
-
-    assert "email1" in send_email_args.keys()
-    assert "email2" in send_email_args.keys()
-    assert len(send_email_args["email1"]) == 1
-    assert len(send_email_args["email2"]) == 1
-
-    email_body = send_email_args["email2"][0]
-    assert email_body.count("expiring_probe_1") == 0
-    assert email_body.count("expiring_probe_2") == 0
-    assert email_body.count("expired_probe_1") == 1
-    assert email_body.count("expired_probe_2") == 0
-
-    email_body = send_email_args["email1"][0]
-    assert email_body.count("expiring_probe_1") == 1
-    assert email_body.count("expiring_probe_2") == 1
-    assert email_body.count("expired_probe_1") == 1
-    assert email_body.count("expired_probe_2") == 1
+    expected = [
+        {
+            "name": "p2",
+            "product": "prod",
+            "component": "comp",
+            "emails": ["test@email.com"],
+            "previous_bug": 1,
+        },
+        {
+            "name": "p3",
+            "product": "Firefox",
+            "component": "General",
+            "emails": [],
+            "previous_bug": None,
+        },
+    ]
+    assert [probe.__dict__ for probe in expiring_probes] == expected
 
 
 @mock.patch("probe_scraper.parsers.events.EventsParser.parse")
@@ -136,18 +89,92 @@ def test_send_email(mock_send_email):
 @mock.patch("probe_scraper.parsers.scalars.ScalarsParser.parse")
 @mock.patch("probe_scraper.probe_expiry_alert.download_file")
 @mock.patch("probe_scraper.probe_expiry_alert.get_latest_nightly_version")
-@mock.patch("probe_scraper.probe_expiry_alert.send_emails_for_expiring_probes")
-def test_main_runs_once_per_week(mock_send_emails, mock_get_version, mock_download_file,
-                                 mock_scalars_parser, mock_histograms_parser, mock_events_parser):
+@mock.patch("probe_scraper.probe_expiry_alert.file_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.send_emails")
+def test_not_dryrun_only_once_per_week(mock_send_emails, mock_file_bugs, mock_get_version,
+                                       mock_download_file, mock_scalars_parser,
+                                       mock_histograms_parser, mock_events_parser):
+    mock_file_bugs.return_value = {}
     mock_events_parser.return_value = {}
     mock_histograms_parser.return_value = {}
     mock_scalars_parser.return_value = {}
     mock_get_version.return_value = "75"
     for weekday in range(7):
         base_date = datetime.date(2020, 1, 1)
-        probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), False)
+        probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), False, "")
 
-    mock_send_emails.assert_called_once()
+    mock_file_bugs.assert_has_calls([mock.call([], "76", "", dryrun=False)] +
+                                    [mock.call([], "76", "", dryrun=True)] * 6,
+                                    any_order=True)
+    assert mock_file_bugs.call_count == 7
+    mock_send_emails.assert_has_calls([mock.call({}, {}, "76", dryrun=False)] +
+                                      [mock.call({}, {}, "76", dryrun=True)] * 6,
+                                      any_order=True)
+    assert mock_send_emails.call_count == 7
+
+
+@mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.create_bug")
+def test_no_bugs_created_on_dryrun(mock_create_bug, mock_find_bugs):
+    mock_find_bugs.return_value = set()
+    expiring_probes = [
+        ProbeDetails("p1", "", "", [], 1),
+        ProbeDetails("p2", "", "", ['a@test.com'], 1),
+    ]
+
+    probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=True)
+
+    assert mock_create_bug.call_count == 0
+
+
+@mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.create_bug")
+def test_bugs_created_not_dryrun(mock_create_bug, mock_find_bugs):
+    mock_find_bugs.return_value = []
+    expiring_probes = [
+        ProbeDetails("p1", "1", "2", [], 1),
+        ProbeDetails("p2", "3", "4", ['a@test.com'], 1),
+    ]
+
+    probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=False)
+
+    assert mock_create_bug.call_count == 2
+
+
+@mock.patch("boto3.client")
+def test_no_email_sent_on_dryrun(mock_boto_client):
+    probes_by_email = {
+        "a@test.com": ["p1", "p2"],
+        "b@test.com": ["p1", "p2"],
+        "c@test.com": ["p3"],
+    }
+    probe_to_bug_id = {
+        "p1": 1,
+        "p2": 2,
+        "p3": 3,
+    }
+
+    probe_expiry_alert.send_emails(probes_by_email, probe_to_bug_id, "75", dryrun=True)
+
+    assert mock_boto_client.call_count == 0
+
+
+@mock.patch("boto3.client")
+def test_send_email_not_dryrun(mock_boto_client):
+    probes_by_email = {
+        "a@test.com": ["p1", "p2"],
+        "b@test.com": ["p1", "p2"],
+        "c@test.com": ["p3"],
+    }
+    probe_to_bug_id = {
+        "p1": 1,
+        "p2": 2,
+        "p3": 3,
+    }
+
+    probe_expiry_alert.send_emails(probes_by_email, probe_to_bug_id, "75", dryrun=False)
+
+    assert mock_boto_client.call_count == 4
 
 
 @mock.patch("probe_scraper.parsers.events.EventsParser.parse")
@@ -155,42 +182,122 @@ def test_main_runs_once_per_week(mock_send_emails, mock_get_version, mock_downlo
 @mock.patch("probe_scraper.parsers.scalars.ScalarsParser.parse")
 @mock.patch("probe_scraper.probe_expiry_alert.download_file")
 @mock.patch("probe_scraper.probe_expiry_alert.get_latest_nightly_version")
-@mock.patch("probe_scraper.probe_expiry_alert.send_emails_for_expiring_probes")
-def test_main_run(mock_send_emails, mock_get_version, mock_download_file,
-                  mock_scalars_parser, mock_histograms_parser, mock_events_parser):
+@mock.patch("probe_scraper.probe_expiry_alert.check_bugzilla_user_exists")
+@mock.patch("probe_scraper.probe_expiry_alert.file_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.send_emails")
+def test_main_run(mock_send_emails, mock_file_bugs, mock_user_exists,
+                  mock_get_version, mock_download_file, mock_scalars_parser,
+                  mock_histograms_parser, mock_events_parser):
+    mock_user_exists.return_value = False
     mock_events_parser.return_value = {
         "p1": {
             "expiry_version": "76",
             "notification_emails": ["test@email.com"],
+            "bug_numbers": [],
         }
     }
     mock_histograms_parser.return_value = {
         "p2": {
             "expiry_version": "75",
             "notification_emails": ["test@email.com"],
+            "bug_numbers": [],
         }
     }
     mock_scalars_parser.return_value = {
         "p3": {
             "expiry_version": "77",
             "notification_emails": ["test@email.com"],
+            "bug_numbers": [],
         }
     }
     mock_get_version.return_value = "75"
 
-    probe_expiry_alert.main(datetime.date(2020, 1, 8), True)
+    probe_expiry_alert.main(datetime.date(2020, 1, 8), False, "")
 
-    expected_expired_probes = {
-        "p2": [
-            "test@email.com",
-            probe_expiry_alert.DEFAULT_TO_EMAIL,
+    expected_expiring_probes = [
+        ProbeDetails("p1", "Firefox", "General", [], None)
+    ]
+    mock_file_bugs.assert_called_once_with(expected_expiring_probes, "76", "", dryrun=False)
+
+
+@mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
+@mock.patch("probe_scraper.probe_expiry_alert.create_bug")
+def test_bugs_created_only_for_new_probes(mock_create_bugs, mock_find_bugs):
+    mock_find_bugs.return_value = {"p2", "p3"}
+    probes = [
+        ProbeDetails("p1", "", "", ["email1"], 1),
+        ProbeDetails("p2", "", "", [], 1),
+        ProbeDetails("p3", "", "", [], 1),
+        ProbeDetails("p4", "", "", ["email2"], 1),
+    ]
+    probe_expiry_alert.file_bugs(probes, "1", "", dryrun=False)
+
+    assert mock_create_bugs.call_count == 2
+    mock_create_bugs.has_calls([
+        mock.call(ProbeDetails("p1", "", "", ["email1"], 1), "1", mock.ANY),
+        mock.call(ProbeDetails("p4", "", "", ["email2"], 1), "1", mock.ANY),
+    ], any_order=True)
+
+
+@mock.patch("requests.post")
+def test_create_bug(mock_post):
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value={"id": 2})
+    mock_post.return_value = mock_response
+
+    probes = [
+        ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
+        ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
+    ]
+    bug_id = probe_expiry_alert.create_bug(probes, "76", "")
+
+    assert bug_id == 2
+
+
+@mock.patch("requests.get")
+def test_bug_description_parser(mock_get):
+    """
+    Checking if current expiring probes have already had bugs filed uses regex on the bug
+    description.  So if the bug description changes such that the regex fails, this test
+    should fail.
+    """
+    search_results = {
+        "bugs": [
+            {
+                "summary": "",
+                "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
+                    version="76", probes="\np1\np2 \n", notes=""),
+            },
+            {
+                "summary": "",
+                "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
+                    version="77", probes="\n p3 p4", notes=""),
+            },
+            {
+                "summary": "",
+                "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
+                    version="76", probes="\np5 p6\n", notes=""),
+            },
         ]
     }
-    expected_expiring_probes = {
-        "p1": [
-            "test@email.com",
-            probe_expiry_alert.DEFAULT_TO_EMAIL,
-        ]
-    }
-    mock_send_emails.assert_called_once_with(
-        expected_expired_probes, expected_expiring_probes, mock.ANY, True)
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value=search_results)
+    mock_get.return_value = mock_response
+
+    probes_with_bugs = probe_expiry_alert.find_existing_bugs("76", "")
+
+    assert probes_with_bugs == {"p1", "p2", "p5", "p6"}
+
+
+def test_get_longest_prefix():
+    values = [
+        "FX_PICTURE_IN_PICTURE_WINDOW_OPEN_DURATION",
+        "pictureinpicture.opened_method",
+        "pictureinpicture.closed_method",
+        "",
+    ]
+    assert probe_expiry_alert.get_longest_prefix(values, 0) == values[0]
+    assert probe_expiry_alert.get_longest_prefix(values, 1) == values[0]
+    assert probe_expiry_alert.get_longest_prefix(values, 2) == "pictureinpicture.*"
+    assert probe_expiry_alert.get_longest_prefix([]) == ""
+    assert probe_expiry_alert.get_longest_prefix(["abc"]) == "abc"
