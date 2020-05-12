@@ -245,4 +245,4 @@ firefox-ios:
     frank@mozilla.com
   url: https://github.com/mozilla-mobile/firefox-ios
   metrics_files:
-    - 'Client/Generated/LegacyIds.swift'
+    - ' Client/metrics.yaml'
