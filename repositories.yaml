@@ -241,8 +241,8 @@ mozregression:
 firefox-ios:
   app_id: org-mozilla-ios-fennec
   notification_emails:
-    tlong@mozilla.com
-    frank@mozilla.com
+    - tlong@mozilla.com
+    - frank@mozilla.com
   url: https://github.com/mozilla-mobile/firefox-ios
   metrics_files:
     - ' Client/metrics.yaml'
