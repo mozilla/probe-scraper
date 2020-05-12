@@ -238,3 +238,11 @@ mozregression:
     - 'mozregression/metrics.yaml'
   ping_files:
     - 'mozregression/pings.yaml'
+firefox-ios:
+  app_id: org-mozilla-ios-fennec
+  notification_emails:
+    tlong@mozilla.com
+    frank@mozilla.com
+  url: https://github.com/mozilla-mobile/firefox-ios
+  metrics_files:
+    - 'Client/Generated/LegacyIds.swift'
