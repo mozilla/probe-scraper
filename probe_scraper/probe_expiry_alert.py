@@ -81,7 +81,15 @@ def bugzilla_request_header(api_key: str) -> Dict[str, str]:
 def get_bug_component(bug_id: int, api_key: str) -> Tuple[str, str]:
     response = requests.get(BUGZILLA_BUG_URL + "/" + str(bug_id),
                             headers=bugzilla_request_header(api_key))
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        print(f"Error getting component for bug {bug_id}: {e}")
+        if e.response.status_code == 401:  # Some confidential security bugs are not accessible
+            return "Firefox", "General"
+        else:
+            raise
+
     bug = response.json()["bugs"][0]
     return bug["product"], bug["component"]
 
