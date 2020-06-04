@@ -31,6 +31,8 @@ HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
 EVENTS_FILE = "Events.yaml"
 
+BUG_DEFAULT_PRODUCT = "Firefox"
+BUG_DEFAULT_COMPONENT = "General"
 BUG_WHITEBOARD_TAG = "[probe-expiry-alert]"
 BUG_SUMMARY_TEMPLATE = "Remove or update probes expiring in Firefox {version}: {probe}"
 
@@ -86,7 +88,7 @@ def get_bug_component(bug_id: int, api_key: str) -> Tuple[str, str]:
     except requests.exceptions.HTTPError as e:
         print(f"Error getting component for bug {bug_id}: {e}")
         if e.response.status_code == 401:  # Some confidential security bugs are not accessible
-            return "Firefox", "General"
+            return BUG_DEFAULT_PRODUCT, BUG_DEFAULT_COMPONENT
         else:
             raise
 
@@ -221,8 +223,8 @@ def find_expiring_probes(probes: dict, target_version: str,
         if expiry_version == target_version:
             if len(details["bug_numbers"]) == 0:
                 last_bug_number = None
-                product = "Firefox"
-                component = "General"
+                product = BUG_DEFAULT_PRODUCT
+                component = BUG_DEFAULT_COMPONENT
             else:
                 last_bug_number = max(details["bug_numbers"])
                 product, component = (get_bug_component(last_bug_number, bugzilla_api_key))
