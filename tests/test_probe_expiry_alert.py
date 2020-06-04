@@ -14,6 +14,13 @@ class ResponseWrapper:
         return self.text
 
 
+def test_bugzilla_prod_urls():
+    assert probe_expiry_alert.BUGZILLA_BUG_URL.startswith("https://bugzilla.mozilla.org/")
+    assert probe_expiry_alert.BUGZILLA_USER_URL.startswith("https://bugzilla.mozilla.org/")
+    assert probe_expiry_alert.BUGZILLA_BUG_LINK_TEMPLATE.startswith(
+        "https://bugzilla.mozilla.org/")
+
+
 def test_find_expiring_probes_no_expiring():
     probes = {
         "p1": {
@@ -301,3 +308,60 @@ def test_get_longest_prefix():
     assert probe_expiry_alert.get_longest_prefix(values, 2) == "pictureinpicture.*"
     assert probe_expiry_alert.get_longest_prefix([]) == ""
     assert probe_expiry_alert.get_longest_prefix(["abc"]) == "abc"
+
+
+@mock.patch("requests.get")
+def test_check_bugzilla_user_account_not_found(mock_get):
+    users = {
+        "users": []
+    }
+
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value=users)
+    mock_get.return_value = mock_response
+
+    assert not probe_expiry_alert.check_bugzilla_user_exists("test@test.com", "")
+
+
+@mock.patch("requests.get")
+def test_check_bugzilla_user_account_inactive(mock_get):
+    users = {
+        "users": [
+            {
+                "can_login": False,
+                "is_new": False,
+                "real_name": "test",
+                "email": "test@test.com",
+                "id": 123,
+                "name": "test",
+            }
+        ]
+    }
+
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value=users)
+    mock_get.return_value = mock_response
+
+    assert not probe_expiry_alert.check_bugzilla_user_exists("test@test.com", "")
+
+
+@mock.patch("requests.get")
+def test_check_bugzilla_user_account_active(mock_get):
+    users = {
+        "users": [
+            {
+                "can_login": True,
+                "is_new": False,
+                "real_name": "test",
+                "email": "test@test.com",
+                "id": 123,
+                "name": "test",
+            }
+        ]
+    }
+
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value=users)
+    mock_get.return_value = mock_response
+
+    assert probe_expiry_alert.check_bugzilla_user_exists("test@test.com", "")
