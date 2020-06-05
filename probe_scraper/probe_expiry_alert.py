@@ -160,9 +160,9 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
 
     see_also_bugs = list(set([probe.previous_bug for probe in probes
-                              if type(probe.previous_bug) == int]))
+                              if isinstance(probe.previous_bug, int)]))
     see_also_bugs_str = list(set([probe.previous_bug for probe in probes
-                                  if type(probe.previous_bug) == str]))
+                                  if isinstance(probe.previous_bug, str)]))
 
     if len(see_also_bugs_str) == 0:
         notes = ""
@@ -238,7 +238,7 @@ def find_expiring_probes(probes: dict, target_version: str,
             else:
                 last_bug_number = max(details["bug_numbers"])
                 product, component = (get_bug_component(last_bug_number, bugzilla_api_key))
-                if product is None:
+                if product is None and component is None:
                     last_bug_number = str(last_bug_number)
                     product = BUG_DEFAULT_PRODUCT
                     component = BUG_DEFAULT_COMPONENT
