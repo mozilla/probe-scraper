@@ -2,6 +2,8 @@ import datetime
 from dataclasses import dataclass
 from unittest import mock
 
+from requests.exceptions import HTTPError
+
 from probe_scraper import probe_expiry_alert
 from probe_scraper.probe_expiry_alert import ProbeDetails
 
@@ -312,12 +314,14 @@ def test_get_longest_prefix():
 
 @mock.patch("requests.get")
 def test_check_bugzilla_user_account_not_found(mock_get):
-    users = {
-        "users": []
-    }
-
     mock_response = mock.MagicMock()
-    mock_response.json = mock.MagicMock(return_value=users)
+    mock_response.status_code = 400
+    mock_response.json = mock.MagicMock(return_value={"code": 51})
+
+    def user_not_found():
+        raise HTTPError(response=mock_response)
+
+    mock_response.raise_for_status.side_effect = user_not_found
     mock_get.return_value = mock_response
 
     assert not probe_expiry_alert.check_bugzilla_user_exists("test@test.com", "")

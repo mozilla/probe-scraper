@@ -203,11 +203,16 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
 
 
 def check_bugzilla_user_exists(email: str, api_key: str):
-    user_response = requests.get(BUGZILLA_USER_URL + "?match=" + email,
+    user_response = requests.get(BUGZILLA_USER_URL + "?names=" + email,
                                  headers=bugzilla_request_header(api_key))
-    user_response.raise_for_status()
-    users = user_response.json()["users"]
-    return len(users) > 0 and users[0]["can_login"]
+    try:
+        user_response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        # 400 is raised if user does not exist
+        if e.response.status_code == 400 and e.response.json()["code"] == 51:
+            return False
+        raise
+    return user_response.json()["users"][0]["can_login"]
 
 
 def get_latest_nightly_version():
