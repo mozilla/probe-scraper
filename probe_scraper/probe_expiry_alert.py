@@ -196,7 +196,7 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     try:
         create_response.raise_for_status()
     except requests.exceptions.HTTPError:
-        print(create_params)
+        print(f"Failed to create bugs with arguments: {create_params}")
         raise
     print(f"Created bug {str(create_response.json())} for {probe_prefix}")
     return create_response.json()['id']
