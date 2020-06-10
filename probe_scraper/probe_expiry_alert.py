@@ -73,14 +73,15 @@ class ProbeDetails:
     product: str
     component: str
     emails: List[str]
-    previous_bug: Union[int, None]
+    # int will be put in the "see also" field, string will be in description due to permissions
+    previous_bug: Union[int, str, None]
 
 
 def bugzilla_request_header(api_key: str) -> Dict[str, str]:
     return {"X-BUGZILLA-API-KEY": api_key}
 
 
-def get_bug_component(bug_id: int, api_key: str) -> Tuple[str, str]:
+def get_bug_component(bug_id: int, api_key: str) -> Tuple[Union[str, None], Union[str, None]]:
     response = requests.get(BUGZILLA_BUG_URL + "/" + str(bug_id),
                             headers=bugzilla_request_header(api_key))
     try:
@@ -88,7 +89,7 @@ def get_bug_component(bug_id: int, api_key: str) -> Tuple[str, str]:
     except requests.exceptions.HTTPError as e:
         print(f"Error getting component for bug {bug_id}: {e}")
         if e.response.status_code == 401:  # Some confidential security bugs are not accessible
-            return BUG_DEFAULT_PRODUCT, BUG_DEFAULT_COMPONENT
+            return None, None
         else:
             raise
 
@@ -158,16 +159,28 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     probe_names = [probe.name for probe in probes]
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
 
+    see_also_bugs = list(set([probe.previous_bug for probe in probes
+                              if isinstance(probe.previous_bug, int)]))
+    see_also_bugs_str = list(set([probe.previous_bug for probe in probes
+                                  if isinstance(probe.previous_bug, str)]))
+
+    if len(see_also_bugs_str) == 0:
+        notes = ""
+    else:
+        notes = ("The following bugs are associated with the above "
+                 f"probe{'s' if len(probes) > 0 else ''}: "
+                 f"{', '.join([f'bug {bug_num}' for bug_num in see_also_bugs_str])}")
+
     create_params = {
         "product": probes[0].product,
         "component": probes[0].component,
         "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_prefix),
         "description": BUG_DESCRIPTION_TEMPLATE.format(
-            version=version, probes="\n".join(probe_names), notes=""),
+            version=version, probes="\n".join(probe_names), notes=notes),
         "version": "unspecified",
         "type": "task",
         "whiteboard": BUG_WHITEBOARD_TAG,
-        "see_also": probes[0].previous_bug,
+        "see_also": see_also_bugs,
         "flags": [
             {
                 "name": "needinfo",
@@ -180,16 +193,26 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     }
     create_response = requests.post(BUGZILLA_BUG_URL, json=create_params,
                                     headers=bugzilla_request_header(api_key))
-    create_response.raise_for_status()
+    try:
+        create_response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        print(f"Failed to create bugs with arguments: {create_params}")
+        raise
     print(f"Created bug {str(create_response.json())} for {probe_prefix}")
     return create_response.json()['id']
 
 
 def check_bugzilla_user_exists(email: str, api_key: str):
-    user_response = requests.get(BUGZILLA_USER_URL + "?match=" + email,
+    user_response = requests.get(BUGZILLA_USER_URL + "?names=" + email,
                                  headers=bugzilla_request_header(api_key))
-    user_response.raise_for_status()
-    return len(user_response.json()["users"]) > 0
+    try:
+        user_response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        # 400 is raised if user does not exist
+        if e.response.status_code == 400 and e.response.json()["code"] == 51:
+            return False
+        raise
+    return user_response.json()["users"][0]["can_login"]
 
 
 def get_latest_nightly_version():
@@ -207,14 +230,6 @@ def find_expiring_probes(probes: dict, target_version: str,
                          bugzilla_api_key: str) -> List[ProbeDetails]:
     """
     Find probes expiring in the target version
-
-    Returns list of probes where each probe is of form:
-    {
-        name: str,
-        emails: [str],
-        product: str,
-        component: str,
-    }
     """
     expiring_probes = []
     for name, details in probes.items():
@@ -228,6 +243,10 @@ def find_expiring_probes(probes: dict, target_version: str,
             else:
                 last_bug_number = max(details["bug_numbers"])
                 product, component = (get_bug_component(last_bug_number, bugzilla_api_key))
+                if product is None and component is None:
+                    last_bug_number = str(last_bug_number)
+                    product = BUG_DEFAULT_PRODUCT
+                    component = BUG_DEFAULT_COMPONENT
             expiring_probes.append(
                 ProbeDetails(name, product, component,
                              details.get("notification_emails", []), last_bug_number))
