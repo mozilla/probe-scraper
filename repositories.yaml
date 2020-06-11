@@ -263,3 +263,12 @@ firefox-ios-release:
   url: https://github.com/mozilla-mobile/firefox-ios
   metrics_files:
     - 'Client/metrics.yaml'
+burnham:
+  app_id: burnham
+  notification_emails:
+    - rpierzina@mozilla.com
+  url: https://github.com/mozilla/burnham
+  metrics_files:
+    - 'application/src/burnham/config/metrics.yaml'
+  ping_files:
+    - 'application/src/burnham/config/pings.yaml'
