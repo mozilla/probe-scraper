@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-from git import Repo
+from git import Repo, Head
 from probe_scraper import runner
 from probe_scraper.emailer import EMAIL_FILE
 from probe_scraper.transform_probes import HISTORY_KEY, COMMITS_KEY
@@ -61,6 +61,10 @@ def run_before_tests():
 def get_repo(repo_name):
     directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
+    # Ensure the default branch is using a fixed name.
+    # User config could change that,
+    # breaking tests with implicit assumptions further down the line.
+    repo.head.reference = Head(repo, 'refs/heads/master')
 
     # We need to synthesize the time stamps of commits to each be a second
     # apart, otherwise the commits may be at exactly the same second, which
