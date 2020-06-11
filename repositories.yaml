@@ -268,6 +268,7 @@ burnham:
   notification_emails:
     - rpierzina@mozilla.com
   url: https://github.com/mozilla/burnham
+  branch: main
   metrics_files:
     - 'application/src/burnham/config/metrics.yaml'
   ping_files:
