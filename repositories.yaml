@@ -4,6 +4,7 @@ glean:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
   url: 'https://github.com/mozilla/glean'
+  branch: main
   metrics_files:
     - 'glean-core/android/metrics.yaml'
     - 'glean-core/metrics.yaml'
