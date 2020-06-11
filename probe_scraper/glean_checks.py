@@ -62,7 +62,7 @@ Your Friendly, Neighborhood Glean Team
 def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     """
     Checks for duplicate metric names across all libraries used by a particular application.
-    It only checks for metrics that exist in the latest (master) commit in each repo, so that
+    It only checks for metrics that exist in the latest (HEAD) commit in each repo, so that
     it's possible to remove (or disable) the metric in the latest commit and not have this
     check repeatedly fail.
     If duplicates are found, e-mails are queued and this returns True.
@@ -199,7 +199,7 @@ def check_for_expired_metrics(
             continue
 
         metrics_yaml_url = "\n".join(
-            f"{repo.url}/tree/master/{file}" for file in repo.metrics_file_paths
+            f"{repo.url}/tree/HEAD/{file}" for file in repo.metrics_file_paths
         )
 
         emails[f"expired_metrics_{repo_name}"] = {
