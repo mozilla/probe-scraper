@@ -201,7 +201,7 @@ def test_improper_metrics_repo(improper_metrics_repo):
     assert not metrics
 
     with open(EMAIL_FILE, 'r') as email_file:
-        emails = yaml.load(email_file)
+        emails = yaml.load(email_file, Loader=yaml.FullLoader)
 
     # should send 1 email
     assert len(emails) == 1
@@ -247,7 +247,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         assert False, "Expected exception"
 
     with open(EMAIL_FILE, 'r') as email_file:
-        emails = yaml.load(email_file)
+        emails = yaml.load(email_file, Loader=yaml.FullLoader)
 
     # should send 1 email
     assert len(emails) == 1
@@ -298,7 +298,7 @@ def test_check_for_expired_metrics(expired_repo):
                     True, None, None, None, None, 'dev')
 
     with open(EMAIL_FILE, 'r') as email_file:
-        emails = yaml.load(email_file)
+        emails = yaml.load(email_file, Loader=yaml.FullLoader)
 
     # should send 1 email
     assert len(emails) == 1
