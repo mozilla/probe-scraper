@@ -55,7 +55,7 @@ class RepositoriesParser(object):
             filename = REPOSITORIES_FILENAME
 
         with open(filename, 'r') as f:
-            repos = yaml.load(f, Loader=yaml.FullLoader)
+            repos = yaml.load(f, Loader=yaml.SafeLoader)
 
         return repos
 
