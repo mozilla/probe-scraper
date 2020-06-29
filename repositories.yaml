@@ -29,6 +29,7 @@ fenix:
     - org.mozilla.components:browser-engine-gecko-beta
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
+    - org.mozilla.components:places
 reference-browser:
   app_id: org-mozilla-reference-browser
   notification_emails:
@@ -56,6 +57,7 @@ fenix-nightly:
     - org.mozilla.components:browser-engine-gecko-nightly
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
+    - org.mozilla.components:places
 firefox-for-fire-tv:
   app_id: org-mozilla-tv-firefox
   notification_emails:
@@ -196,6 +198,7 @@ firefox-android-nightly:
     - org.mozilla.components:browser-engine-gecko-beta
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
+    - org.mozilla.components:places
 firefox-android-beta:
   app_id: org-mozilla-firefox-beta
   notification_emails:
@@ -213,6 +216,7 @@ firefox-android-beta:
     - org.mozilla.components:browser-engine-gecko-beta
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
+    - org.mozilla.components:places
 firefox-android-release:
   app_id: org-mozilla-firefox
   notification_emails:
@@ -230,6 +234,7 @@ firefox-android-release:
     - org.mozilla.components:browser-engine-gecko-beta
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
+    - org.mozilla.components:places
 mozregression:
   app_id: org-mozilla-mozregression
   notification_emails:
@@ -273,3 +278,12 @@ burnham:
     - 'application/src/burnham/config/metrics.yaml'
   ping_files:
     - 'application/src/burnham/config/pings.yaml'
+android-places:
+  app_id: android-places
+  notification_emails:
+    - frank@mozilla.com
+  url: 'https://github.com/mozilla/application-services'
+  metrics_files:
+    - 'components/places/android/metrics.yaml'
+  library_names:
+    - org.mozilla.components:places
