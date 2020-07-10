@@ -287,3 +287,12 @@ android-places:
     - 'components/places/android/metrics.yaml'
   library_names:
     - org.mozilla.components:places
+mozphab:
+  app_id: mozphab
+  notification_emails:
+    - pzalewa@mozilla.com@mozilla.com
+  url: 'https://github.com/mozilla-conduit/review'
+  metrics_files:
+    - 'mozphab/metrics.yaml'
+  ping_files:
+    - 'mozphab/pings.yaml'
