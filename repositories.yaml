@@ -164,10 +164,11 @@ logins-store:
   notification_emails:
     - rfkelly@mozilla.com
     - lina@mozilla.com
-    - application-services@mozilla.com
+    - sync-team@mozilla.com
   url: 'https://github.com/mozilla/application-services'
   metrics_files:
     - 'components/logins/android/metrics.yaml'
+  branch: main
   library_names:
     - org.mozilla.appservices:logins
 support-migration:
@@ -282,9 +283,11 @@ android-places:
   app_id: android-places
   notification_emails:
     - frank@mozilla.com
+    - sync-team@mozilla.com
   url: 'https://github.com/mozilla/application-services'
   metrics_files:
     - 'components/places/android/metrics.yaml'
+  branch: main
   library_names:
     - org.mozilla.components:places
 mozphab:
