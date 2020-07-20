@@ -264,7 +264,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         'repo_alice@example.com',
         'repo_bob@example.com',
         # Everything goes here
-        'dev-telemetry-alerts@mozilla.com'
+        'glean-team@mozilla.com'
     ])
 
 
@@ -311,5 +311,5 @@ def test_check_for_expired_metrics(expired_repo):
         # Repo owners
         'repo_alice@example.com',
         # Everything goes here
-        'dev-telemetry-alerts@mozilla.com'
+        'glean-team@mozilla.com'
     ])
