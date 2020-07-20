@@ -20,7 +20,7 @@ from probe_scraper.parsers.scalars import ScalarsParser
 from probe_scraper.parsers.utils import get_major_version
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
-DEFAULT_TO_EMAIL = "dev-telemetry-alerts@lists.mozilla.org"
+DEFAULT_TO_EMAIL = "glean-team@mozilla.com"
 
 BUGZILLA_BUG_URL = "https://bugzilla.mozilla.org/rest/bug"
 BUGZILLA_USER_URL = "https://bugzilla.mozilla.org/rest/user"
@@ -256,7 +256,7 @@ def find_expiring_probes(probes: dict, target_version: str,
 
 def send_emails(probes_by_email: Dict[str, List[str]], probe_to_bug_id: Dict[str, int],
                 version: str, dryrun: bool = True):
-    # send all probes to dev-telemetry-alerts for debugging
+    # send all probes to glean-team for debugging
     probes_by_email[DEFAULT_TO_EMAIL] = list(set(sum(probes_by_email.values(), [])))
 
     email_count = 0
