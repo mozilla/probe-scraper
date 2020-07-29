@@ -253,6 +253,7 @@ firefox-ios-dev:
   url: https://github.com/mozilla-mobile/firefox-ios
   metrics_files:
     - 'Client/metrics.yaml'
+  branch: main
 firefox-ios-beta:
   app_id: org-mozilla-ios-firefoxbeta
   notification_emails:
@@ -261,6 +262,7 @@ firefox-ios-beta:
   url: https://github.com/mozilla-mobile/firefox-ios
   metrics_files:
     - 'Client/metrics.yaml'
+  branch: main
 firefox-ios-release:
   app_id: org-mozilla-ios-firefox
   notification_emails:
@@ -269,6 +271,7 @@ firefox-ios-release:
   url: https://github.com/mozilla-mobile/firefox-ios
   metrics_files:
     - 'Client/metrics.yaml'
+  branch: main
 burnham:
   app_id: burnham
   notification_emails:
