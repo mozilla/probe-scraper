@@ -33,7 +33,7 @@ class DummyParser:
 
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
-DEFAULT_TO_EMAIL = "dev-telemetry-alerts@mozilla.com"
+DEFAULT_TO_EMAIL = "glean-team@mozilla.com"
 FIRST_APPEARED_DATE_KEY = "first_added"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
