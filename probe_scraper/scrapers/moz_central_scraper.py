@@ -244,7 +244,7 @@ def load_error_cache(folder):
 def save_error_cache(folder, error_cache):
     path = os.path.join(folder, ERROR_CACHE_FILENAME)
     with open(path, 'w') as f:
-        json.dump(error_cache, f, sort_keys=True, indent=2)
+        json.dump(error_cache, f, sort_keys=True, indent=2, separators=(',',': '))
 
 
 def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
