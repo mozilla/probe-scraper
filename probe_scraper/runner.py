@@ -70,7 +70,7 @@ def dump_json(data, out_dir, file_name):
     path = os.path.join(out_dir, file_name)
     with open(path, 'w') as f:
         print("  " + path)
-        json.dump(data, f, sort_keys=True, indent=2, separators=(',',': '))
+        json.dump(data, f, sort_keys=True, indent=2, separators=(',', ': '))
 
 
 def write_moz_central_probe_data(probe_data, revisions, out_dir):
