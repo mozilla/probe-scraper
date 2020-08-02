@@ -1,6 +1,8 @@
 from probe_scraper import runner
 from copy import deepcopy
 from datetime import datetime
+import os
+import shutil
 
 
 def test_add_first_appeared_dates():
@@ -69,3 +71,31 @@ def test_add_first_appeared_dates():
     }
 
     assert runner.add_first_appeared_dates(probes_by_channel, first_appeared_dates) == expected
+
+
+def test_trailing_space(tmp_path):
+    '''Test cases to check the output of json.dumps has no trailing spaces
+    '''
+    test_cases = [
+        {
+            "test1": 12,
+            "test2": 31,
+        }
+    ]
+
+    DIR_NAME = tmp_path / 'output_dir'
+    FILE_NAME = 'file_name.txt'
+
+    for test_case in test_cases:
+        trailing_spaces = 0     # Counts no of traling spaces
+        runner.dump_json(test_case, DIR_NAME, FILE_NAME)
+        path = os.path.join(DIR_NAME, FILE_NAME)
+        with open(path, 'r') as file:
+            for line in file.readline():
+                if line[-1] == ' ':
+                    trailing_spaces += 1
+
+        assert not trailing_spaces
+
+    # Deleting the files created [ TEAR-DOWN ]
+    shutil.rmtree(DIR_NAME)
