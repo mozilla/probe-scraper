@@ -308,6 +308,6 @@ firefox-desktop:
   notification_emails:
     - chutten@mozilla.com
   metrics_files:
-    - 'toolkit/components/glean/ipc/metrics.yaml'
+    - 'toolkit/components/glean/metrics.yaml'
   ping_files:
-    - 'toolkit/components/glean/ipc/pings.yaml'
+    - 'toolkit/components/glean/pings.yaml'
