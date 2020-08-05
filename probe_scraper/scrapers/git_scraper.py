@@ -26,7 +26,8 @@ MIN_DATES = {
     "firefox-android-nightly": FENIX_DATE,
     "firefox-android-beta": FENIX_DATE,
     "firefox-android-release": FENIX_DATE,
-    "reference-browser": "2019-04-01 00:00:00"
+    "reference-browser": "2019-04-01 00:00:00",
+    "firefox-desktop": "2020-07-29 00:00:00",
 }
 
 
