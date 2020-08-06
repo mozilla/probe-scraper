@@ -2,7 +2,6 @@ from probe_scraper import runner
 from copy import deepcopy
 from datetime import datetime
 import os
-import shutil
 
 
 def test_add_first_appeared_dates():
@@ -96,6 +95,3 @@ def test_trailing_space(tmp_path):
                     trailing_spaces += 1
 
         assert not trailing_spaces
-
-    # Deleting the files created [ TEAR-DOWN ]
-    shutil.rmtree(DIR_NAME)
