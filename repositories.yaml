@@ -147,6 +147,8 @@ lockwise-android:
     - frank@mozilla.com
     - lockwise-dev@mozilla.com
   url: 'https://github.com/mozilla-lockwise/lockwise-android'
+  metrics_files:
+    - 'app/metrics.yaml'
   dependencies:
     - org.mozilla.components:service-glean
     - org.mozilla.components:support-sync-telemetry
