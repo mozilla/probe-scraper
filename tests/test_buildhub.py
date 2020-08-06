@@ -120,6 +120,7 @@ def test_cleaned_dates(records):
     assert bh._distinct_and_clean(records) == expected
 
 
+# Test unique and sorted values
 def test_unique_sorted(records):
     bh = Buildhub()
 
