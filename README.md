@@ -79,7 +79,7 @@ flake8 --max-line-length 100 .
 Run tests in container. This does not run tests that require a web connection:
 ```
 export COMMAND='pytest tests/'
-make run"
+make run
 ```
 
 To run all tests, including those that require a web connection:
