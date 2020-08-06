@@ -86,7 +86,7 @@ def test_trailing_space(tmp_path):
     FILE_NAME = 'file_name.txt'
 
     for test_case in test_cases:
-        trailing_spaces = 0     # Counts no of traling spaces
+        trailing_spaces = 0     # Counts no of trailing spaces
         runner.dump_json(test_case, DIR_NAME, FILE_NAME)
         path = os.path.join(DIR_NAME, FILE_NAME)
         with open(path, 'r') as file:
