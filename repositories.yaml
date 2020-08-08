@@ -324,3 +324,12 @@ firefox-for-echo-show:
     - 'app/metrics.yaml'
   dependencies:
     - org.mozilla.components:service-glean
+firefox-reality-pc:
+  app_id: org-mozilla-firefoxreality
+  url: 'https://github.com/MozillaReality/FirefoxRealityPC'
+  notification_emails:
+    - 'dmu@mozilla.com'
+  metrics_files:
+    - 'Source/FirefoxRealityUnity/metrics.yaml'
+  pings_files:
+    - 'Source/FirefoxRealityUnity/pings.yaml'
