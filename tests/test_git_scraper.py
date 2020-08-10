@@ -95,6 +95,7 @@ def get_repo(repo_name, branch='master'):
 
     return directory
 
+
 def proper_repo(branch='master'):
     location = get_repo(normal_repo_name, branch)
     repositories_info = {
@@ -362,4 +363,3 @@ def test_repo_default_main_branch(main_repo):
         dependencies = json.load(data)
 
     assert len(dependencies) == 2
-

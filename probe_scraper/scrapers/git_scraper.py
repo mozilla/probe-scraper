@@ -74,11 +74,11 @@ def retrieve_files(repo_info, cache_dir):
 
     branches = repo_info.get_branches()
     for branch in branches:
-      try:
-        repo.git.checkout(repo_info.branch)
-        break
-      except git.exc.GitCommandError:
-        pass
+        try:
+            repo.git.checkout(repo_info.branch)
+            break
+        except git.exc.GitCommandError:
+            pass
 
     try:
         for rel_path in repo_info.get_change_files():
