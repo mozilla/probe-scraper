@@ -344,7 +344,7 @@ firefox-reality-pc:
     - 'dmu@mozilla.com'
   metrics_files:
     - 'Source/FirefoxRealityUnity/metrics.yaml'
-  pings_files:
+  ping_files:
     - 'Source/FirefoxRealityUnity/pings.yaml'
   dependencies:
     - org.mozilla.glean-core
