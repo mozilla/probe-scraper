@@ -25,24 +25,6 @@ glean-android:
     - 'glean-core/pings.yaml'
   library_names:
     - org.mozilla.components:service-glean
-fenix:
-  app_id: org-mozilla-fenix
-  notification_emails:
-    - frank@mozilla.com
-    - mdroettboom@mozilla.com
-  url: 'https://github.com/mozilla-mobile/fenix'
-  metrics_files:
-    - 'app/metrics.yaml'
-  ping_files:
-    - 'app/pings.yaml'
-  dependencies:
-    - org.mozilla.components:service-glean
-    - org.mozilla.components:lib-crash
-    - org.mozilla.components:support-sync-telemetry
-    - org.mozilla.components:browser-engine-gecko-beta
-    - org.mozilla.appservices:logins
-    - org.mozilla.components:support-migration
-    - org.mozilla.components:places
 glean-deprecated:
   app_id: glean
   notification_emails:
@@ -73,7 +55,6 @@ fenix:
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
     - org.mozilla.components:places
-
 reference-browser:
   app_id: org-mozilla-reference-browser
   notification_emails:
