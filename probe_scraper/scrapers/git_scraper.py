@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from collections import defaultdict
-from git import Repo
+import git
 import os
 import shutil
 import tempfile
@@ -70,8 +70,15 @@ def retrieve_files(repo_info, cache_dir):
 
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
-    repo = Repo.clone_from(repo_info.url, repo_info.name)
-    repo.git.checkout(repo_info.branch)
+    repo = git.Repo.clone_from(repo_info.url, repo_info.name)
+
+    branches = repo_info.get_branches()
+    for branch in branches:
+      try:
+        repo.git.checkout(repo_info.branch)
+        break
+      except git.exc.GitCommandError:
+        pass
 
     try:
         for rel_path in repo_info.get_change_files():
