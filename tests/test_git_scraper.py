@@ -58,13 +58,13 @@ def run_before_tests():
     rm_if_exists(cache_dir, out_dir, test_dir)
 
 
-def get_repo(repo_name):
+def get_repo(repo_name, branch='master'):
     directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
     # Ensure the default branch is using a fixed name.
     # User config could change that,
     # breaking tests with implicit assumptions further down the line.
-    repo.head.reference = Head(repo, 'refs/heads/master')
+    repo.head.reference = Head(repo, f'refs/heads/{branch}')
 
     # We need to synthesize the time stamps of commits to each be a second
     # apart, otherwise the commits may be at exactly the same second, which
@@ -96,9 +96,8 @@ def get_repo(repo_name):
     return directory
 
 
-@pytest.fixture
-def normal_repo():
-    location = get_repo(normal_repo_name)
+def proper_repo(branch='master'):
+    location = get_repo(normal_repo_name, branch)
     repositories_info = {
         normal_repo_name: {
             "app_id": "normal-app-name",
@@ -128,6 +127,16 @@ def normal_repo():
         f.write(yaml.dump(repositories_info))
 
     return location
+
+
+@pytest.fixture
+def normal_repo():
+    return proper_repo()
+
+
+@pytest.fixture
+def main_repo():
+    return proper_repo('main')
 
 
 @pytest.fixture
@@ -313,3 +322,44 @@ def test_check_for_expired_metrics(expired_repo):
         # Everything goes here
         'glean-team@mozilla.com'
     ])
+
+
+def test_repo_default_main_branch(main_repo):
+    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
+                True, None, None, None, None, 'dev')
+
+    path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
+
+    with open(path, 'r') as data:
+        metrics = json.load(data)
+
+    # there are 2 metrics
+    assert len(metrics) == 2
+
+    duration = 'example.duration'
+    os_metric = 'example.os'
+
+    # duration has 2 definitions
+    assert len(metrics[duration][HISTORY_KEY]) == 2
+
+    # os has 3 definitions
+    assert len(metrics[os_metric][HISTORY_KEY]) == 3
+
+    # duration same begin/end commits for first history entry
+    assert len(set(metrics[duration][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
+
+    # duration same begin/end commits for first history entry
+    assert len(set(metrics[duration][HISTORY_KEY][1][COMMITS_KEY].values())) == 2
+
+    # os was in 1 commit
+    assert len(set(metrics[os_metric][HISTORY_KEY][0][COMMITS_KEY].values())) == 1
+
+    # There should have been no errors
+    assert not Path(EMAIL_FILE).exists()
+
+    path = os.path.join(out_dir, "glean", normal_repo_name, "dependencies")
+
+    with open(path, 'r') as data:
+        dependencies = json.load(data)
+
+    assert len(dependencies) == 2

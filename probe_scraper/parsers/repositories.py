@@ -15,17 +15,23 @@ class Repository(object):
     """
     A class representing a repository, read in from `repositories.yaml`
     """
+    default_branch = "master"
 
     def __init__(self, name, definition):
         self.name = name
         self.url = definition.get("url")
-        self.branch = definition.get("branch", "master")
+        self.branch = definition.get("branch", Repository.default_branch)
         self.notification_emails = definition.get("notification_emails")
         self.app_id = definition.get("app_id")
         self.metrics_file_paths = definition.get("metrics_files", [])
         self.ping_file_paths = definition.get("ping_files", [])
         self.library_names = definition.get("library_names", None)
         self.dependencies = definition.get("dependencies", [])
+
+    def get_branches(self):
+        if self.branch == Repository.default_branch:
+            return (Repository.default_branch, "main")
+        return (self.branch,)
 
     def get_metrics_file_paths(self):
         return self.metrics_file_paths
