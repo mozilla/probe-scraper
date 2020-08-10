@@ -1,5 +1,5 @@
 glean-core:
-  app_id: glean
+  app_id: glean-core
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -12,7 +12,7 @@ glean-core:
   library_names:
     - org.mozilla.glean-core
 glean-android:
-  app_id: glean
+  app_id: glean-android
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -43,6 +43,37 @@ fenix:
     - org.mozilla.appservices:logins
     - org.mozilla.components:support-migration
     - org.mozilla.components:places
+glean-deprecated:
+  app_id: glean
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+  url: 'https://github.com/mozilla/glean'
+  branch: main
+  metrics_files:
+    - 'glean-core/android/metrics.yaml'
+    - 'glean-core/metrics.yaml'
+  ping_files:
+    - 'glean-core/pings.yaml'
+fenix:
+  app_id: org-mozilla-fenix
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+  url: 'https://github.com/mozilla-mobile/fenix'
+  metrics_files:
+    - 'app/metrics.yaml'
+  ping_files:
+    - 'app/pings.yaml'
+  dependencies:
+    - org.mozilla.components:service-glean
+    - org.mozilla.components:lib-crash
+    - org.mozilla.components:support-sync-telemetry
+    - org.mozilla.components:browser-engine-gecko-beta
+    - org.mozilla.appservices:logins
+    - org.mozilla.components:support-migration
+    - org.mozilla.components:places
+
 reference-browser:
   app_id: org-mozilla-reference-browser
   notification_emails:
