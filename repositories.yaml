@@ -1,5 +1,6 @@
 glean-core:
   app_id: glean-core
+  description: Modern cross-platform telemetry (core library)
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -13,6 +14,7 @@ glean-core:
     - glean-core
 glean-android:
   app_id: glean-android
+  description: Modern cross-platform telemetry (Android-specific)
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -27,6 +29,8 @@ glean-android:
     - org.mozilla.components:service-glean
 glean-deprecated:
   app_id: glean
+  description: Modern cross-platform telemetry (old)
+  deprecated: true
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -39,6 +43,8 @@ glean-deprecated:
     - 'glean-core/pings.yaml'
 fenix:
   app_id: org-mozilla-fenix
+  description: Firefox for Android
+  channel: nightly
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -57,6 +63,7 @@ fenix:
     - org.mozilla.components:places
 reference-browser:
   app_id: org-mozilla-reference-browser
+  description: A full-featured browser reference implementation using Mozilla Android Components
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -68,6 +75,9 @@ reference-browser:
     - org.mozilla.components:lib-crash
 fenix-nightly:
   app_id: org-mozilla-fenix-nightly
+  description: Firefox for Android
+  channel: nightly
+  deprecated: true
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/mozilla-mobile/fenix'
@@ -85,6 +95,7 @@ fenix-nightly:
     - org.mozilla.components:places
 firefox-for-fire-tv:
   app_id: org-mozilla-tv-firefox
+  description: Firefox for Amazon's Fire TV
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/mozilla-mobile/firefox-tv'
@@ -94,6 +105,7 @@ firefox-for-fire-tv:
     - org.mozilla.components:service-glean
 lib-crash:
   app_id: lib-crash
+  description: A generic crash reporter component that can report crashes to multiple services
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -105,6 +117,7 @@ lib-crash:
     - org.mozilla.components:lib-crash
 sync:
   app_id: sync
+  description: Sync telemetry helper functionality
   notification_emails:
     - frank@mozilla.com
     - lina@mozilla.com
@@ -118,6 +131,7 @@ sync:
     - org.mozilla.components:support-sync-telemetry
 engine-gecko:
   app_id: engine-gecko
+  description: GeckoView metrics
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -131,6 +145,7 @@ engine-gecko:
     - org.mozilla.components:browser-engine-gecko
 engine-gecko-beta:
   app_id: engine-gecko-beta
+  description: GeckoView metrics
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -144,6 +159,8 @@ engine-gecko-beta:
     - org.mozilla.components:browser-engine-gecko-beta
 engine-gecko-nightly:
   app_id: engine-gecko-nightly
+  description: GeckoView metrics
+  channel: nightly
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -156,6 +173,7 @@ engine-gecko-nightly:
     - org.mozilla.components:browser-engine-gecko-nightly
 firefox-reality:
   app_id: org-mozilla-vrbrowser
+  description: A fast and secure browser for standalone virtual-reality and augmented-reality headsets
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -170,6 +188,7 @@ firefox-reality:
     - org.mozilla.components:support-sync-telemetry
 lockwise-android:
   app_id: mozilla-lockbox
+  description: Firefox's Lockwise app for Android
   notification_emails:
     - frank@mozilla.com
     - lockwise-dev@mozilla.com
@@ -181,6 +200,7 @@ lockwise-android:
     - org.mozilla.components:support-sync-telemetry
 lockwise-ios:
   app_id: org-mozilla-ios-lockbox
+  description: Firefox's Lockwise app for iOS
   notification_emails:
     - frank@mozilla.com
     - tlong@mozilla.com
@@ -190,6 +210,7 @@ lockwise-ios:
     - org.mozilla.components:service-glean
 logins-store:
   app_id: logins-store
+  description: A collection of Android libraries to build browsers or browser-like applications
   notification_emails:
     - rfkelly@mozilla.com
     - lina@mozilla.com
@@ -202,6 +223,7 @@ logins-store:
     - org.mozilla.appservices:logins
 support-migration:
   app_id: support-migration
+  description: Helper code to migrate from a Fennec-based (Firefox for Android) app to an Android Components based app
   notification_emails:
     - frank@mozilla.com
   url: 'https://github.com/mozilla-mobile/android-components'
@@ -213,6 +235,9 @@ support-migration:
     - org.mozilla.components:support-migration
 firefox-android-nightly:
   app_id: org-mozilla-fennec-aurora
+  description: Firefox for Android
+  channel: nightly
+  deprecated: true
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -231,6 +256,9 @@ firefox-android-nightly:
     - org.mozilla.components:places
 firefox-android-beta:
   app_id: org-mozilla-firefox-beta
+  description: Firefox for Android
+  channel: beta
+  deprecated: true
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -249,6 +277,8 @@ firefox-android-beta:
     - org.mozilla.components:places
 firefox-android-release:
   app_id: org-mozilla-firefox
+  description: Firefox for Android
+  channel: release
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -267,6 +297,7 @@ firefox-android-release:
     - org.mozilla.components:places
 mozregression:
   app_id: org-mozilla-mozregression
+  description: Regression range finder for Mozilla nightly builds
   notification_emails:
     - wlachance@mozilla.com
   url: 'https://github.com/mozilla/mozregression'
@@ -276,6 +307,7 @@ mozregression:
     - 'mozregression/pings.yaml'
 firefox-ios-dev:
   app_id: org-mozilla-ios-fennec
+  description: Firefox for iOS
   notification_emails:
     - tlong@mozilla.com
     - frank@mozilla.com
@@ -285,6 +317,8 @@ firefox-ios-dev:
   branch: main
 firefox-ios-beta:
   app_id: org-mozilla-ios-firefoxbeta
+  description: Firefox for iOS
+  channel: beta
   notification_emails:
     - tlong@mozilla.com
     - frank@mozilla.com
@@ -294,6 +328,8 @@ firefox-ios-beta:
   branch: main
 firefox-ios-release:
   app_id: org-mozilla-ios-firefox
+  description: Firefox for iOS
+  channel: release
   notification_emails:
     - tlong@mozilla.com
     - frank@mozilla.com
@@ -303,6 +339,7 @@ firefox-ios-release:
   branch: main
 burnham:
   app_id: burnham
+  description: Automated end-to-end testing for Mozilla's Glean telemetry
   notification_emails:
     - rpierzina@mozilla.com
   url: https://github.com/mozilla/burnham
@@ -313,6 +350,7 @@ burnham:
     - 'application/src/burnham/config/pings.yaml'
 android-places:
   app_id: android-places
+  description: A collection of Android libraries to build browsers or browser-like applications
   notification_emails:
     - frank@mozilla.com
     - sync-team@mozilla.com
@@ -324,6 +362,7 @@ android-places:
     - org.mozilla.components:places
 mozphab:
   app_id: mozphab
+  description: Phabricator review submission/management tool
   notification_emails:
     - pzalewa@mozilla.com@mozilla.com
   url: 'https://github.com/mozilla-conduit/review'
@@ -333,6 +372,7 @@ mozphab:
     - 'mozphab/pings.yaml'
 firefox-desktop:
   app_id: firefox-desktop
+  description: The desktop version of Firefox
   url: 'https://github.com/mozilla/gecko-dev'
   notification_emails:
     - chutten@mozilla.com
@@ -342,6 +382,7 @@ firefox-desktop:
     - 'toolkit/components/glean/pings.yaml'
 firefox-for-echo-show:
   app_id: org-mozilla-connect-firefox
+  description: Firefox for Amazon's Echo Show
   url: 'https://github.com/mozilla-mobile/firefox-echo-show'
   notification_emails:
     - tlong@mozilla.com
@@ -351,6 +392,7 @@ firefox-for-echo-show:
     - org.mozilla.components:service-glean
 firefox-reality-pc:
   app_id: org-mozilla-firefoxreality
+  description: Firefox Reality for PC-connected VR platforms
   url: 'https://github.com/MozillaReality/FirefoxRealityPC'
   notification_emails:
     - 'dmu@mozilla.com'
