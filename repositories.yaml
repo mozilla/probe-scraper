@@ -315,3 +315,14 @@ firefox-desktop:
     - 'toolkit/components/glean/metrics.yaml'
   ping_files:
     - 'toolkit/components/glean/pings.yaml'
+firefox-for-echo-show:
+  app_id: org-mozilla-connect-firefox
+  url: 'https://github.com/mozilla-mobile/firefox-echo-show'
+  notification_emails:
+    - tlong@mozilla.com
+  metrics_files:
+    - 'app/metrics.yaml'
+  ping_files:
+    - 'app/pings.yaml'
+  dependencies:
+    - org.mozilla.components:service-glean
