@@ -10,7 +10,7 @@ glean-core:
   ping_files:
     - 'glean-core/pings.yaml'
   library_names:
-    - org.mozilla.glean-core
+    - glean-core
 glean-android:
   app_id: glean-android
   notification_emails:
@@ -359,4 +359,4 @@ firefox-reality-pc:
   ping_files:
     - 'Source/FirefoxRealityUnity/pings.yaml'
   dependencies:
-    - org.mozilla.glean-core
+    - glean-core
