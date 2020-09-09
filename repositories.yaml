@@ -1,5 +1,18 @@
-glean:
-  app_id: glean
+glean-core:
+  app_id: glean-core
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+  url: 'https://github.com/mozilla/glean'
+  branch: main
+  metrics_files:
+    - 'glean-core/metrics.yaml'
+  ping_files:
+    - 'glean-core/pings.yaml'
+  library_names:
+    - glean-core
+glean-android:
+  app_id: glean-android
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
@@ -12,6 +25,18 @@ glean:
     - 'glean-core/pings.yaml'
   library_names:
     - org.mozilla.components:service-glean
+glean-deprecated:
+  app_id: glean
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+  url: 'https://github.com/mozilla/glean'
+  branch: main
+  metrics_files:
+    - 'glean-core/android/metrics.yaml'
+    - 'glean-core/metrics.yaml'
+  ping_files:
+    - 'glean-core/pings.yaml'
 fenix:
   app_id: org-mozilla-fenix
   notification_emails:
@@ -324,3 +349,14 @@ firefox-for-echo-show:
     - 'app/metrics.yaml'
   dependencies:
     - org.mozilla.components:service-glean
+firefox-reality-pc:
+  app_id: org-mozilla-firefoxreality
+  url: 'https://github.com/MozillaReality/FirefoxRealityPC'
+  notification_emails:
+    - 'dmu@mozilla.com'
+  metrics_files:
+    - 'Source/FirefoxRealityUnity/metrics.yaml'
+  ping_files:
+    - 'Source/FirefoxRealityUnity/pings.yaml'
+  dependencies:
+    - glean-core
