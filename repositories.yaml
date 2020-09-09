@@ -322,7 +322,5 @@ firefox-for-echo-show:
     - tlong@mozilla.com
   metrics_files:
     - 'app/metrics.yaml'
-  ping_files:
-    - 'app/pings.yaml'
   dependencies:
     - org.mozilla.components:service-glean
