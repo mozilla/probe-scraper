@@ -9,6 +9,17 @@
         "type": "string",
         "pattern": "^[a-z][a-z-]{0,1023}$"
       },
+      "description": {
+        "type": "string"
+      },
+      "channel": {
+        "type": "string",
+        "enum": ["release", "beta", "nightly", "esr"]
+      },
+      "deprecated": {
+        "type": "boolean",
+        "default": false
+      },
       "notification_emails": {
         "type": "array",
         "items": {
@@ -58,6 +69,7 @@
     },
     "required": [
       "app_id",
+      "description",
       "url",
       "notification_emails"
     ],
