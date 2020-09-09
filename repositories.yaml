@@ -27,7 +27,7 @@ glean-android:
     - 'glean-core/pings.yaml'
   library_names:
     - org.mozilla.components:service-glean
-glean-deprecated:
+glean:
   app_id: glean
   description: Modern cross-platform telemetry (old)
   deprecated: true
