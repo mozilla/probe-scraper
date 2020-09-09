@@ -226,7 +226,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
 
             try:
-                config = {'allow_reserved': repo_name == 'glean'}
+                config = {'allow_reserved': repo_name.startswith('glean')}
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
