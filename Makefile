@@ -24,7 +24,7 @@ clean-pyc:
 
 lint: build
 	docker-compose run app flake8 --max-line-length 100 .
-	docker-compose run app yamllint --max-line-length 100 repositories.yaml .circleci
+	docker-compose run app yamllint repositories.yaml .circleci
 
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
