@@ -49,7 +49,7 @@ def test_scrape():
     min_fx_version = 62
     max_fx_version = 62
 
-    res = moz_central_scraper.scrape(tmp_dir, min_fx_version, max_fx_version=max_fx_version)
+    res = moz_central_scraper.scrape_release_tags(tmp_dir, min_fx_version, max_fx_version=max_fx_version)
 
     channel = "release"
     revision = "84219fbf133cacfc6e31c9471ad20ee7162a02af"
@@ -78,9 +78,9 @@ def test_artificial_tag():
 
     channel = "nightly"
 
-    res = moz_central_scraper.scrape(tmp_dir, min_fx_version,
-                                     max_fx_version=max_fx_version,
-                                     channels=[channel])
+    res = moz_central_scraper.scrape_release_tags(tmp_dir, min_fx_version,
+                                                  max_fx_version=max_fx_version,
+                                                  channels=[channel])
 
     revision = "fd2934cca1ae7b492f29a4d240915aa9ec5b4977"
 

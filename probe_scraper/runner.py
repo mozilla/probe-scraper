@@ -169,20 +169,12 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
     else:
         channels = None
 
-    # Scrape probe data from repositories.
-    node_data = moz_central_scraper.scrape(cache_dir,
-                                           min_fx_version=min_fx_version,
-                                           max_fx_version=max_fx_version,
-                                           channels=channels)
-
-    probes = parse_moz_central_probes(node_data)
-
-    # Transform extracted data: get both the monolithic and by channel probe data.
-    revisions = transform_revisions.transform(node_data)
-    probes_by_channel = transform_probes.transform(probes, node_data,
-                                                   break_by_channel=True)
-    probes_by_channel["all"] = transform_probes.transform(probes, node_data,
-                                                          break_by_channel=False)
+    # Scrape release tags to get revision output
+    release_tags = moz_central_scraper.scrape_release_tags(cache_dir,
+                                                           min_fx_version=min_fx_version,
+                                                           max_fx_version=max_fx_version,
+                                                           channels=channels)
+    revisions = transform_revisions.transform(release_tags)
 
     # Scrape all revisions from buildhub
     revision_data = moz_central_scraper.scrape_channel_revisions(cache_dir,
@@ -195,6 +187,12 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
     revision_dates = transform_revisions.transform(revision_data)
     first_appeared_dates = transform_probes.get_minimum_date(revision_probes, revision_data,
                                                              revision_dates)
+
+    probes_by_channel = transform_probes.transform(revision_probes, revision_data,
+                                                   break_by_channel=True,
+                                                   revision_dates=revision_dates)
+    probes_by_channel["all"] = transform_probes.transform(revision_probes, revision_data,
+                                                          break_by_channel=False)
 
     # Add in the first appeared dates
     probes_by_channel_with_dates = add_first_appeared_dates(probes_by_channel, first_appeared_dates)
