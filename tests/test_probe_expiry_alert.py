@@ -328,6 +328,22 @@ def test_check_bugzilla_user_account_not_found(mock_get):
 
 
 @mock.patch("requests.get")
+def test_check_bugzilla_user_account_not_found_200(mock_get):
+    mock_response = mock.MagicMock()
+    mock_response.status_code = 200
+    mock_response.json = mock.MagicMock(return_value={
+        "message": None,
+        "code": 100500,
+        "documentation": "https://bmo.readthedocs.io/en/latest/api/",
+        "error": True,
+    })
+
+    mock_get.return_value = mock_response
+
+    assert not probe_expiry_alert.check_bugzilla_user_exists("test@test.com", "")
+
+
+@mock.patch("requests.get")
 def test_check_bugzilla_user_account_inactive(mock_get):
     users = {
         "users": [
