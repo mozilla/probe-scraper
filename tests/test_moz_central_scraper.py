@@ -54,17 +54,10 @@ def test_scrape():
     channel = "release"
     revision = "84219fbf133cacfc6e31c9471ad20ee7162a02af"
 
-    registries = {
-        probe_type: [
-            os.path.join(tmp_dir, "hg", revision, path)
-            for path in paths if path_is_in_version(path, 62)
-        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
-    }
-
     record = {
         "channel": channel,
         "version": 62,
-        "registries": registries
+        "date": "2018-10-17T18:50:12",
     }
 
     assert res[channel][revision] == record
@@ -94,7 +87,7 @@ def test_artificial_tag():
     record = {
         "channel": channel,
         "version": 71,
-        "registries": registries
+        "date": "2019-09-01T18:32:06",
     }
 
     assert res[channel][revision] == record
