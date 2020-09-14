@@ -192,7 +192,8 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
                                                    break_by_channel=True,
                                                    revision_dates=revision_dates)
     probes_by_channel["all"] = transform_probes.transform(revision_probes, revision_data,
-                                                          break_by_channel=False)
+                                                          break_by_channel=False,
+                                                          revision_dates=revision_dates)
 
     # Add in the first appeared dates
     probes_by_channel_with_dates = add_first_appeared_dates(probes_by_channel, first_appeared_dates)
