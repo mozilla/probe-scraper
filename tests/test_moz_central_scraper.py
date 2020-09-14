@@ -78,13 +78,6 @@ def test_artificial_tag():
 
     revision = "fd2934cca1ae7b492f29a4d240915aa9ec5b4977"
 
-    registries = {
-        probe_type: [
-            os.path.join(tmp_dir, "hg", revision, path)
-            for path in paths if path_is_in_version(path, 71)
-        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
-    }
-
     record = {
         "channel": channel,
         "version": 71,
