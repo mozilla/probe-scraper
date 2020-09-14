@@ -416,6 +416,17 @@ firefox-reality-pc:
     - Source/FirefoxRealityUnity/pings.yaml
   dependencies:
     - glean-core
+mach:
+  app_id: mozilla-mach
+  description: Mach build telemetry
+  url: https://github.com/mozilla/gecko-dev
+  notification_emails:
+    - mhentges@mozilla.com
+  metrics_files:
+    - python/mach/metrics.yaml
+    - python/mozbuild/metrics.yaml
+  ping_files:
+    - python/mach/pings.yaml
 glean-js-tmp:
   app_id: glean-js-tmp
   description: Temporary app id to experiment with Glean.js
