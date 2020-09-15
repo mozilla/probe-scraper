@@ -332,6 +332,118 @@ def out_probe_data(by_channel=False):
         }
 
 
+def out_probe_data_by_revision_date(by_channel=False):
+    probes = [
+        {
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["content"],
+            },
+            "expiry_version": "53.0",
+            "optout": True,
+            "revisions": {
+                "first": "node_id_3",
+                "last": "node_id_3",
+            },
+            "versions": {
+                "first": "52",
+                "last": "52"
+            }
+        }, {
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["main", "content"],
+            },
+            "expiry_version": "53.0",
+            "optout": True,
+            "revisions": {
+                "first": "node_id_2",
+                "last": "node_id_2",
+            },
+            "versions": {
+                "first": "51",
+                "last": "51"
+            }
+        }, {
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["main", "content"],
+            },
+            "expiry_version": "53.0",
+            "optout": False,
+            "revisions": {
+                "first": "node_id_1",
+                "last": "node_id_1",
+            },
+            "versions": {
+                "first": "50",
+                "last": "50"
+            }
+        }, {
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["content"],
+            },
+            "expiry_version": "53.0",
+            "optout": True,
+            "revisions": {
+                "first": "node_id_4",
+                "last": "node_id_4",
+            },
+            "versions": {
+                "first": "52",
+                "last": "52"
+            }
+        }
+    ]
+
+    allowed_channels = CHANNELS
+
+    if by_channel:
+        return {
+            channel: {
+                "histogram/TEST_HISTOGRAM_1": {
+                    "history": {channel: probes},
+                    "name": "TEST_HISTOGRAM_1",
+                    "type": "histogram"
+                }
+            }
+            for channel in allowed_channels
+        }
+    else:
+        return {
+            "histogram/TEST_HISTOGRAM_1": {
+                "history": {channel: probes for channel in allowed_channels},
+                "name": "TEST_HISTOGRAM_1",
+                "type": "histogram"
+            }
+        }
+
+
 def get_differences(a, b, path="", sep=" / "):
     res = []
     if a and not b:
@@ -405,6 +517,13 @@ def test_transform_monolithic():
 def test_transform_by_channel():
     result = transform.transform(in_probe_data(), IN_NODE_DATA, True)
     expected = out_probe_data(by_channel=True)
+
+    print_and_test(expected, result)
+
+
+def test_transform_by_revision_date():
+    result = transform.transform(in_probe_data(), IN_NODE_DATA, False, REVISION_DATES)
+    expected = out_probe_data_by_revision_date(by_channel=False)
 
     print_and_test(expected, result)
 

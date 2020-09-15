@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import datetime
 import re
 import os
 import json
@@ -132,7 +133,7 @@ def adjust_version(channel, version):
 
 
 def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
-    tag_regex = CHANNELS[channel]['tag_regex']
+    tag_regex = CHANNELS[channel]["tag_regex"]
     tip_node_id = tag_data["node"]
     tags = [t for t in tag_data["tags"] if re.match(tag_regex, t["tag"])]
     results = []
@@ -151,6 +152,9 @@ def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
             results.append({
                 "node": tag["node"],
                 "version": version,
+                "date": datetime.datetime.utcfromtimestamp(
+                    tag["date"][0] + tag["date"][1]
+                ).isoformat(),
             })
 
     results = sorted(results, key=lambda r: r["version"])
@@ -247,7 +251,7 @@ def save_error_cache(folder, error_cache):
         json.dump(error_cache, f, sort_keys=True, indent=2, separators=(',', ': '))
 
 
-def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
+def scrape_release_tags(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
     """
     Returns data in the format:
     {
@@ -272,7 +276,7 @@ def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None)
         folder = tempfile.mkdtemp()
 
     error_cache = load_error_cache(folder)
-    requests_cache.install_cache('probe_scraper_cache')
+    requests_cache.install_cache("probe_scraper_cache")
     results = defaultdict(dict)
 
     if channels is None:
@@ -287,14 +291,10 @@ def scrape(folder=None, min_fx_version=None, max_fx_version=None, channels=None)
         for v in versions:
             print("  " + str(v))
 
-        print("\n" + channel + " - loading files:")
-        for v in versions:
-            print("  from: " + str(v))
-            files = download_files(channel, v['node'], folder, error_cache, v['version'])
-            results[channel][v['node']] = {
-                'channel': channel,
-                'version': v['version'],
-                'registries': files,
+            results[channel][v["node"]] = {
+                "channel": channel,
+                "version": v["version"],
+                "date": v.get("date"),
             }
             save_error_cache(folder, error_cache)
 

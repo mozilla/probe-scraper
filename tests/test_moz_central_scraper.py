@@ -49,22 +49,16 @@ def test_scrape():
     min_fx_version = 62
     max_fx_version = 62
 
-    res = moz_central_scraper.scrape(tmp_dir, min_fx_version, max_fx_version=max_fx_version)
+    res = moz_central_scraper.scrape_release_tags(
+        tmp_dir, min_fx_version, max_fx_version=max_fx_version)
 
     channel = "release"
     revision = "84219fbf133cacfc6e31c9471ad20ee7162a02af"
 
-    registries = {
-        probe_type: [
-            os.path.join(tmp_dir, "hg", revision, path)
-            for path in paths if path_is_in_version(path, 62)
-        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
-    }
-
     record = {
         "channel": channel,
         "version": 62,
-        "registries": registries
+        "date": "2018-10-17T18:50:12",
     }
 
     assert res[channel][revision] == record
@@ -78,23 +72,16 @@ def test_artificial_tag():
 
     channel = "nightly"
 
-    res = moz_central_scraper.scrape(tmp_dir, min_fx_version,
-                                     max_fx_version=max_fx_version,
-                                     channels=[channel])
+    res = moz_central_scraper.scrape_release_tags(tmp_dir, min_fx_version,
+                                                  max_fx_version=max_fx_version,
+                                                  channels=[channel])
 
     revision = "fd2934cca1ae7b492f29a4d240915aa9ec5b4977"
-
-    registries = {
-        probe_type: [
-            os.path.join(tmp_dir, "hg", revision, path)
-            for path in paths if path_is_in_version(path, 71)
-        ] for probe_type, paths in moz_central_scraper.REGISTRY_FILES.items()
-    }
 
     record = {
         "channel": channel,
         "version": 71,
-        "registries": registries
+        "date": "2019-09-01T18:32:06",
     }
 
     assert res[channel][revision] == record
