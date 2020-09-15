@@ -424,7 +424,6 @@ mach:
     - mhentges@mozilla.com
   metrics_files:
     - python/mach/metrics.yaml
-    - python/mozbuild/metrics.yaml
   ping_files:
     - python/mach/pings.yaml
 glean-js-tmp:
