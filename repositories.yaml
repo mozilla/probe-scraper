@@ -429,12 +429,10 @@ mach:
 glean-js-tmp:
   app_id: glean-js-tmp
   description: Temporary app id to experiment with Glean.js
-  url: https://github.com/brizental/gleanjs
+  url: https://www.github.com/brizental/gleanjs
   notification_emails:
     - brizental@mozilla.com
     - aplacitelli@mozilla.com
     - mdroettboom@mozilla.com
-  metrics_files:
-    - metrics.yaml
   dependencies:
     - glean-core
