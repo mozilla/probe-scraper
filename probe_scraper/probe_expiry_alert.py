@@ -212,7 +212,7 @@ def check_bugzilla_user_exists(email: str, api_key: str):
         if e.response.status_code == 400 and e.response.json()["code"] == 51:
             return False
         raise
-    # Ad of Sept 2020, api seems to be returning 200 response with an unknown
+    # As of Sept 2020, api seems to be returning 200 response with an unknown
     # error code when user isn't found
     if user_response.json().get("error"):
         return False
