@@ -67,10 +67,19 @@ def dump_json(data, out_dir, file_name):
         if e.errno != errno.EEXIST:
             raise
 
+    def date_serializer(o):
+        if isinstance(o, datetime.datetime):
+            return o.isoformat()
+
     path = os.path.join(out_dir, file_name)
     with open(path, 'w') as f:
         print("  " + path)
-        json.dump(data, f, sort_keys=True, indent=2, separators=(',', ': '))
+        json.dump(data,
+                  f,
+                  sort_keys=True,
+                  indent=2,
+                  separators=(',', ': '),
+                  default=date_serializer)
 
 
 def write_moz_central_probe_data(probe_data, revisions, out_dir):
@@ -169,13 +178,6 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
     else:
         channels = None
 
-    # Scrape release tags to get revision output
-    release_tags = moz_central_scraper.scrape_release_tags(cache_dir,
-                                                           min_fx_version=min_fx_version,
-                                                           max_fx_version=max_fx_version,
-                                                           channels=channels)
-    revisions = transform_revisions.transform(release_tags)
-
     # Scrape all revisions from buildhub
     revision_data = moz_central_scraper.scrape_channel_revisions(cache_dir,
                                                                  min_fx_version=min_fx_version,
@@ -199,7 +201,7 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
     probes_by_channel_with_dates = add_first_appeared_dates(probes_by_channel, first_appeared_dates)
 
     # Serialize the probe data to disk.
-    write_moz_central_probe_data(probes_by_channel_with_dates, revisions, out_dir)
+    write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
 
 
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):

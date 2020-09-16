@@ -6,9 +6,7 @@ import datetime
 import re
 import os
 import json
-import tempfile
 import requests
-import requests_cache
 from .buildhub import Buildhub
 
 from collections import defaultdict
@@ -249,56 +247,6 @@ def save_error_cache(folder, error_cache):
     path = os.path.join(folder, ERROR_CACHE_FILENAME)
     with open(path, 'w') as f:
         json.dump(error_cache, f, sort_keys=True, indent=2, separators=(',', ': '))
-
-
-def scrape_release_tags(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
-    """
-    Returns data in the format:
-    {
-      <channel>: {
-        <revision>: {
-          "channel": <channel>,
-          "version": <major-version>,
-          "registries": {
-            "event": [<path>, ...],
-            "histogram": [<path>, ...],
-            "scalar": [<path>, ...]
-          }
-        },
-        ...
-      },
-      ...
-    }
-    """
-    if min_fx_version is None:
-        min_fx_version = MIN_FIREFOX_VERSION
-    if folder is None:
-        folder = tempfile.mkdtemp()
-
-    error_cache = load_error_cache(folder)
-    requests_cache.install_cache("probe_scraper_cache")
-    results = defaultdict(dict)
-
-    if channels is None:
-        channels = CHANNELS.keys()
-
-    for channel in channels:
-        tags = load_tags(channel)
-        versions = extract_tag_data(tags, channel, min_fx_version, max_fx_version)
-        save_error_cache(folder, error_cache)
-
-        print("\n" + channel + " - extracted version data:")
-        for v in versions:
-            print("  " + str(v))
-
-            results[channel][v["node"]] = {
-                "channel": channel,
-                "version": v["version"],
-                "date": v.get("date"),
-            }
-            save_error_cache(folder, error_cache)
-
-    return results
 
 
 def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=None, channels=None):
