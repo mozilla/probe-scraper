@@ -426,3 +426,15 @@ mach:
     - python/mach/metrics.yaml
   ping_files:
     - python/mach/pings.yaml
+glean-js:
+  app_id: glean-js-tmp
+  description: Experimentation with Glean.js
+  url: https://github.com/brizental/gleanjs
+  notification_emails:
+    - brizental@mozilla.com
+    - aplacitelli@mozilla.com
+    - mdroettboom@mozilla.com
+  metrics_files:
+    - metrics.yaml
+  dependencies:
+    - glean-core
