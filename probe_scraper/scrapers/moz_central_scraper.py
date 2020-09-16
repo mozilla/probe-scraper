@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import datetime
 import re
 import os
 import json
@@ -57,42 +56,6 @@ ERROR_CACHE_FILENAME = 'probe_scraper_errors_cache.json'
 ARTIFICIAL_TAG = 'artificial'
 
 
-def load_tags(channel):
-    """
-    A bit of info about `json-tags`
-
-    They are a set of tags that represent the first and
-    last commit hat a release_channel went out on. For example,
-    `FIREFOX_BETA_N_BASE` is the first release of Beta
-    version N. `FIREFOX_NIGHTLY_N_END` is the last commit
-    that nightly v. N released; the next nightly was version
-    N+1.
-
-    As such tags only get updated once a cycle, and they never
-    change. (In reality they can change, but that has only happened
-    once in the last ten versions).
-    """
-    uri = f"{CHANNELS[channel]['base_uri']}/json-tags"
-    r = requests.get(uri)
-    if r.status_code != requests.codes.ok:
-        raise Exception("Request returned status " + str(r.status_code) + " for " + uri)
-
-    content_type = r.headers['content-type']
-    if content_type != 'application/json':
-        raise Exception("Request didn't return JSON: " + content_type + " (" + uri + ")")
-
-    data = r.json()
-    if not data or "node" not in data or "tags" not in data:
-        raise Exception("Result JSON doesn't have the right format for " + uri)
-
-    data['tags'] += [
-        {**d, **{ARTIFICIAL_TAG: True}}
-        for d in CHANNELS[channel].get('artificial_tags', [])
-    ]
-
-    return data
-
-
 def extract_major_version(version_str):
     """
     Given a version string, e.g. "62.0a1",
@@ -103,70 +66,6 @@ def extract_major_version(version_str):
         return int(search.group(1))
     else:
         raise Exception("Invalid version string " + version_str)
-
-
-def extract_tag_version(channel, version_str):
-    """
-    Given a tag, e.g. FIREFOX_65_0_RELEASE,
-    extract the major version as an int.
-    """
-    if channel == "release":
-        return int(version_str.split('_')[1])
-    elif channel in ["beta", "nightly"]:
-        return int(version_str.split('_')[2])
-    else:
-        raise Exception("Unsupported channel " + channel)
-
-
-def adjust_version(channel, version):
-    """
-    We work with tags that are the start of version N.
-    We want to treat those revisions as the end of version N-1 instead.
-    Nightly only has tags of the type FIREFOX_AURORA_NN_BASE, so it doesn't
-    need this.
-    """
-    if channel != "nightly":
-        return version - 1
-    return version
-
-
-def extract_tag_data(tag_data, channel, min_fx_version, max_fx_version):
-    tag_regex = CHANNELS[channel]["tag_regex"]
-    tip_node_id = tag_data["node"]
-    tags = [t for t in tag_data["tags"] if re.match(tag_regex, t["tag"])]
-    results = []
-    latest_version = -1
-
-    for tag in tags:
-        version = extract_tag_version(channel, tag["tag"])
-        version = adjust_version(channel, version)
-
-        if not tag.get(ARTIFICIAL_TAG, False):
-            # Ignore artificial tags for determining latest version
-            latest_version = max(version, latest_version)
-
-        if (version >= min_fx_version and
-           (max_fx_version is None or version <= max_fx_version)):
-            results.append({
-                "node": tag["node"],
-                "version": version,
-                "date": datetime.datetime.utcfromtimestamp(
-                    tag["date"][0] + tag["date"][1]
-                ).isoformat(),
-            })
-
-    results = sorted(results, key=lambda r: r["version"])
-    latest_version += 1
-
-    # Add tip revision, if we're including the most recent version
-    if (tip_node_id != results[-1]["node"] and
-       (max_fx_version is None or latest_version <= max_fx_version)):
-        results.append({
-            "node": tip_node_id,
-            "version": latest_version,
-        })
-
-    return results
 
 
 def relative_path_is_in_version(rel_path, version):
@@ -299,5 +198,6 @@ def scrape_channel_revisions(folder=None, min_fx_version=None, max_fx_version=No
                 'version': version,
                 'registries': files
             }
+            save_error_cache(folder, error_cache)
 
     return results
