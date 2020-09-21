@@ -434,7 +434,5 @@ glean-js:
     - brizental@mozilla.com
     - aplacitelli@mozilla.com
     - mdroettboom@mozilla.com
-  metrics_files:
-    - metrics.yaml
   dependencies:
     - glean-core
