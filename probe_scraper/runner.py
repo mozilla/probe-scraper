@@ -98,6 +98,10 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
         dump_json(channel_probes, data_dir, "all_probes")
 
 
+def write_general_data(out_dir):
+    dump_json(general_data(), out_dir, "general")
+
+
 def write_glean_metric_data(metrics, dependencies, out_dir):
     # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
     for repo, metrics_data in metrics.items():
@@ -283,6 +287,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_glean_ping_data(pings_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
+    write_general_data(out_dir)
 
     for repo_name, email_info in list(emails.items()):
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
