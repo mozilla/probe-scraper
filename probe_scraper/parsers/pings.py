@@ -27,7 +27,7 @@ class GleanPingsParser:
     def parse(self, filenames, config):
         config = config.copy()
         paths = [Path(fname) for fname in filenames]
-        paths = [path for path in filenames if path.is_file()]
+        paths = [path for path in paths if path.is_file()]
         results = parse_objects(paths, config)
         errors = [err for err in results]
 

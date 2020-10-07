@@ -20,7 +20,7 @@ class GleanMetricsParser:
         config["do_not_disable_expired"] = True
 
         paths = [Path(fname) for fname in filenames]
-        paths = [path for path in filenames if path.is_file()]
+        paths = [path for path in paths if path.is_file()]
         results = parse_objects(paths, config)
         errors = [err for err in results]
 
