@@ -24,14 +24,14 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 format: 
-	python3 -m black probe_scraper tests setup.py
-	python3 -m isort probe_scraper tests setup.py
+	python3 -m black probe_scraper tests ./*.py
+	python3 -m isort probe_scraper tests ./*.py
 
 lint: build
 	docker-compose run app flake8 --max-line-length 100 .
 	docker-compose run app yamllint repositories.yaml .circleci
-	docker-compose run app python -m black --check probe_scraper tests setup.py
-	docker-compose run app python -m isort --check-only probe_scraper tests setup.py
+	docker-compose run app python -m black --check probe_scraper tests ./*.py
+	docker-compose run app python -m isort --check-only probe_scraper tests ./*.py
 
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
