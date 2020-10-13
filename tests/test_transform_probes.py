@@ -1,7 +1,7 @@
-import probe_scraper.transform_probes as transform
 import pprint
-
 from datetime import datetime
+
+import probe_scraper.transform_probes as transform
 
 # incoming probe_data is of the form:
 #   node_id -> {
@@ -42,22 +42,10 @@ IN_NODE_DATA = {
 
 REVISION_DATES = {
     channel: {
-        "node_id_1": {
-            "version": "50",
-            "date": datetime(2018, 1, 1, 10, 11, 12)
-        },
-        "node_id_2": {
-            "version": "51",
-            "date": datetime(2018, 2, 2, 10, 11, 12)
-        },
-        "node_id_3": {
-            "version": "52",
-            "date": datetime(2018, 3, 3, 10, 11, 12)
-        },
-        "node_id_4": {
-            "version": "52",
-            "date": datetime(2018, 1, 1, 1, 1, 1)
-        },
+        "node_id_1": {"version": "50", "date": datetime(2018, 1, 1, 10, 11, 12)},
+        "node_id_2": {"version": "51", "date": datetime(2018, 2, 2, 10, 11, 12)},
+        "node_id_3": {"version": "52", "date": datetime(2018, 3, 3, 10, 11, 12)},
+        "node_id_4": {"version": "52", "date": datetime(2018, 1, 1, 1, 1, 1)},
     }
     for channel in CHANNELS
 }
@@ -73,11 +61,15 @@ IN_METRICS_DATA = {
                 "time_unit": "second",
                 "send_in_pings": ["baseline"],
                 "bugs": [1497894, 1519120],
-                "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-                "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                "data_reviews": [
+                    "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                ],
+                "notification_emails": ["telemetry-client-dev@mozilla.com"],
             }
-        } for i in range(4)
-    } for repo in REPOS
+        }
+        for i in range(4)
+    }
+    for repo in REPOS
 }
 
 OUT_METRICS_DATA = {
@@ -92,24 +84,21 @@ OUT_METRICS_DATA = {
                     "time_unit": "second",
                     "send_in_pings": ["baseline"],
                     "bugs": [1497894, 1519120],
-                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
-                    "git-commits": {
-                        "first": "3",
-                        "last": "0"
-                    },
+                    "git-commits": {"first": "3", "last": "0"},
                     "dates": {
                         "first": "1969-12-31 23:59:57",
-                        "last": "1970-01-01 00:00:00"
+                        "last": "1970-01-01 00:00:00",
                     },
-                    "reflog-index": {
-                        "first": 3,
-                        "last": 0
-                    }
+                    "reflog-index": {"first": 3, "last": 0},
                 }
-            ]
+            ],
         }
-    } for repo in REPOS
+    }
+    for repo in REPOS
 }
 
 IN_PING_DATA = {
@@ -118,13 +107,17 @@ IN_PING_DATA = {
             "metrics": {
                 "description": "Metrics ping",
                 "bugs": ["https://bugzilla.mozilla.org/1512938"],
-                "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                "data_reviews": [
+                    "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                ],
                 "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 "include_client_id": True,
                 "send_if_empty": False,
             }
-        } for i in range(4)
-    } for repo in REPOS
+        }
+        for i in range(4)
+    }
+    for repo in REPOS
 }
 
 OUT_PING_DATA = {
@@ -135,26 +128,23 @@ OUT_PING_DATA = {
                 {
                     "description": "Metrics ping",
                     "bugs": ["https://bugzilla.mozilla.org/1512938"],
-                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
                     "include_client_id": True,
                     "send_if_empty": False,
-                    "git-commits": {
-                        "first": "3",
-                        "last": "0"
-                    },
+                    "git-commits": {"first": "3", "last": "0"},
                     "dates": {
                         "first": "1969-12-31 23:59:57",
-                        "last": "1970-01-01 00:00:00"
+                        "last": "1970-01-01 00:00:00",
                     },
-                    "reflog-index": {
-                        "first": 3,
-                        "last": 0
-                    }
+                    "reflog-index": {"first": 3, "last": 0},
                 }
-            ]
+            ],
         }
-    } for repo in REPOS
+    }
+    for repo in REPOS
 }
 
 
@@ -163,7 +153,8 @@ def in_probe_data():
     secondary_level_prefix = "node_id_"
 
     secondary_level = {
-        secondary_level_prefix + "1": {
+        secondary_level_prefix
+        + "1": {
             "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
@@ -179,9 +170,10 @@ def in_probe_data():
                         "record_in_processes": ["main", "content"],
                     },
                 }
-             }
+            }
         },
-        secondary_level_prefix + "2": {
+        secondary_level_prefix
+        + "2": {
             "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
@@ -197,9 +189,10 @@ def in_probe_data():
                         "record_in_processes": ["main", "content"],
                     },
                 }
-             }
+            }
         },
-        secondary_level_prefix + "3": {
+        secondary_level_prefix
+        + "3": {
             "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
@@ -217,7 +210,8 @@ def in_probe_data():
                 }
             }
         },
-        secondary_level_prefix + "4": {
+        secondary_level_prefix
+        + "4": {
             "histogram": {
                 "TEST_HISTOGRAM_1": {
                     "cpp_guard": None,
@@ -234,7 +228,7 @@ def in_probe_data():
                     },
                 }
             }
-        }
+        },
     }
 
     return {top_level: secondary_level for top_level in top_levels}
@@ -244,69 +238,62 @@ def out_probe_data(by_channel=False):
 
     probes = [
         {
-            'cpp_guard': None,
-            'description': 'A description.',
-            'details': {
-                'high': 10,
-                'keyed': False,
-                'kind': 'exponential',
-                'low': 1,
-                'n_buckets': 5,
-                'record_in_processes': ['content'],
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["content"],
             },
-            'expiry_version': '53.0',
-            'optout': True,
-            'revisions': {
-                'first': 'node_id_3',
-                'last': 'node_id_4',
+            "expiry_version": "53.0",
+            "optout": True,
+            "revisions": {
+                "first": "node_id_3",
+                "last": "node_id_4",
             },
-            'versions': {
-                'first': '52',
-                'last': '52'
-            }
-        }, {
-            'cpp_guard': None,
-            'description': 'A description.',
-            'details': {
-                'high': 10,
-                'keyed': False,
-                'kind': 'exponential',
-                'low': 1,
-                'n_buckets': 5,
-                'record_in_processes': ['main', 'content'],
+            "versions": {"first": "52", "last": "52"},
+        },
+        {
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["main", "content"],
             },
-            'expiry_version': '53.0',
-            'optout': True,
-            'revisions': {
-                'first': 'node_id_2',
-                'last': 'node_id_2',
+            "expiry_version": "53.0",
+            "optout": True,
+            "revisions": {
+                "first": "node_id_2",
+                "last": "node_id_2",
             },
-            'versions': {
-                'first': '51',
-                'last': '51'
-            }
-        }, {
-            'cpp_guard': None,
-            'description': 'A description.',
-            'details': {
-                'high': 10,
-                'keyed': False,
-                'kind': 'exponential',
-                'low': 1,
-                'n_buckets': 5,
-                'record_in_processes': ['main', 'content'],
+            "versions": {"first": "51", "last": "51"},
+        },
+        {
+            "cpp_guard": None,
+            "description": "A description.",
+            "details": {
+                "high": 10,
+                "keyed": False,
+                "kind": "exponential",
+                "low": 1,
+                "n_buckets": 5,
+                "record_in_processes": ["main", "content"],
             },
-            'expiry_version': '53.0',
-            'optout': False,
-            'revisions': {
-                'first': 'node_id_1',
-                'last': 'node_id_1',
+            "expiry_version": "53.0",
+            "optout": False,
+            "revisions": {
+                "first": "node_id_1",
+                "last": "node_id_1",
             },
-            'versions': {
-                'first': '50',
-                'last': '50'
-            }
-        }
+            "versions": {"first": "50", "last": "50"},
+        },
     ]
 
     allowed_channels = CHANNELS
@@ -314,20 +301,20 @@ def out_probe_data(by_channel=False):
     if by_channel:
         return {
             channel: {
-                'histogram/TEST_HISTOGRAM_1': {
-                    'history': {channel: probes},
-                    'name': 'TEST_HISTOGRAM_1',
-                    'type': 'histogram'
+                "histogram/TEST_HISTOGRAM_1": {
+                    "history": {channel: probes},
+                    "name": "TEST_HISTOGRAM_1",
+                    "type": "histogram",
                 }
             }
             for channel in allowed_channels
         }
     else:
         return {
-            'histogram/TEST_HISTOGRAM_1': {
-                'history': {channel: probes for channel in allowed_channels},
-                'name': 'TEST_HISTOGRAM_1',
-                'type': 'histogram'
+            "histogram/TEST_HISTOGRAM_1": {
+                "history": {channel: probes for channel in allowed_channels},
+                "name": "TEST_HISTOGRAM_1",
+                "type": "histogram",
             }
         }
 
@@ -351,11 +338,9 @@ def out_probe_data_by_revision_date(by_channel=False):
                 "first": "node_id_3",
                 "last": "node_id_3",
             },
-            "versions": {
-                "first": "52",
-                "last": "52"
-            }
-        }, {
+            "versions": {"first": "52", "last": "52"},
+        },
+        {
             "cpp_guard": None,
             "description": "A description.",
             "details": {
@@ -372,11 +357,9 @@ def out_probe_data_by_revision_date(by_channel=False):
                 "first": "node_id_2",
                 "last": "node_id_2",
             },
-            "versions": {
-                "first": "51",
-                "last": "51"
-            }
-        }, {
+            "versions": {"first": "51", "last": "51"},
+        },
+        {
             "cpp_guard": None,
             "description": "A description.",
             "details": {
@@ -393,11 +376,9 @@ def out_probe_data_by_revision_date(by_channel=False):
                 "first": "node_id_1",
                 "last": "node_id_1",
             },
-            "versions": {
-                "first": "50",
-                "last": "50"
-            }
-        }, {
+            "versions": {"first": "50", "last": "50"},
+        },
+        {
             "cpp_guard": None,
             "description": "A description.",
             "details": {
@@ -414,11 +395,8 @@ def out_probe_data_by_revision_date(by_channel=False):
                 "first": "node_id_4",
                 "last": "node_id_4",
             },
-            "versions": {
-                "first": "52",
-                "last": "52"
-            }
-        }
+            "versions": {"first": "52", "last": "52"},
+        },
     ]
 
     allowed_channels = CHANNELS
@@ -429,7 +407,7 @@ def out_probe_data_by_revision_date(by_channel=False):
                 "histogram/TEST_HISTOGRAM_1": {
                     "history": {channel: probes},
                     "name": "TEST_HISTOGRAM_1",
-                    "type": "histogram"
+                    "type": "histogram",
                 }
             }
             for channel in allowed_channels
@@ -439,7 +417,7 @@ def out_probe_data_by_revision_date(by_channel=False):
             "histogram/TEST_HISTOGRAM_1": {
                 "history": {channel: probes for channel in allowed_channels},
                 "name": "TEST_HISTOGRAM_1",
-                "type": "histogram"
+                "type": "histogram",
             }
         }
 
@@ -474,7 +452,7 @@ def get_differences(a, b, path="", sep=" / "):
         for k in b_not_a:
             res.append(("B not A", path + sep + k))
 
-        for k in (a_keys & b_keys):
+        for k in a_keys & b_keys:
             res = res + get_differences(a[k], b[k], path + sep + k)
 
     return res
@@ -490,9 +468,9 @@ def print_and_test(expected, result):
     pp.pprint(expected)
 
     print("\nDifferences:")
-    print('\n'.join([' - '.join(v) for v in get_differences(expected, result)]))
+    print("\n".join([" - ".join(v) for v in get_differences(expected, result)]))
 
-    assert(result == expected)
+    assert result == expected
 
 
 def test_probes_equal():
@@ -502,9 +480,9 @@ def test_probes_equal():
     histogram_node3 = DATA["node_id_3"]["histogram"]["TEST_HISTOGRAM_1"]
     histogram_node4 = DATA["node_id_4"]["histogram"]["TEST_HISTOGRAM_1"]
 
-    assert(not transform.probes_equal(histogram_node1, histogram_node2))
-    assert(not transform.probes_equal(histogram_node2, histogram_node3))
-    assert(transform.probes_equal(histogram_node3, histogram_node4))
+    assert not transform.probes_equal(histogram_node1, histogram_node2)
+    assert not transform.probes_equal(histogram_node2, histogram_node3)
+    assert transform.probes_equal(histogram_node3, histogram_node4)
 
 
 def test_transform_monolithic():
@@ -529,11 +507,7 @@ def test_transform_by_revision_date():
 
 
 def test_transform_metrics_by_hash():
-    timestamps = {
-        repo: {
-            str(i): (-i, i) for i in range(4)
-        } for repo in REPOS
-    }
+    timestamps = {repo: {str(i): (-i, i) for i in range(4)} for repo in REPOS}
 
     result = transform.transform_metrics_by_hash(timestamps, IN_METRICS_DATA)
     expected = OUT_METRICS_DATA
@@ -542,11 +516,7 @@ def test_transform_metrics_by_hash():
 
 
 def test_transform_pings_by_hash():
-    timestamps = {
-        repo: {
-            str(i): (-i, i) for i in range(4)
-        } for repo in REPOS
-    }
+    timestamps = {repo: {str(i): (-i, i) for i in range(4)} for repo in REPOS}
 
     result = transform.transform_pings_by_hash(timestamps, IN_PING_DATA)
     expected = OUT_PING_DATA
@@ -558,7 +528,7 @@ def test_get_minimum_date():
     expected = {
         "histogram/TEST_HISTOGRAM_1": {
             "release": datetime(2018, 1, 1, 1, 1, 1),
-            "beta": datetime(2018, 1, 1, 1, 1, 1)
+            "beta": datetime(2018, 1, 1, 1, 1, 1),
         }
     }
 
@@ -578,8 +548,10 @@ def test_sort_ordering():
                     "time_unit": "second",
                     "send_in_pings": ["baseline"],
                     "bugs": [1497894, 1519120],
-                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 },
             },
             "1": {
@@ -589,8 +561,10 @@ def test_sort_ordering():
                     "time_unit": "second",
                     "send_in_pings": ["custom"],
                     "bugs": [1497894, 1519120],
-                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 }
             },
             "2": {
@@ -600,8 +574,10 @@ def test_sort_ordering():
                     "time_unit": "second",
                     "send_in_pings": ["all_pings"],
                     "bugs": [1497894, 1519120],
-                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 },
             },
             "3": {
@@ -611,8 +587,10 @@ def test_sort_ordering():
                     "time_unit": "second",
                     "send_in_pings": ["all_pings"],
                     "bugs": [1497894, 1519120],
-                    "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-                    "notification_emails": ["telemetry-client-dev@mozilla.com"]
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 },
             },
         }
@@ -639,20 +617,16 @@ def test_sort_ordering():
                         "time_unit": "second",
                         "send_in_pings": ["all_pings"],
                         "bugs": [1497894, 1519120],
-                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "data_reviews": [
+                            "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                        ],
                         "notification_emails": ["telemetry-client-dev@mozilla.com"],
-                        "git-commits": {
-                            "first": "3",
-                            "last": "2"
-                        },
+                        "git-commits": {"first": "3", "last": "2"},
                         "dates": {
                             "first": "1970-01-01 00:00:00",
-                            "last": "1970-01-02 00:00:00"
+                            "last": "1970-01-02 00:00:00",
                         },
-                        "reflog-index": {
-                            "first": 3,
-                            "last": 2
-                        }
+                        "reflog-index": {"first": 3, "last": 2},
                     },
                     {
                         "type": "timespan",
@@ -660,20 +634,16 @@ def test_sort_ordering():
                         "time_unit": "second",
                         "send_in_pings": ["custom"],
                         "bugs": [1497894, 1519120],
-                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "data_reviews": [
+                            "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                        ],
                         "notification_emails": ["telemetry-client-dev@mozilla.com"],
-                        "git-commits": {
-                            "first": "1",
-                            "last": "1"
-                        },
+                        "git-commits": {"first": "1", "last": "1"},
                         "dates": {
                             "first": "1970-01-02 00:00:00",
-                            "last": "1970-01-02 00:00:00"
+                            "last": "1970-01-02 00:00:00",
                         },
-                        "reflog-index": {
-                            "first": 1,
-                            "last": 1
-                        }
+                        "reflog-index": {"first": 1, "last": 1},
                     },
                     {
                         "type": "timespan",
@@ -681,22 +651,18 @@ def test_sort_ordering():
                         "time_unit": "second",
                         "send_in_pings": ["baseline"],
                         "bugs": [1497894, 1519120],
-                        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
+                        "data_reviews": [
+                            "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                        ],
                         "notification_emails": ["telemetry-client-dev@mozilla.com"],
-                        "git-commits": {
-                            "first": "0",
-                            "last": "0"
-                        },
+                        "git-commits": {"first": "0", "last": "0"},
                         "dates": {
                             "first": "1970-01-03 00:00:00",
-                            "last": "1970-01-03 00:00:00"
+                            "last": "1970-01-03 00:00:00",
                         },
-                        "reflog-index": {
-                            "first": 0,
-                            "last": 0
-                        }
-                    }
-                ]
+                        "reflog-index": {"first": 0, "last": 0},
+                    },
+                ],
             }
         }
     }

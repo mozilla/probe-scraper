@@ -10,9 +10,9 @@ def extract_scalar_data(s):
 
     # External scalars.yaml files have release/prerelease, not opt-in/opt-out
     try:
-        optout = s.dataset.endswith('_OPTOUT')
+        optout = s.dataset.endswith("_OPTOUT")
     except KeyError:
-        optout = s._definition.get('collect_on_channels', 'prerelease') == 'release'
+        optout = s._definition.get("collect_on_channels", "prerelease") == "release"
 
     return {
         "description": s.description,
@@ -25,8 +25,8 @@ def extract_scalar_data(s):
             "keyed": s.keyed,
             "kind": s.kind,
             "record_in_processes": s.record_in_processes,
-            "record_into_store": s.record_into_store
-        }
+            "record_into_store": s.record_into_store,
+        },
     }
 
 
@@ -37,7 +37,7 @@ def transform_scalar_info(probes):
 class ScalarsParser:
     def parse(self, filenames, version=None, channel=None):
         if len(filenames) > 1:
-            raise Exception('We don\'t support loading from more than one file.')
+            raise Exception("We don't support loading from more than one file.")
 
         scalars = parse_scalars.load_scalars(filenames[0], strict_type_checks=False)
 

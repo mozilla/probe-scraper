@@ -1,14 +1,16 @@
-from probe_scraper.parsers.repositories import RepositoriesParser
-import pytest
-import jsonschema
-import yaml
-import tempfile
 import os
+import tempfile
+
+import jsonschema
+import pytest
+import yaml
+
+from probe_scraper.parsers.repositories import RepositoriesParser
 
 
 def write_to_temp_file(data):
     fd, path = tempfile.mkstemp()
-    with os.fdopen(fd, 'w') as tmp:
+    with os.fdopen(fd, "w") as tmp:
         tmp.write(yaml.dump(data))
     return path
 
@@ -26,7 +28,7 @@ def incorrect_repos_file():
             "app_id": "mobile-metrics-example",
             "description": "foo",
             "url": "www.github.com/fbertsch/mobile-metrics-example",
-            "metrics_files": ["metrics.yaml"]
+            "metrics_files": ["metrics.yaml"],
         }
     }
 
@@ -42,7 +44,7 @@ def correct_repos_file():
             "channel": "release",
             "url": "www.github.com/fbertsch/mobile-metrics-example",
             "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"]
+            "metrics_files": ["metrics.yaml"],
         }
     }
 
@@ -57,7 +59,7 @@ def not_kebab_case_repos_file():
             "description": "foo",
             "url": "www.github.com/fbertsch/mobile-metrics-example",
             "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"]
+            "metrics_files": ["metrics.yaml"],
         }
     }
 
@@ -73,7 +75,7 @@ def invalid_release_channel_file():
             "channel": "releaze",
             "url": "www.github.com/fbertsch/mobile-metrics-example",
             "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"]
+            "metrics_files": ["metrics.yaml"],
         }
     }
 

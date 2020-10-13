@@ -3,9 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
-from collections import defaultdict
 import datetime
-from dateutil.tz import tzlocal
 import errno
 import gzip
 import json
@@ -13,9 +11,12 @@ import os
 import sys
 import tempfile
 import traceback
+from collections import defaultdict
 
+from dateutil.tz import tzlocal
+
+from . import glean_checks, transform_probes, transform_revisions
 from .emailer import send_ses
-from . import glean_checks
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
@@ -23,8 +24,6 @@ from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .scrapers import git_scraper, moz_central_scraper
-from . import transform_probes
-from . import transform_revisions
 
 
 class DummyParser:
@@ -41,15 +40,15 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 PARSERS = {
     # This lists the available probe registry parsers:
     # parser type -> parser
-    'event': EventsParser(),
-    'histogram': HistogramsParser(),
-    'scalar': ScalarsParser(),
+    "event": EventsParser(),
+    "histogram": HistogramsParser(),
+    "scalar": ScalarsParser(),
 }
 
 GLEAN_PARSER = GleanMetricsParser()
 GLEAN_PINGS_PARSER = GleanPingsParser()
-GLEAN_METRICS_FILENAME = 'metrics.yaml'
-GLEAN_PINGS_FILENAME = 'pings.yaml'
+GLEAN_METRICS_FILENAME = "metrics.yaml"
+GLEAN_PINGS_FILENAME = "pings.yaml"
 
 
 def general_data():
@@ -72,14 +71,16 @@ def dump_json(data, out_dir, file_name):
             return o.isoformat()
 
     path = os.path.join(out_dir, file_name)
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         print("  " + path)
-        json.dump(data,
-                  f,
-                  sort_keys=True,
-                  indent=2,
-                  separators=(',', ': '),
-                  default=date_serializer)
+        json.dump(
+            data,
+            f,
+            sort_keys=True,
+            indent=2,
+            separators=(",", ": "),
+            default=date_serializer,
+        )
 
 
 def write_moz_central_probe_data(probe_data, revisions, out_dir):
@@ -161,7 +162,11 @@ def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
             if channel == "all":
                 dates = first_appeared_dates[probe_id]
             else:
-                dates = {k: v for k, v in first_appeared_dates[probe_id].items() if k == channel}
+                dates = {
+                    k: v
+                    for k, v in first_appeared_dates[probe_id].items()
+                    if k == channel
+                }
 
             dates = {k: v.strftime(DATE_FORMAT) for k, v in dates.items()}
             probes_by_channel[channel][probe_id][FIRST_APPEARED_DATE_KEY] = dates
@@ -169,7 +174,9 @@ def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
     return probes_by_channel
 
 
-def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, firefox_channel):
+def load_moz_central_probes(
+    cache_dir, out_dir, fx_version, min_fx_version, firefox_channel
+):
 
     if fx_version:
         min_fx_version = fx_version
@@ -183,26 +190,37 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
         channels = None
 
     # Scrape all revisions from buildhub
-    revision_data = moz_central_scraper.scrape_channel_revisions(cache_dir,
-                                                                 min_fx_version=min_fx_version,
-                                                                 max_fx_version=max_fx_version,
-                                                                 channels=channels)
+    revision_data = moz_central_scraper.scrape_channel_revisions(
+        cache_dir,
+        min_fx_version=min_fx_version,
+        max_fx_version=max_fx_version,
+        channels=channels,
+    )
     revision_probes = parse_moz_central_probes(revision_data)
 
     # Get the minimum revision and date per probe-channel
     revision_dates = transform_revisions.transform(revision_data)
-    first_appeared_dates = transform_probes.get_minimum_date(revision_probes, revision_data,
-                                                             revision_dates)
+    first_appeared_dates = transform_probes.get_minimum_date(
+        revision_probes, revision_data, revision_dates
+    )
 
-    probes_by_channel = transform_probes.transform(revision_probes, revision_data,
-                                                   break_by_channel=True,
-                                                   revision_dates=revision_dates)
-    probes_by_channel["all"] = transform_probes.transform(revision_probes, revision_data,
-                                                          break_by_channel=False,
-                                                          revision_dates=revision_dates)
+    probes_by_channel = transform_probes.transform(
+        revision_probes,
+        revision_data,
+        break_by_channel=True,
+        revision_dates=revision_dates,
+    )
+    probes_by_channel["all"] = transform_probes.transform(
+        revision_probes,
+        revision_data,
+        break_by_channel=False,
+        revision_dates=revision_dates,
+    )
 
     # Add in the first appeared dates
-    probes_by_channel_with_dates = add_first_appeared_dates(probes_by_channel, first_appeared_dates)
+    probes_by_channel_with_dates = add_first_appeared_dates(
+        probes_by_channel, first_appeared_dates
+    )
 
     # Serialize the probe data to disk.
     write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
@@ -210,7 +228,9 @@ def load_moz_central_probes(cache_dir, out_dir, fx_version, min_fx_version, fire
 
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
     repositories = RepositoriesParser().parse(repositories_file, glean_repo)
-    commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(cache_dir, repositories)
+    commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
+        cache_dir, repositories
+    )
 
     glean_checks.check_glean_metric_structure(repos_metrics_data)
 
@@ -231,7 +251,7 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
 
             try:
-                config = {'allow_reserved': repo_name.startswith('glean')}
+                config = {"allow_reserved": repo_name.startswith("glean")}
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
@@ -241,37 +261,41 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                     pings[repo_name][commit_hash] = results
             except Exception:
                 files = metrics_files + pings_files
-                msg = "Improper file in {}\n{}".format(', '.join(files),
-                                                       traceback.format_exc())
-                emails[repo_name]["emails"].append({
-                    "subject": "Probe Scraper: Improper File",
-                    "message": msg
-                })
+                msg = "Improper file in {}\n{}".format(
+                    ", ".join(files), traceback.format_exc()
+                )
+                emails[repo_name]["emails"].append(
+                    {"subject": "Probe Scraper: Improper File", "message": msg}
+                )
             else:
                 if errs:
-                    msg = ("Error in processing commit {}\n"
-                           "Errors: [{}]").format(commit_hash, ".".join(errs))
-                    emails[repo_name]["emails"].append({
-                        "subject": "Probe Scraper: Error on parsing metric or ping files",
-                        "message": msg
-                    })
+                    msg = ("Error in processing commit {}\n" "Errors: [{}]").format(
+                        commit_hash, ".".join(errs)
+                    )
+                    emails[repo_name]["emails"].append(
+                        {
+                            "subject": "Probe Scraper: Error on parsing metric or ping files",
+                            "message": msg,
+                        }
+                    )
 
     abort_after_emails = False
 
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
-    metrics_by_repo.update(transform_probes.transform_metrics_by_hash(commit_timestamps, metrics))
+    metrics_by_repo.update(
+        transform_probes.transform_metrics_by_hash(commit_timestamps, metrics)
+    )
 
     pings_by_repo = {repo: {} for repo in repos_metrics_data}
-    pings_by_repo.update(transform_probes.transform_pings_by_hash(commit_timestamps, pings))
+    pings_by_repo.update(
+        transform_probes.transform_pings_by_hash(commit_timestamps, pings)
+    )
 
     dependencies_by_repo = {}
     for repo in repositories:
         dependencies = {}
         for dependency in repo.dependencies:
-            dependencies[dependency] = {
-                "type": "dependency",
-                "name": dependency
-            }
+            dependencies[dependency] = {"type": "dependency", "name": dependency}
         dependencies_by_repo[repo.name] = dependencies
 
     if glean_repo is None:
@@ -292,7 +316,13 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     for repo_name, email_info in list(emails.items()):
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
         for email in email_info["emails"]:
-            send_ses(FROM_EMAIL, email["subject"], email["message"], addresses, dryrun=dry_run)
+            send_ses(
+                FROM_EMAIL,
+                email["subject"],
+                email["message"],
+                addresses,
+                dryrun=dry_run,
+            )
 
     if abort_after_emails:
         raise ValueError("Errors processing Glean metrics")
@@ -310,7 +340,9 @@ def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
     return cache_loc
 
 
-def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, cache_path):
+def sync_output_and_cache_dirs(
+    output_bucket, cache_bucket, out_dir, cache_dir, cache_path
+):
     # Check output dir and then sync with cloudfront
     if not os.listdir(out_dir):
         print("{} is empty".format(out_dir))
@@ -329,11 +361,7 @@ def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, 
                     os.mkdir(os.path.join(tmpdirname, rel_root, dirname))
                 for filename in filenames:
                     in_filename = os.path.join(root, filename)
-                    out_filename = os.path.join(
-                        tmpdirname,
-                        rel_root,
-                        filename
-                    )
+                    out_filename = os.path.join(tmpdirname, rel_root, filename)
                     with open(in_filename, "rb") as f1:
                         with gzip.open(out_filename, "wb") as f2:
                             f2.write(f1.read())
@@ -354,114 +382,136 @@ def sync_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir, 
         os.system(sync_cache_cmd)
 
 
-def main(cache_dir,
-         out_dir,
-         firefox_version,
-         min_firefox_version,
-         process_moz_central_probes,
-         process_glean_metrics,
-         repositories_file,
-         dry_run,
-         glean_repo,
-         firefox_channel,
-         output_bucket,
-         cache_bucket,
-         env):
+def main(
+    cache_dir,
+    out_dir,
+    firefox_version,
+    min_firefox_version,
+    process_moz_central_probes,
+    process_glean_metrics,
+    repositories_file,
+    dry_run,
+    glean_repo,
+    firefox_channel,
+    output_bucket,
+    cache_bucket,
+    env,
+):
 
     # Sync dirs with s3 if we are not running pytest or local dryruns
-    if env == 'prod':
-        cache_path = setup_output_and_cache_dirs(output_bucket,
-                                                 cache_bucket,
-                                                 out_dir,
-                                                 cache_dir)
+    if env == "prod":
+        cache_path = setup_output_and_cache_dirs(
+            output_bucket, cache_bucket, out_dir, cache_dir
+        )
 
     process_both = not (process_moz_central_probes or process_glean_metrics)
     if process_moz_central_probes or process_both:
-        load_moz_central_probes(cache_dir, out_dir, firefox_version,
-                                min_firefox_version, firefox_channel)
+        load_moz_central_probes(
+            cache_dir, out_dir, firefox_version, min_firefox_version, firefox_channel
+        )
     if process_glean_metrics or process_both:
         load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo)
 
     # Sync results with s3 if we are not running pytest or local dryruns
-    if env == 'prod':
-        sync_output_and_cache_dirs(output_bucket,
-                                   cache_bucket,
-                                   out_dir,
-                                   cache_dir,
-                                   cache_path)
+    if env == "prod":
+        sync_output_and_cache_dirs(
+            output_bucket, cache_bucket, out_dir, cache_dir, cache_path
+        )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cache-dir',
-                        help='Cache directory. If empty, will be filled with the probe files.',
-                        action='store',
-                        default=tempfile.mkdtemp())
-    parser.add_argument('--out-dir',
-                        help='Directory to store output files in.',
-                        action='store',
-                        default='.')
-    parser.add_argument('--repositories-file',
-                        help='Repositories YAML file location.',
-                        action='store',
-                        default='repositories.yaml')
-    parser.add_argument('--dry-run',
-                        help='Whether emails should be sent.',
-                        action='store_true')
-    parser.add_argument('--glean-repo',
-                        help='The Glean Repository to scrape. If unspecified, scrapes all.',
-                        type=str,
-                        required=False)
-    parser.add_argument('--firefox-channel',
-                        help='The Fx channel to scrape. If unspecified, scrapes all.',
-                        type=str,
-                        required=False)
-    parser.add_argument('--output-bucket',
-                        help='The output s3 cloudfront bucket where out-dir will be syncd.',
-                        type=str,
-                        default='net-mozaws-prod-us-west-2-data-pitmo')
-    parser.add_argument('--cache-bucket',
-                        help='The cache bucket for probe scraper.',
-                        type=str,
-                        default='telemetry-airflow-cache')
-    parser.add_argument('--env',
-                        help="We set this to 'prod' when we need to run actual s3 syncs",
-                        type=str,
-                        choices=['dev', 'prod'],
-                        default='dev')
+    parser.add_argument(
+        "--cache-dir",
+        help="Cache directory. If empty, will be filled with the probe files.",
+        action="store",
+        default=tempfile.mkdtemp(),
+    )
+    parser.add_argument(
+        "--out-dir",
+        help="Directory to store output files in.",
+        action="store",
+        default=".",
+    )
+    parser.add_argument(
+        "--repositories-file",
+        help="Repositories YAML file location.",
+        action="store",
+        default="repositories.yaml",
+    )
+    parser.add_argument(
+        "--dry-run", help="Whether emails should be sent.", action="store_true"
+    )
+    parser.add_argument(
+        "--glean-repo",
+        help="The Glean Repository to scrape. If unspecified, scrapes all.",
+        type=str,
+        required=False,
+    )
+    parser.add_argument(
+        "--firefox-channel",
+        help="The Fx channel to scrape. If unspecified, scrapes all.",
+        type=str,
+        required=False,
+    )
+    parser.add_argument(
+        "--output-bucket",
+        help="The output s3 cloudfront bucket where out-dir will be syncd.",
+        type=str,
+        default="net-mozaws-prod-us-west-2-data-pitmo",
+    )
+    parser.add_argument(
+        "--cache-bucket",
+        help="The cache bucket for probe scraper.",
+        type=str,
+        default="telemetry-airflow-cache",
+    )
+    parser.add_argument(
+        "--env",
+        help="We set this to 'prod' when we need to run actual s3 syncs",
+        type=str,
+        choices=["dev", "prod"],
+        default="dev",
+    )
 
     application = parser.add_mutually_exclusive_group()
-    application.add_argument('--moz-central',
-                             help='Only scrape moz-central probes',
-                             action='store_true')
-    application.add_argument('--glean',
-                             help='Only scrape metrics in remote glean repos',
-                             action='store_true')
+    application.add_argument(
+        "--moz-central", help="Only scrape moz-central probes", action="store_true"
+    )
+    application.add_argument(
+        "--glean", help="Only scrape metrics in remote glean repos", action="store_true"
+    )
 
     versions = parser.add_mutually_exclusive_group()
-    versions.add_argument('--firefox-version',
-                          help='Version of Firefox to scrape',
-                          action='store',
-                          type=int,
-                          required=False)
-    versions.add_argument('--min-firefox-version',
-                          help='Min version of Firefox to scrape',
-                          action='store',
-                          type=int,
-                          required=False)
+    versions.add_argument(
+        "--firefox-version",
+        help="Version of Firefox to scrape",
+        action="store",
+        type=int,
+        required=False,
+    )
+    versions.add_argument(
+        "--min-firefox-version",
+        help="Min version of Firefox to scrape",
+        action="store",
+        type=int,
+        required=False,
+    )
 
     args = parser.parse_args()
 
-    main(args.cache_dir,
-         args.out_dir,
-         args.firefox_version,
-         args.min_firefox_version,
-         args.moz_central,
-         args.glean,
-         args.repositories_file,
-         args.dry_run,
-         args.glean_repo,
-         args.firefox_channel,
-         args.output_bucket,
-         args.cache_bucket,
-         args.env)
+    main(
+        args.cache_dir,
+        args.out_dir,
+        args.firefox_version,
+        args.min_firefox_version,
+        args.moz_central,
+        args.glean,
+        args.repositories_file,
+        args.dry_run,
+        args.glean_repo,
+        args.firefox_channel,
+        args.output_bucket,
+        args.cache_bucket,
+        args.env,
+    )

@@ -2,14 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from glean_parser.parser import parse_objects
 from pathlib import Path
 
+from glean_parser.parser import parse_objects
+
 PING_NAME_NORMALIZATION = {
-    'deletion_request': 'deletion-request',
-    'bookmarks_sync': 'bookmarks-sync',
-    'history_sync': 'history-sync',
-    'session_end': 'session-end',
+    "deletion_request": "deletion-request",
+    "bookmarks_sync": "bookmarks-sync",
+    "history_sync": "history-sync",
+    "session_end": "session-end",
 }
 
 
@@ -37,5 +38,5 @@ class GleanPingsParser:
                 for category, pings in results.value.items()
                 for ping_name, ping_data in pings.items()
             },
-            errors
+            errors,
         )

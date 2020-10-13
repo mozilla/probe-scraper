@@ -3,9 +3,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
+
 import jsonschema
 import yaml
-
 
 REPOSITORIES_FILENAME = "repositories.yaml"
 REPOSITORIES_SCHEMA = "schemas/repositories.json"
@@ -15,6 +15,7 @@ class Repository(object):
     """
     A class representing a repository, read in from `repositories.yaml`
     """
+
     default_branch = "master"
 
     def __init__(self, name, definition):
@@ -63,7 +64,7 @@ class RepositoriesParser(object):
         if filename is None:
             filename = REPOSITORIES_FILENAME
 
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             repos = yaml.load(f, Loader=yaml.SafeLoader)
 
         return repos
@@ -71,7 +72,7 @@ class RepositoriesParser(object):
     def validate(self, filename=None):
         repos = self._get_repos(filename)
 
-        with open(REPOSITORIES_SCHEMA, 'r') as f:
+        with open(REPOSITORIES_SCHEMA, "r") as f:
             schema = json.load(f)
 
         jsonschema.validate(repos, schema)
@@ -87,9 +88,7 @@ class RepositoriesParser(object):
         repos = self._get_repos(filename)
 
         repos = [
-            Repository(name, definition)
-            for name, definition
-            in list(repos.items())
+            Repository(name, definition) for name, definition in list(repos.items())
         ]
 
         return self.filter_repos(repos, glean_repo)

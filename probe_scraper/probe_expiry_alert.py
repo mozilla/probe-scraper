@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from collections import defaultdict
-from dataclasses import dataclass
-from typing import Dict, List, Set, Tuple, Union
 import argparse
 import datetime
 import os
 import re
 import tempfile
+from collections import defaultdict
+from dataclasses import dataclass
+from typing import Dict, List, Set, Tuple, Union
 
 import requests
 
@@ -26,7 +26,9 @@ BUGZILLA_BUG_URL = "https://bugzilla.mozilla.org/rest/bug"
 BUGZILLA_USER_URL = "https://bugzilla.mozilla.org/rest/user"
 BUGZILLA_BUG_LINK_TEMPLATE = "https://bugzilla.mozilla.org/show_bug.cgi?id={bug_id}"
 
-BASE_URI = "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/telemetry/"
+BASE_URI = (
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/telemetry/"
+)
 HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
 EVENTS_FILE = "Events.yaml"
@@ -81,14 +83,19 @@ def bugzilla_request_header(api_key: str) -> Dict[str, str]:
     return {"X-BUGZILLA-API-KEY": api_key}
 
 
-def get_bug_component(bug_id: int, api_key: str) -> Tuple[Union[str, None], Union[str, None]]:
-    response = requests.get(BUGZILLA_BUG_URL + "/" + str(bug_id),
-                            headers=bugzilla_request_header(api_key))
+def get_bug_component(
+    bug_id: int, api_key: str
+) -> Tuple[Union[str, None], Union[str, None]]:
+    response = requests.get(
+        BUGZILLA_BUG_URL + "/" + str(bug_id), headers=bugzilla_request_header(api_key)
+    )
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         print(f"Error getting component for bug {bug_id}: {e}")
-        if e.response.status_code == 401:  # Some confidential security bugs are not accessible
+        if (
+            e.response.status_code == 401
+        ):  # Some confidential security bugs are not accessible
             return None, None
         else:
             raise
@@ -102,8 +109,11 @@ def find_existing_bugs(version: str, api_key: str) -> Set[str]:
         "whiteboard": BUG_WHITEBOARD_TAG,
         "include_fields": "description,summary",
     }
-    response = requests.get(BUGZILLA_BUG_URL, params=search_query_params,
-                            headers=bugzilla_request_header(api_key))
+    response = requests.get(
+        BUGZILLA_BUG_URL,
+        params=search_query_params,
+        headers=bugzilla_request_header(api_key),
+    )
     response.raise_for_status()
 
     found_bugs = response.json()["bugs"]
@@ -112,7 +122,9 @@ def find_existing_bugs(version: str, api_key: str) -> Set[str]:
     for bug in found_bugs:
         if re.search(r"release: version (\d+)", bug["description"]).group(1) != version:
             continue
-        probes_in_bug = re.search(r"```(.*)```", bug["description"], re.DOTALL).group(1).split()
+        probes_in_bug = (
+            re.search(r"```(.*)```", bug["description"], re.DOTALL).group(1).split()
+        )
         for probe_name in probes_in_bug:
             probes_with_bugs.add(probe_name)
 
@@ -152,31 +164,50 @@ def get_longest_prefix(values: List[str], tolerance: int = 0) -> str:
     for value in values:
         prefix_count[value[:prefix_length]] += 1
 
-    return sorted(prefix_count.items(), key=lambda item: item[1], reverse=True)[0][0] + '*'
+    return (
+        sorted(prefix_count.items(), key=lambda item: item[1], reverse=True)[0][0] + "*"
+    )
 
 
 def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     probe_names = [probe.name for probe in probes]
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
 
-    see_also_bugs = list(set([probe.previous_bug for probe in probes
-                              if isinstance(probe.previous_bug, int)]))
-    see_also_bugs_str = list(set([probe.previous_bug for probe in probes
-                                  if isinstance(probe.previous_bug, str)]))
+    see_also_bugs = list(
+        set(
+            [
+                probe.previous_bug
+                for probe in probes
+                if isinstance(probe.previous_bug, int)
+            ]
+        )
+    )
+    see_also_bugs_str = list(
+        set(
+            [
+                probe.previous_bug
+                for probe in probes
+                if isinstance(probe.previous_bug, str)
+            ]
+        )
+    )
 
     if len(see_also_bugs_str) == 0:
         notes = ""
     else:
-        notes = ("The following bugs are associated with the above "
-                 f"probe{'s' if len(probes) > 0 else ''}: "
-                 f"{', '.join([f'bug {bug_num}' for bug_num in see_also_bugs_str])}")
+        notes = (
+            "The following bugs are associated with the above "
+            f"probe{'s' if len(probes) > 0 else ''}: "
+            f"{', '.join([f'bug {bug_num}' for bug_num in see_also_bugs_str])}"
+        )
 
     create_params = {
         "product": probes[0].product,
         "component": probes[0].component,
         "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_prefix),
         "description": BUG_DESCRIPTION_TEMPLATE.format(
-            version=version, probes="\n".join(probe_names), notes=notes),
+            version=version, probes="\n".join(probe_names), notes=notes
+        ),
         "version": "unspecified",
         "type": "task",
         "whiteboard": BUG_WHITEBOARD_TAG,
@@ -191,20 +222,22 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
             for email in probes[0].emails
         ],
     }
-    create_response = requests.post(BUGZILLA_BUG_URL, json=create_params,
-                                    headers=bugzilla_request_header(api_key))
+    create_response = requests.post(
+        BUGZILLA_BUG_URL, json=create_params, headers=bugzilla_request_header(api_key)
+    )
     try:
         create_response.raise_for_status()
     except requests.exceptions.HTTPError:
         print(f"Failed to create bugs with arguments: {create_params}")
         raise
     print(f"Created bug {str(create_response.json())} for {probe_prefix}")
-    return create_response.json()['id']
+    return create_response.json()["id"]
 
 
 def check_bugzilla_user_exists(email: str, api_key: str):
-    user_response = requests.get(BUGZILLA_USER_URL + "?names=" + email,
-                                 headers=bugzilla_request_header(api_key))
+    user_response = requests.get(
+        BUGZILLA_USER_URL + "?names=" + email, headers=bugzilla_request_header(api_key)
+    )
     try:
         user_response.raise_for_status()
     except requests.exceptions.HTTPError as e:
@@ -220,7 +253,9 @@ def check_bugzilla_user_exists(email: str, api_key: str):
 
 
 def get_latest_nightly_version():
-    versions = requests.get("https://product-details.mozilla.org/1.0/firefox_versions.json").json()
+    versions = requests.get(
+        "https://product-details.mozilla.org/1.0/firefox_versions.json"
+    ).json()
     return get_major_version(versions["FIREFOX_NIGHTLY"])
 
 
@@ -230,8 +265,9 @@ def download_file(url: str, output_filepath: str):
         output_file.write(content)
 
 
-def find_expiring_probes(probes: dict, target_version: str,
-                         bugzilla_api_key: str) -> List[ProbeDetails]:
+def find_expiring_probes(
+    probes: dict, target_version: str, bugzilla_api_key: str
+) -> List[ProbeDetails]:
     """
     Find probes expiring in the target version
     """
@@ -246,20 +282,32 @@ def find_expiring_probes(probes: dict, target_version: str,
                 component = BUG_DEFAULT_COMPONENT
             else:
                 last_bug_number = max(details["bug_numbers"])
-                product, component = (get_bug_component(last_bug_number, bugzilla_api_key))
+                product, component = get_bug_component(
+                    last_bug_number, bugzilla_api_key
+                )
                 if product is None and component is None:
                     last_bug_number = str(last_bug_number)
                     product = BUG_DEFAULT_PRODUCT
                     component = BUG_DEFAULT_COMPONENT
             expiring_probes.append(
-                ProbeDetails(name, product, component,
-                             details.get("notification_emails", []), last_bug_number))
+                ProbeDetails(
+                    name,
+                    product,
+                    component,
+                    details.get("notification_emails", []),
+                    last_bug_number,
+                )
+            )
 
     return expiring_probes
 
 
-def send_emails(probes_by_email: Dict[str, List[str]], probe_to_bug_id: Dict[str, int],
-                version: str, dryrun: bool = True):
+def send_emails(
+    probes_by_email: Dict[str, List[str]],
+    probe_to_bug_id: Dict[str, int],
+    version: str,
+    dryrun: bool = True,
+):
     # send all probes to glean-team for debugging
     probes_by_email[DEFAULT_TO_EMAIL] = list(set(sum(probes_by_email.values(), [])))
 
@@ -274,18 +322,26 @@ def send_emails(probes_by_email: Dict[str, List[str]], probe_to_bug_id: Dict[str
             continue  # no bug links means bugs were already created and emails sent
 
         email_body = BUG_DESCRIPTION_TEMPLATE.format(
-            version=version, probes='\n'.join(probe_names),
-            notes=BUG_LINK_LIST_TEMPLATE.format(bug_links='\n'.join(bug_links)))
+            version=version,
+            probes="\n".join(probe_names),
+            notes=BUG_LINK_LIST_TEMPLATE.format(bug_links="\n".join(bug_links)),
+        )
 
-        emailer.send_ses(FROM_EMAIL, "Telemetry Probe Expiry",
-                         body=email_body, recipients=email, dryrun=dryrun)
+        emailer.send_ses(
+            FROM_EMAIL,
+            "Telemetry Probe Expiry",
+            body=email_body,
+            recipients=email,
+            dryrun=dryrun,
+        )
         email_count += 1
 
     print(f"Sent emails to {email_count} recipients")
 
 
-def file_bugs(probes: List[ProbeDetails], version: str,
-              bugzilla_api_key: str, dryrun: bool = True) -> Dict[str, int]:
+def file_bugs(
+    probes: List[ProbeDetails], version: str, bugzilla_api_key: str, dryrun: bool = True
+) -> Dict[str, int]:
     """
     Search for bugs that have already been created by probe_expiry_alerts
     for probes in the current version.
@@ -299,14 +355,17 @@ def file_bugs(probes: List[ProbeDetails], version: str,
 
     new_expiring_probes = [probe for probe in probes if probe.name not in existing_bugs]
 
-    print(f"Found previously created bugs for {len(probes) - len(new_expiring_probes)} probes "
-          f"for version {version}")
+    print(
+        f"Found previously created bugs for {len(probes) - len(new_expiring_probes)} probes "
+        f"for version {version}"
+    )
 
     # group by component and email
     probes_by_component_by_email_set = defaultdict(list)
     for probe in new_expiring_probes:
         probes_by_component_by_email_set[
-            (probe.product, probe.component, ','.join(sorted(probe.emails)))].append(probe)
+            (probe.product, probe.component, ",".join(sorted(probe.emails)))
+        ].append(probe)
 
     print(f"creating {len(probes_by_component_by_email_set)} new bugs")
 
@@ -334,7 +393,9 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
 
         histograms_file_path = os.path.join(tempdir, HISTOGRAMS_FILE)
         download_file(BASE_URI + HISTOGRAMS_FILE, histograms_file_path)
-        histograms = HistogramsParser().parse([histograms_file_path], version=next_version)
+        histograms = HistogramsParser().parse(
+            [histograms_file_path], version=next_version
+        )
 
         scalars_file_path = os.path.join(tempdir, SCALARS_FILE)
         download_file(BASE_URI + SCALARS_FILE, scalars_file_path)
@@ -351,14 +412,19 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
 
     # find emails with no bugzilla account
     emails_wo_accounts = defaultdict(list)
-    for probe_name, email_list in [(probe.name, probe.emails) for probe in expiring_probes]:
+    for probe_name, email_list in [
+        (probe.name, probe.emails) for probe in expiring_probes
+    ]:
         for i, email in enumerate(email_list.copy()):
-            if (email in emails_wo_accounts.keys() or
-                    not check_bugzilla_user_exists(email, bugzilla_api_key)):
+            if email in emails_wo_accounts.keys() or not check_bugzilla_user_exists(
+                email, bugzilla_api_key
+            ):
                 emails_wo_accounts[email].append(probe_name)
                 email_list.remove(email)
 
-    probe_to_bug_id = file_bugs(expiring_probes, next_version, bugzilla_api_key, dryrun=dryrun)
+    probe_to_bug_id = file_bugs(
+        expiring_probes, next_version, bugzilla_api_key, dryrun=dryrun
+    )
 
     send_emails(emails_wo_accounts, probe_to_bug_id, next_version, dryrun=dryrun)
 

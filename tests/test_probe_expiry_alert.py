@@ -17,18 +17,19 @@ class ResponseWrapper:
 
 
 def test_bugzilla_prod_urls():
-    assert probe_expiry_alert.BUGZILLA_BUG_URL.startswith("https://bugzilla.mozilla.org/")
-    assert probe_expiry_alert.BUGZILLA_USER_URL.startswith("https://bugzilla.mozilla.org/")
+    assert probe_expiry_alert.BUGZILLA_BUG_URL.startswith(
+        "https://bugzilla.mozilla.org/"
+    )
+    assert probe_expiry_alert.BUGZILLA_USER_URL.startswith(
+        "https://bugzilla.mozilla.org/"
+    )
     assert probe_expiry_alert.BUGZILLA_BUG_LINK_TEMPLATE.startswith(
-        "https://bugzilla.mozilla.org/")
+        "https://bugzilla.mozilla.org/"
+    )
 
 
 def test_find_expiring_probes_no_expiring():
-    probes = {
-        "p1": {
-            "expiry_version": "never"
-        }
-    }
+    probes = {"p1": {"expiry_version": "never"}}
     expiring_probes = probe_expiry_alert.find_expiring_probes(
         probes,
         "75",
@@ -100,9 +101,15 @@ def test_find_expiring_probes_expiring(mock_get_bug_component):
 @mock.patch("probe_scraper.probe_expiry_alert.get_latest_nightly_version")
 @mock.patch("probe_scraper.probe_expiry_alert.file_bugs")
 @mock.patch("probe_scraper.probe_expiry_alert.send_emails")
-def test_not_dryrun_only_once_per_week(mock_send_emails, mock_file_bugs, mock_get_version,
-                                       mock_download_file, mock_scalars_parser,
-                                       mock_histograms_parser, mock_events_parser):
+def test_not_dryrun_only_once_per_week(
+    mock_send_emails,
+    mock_file_bugs,
+    mock_get_version,
+    mock_download_file,
+    mock_scalars_parser,
+    mock_histograms_parser,
+    mock_events_parser,
+):
     mock_file_bugs.return_value = {}
     mock_events_parser.return_value = {}
     mock_histograms_parser.return_value = {}
@@ -112,13 +119,17 @@ def test_not_dryrun_only_once_per_week(mock_send_emails, mock_file_bugs, mock_ge
         base_date = datetime.date(2020, 1, 1)
         probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), False, "")
 
-    mock_file_bugs.assert_has_calls([mock.call([], "76", "", dryrun=False)] +
-                                    [mock.call([], "76", "", dryrun=True)] * 6,
-                                    any_order=True)
+    mock_file_bugs.assert_has_calls(
+        [mock.call([], "76", "", dryrun=False)]
+        + [mock.call([], "76", "", dryrun=True)] * 6,
+        any_order=True,
+    )
     assert mock_file_bugs.call_count == 7
-    mock_send_emails.assert_has_calls([mock.call({}, {}, "76", dryrun=False)] +
-                                      [mock.call({}, {}, "76", dryrun=True)] * 6,
-                                      any_order=True)
+    mock_send_emails.assert_has_calls(
+        [mock.call({}, {}, "76", dryrun=False)]
+        + [mock.call({}, {}, "76", dryrun=True)] * 6,
+        any_order=True,
+    )
     assert mock_send_emails.call_count == 7
 
 
@@ -128,7 +139,7 @@ def test_no_bugs_created_on_dryrun(mock_create_bug, mock_find_bugs):
     mock_find_bugs.return_value = set()
     expiring_probes = [
         ProbeDetails("p1", "", "", [], 1),
-        ProbeDetails("p2", "", "", ['a@test.com'], 1),
+        ProbeDetails("p2", "", "", ["a@test.com"], 1),
     ]
 
     probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=True)
@@ -142,7 +153,7 @@ def test_bugs_created_not_dryrun(mock_create_bug, mock_find_bugs):
     mock_find_bugs.return_value = []
     expiring_probes = [
         ProbeDetails("p1", "1", "2", [], 1),
-        ProbeDetails("p2", "3", "4", ['a@test.com'], 1),
+        ProbeDetails("p2", "3", "4", ["a@test.com"], 1),
     ]
 
     probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=False)
@@ -194,9 +205,16 @@ def test_send_email_not_dryrun(mock_boto_client):
 @mock.patch("probe_scraper.probe_expiry_alert.check_bugzilla_user_exists")
 @mock.patch("probe_scraper.probe_expiry_alert.file_bugs")
 @mock.patch("probe_scraper.probe_expiry_alert.send_emails")
-def test_main_run(mock_send_emails, mock_file_bugs, mock_user_exists,
-                  mock_get_version, mock_download_file, mock_scalars_parser,
-                  mock_histograms_parser, mock_events_parser):
+def test_main_run(
+    mock_send_emails,
+    mock_file_bugs,
+    mock_user_exists,
+    mock_get_version,
+    mock_download_file,
+    mock_scalars_parser,
+    mock_histograms_parser,
+    mock_events_parser,
+):
     mock_user_exists.return_value = False
     mock_events_parser.return_value = {
         "p1": {
@@ -223,10 +241,10 @@ def test_main_run(mock_send_emails, mock_file_bugs, mock_user_exists,
 
     probe_expiry_alert.main(datetime.date(2020, 1, 8), False, "")
 
-    expected_expiring_probes = [
-        ProbeDetails("p1", "Firefox", "General", [], None)
-    ]
-    mock_file_bugs.assert_called_once_with(expected_expiring_probes, "76", "", dryrun=False)
+    expected_expiring_probes = [ProbeDetails("p1", "Firefox", "General", [], None)]
+    mock_file_bugs.assert_called_once_with(
+        expected_expiring_probes, "76", "", dryrun=False
+    )
 
 
 @mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
@@ -242,10 +260,13 @@ def test_bugs_created_only_for_new_probes(mock_create_bugs, mock_find_bugs):
     probe_expiry_alert.file_bugs(probes, "1", "", dryrun=False)
 
     assert mock_create_bugs.call_count == 2
-    mock_create_bugs.has_calls([
-        mock.call(ProbeDetails("p1", "", "", ["email1"], 1), "1", mock.ANY),
-        mock.call(ProbeDetails("p4", "", "", ["email2"], 1), "1", mock.ANY),
-    ], any_order=True)
+    mock_create_bugs.has_calls(
+        [
+            mock.call(ProbeDetails("p1", "", "", ["email1"], 1), "1", mock.ANY),
+            mock.call(ProbeDetails("p4", "", "", ["email2"], 1), "1", mock.ANY),
+        ],
+        any_order=True,
+    )
 
 
 @mock.patch("requests.post")
@@ -275,17 +296,20 @@ def test_bug_description_parser(mock_get):
             {
                 "summary": "",
                 "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
-                    version="76", probes="\np1\np2 \n", notes=""),
+                    version="76", probes="\np1\np2 \n", notes=""
+                ),
             },
             {
                 "summary": "",
                 "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
-                    version="77", probes="\n p3 p4", notes=""),
+                    version="77", probes="\n p3 p4", notes=""
+                ),
             },
             {
                 "summary": "",
                 "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
-                    version="76", probes="\np5 p6\n", notes=""),
+                    version="76", probes="\np5 p6\n", notes=""
+                ),
             },
         ]
     }
@@ -331,12 +355,14 @@ def test_check_bugzilla_user_account_not_found(mock_get):
 def test_check_bugzilla_user_account_not_found_200(mock_get):
     mock_response = mock.MagicMock()
     mock_response.status_code = 200
-    mock_response.json = mock.MagicMock(return_value={
-        "message": None,
-        "code": 100500,
-        "documentation": "https://bmo.readthedocs.io/en/latest/api/",
-        "error": True,
-    })
+    mock_response.json = mock.MagicMock(
+        return_value={
+            "message": None,
+            "code": 100500,
+            "documentation": "https://bmo.readthedocs.io/en/latest/api/",
+            "error": True,
+        }
+    )
 
     mock_get.return_value = mock_response
 

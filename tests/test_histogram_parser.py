@@ -68,11 +68,22 @@ def histogram_parser(version, usecounter_optout):
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
-        "cpp_guard", "description", "details", "expiry_version", "optout", "bug_numbers"
+        "cpp_guard",
+        "description",
+        "details",
+        "expiry_version",
+        "optout",
+        "bug_numbers",
     ]
 
     REQUIRED_DETAILS = [
-        "low", "high", "keyed", "kind", "n_buckets", "record_in_processes", "record_into_store"
+        "low",
+        "high",
+        "keyed",
+        "kind",
+        "n_buckets",
+        "record_in_processes",
+        "record_into_store",
     ]
 
     for name, data in parsed_histograms.items():
@@ -84,22 +95,22 @@ def histogram_parser(version, usecounter_optout):
 
         # Check that we have all the needed details.
         for field in REQUIRED_DETAILS:
-            assert field in data['details']
+            assert field in data["details"]
 
         # If multiple stores set, they should be both listed
         if name == "HISTOGRAM_WITH_MULTISTORE":
-            assert ["main", "store2"] == data['details']['record_into_store']
+            assert ["main", "store2"] == data["details"]["record_into_store"]
         else:
             # Default multistore if unspecified is just "main"
-            assert ["main"] == data['details']['record_into_store']
+            assert ["main"] == data["details"]["record_into_store"]
 
         # Categorical histograms should have a non-empty `details["labels"]`.
-        if data['details']['kind'] == 'categorical':
-            assert ('labels' in data['details'].keys() and isinstance(
-                data['details']['labels'], list
-            ))
+        if data["details"]["kind"] == "categorical":
+            assert "labels" in data["details"].keys() and isinstance(
+                data["details"]["labels"], list
+            )
         else:
-            assert 'labels' not in data['details'].keys()
+            assert "labels" not in data["details"].keys()
 
         if name.startswith("USE_COUNTER2_"):
             assert data["optout"] == usecounter_optout

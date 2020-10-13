@@ -2,23 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import boto3
-import yaml
-
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import boto3
+import yaml
 
 EMAIL_FILE = "emails.txt"
 
 
-def send_ses(fromaddr,
-             subject,
-             body,
-             recipients,
-             filename='',
-             dryrun=True):
+def send_ses(fromaddr, subject, body, recipients, filename="", dryrun=True):
     """Send an email via the Amazon SES service. Can specify a single or list of
        recipients.
 
@@ -38,23 +32,23 @@ def send_ses(fromaddr,
     if isinstance(recipients, list):
         recipients = ",".join(recipients)
 
-    email_data = [{
-        "from": fromaddr,
-        "to": subject,
-        "body": body,
-        "recipients": recipients
-    }]
+    email_data = [
+        {"from": fromaddr, "to": subject, "body": body, "recipients": recipients}
+    ]
 
     with open(EMAIL_FILE, "a") as f:
         f.write(yaml.dump(email_data, default_flow_style=False))
 
     if dryrun:
-        email_txt = "\n".join([
-            "New Email",
-            "    From: " + fromaddr,
-            "    To: " + recipients,
-            "    Subject: " + subject,
-            "    Body: " + body])
+        email_txt = "\n".join(
+            [
+                "New Email",
+                "    From: " + fromaddr,
+                "    To: " + recipients,
+                "    Subject: " + subject,
+                "    Body: " + body,
+            ]
+        )
         print(email_txt)
         return
 
@@ -71,9 +65,7 @@ def send_ses(fromaddr,
         msg.attach(part)
 
     ses = boto3.client("ses", region_name="us-west-2")
-    result = ses.send_raw_email(
-        RawMessage={"Data": msg.as_string()}
-    )
+    result = ses.send_raw_email(RawMessage={"Data": msg.as_string()})
 
     if "ErrorResponse" in result:
         raise RuntimeError("Error sending email: " + result)

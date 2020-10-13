@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from collections import defaultdict
-import git
 import os
 import shutil
 import tempfile
 import traceback
+from collections import defaultdict
 from datetime import datetime, timedelta
 
+import git
 
 # WARNING!
 # Changing these dates can cause files that had metrics to
@@ -35,8 +35,8 @@ MIN_DATES = {
 def get_commits(repo, filename):
     sep = ":"
     log_format = '--format="%H{}%ct"'.format(sep)
-    change_commits = enumerate(repo.git.log(log_format, filename).split('\n'))
-    most_recent_commit = enumerate(repo.git.log('-n', '1', log_format).split('\n'))
+    change_commits = enumerate(repo.git.log(log_format, filename).split("\n"))
+    most_recent_commit = enumerate(repo.git.log("-n", "1", log_format).split("\n"))
     commits = set(change_commits) | set(most_recent_commit)
 
     # Store the index in the ref-log as well as the timestamp, so that the
@@ -85,7 +85,7 @@ def retrieve_files(repo_info, cache_dir):
         for rel_path in repo_info.get_change_files():
             hashes = get_commits(repo, rel_path)
             for _hash, (ts, index) in hashes.items():
-                if (min_date and ts < min_date):
+                if min_date and ts < min_date:
                     continue
 
                 disk_path = os.path.join(base_path, _hash, rel_path)
@@ -95,7 +95,7 @@ def retrieve_files(repo_info, cache_dir):
                     dir = os.path.split(disk_path)[0]
                     if not os.path.exists(dir):
                         os.makedirs(dir)
-                    with open(disk_path, 'wb') as f:
+                    with open(disk_path, "wb") as f:
                         f.write(contents.encode("UTF-8"))
 
                 results[_hash].append(disk_path)
@@ -142,7 +142,10 @@ def scrape(folder=None, repos=None):
         print("Getting commits for repository " + repo_info.name)
 
         results[repo_info.name] = {}
-        emails[repo_info.name] = {"addresses": repo_info.notification_emails, "emails": []}
+        emails[repo_info.name] = {
+            "addresses": repo_info.notification_emails,
+            "emails": [],
+        }
 
         try:
             ts, commits = retrieve_files(repo_info, folder)
@@ -151,9 +154,11 @@ def scrape(folder=None, repos=None):
             timestamps[repo_info.name] = ts
         except Exception:
             raise
-            emails[repo_info.name]["emails"].append({
-                "subject": "Probe Scraper: Failed Probe Import",
-                "message": traceback.format_exc()
-            })
+            emails[repo_info.name]["emails"].append(
+                {
+                    "subject": "Probe Scraper: Failed Probe Import",
+                    "message": traceback.format_exc(),
+                }
+            )
 
     return timestamps, results, emails
