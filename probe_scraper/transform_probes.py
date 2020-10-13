@@ -15,17 +15,17 @@ REFLOG_KEY = "reflog-index"
 
 
 def is_test_probe(probe_type, name):
-    if probe_type == 'histogram':
+    if probe_type == "histogram":
         # These are test-only probes and never sent out.
         return name.startswith("TELEMETRY_TEST_")
-    elif probe_type in ['scalar', 'event']:
+    elif probe_type in ["scalar", "event"]:
         return name.startswith("telemetry.test.")
 
     return False
 
 
 def get_from_nested_dict(dictionary, path, default=None):
-    keys = path.split('/')
+    keys = path.split("/")
     for k in keys[:-1]:
         dictionary = dictionary[k]
     return dictionary.get(keys[-1], default)
@@ -63,9 +63,10 @@ def probes_equal(probe1, probe2):
     return True
 
 
-def extract_node_data(node_id, channel, probe_type, probe_data, result_data,
-                      version, break_by_channel):
-    """ Extract the probe data and group it by channel.
+def extract_node_data(
+    node_id, channel, probe_type, probe_data, result_data, version, break_by_channel
+):
+    """Extract the probe data and group it by channel.
 
     :param node_id: the revision the probe data comes from, with th
     :param channel: the channel the probe was found in.
@@ -157,10 +158,12 @@ def sorted_node_lists_by_channel(node_data):
     channels = defaultdict(list)
     for channel, nodes in node_data.items():
         for node_id, data in nodes.items():
-            channels[channel].append({
-                'node_id': node_id,
-                'version': data['version'],
-            })
+            channels[channel].append(
+                {
+                    "node_id": node_id,
+                    "version": data["version"],
+                }
+            )
 
     for channel, data in channels.items():
         channels[channel] = sorted(data, key=lambda n: int(n["version"]), reverse=True)
@@ -175,19 +178,23 @@ def sorted_node_lists_by_date(node_data, revision_dates):
     channels = defaultdict(list)
     for channel, nodes in node_data.items():
         for node_id, data in nodes.items():
-            channels[channel].append({
-                'node_id': node_id,
-                'version': data['version'],
-            })
+            channels[channel].append(
+                {
+                    "node_id": node_id,
+                    "version": data["version"],
+                }
+            )
 
     for channel, data in channels.items():
-        channels[channel] = sorted(data, key=lambda x: get_date(x["node_id"]), reverse=True)
+        channels[channel] = sorted(
+            data, key=lambda x: get_date(x["node_id"]), reverse=True
+        )
 
     return channels
 
 
 def transform(probe_data, node_data, break_by_channel, revision_dates=None):
-    """ Transform the probe data into the final format.
+    """Transform the probe data into the final format.
 
     :param probe_data: the preprocessed probe data.
     :param node_data: the raw probe data.
@@ -205,28 +212,36 @@ def transform(probe_data, node_data, break_by_channel, revision_dates=None):
     for channel, channel_data in channels.items():
         print("\n" + channel + " - transforming probe data:")
         for entry in channel_data:
-            node_id = entry['node_id']
+            node_id = entry["node_id"]
 
             readable_version = str(entry["version"])
             print("  from: " + str({"node": node_id, "version": readable_version}))
             for probe_type, probes in probe_data[channel][node_id].items():
                 # Group the probes by the release channel, if requested
-                extract_node_data(node_id, channel, probe_type, probes, result_data,
-                                  readable_version, break_by_channel)
+                extract_node_data(
+                    node_id,
+                    channel,
+                    probe_type,
+                    probes,
+                    result_data,
+                    readable_version,
+                    break_by_channel,
+                )
 
     return result_data
 
 
 def get_minimum_date(probe_data, revision_data, revision_dates):
-    probe_histories = transform(probe_data, revision_data, break_by_channel=True,
-                                revision_dates=revision_dates)
+    probe_histories = transform(
+        probe_data, revision_data, break_by_channel=True, revision_dates=revision_dates
+    )
     min_dates = defaultdict(lambda: defaultdict(str))
 
     for channel, probes in probe_histories.items():
         for probe_id, entry in probes.items():
             dates = []
-            for history in entry['history'][channel]:
-                revision = history['revisions']['first']
+            for history in entry["history"][channel]:
+                revision = history["revisions"]["first"]
                 dates.append(revision_dates[channel][revision]["date"])
             min_dates[probe_id][channel] = min(dates)
 
@@ -234,23 +249,20 @@ def get_minimum_date(probe_data, revision_data, revision_dates):
 
 
 def pretty_ts(ts):
-    return datetime.utcfromtimestamp(ts).isoformat(' ')
+    return datetime.utcfromtimestamp(ts).isoformat(" ")
 
 
 def make_item_defn(definition, commit, commit_timestamps):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
-        definition[COMMITS_KEY] = {
-            "first": commit,
-            "last": commit
-        }
+        definition[COMMITS_KEY] = {"first": commit, "last": commit}
         definition[DATES_KEY] = {
             "first": pretty_ts(commit_timestamps[commit][0]),
-            "last": pretty_ts(commit_timestamps[commit][0])
+            "last": pretty_ts(commit_timestamps[commit][0]),
         }
         definition[REFLOG_KEY] = {
             "first": commit_timestamps[commit][1],
-            "last": commit_timestamps[commit][1]
+            "last": commit_timestamps[commit][1],
         }
     else:
         # we've seen this definition, update the `last` commit
@@ -262,23 +274,25 @@ def make_item_defn(definition, commit, commit_timestamps):
 
 
 def metrics_equal(def1, def2):
-    return all((
-        def1.get(l) == def2.get(l)
-        for l in {
-            'bugs',
-            'data_reviews',
-            'description',
-            'disabled',
-            'labeled',
-            'labels',
-            'lifetime',
-            'notification_emails',
-            'send_in_pings',
-            'time_unit',
-            'type',
-            'version',
-        }
-     ))
+    return all(
+        (
+            def1.get(l) == def2.get(l)
+            for l in {
+                "bugs",
+                "data_reviews",
+                "description",
+                "disabled",
+                "labeled",
+                "labels",
+                "lifetime",
+                "notification_emails",
+                "send_in_pings",
+                "time_unit",
+                "type",
+                "version",
+            }
+        )
+    )
 
 
 def ping_equal(def1, def2):
@@ -286,34 +300,27 @@ def ping_equal(def1, def2):
     ignored_keys = set([DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY])
     all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
 
-    return all((
-        def1.get(l) == def2.get(l)
-        for l in all_keys
-    ))
+    return all((def1.get(l) == def2.get(l) for l in all_keys))
 
 
 def metric_constructor(defn, metric):
-    return {
-        TYPE_KEY: defn[TYPE_KEY],
-        NAME_KEY: metric,
-        HISTORY_KEY: [defn]
-    }
+    return {TYPE_KEY: defn[TYPE_KEY], NAME_KEY: metric, HISTORY_KEY: [defn]}
 
 
 def ping_constructor(defn, metric):
-    return {
-        NAME_KEY: metric,
-        HISTORY_KEY: [defn]
-    }
+    return {NAME_KEY: metric, HISTORY_KEY: [defn]}
 
 
-def update_or_add_item(repo_items, commit_hash, item, definition, commit_timestamps,
-                       equal_fn, type_ctor):
+def update_or_add_item(
+    repo_items, commit_hash, item, definition, commit_timestamps, equal_fn, type_ctor
+):
     # If we've seen this item before, check previous definitions
     if item in repo_items:
         prev_defns = repo_items[item][HISTORY_KEY]
-        max_defn_i = max(range(len(prev_defns)),
-                         key=lambda i: datetime.fromisoformat(prev_defns[i][DATES_KEY]["last"]))
+        max_defn_i = max(
+            range(len(prev_defns)),
+            key=lambda i: datetime.fromisoformat(prev_defns[i][DATES_KEY]["last"]),
+        )
         max_defn = prev_defns[max_defn_i]
 
         # If equal to previous commit, update date and commit on existing definition
@@ -387,18 +394,20 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
         # iterate through commits, sorted by timestamp of the commit
         sorted_commits = sorted(
             iter(commits.items()),
-            key=lambda x_y: timestamp_sorter(commit_timestamps[repo_name][x_y[0]])
+            key=lambda x_y: timestamp_sorter(commit_timestamps[repo_name][x_y[0]]),
         )
 
         for commit_hash, items in sorted_commits:
             for item, definition in items.items():
-                repo_items = update_or_add_item(repo_items,
-                                                commit_hash,
-                                                item,
-                                                definition,
-                                                commit_timestamps[repo_name],
-                                                equal_fn,
-                                                type_ctor)
+                repo_items = update_or_add_item(
+                    repo_items,
+                    commit_hash,
+                    item,
+                    definition,
+                    commit_timestamps[repo_name],
+                    equal_fn,
+                    type_ctor,
+                )
 
         all_items[repo_name] = repo_items
 
@@ -406,7 +415,9 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
 
 
 def transform_metrics_by_hash(commit_timestamps, metric_data):
-    return transform_by_hash(commit_timestamps, metric_data, metrics_equal, metric_constructor)
+    return transform_by_hash(
+        commit_timestamps, metric_data, metrics_equal, metric_constructor
+    )
 
 
 def transform_pings_by_hash(commit_timestamps, ping_data):

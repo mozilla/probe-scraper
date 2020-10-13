@@ -3,20 +3,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from .third_party import parse_events
-from .utils import set_in_nested_dict, get_major_version
+from .utils import get_major_version, set_in_nested_dict
 
 
 def extract_events_data(e):
     props = {
         # source_field: target_field
-
         # TODO: extract description.
         "description": "description",
         "expiry_version": "expiry_version",
         "expiry_day": "expiry_day",
         "cpp_guard": "cpp_guard",
         "bug_numbers": "bug_numbers",
-
         "methods": "details/methods",
         "objects": "details/objects",
         "record_in_processes": "details/record_in_processes",
@@ -33,9 +31,7 @@ def extract_events_data(e):
         "bug_numbers": [],
     }
 
-    data = {
-        "details": {}
-    }
+    data = {"details": {}}
 
     for source_field, target_field in props.items():
         value = getattr(e, source_field, e._definition.get(source_field, None))
@@ -44,7 +40,7 @@ def extract_events_data(e):
         set_in_nested_dict(data, target_field, value)
 
     # We only care about opt-out or opt-in really.
-    optout = getattr(e, "dataset", "").endswith('_OPTOUT')
+    optout = getattr(e, "dataset", "").endswith("_OPTOUT")
     data["optout"] = optout
 
     # Normalize some field values.
@@ -61,12 +57,15 @@ class EventsParser:
         # We don't have important event usage yet, so lets skip
         # backwards compatibility for now.
         if (version and channel) and (
-          ((channel != "nightly" and version < 53)
-           or (channel == "nightly" and version < 54))):
+            (
+                (channel != "nightly" and version < 53)
+                or (channel == "nightly" and version < 54)
+            )
+        ):
             return {}
 
         if len(filenames) > 1:
-            raise Exception('We don\'t support loading from more than one file.')
+            raise Exception("We don't support loading from more than one file.")
 
         events = parse_events.load_events(filenames[0], strict_type_checks=False)
 

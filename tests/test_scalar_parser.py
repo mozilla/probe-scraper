@@ -15,11 +15,14 @@ def test_scalar_parser():
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
-        "cpp_guard", "description", "details", "expiry_version", "optout", "bug_numbers"
+        "cpp_guard",
+        "description",
+        "details",
+        "expiry_version",
+        "optout",
+        "bug_numbers",
     ]
-    REQUIRED_DETAILS = [
-        "keyed", "kind", "record_in_processes", "record_into_store"
-    ]
+    REQUIRED_DETAILS = ["keyed", "kind", "record_in_processes", "record_into_store"]
 
     for name, data in parsed_scalars.items():
         assert is_string(name)
@@ -33,7 +36,7 @@ def test_scalar_parser():
 
         # If multiple stores set, they should be both listed
         if name == "other.test.multistore_probe":
-            assert ["main", "store2"] == data['details']['record_into_store']
+            assert ["main", "store2"] == data["details"]["record_into_store"]
         else:
             # Default multistore if unspecified is just "main"
-            assert ["main"] == data['details']['record_into_store']
+            assert ["main"] == data["details"]["record_into_store"]

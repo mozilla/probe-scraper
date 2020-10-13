@@ -15,11 +15,14 @@ def test_event_parser():
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
-      "cpp_guard", "description", "details", "expiry_version", "optout", "bug_numbers"
+        "cpp_guard",
+        "description",
+        "details",
+        "expiry_version",
+        "optout",
+        "bug_numbers",
     ]
-    REQUIRED_DETAILS = [
-      "methods", "objects", "extra_keys", "record_in_processes"
-    ]
+    REQUIRED_DETAILS = ["methods", "objects", "extra_keys", "record_in_processes"]
 
     for name, data in parsed_events.items():
         assert is_string(name)

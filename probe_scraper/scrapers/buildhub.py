@@ -1,7 +1,8 @@
-from datetime import datetime
 import pprint
-import requests
 import re
+from datetime import datetime
+
+import requests
 
 
 class NoDataFoundException(Exception):
@@ -15,34 +16,39 @@ class Buildhub(object):
 
     date_formats = ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S.%f")
 
-    def _paginate_revision_dates(self, iteration, channel, min_version, product,
-                                 locale, platform, max_version, verbose, window):
+    def _paginate_revision_dates(
+        self,
+        iteration,
+        channel,
+        min_version,
+        product,
+        locale,
+        platform,
+        max_version,
+        verbose,
+        window,
+    ):
         query_str = [
             {"term": {"source.product": product}},
             {"term": {"target.channel": channel}},
             {"range": {"target.version": {"gte": str(min_version)}}},
             {"term": {"target.locale": locale}},
-            {"term": {"target.platform": platform}}
+            {"term": {"target.platform": platform}},
         ]
 
         if max_version is not None:
-            query_str.append({
-                "bool": {
-                    "should": [
-                        {"range": {"target.version": {"lte": str(max_version)}}},
-                        {"prefix": {"target.version": str(max_version)}}
-                    ]
+            query_str.append(
+                {
+                    "bool": {
+                        "should": [
+                            {"range": {"target.version": {"lte": str(max_version)}}},
+                            {"prefix": {"target.version": str(max_version)}},
+                        ]
+                    }
                 }
-            })
+            )
 
-        body = {
-            "query": {
-                "bool": {
-                    "filter": query_str
-                }
-            },
-            "size": window
-        }
+        body = {"query": {"bool": {"filter": query_str}}, "size": window}
 
         if iteration != 0:
             body["from"] = iteration * window
@@ -88,7 +94,7 @@ class Buildhub(object):
                 "date": date,
                 "revision": record["_source"]["source"]["revision"],
                 "version": record["_source"]["target"]["version"],
-                "tree": record["_source"]["source"]["tree"]
+                "tree": record["_source"]["source"]["tree"],
             }
 
             revision = entry["revision"]
@@ -96,14 +102,25 @@ class Buildhub(object):
 
             if revision in cleaned_records:
                 if cleaned_records[revision] != entry:
-                    min_entry = min((entry, cleaned_records[revision]), key=lambda x: x["date"])
+                    min_entry = min(
+                        (entry, cleaned_records[revision]), key=lambda x: x["date"]
+                    )
 
             cleaned_records[revision] = min_entry
 
         return sorted(cleaned_records.values(), key=lambda x: x["date"])
 
-    def get_revision_dates(self, channel, min_version, product="firefox", locale="en-US",
-                           platform="win64", max_version=None, verbose=False, window=500):
+    def get_revision_dates(
+        self,
+        channel,
+        min_version,
+        product="firefox",
+        locale="en-US",
+        platform="win64",
+        max_version=None,
+        verbose=False,
+        window=500,
+    ):
         """
         Retrieve the revisions and publish-dates for a given filter set.
         The combination of channel, product, local, and platform almost
@@ -136,14 +153,25 @@ class Buildhub(object):
         """
 
         # See: "99" > "65" == True, "100" > "65" == False
-        assert min_version < 100, "Lexographical comparison of versions fails after version 100"
+        assert (
+            min_version < 100
+        ), "Lexographical comparison of versions fails after version 100"
 
         total_hits = 0
         results = []
 
-        for i in range(2**20):
-            data = self._paginate_revision_dates(i, channel, min_version, product, locale,
-                                                 platform, max_version, verbose, window)
+        for i in range(2 ** 20):
+            data = self._paginate_revision_dates(
+                i,
+                channel,
+                min_version,
+                product,
+                locale,
+                platform,
+                max_version,
+                verbose,
+                window,
+            )
 
             # hits/total gives total number of records, including
             # those outside the window. We need to know the number
@@ -159,8 +187,14 @@ class Buildhub(object):
                 break
 
         if total_hits == 0:
-            raise NoDataFoundException("No data found for channel {} and minimum \
-                                       version {}".format(channel, min_version))
+            raise NoDataFoundException(
+                "No data found for channel {} and minimum \
+                                       version {}".format(
+                    channel, min_version
+                )
+            )
 
-        all_records = [record for result in results for record in result["hits"]["hits"]]
+        all_records = [
+            record for result in results for record in result["hits"]["hits"]
+        ]
         return self._distinct_and_clean(all_records)

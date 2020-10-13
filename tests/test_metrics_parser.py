@@ -20,4 +20,4 @@ def test_metrics_parser():
         assert is_string(name)
 
     # Check that ping names are normalized
-    assert 'session-end' in parsed_metrics['example.os']['send_in_pings']
+    assert "session-end" in parsed_metrics["example.os"]["send_in_pings"]

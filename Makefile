@@ -3,6 +3,7 @@
 help:
 	@echo "  clean                  Remove build artifacts"
 	@echo "  lint                   Check style with flake8"
+	@echo "  format                 Format code with black and isort"
 	@echo "  test                   Run tests quickly with the default Python"
 	@echo "  build                  Builds the docker images for the docker-compose setup"
 	@echo "  docker-rm              Stops and removes all docker containers"
@@ -21,6 +22,10 @@ clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
+
+format: 
+	python3 -m black .
+	python3 -m isort .
 
 lint: build
 	docker-compose run app flake8 --max-line-length 100 .

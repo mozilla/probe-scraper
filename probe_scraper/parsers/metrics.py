@@ -2,10 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from glean_parser.parser import parse_objects
-from .pings import normalize_ping_name
-
 from pathlib import Path
+
+from glean_parser.parser import parse_objects
+
+from .pings import normalize_ping_name
 
 
 class GleanMetricsParser:
@@ -31,7 +32,6 @@ class GleanMetricsParser:
         }
 
         for i, v in metrics.items():
-            v['send_in_pings'] = [normalize_ping_name(p)
-                                  for p in v['send_in_pings']]
+            v["send_in_pings"] = [normalize_ping_name(p) for p in v["send_in_pings"]]
 
         return metrics, errors

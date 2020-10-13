@@ -3,20 +3,21 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-from git import Repo, Head
-from probe_scraper import runner
-from probe_scraper.emailer import EMAIL_FILE
-from probe_scraper.transform_probes import HISTORY_KEY, COMMITS_KEY
 import datetime
-from pathlib import Path
 import json
 import os
-import pytest
 import shutil
 import time
 import unittest.mock
-import yaml
+from pathlib import Path
 
+import pytest
+import yaml
+from git import Head, Repo
+
+from probe_scraper import runner
+from probe_scraper.emailer import EMAIL_FILE
+from probe_scraper.transform_probes import COMMITS_KEY, HISTORY_KEY
 
 # Where the test files are located
 base_dir = "tests/resources/test_repo_files"
@@ -58,13 +59,13 @@ def run_before_tests():
     rm_if_exists(cache_dir, out_dir, test_dir)
 
 
-def get_repo(repo_name, branch='master'):
+def get_repo(repo_name, branch="master"):
     directory = os.path.join(test_dir, repo_name)
     repo = Repo.init(directory)
     # Ensure the default branch is using a fixed name.
     # User config could change that,
     # breaking tests with implicit assumptions further down the line.
-    repo.head.reference = Head(repo, f'refs/heads/{branch}')
+    repo.head.reference = Head(repo, f"refs/heads/{branch}")
 
     # We need to synthesize the time stamps of commits to each be a second
     # apart, otherwise the commits may be at exactly the same second, which
@@ -87,16 +88,13 @@ def get_repo(repo_name, branch='master'):
 
         repo.index.add("*")
         commit_date = datetime.datetime.fromtimestamp(base_time + i).isoformat()
-        commit_date = commit_date[:commit_date.find('.')]
-        repo.index.commit(
-            "Commit {index}".format(index=i),
-            commit_date=commit_date
-        )
+        commit_date = commit_date[: commit_date.find(".")]
+        repo.index.commit("Commit {index}".format(index=i), commit_date=commit_date)
 
     return directory
 
 
-def proper_repo(branch='master'):
+def proper_repo(branch="master"):
     location = get_repo(normal_repo_name, branch)
     repositories_info = {
         normal_repo_name: {
@@ -106,24 +104,24 @@ def proper_repo(branch='master'):
             "url": location,
             "metrics_files": ["metrics.yaml"],
             "dependencies": [
-                'org.mozilla.components:service-glean',
-                'org.mozilla.components:lib-crash',
-            ]
+                "org.mozilla.components:service-glean",
+                "org.mozilla.components:lib-crash",
+            ],
         },
         "glean": {
             "app_id": "glean",
             "description": "foo",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
-            "library_names": ["org.mozilla.components:service-glean"]
+            "library_names": ["org.mozilla.components:service-glean"],
         },
         "lib-crash": {
             "app_id": "lib-crash",
             "description": "foo",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
-            "library_names": ["org.mozilla.components:lib-crash"]
-        }
+            "library_names": ["org.mozilla.components:lib-crash"],
+        },
     }
 
     with open(repositories_file, "w") as f:
@@ -139,7 +137,7 @@ def normal_repo():
 
 @pytest.fixture
 def main_repo():
-    return proper_repo('main')
+    return proper_repo("main")
 
 
 @pytest.fixture
@@ -151,7 +149,7 @@ def improper_metrics_repo():
             "description": "foo",
             "notification_emails": ["frank@mozilla.com"],
             "url": location,
-            "metrics_files": ["metrics.yaml"]
+            "metrics_files": ["metrics.yaml"],
         }
     }
 
@@ -162,19 +160,32 @@ def improper_metrics_repo():
 
 
 def test_normal_repo(normal_repo):
-    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
-                True, None, None, None, None, 'dev')
+    runner.main(
+        cache_dir,
+        out_dir,
+        None,
+        None,
+        False,
+        True,
+        repositories_file,
+        True,
+        None,
+        None,
+        None,
+        None,
+        "dev",
+    )
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
 
-    with open(path, 'r') as data:
+    with open(path, "r") as data:
         metrics = json.load(data)
 
     # there are 2 metrics
     assert len(metrics) == 2
 
-    duration = 'example.duration'
-    os_metric = 'example.os'
+    duration = "example.duration"
+    os_metric = "example.os"
 
     # duration has 2 definitions
     assert len(metrics[duration][HISTORY_KEY]) == 2
@@ -196,24 +207,37 @@ def test_normal_repo(normal_repo):
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "dependencies")
 
-    with open(path, 'r') as data:
+    with open(path, "r") as data:
         dependencies = json.load(data)
 
     assert len(dependencies) == 2
 
 
 def test_improper_metrics_repo(improper_metrics_repo):
-    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
-                True, None, None, None, None, 'dev')
+    runner.main(
+        cache_dir,
+        out_dir,
+        None,
+        None,
+        False,
+        True,
+        repositories_file,
+        True,
+        None,
+        None,
+        None,
+        None,
+        "dev",
+    )
 
     path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
-    with open(path, 'r') as data:
+    with open(path, "r") as data:
         metrics = json.load(data)
 
     # should be empty output, since it was an improper file
     assert not metrics
 
-    with open(EMAIL_FILE, 'r') as email_file:
+    with open(EMAIL_FILE, "r") as email_file:
         emails = yaml.load(email_file, Loader=yaml.FullLoader)
 
     # should send 1 email
@@ -238,7 +262,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
             "notification_emails": ["repo_alice@example.com"],
             "url": normal_duplicate_repo,
             "metrics_files": ["metrics.yaml"],
-            "dependencies": ["duplicate_library"]
+            "dependencies": ["duplicate_library"],
         },
         duplicate_repo_name: {
             "app_id": "duplicate-library-name",
@@ -246,41 +270,56 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
             "notification_emails": ["repo_bob@example.com"],
             "url": duplicate_repo,
             "metrics_files": ["metrics.yaml"],
-            "library_names": ["duplicate_library"]
-        }
+            "library_names": ["duplicate_library"],
+        },
     }
 
     with open(repositories_file, "w") as f:
         f.write(yaml.dump(repositories_info))
 
     try:
-        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
-                    True, None, None, None, None, 'dev')
+        runner.main(
+            cache_dir,
+            out_dir,
+            None,
+            None,
+            False,
+            True,
+            repositories_file,
+            True,
+            None,
+            None,
+            None,
+            None,
+            "dev",
+        )
     except ValueError:
         pass
     else:
         assert False, "Expected exception"
 
-    with open(EMAIL_FILE, 'r') as email_file:
+    with open(EMAIL_FILE, "r") as email_file:
         emails = yaml.load(email_file, Loader=yaml.FullLoader)
 
     # should send 1 email
     assert len(emails) == 1
 
-    assert "'example.duration' defined more than once" in emails[0]['body']
-    assert "example.os" not in emails[0]['body']
+    assert "'example.duration' defined more than once" in emails[0]["body"]
+    assert "example.os" not in emails[0]["body"]
 
-    assert set(emails[0]['recipients'].split(',')) == set([
-        # Metrics owners
-        'alice@example.com',
-        'bob@example.com',
-        'charlie@example.com',
-        # Repo owners
-        'repo_alice@example.com',
-        'repo_bob@example.com',
-        # Everything goes here
-        'glean-team@mozilla.com'
-    ])
+    assert set(emails[0]["recipients"].split(",")) == set(
+        [
+            # Metrics owners
+            "alice@example.com",
+            "bob@example.com",
+            "charlie@example.com",
+            # Repo owners
+            "repo_alice@example.com",
+            "repo_bob@example.com",
+            # Everything goes here
+            "glean-team@mozilla.com",
+        ]
+    )
 
 
 @pytest.fixture
@@ -310,41 +349,69 @@ def test_check_for_expired_metrics(expired_repo):
             return datetime.date(2019, 10, 14)
 
     with unittest.mock.patch("probe_scraper.glean_checks.datetime.date", new=MockDate):
-        runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
-                    True, None, None, None, None, 'dev')
+        runner.main(
+            cache_dir,
+            out_dir,
+            None,
+            None,
+            False,
+            True,
+            repositories_file,
+            True,
+            None,
+            None,
+            None,
+            None,
+            "dev",
+        )
 
-    with open(EMAIL_FILE, 'r') as email_file:
+    with open(EMAIL_FILE, "r") as email_file:
         emails = yaml.load(email_file, Loader=yaml.FullLoader)
 
     # should send 1 email
     assert len(emails) == 1
 
-    assert "example.duration on 2019-01-01" in emails[0]['body']
+    assert "example.duration on 2019-01-01" in emails[0]["body"]
 
-    assert set(emails[0]['recipients'].split(',')) == set([
-        # Metrics owners
-        'bob@example.com',
-        # Repo owners
-        'repo_alice@example.com',
-        # Everything goes here
-        'glean-team@mozilla.com'
-    ])
+    assert set(emails[0]["recipients"].split(",")) == set(
+        [
+            # Metrics owners
+            "bob@example.com",
+            # Repo owners
+            "repo_alice@example.com",
+            # Everything goes here
+            "glean-team@mozilla.com",
+        ]
+    )
 
 
 def test_repo_default_main_branch(main_repo):
-    runner.main(cache_dir, out_dir, None, None, False, True, repositories_file,
-                True, None, None, None, None, 'dev')
+    runner.main(
+        cache_dir,
+        out_dir,
+        None,
+        None,
+        False,
+        True,
+        repositories_file,
+        True,
+        None,
+        None,
+        None,
+        None,
+        "dev",
+    )
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
 
-    with open(path, 'r') as data:
+    with open(path, "r") as data:
         metrics = json.load(data)
 
     # there are 2 metrics
     assert len(metrics) == 2
 
-    duration = 'example.duration'
-    os_metric = 'example.os'
+    duration = "example.duration"
+    os_metric = "example.os"
 
     # duration has 2 definitions
     assert len(metrics[duration][HISTORY_KEY]) == 2
@@ -366,7 +433,7 @@ def test_repo_default_main_branch(main_repo):
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "dependencies")
 
-    with open(path, 'r') as data:
+    with open(path, "r") as data:
         dependencies = json.load(data)
 
     assert len(dependencies) == 2

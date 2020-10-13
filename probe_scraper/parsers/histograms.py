@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from .third_party import histogram_tools
-from .utils import set_in_nested_dict, get_major_version
+from .utils import get_major_version, set_in_nested_dict
 
 
 def extract_histogram_data(histogram, version):
@@ -14,7 +14,6 @@ def extract_histogram_data(histogram, version):
         "expiration": "expiry_version",
         "bug_numbers": "bug_numbers",
         "alert_emails": "notification_emails",
-
         "n_buckets": "details/n_buckets",
         "low": "details/low",
         "high": "details/high",
@@ -32,9 +31,7 @@ def extract_histogram_data(histogram, version):
         "alert_emails": [],
     }
 
-    data = {
-        "details": {}
-    }
+    data = {"details": {}}
 
     for source_field, target_field in props.items():
         value = None
@@ -53,7 +50,7 @@ def extract_histogram_data(histogram, version):
     # We only care about opt-out or opt-in really.
     optout = False
     if hasattr(histogram, "dataset"):
-        optout = getattr(histogram, "dataset")().endswith('_OPTOUT')
+        optout = getattr(histogram, "dataset")().endswith("_OPTOUT")
 
     # Use Counters are shipped on release since 65.
     # If the parsers would set this flag, we couldn't differentiate between versions.
@@ -80,7 +77,9 @@ def extract_histogram_data(histogram, version):
 
 
 def transform_probe_info(probes, version):
-    return dict((probe.name(), extract_histogram_data(probe, version)) for probe in probes)
+    return dict(
+        (probe.name(), extract_histogram_data(probe, version)) for probe in probes
+    )
 
 
 class HistogramsParser:

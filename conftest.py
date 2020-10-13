@@ -6,7 +6,7 @@ def pytest_addoption(parser):
         "--run-web-tests",
         action="store_true",
         default=False,
-        help="Run tests that require a web connection"
+        help="Run tests that require a web connection",
     )
 
 
