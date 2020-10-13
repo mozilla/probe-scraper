@@ -43,6 +43,22 @@ glean:
     - glean-core/metrics.yaml
   ping_files:
     - glean-core/pings.yaml
+glean-deprecated:
+  app_id: glean-deprecated
+  description: Modern cross-platform telemetry (old)
+  deprecated: true
+  notification_emails:
+    - frank@mozilla.com
+    - mdroettboom@mozilla.com
+  url: https://github.com/mozilla/glean
+  branch: main
+  metrics_files:
+    - glean-core/android/metrics.yaml
+    - glean-core/metrics.yaml
+  ping_files:
+    - glean-core/pings.yaml
+  library_names:
+    - org.mozilla.deprecated:glean
 fenix:
   app_id: org-mozilla-fenix
   description: Firefox for Android
@@ -317,6 +333,8 @@ mozregression:
     - mozregression/metrics.yaml
   ping_files:
     - mozregression/pings.yaml
+  dependencies:
+    - org.mozilla.deprecated:glean
 firefox-ios-dev:
   app_id: org-mozilla-ios-fennec
   description: Firefox for iOS
@@ -327,6 +345,8 @@ firefox-ios-dev:
   metrics_files:
     - Client/metrics.yaml
   branch: main
+  dependencies:
+    - org.mozilla.deprecated:glean
 firefox-ios-beta:
   app_id: org-mozilla-ios-firefoxbeta
   description: Firefox for iOS
@@ -338,6 +358,8 @@ firefox-ios-beta:
   metrics_files:
     - Client/metrics.yaml
   branch: main
+  dependencies:
+    - org.mozilla.deprecated:glean
 firefox-ios-release:
   app_id: org-mozilla-ios-firefox
   description: Firefox for iOS
@@ -349,6 +371,8 @@ firefox-ios-release:
   metrics_files:
     - Client/metrics.yaml
   branch: main
+  dependencies:
+    - org.mozilla.deprecated:glean
 burnham:
   app_id: burnham
   description: Automated end-to-end testing for Mozilla's Glean telemetry
@@ -360,6 +384,8 @@ burnham:
     - application/src/burnham/config/metrics.yaml
   ping_files:
     - application/src/burnham/config/pings.yaml
+  dependencies:
+    - org.mozilla.deprecated:glean
 android-places:
   app_id: android-places
   description: >
@@ -384,6 +410,8 @@ mozphab:
     - mozphab/metrics.yaml
   ping_files:
     - mozphab/pings.yaml
+  dependencies:
+    - org.mozilla.deprecated:glean
 firefox-desktop:
   app_id: firefox-desktop
   description: The desktop version of Firefox
@@ -394,6 +422,8 @@ firefox-desktop:
     - toolkit/components/glean/metrics.yaml
   ping_files:
     - toolkit/components/glean/pings.yaml
+  dependencies:
+    - org.mozilla.deprecated:glean
 firefox-for-echo-show:
   app_id: org-mozilla-connect-firefox
   description: Firefox for Amazon's Echo Show
@@ -426,6 +456,8 @@ mach:
     - python/mach/metrics.yaml
   ping_files:
     - python/mach/pings.yaml
+  dependencies:
+    - org.mozilla.deprecated:glean
 glean-js:
   app_id: glean-js-tmp
   description: Experimentation with Glean.js
