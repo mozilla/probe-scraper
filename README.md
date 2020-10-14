@@ -18,6 +18,7 @@ To scrape a git repository for probe definitions, an entry needs to be added in 
 - `description`: A brief description of the repository.
 - `channel`: (optional) The release channel. Must be one of "release", "beta", "nightly" or "esr".
 - `deprecated` (optional) `true` if repository corresponds to a deprecated product or library.
+- `prototype`: (optional) `true` if the application is still under developement.
 - `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
 will be just about your specific repository.
 - `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
