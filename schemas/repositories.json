@@ -65,6 +65,10 @@
         "item": {
           "type": "string"
         }
+      },
+      "prototype":{
+        "type": "boolean",
+        "default": false
       }
     },
     "required": [

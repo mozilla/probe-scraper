@@ -31,6 +31,7 @@ class Repository(object):
         self.ping_file_paths = definition.get("ping_files", [])
         self.library_names = definition.get("library_names", None)
         self.dependencies = definition.get("dependencies", [])
+        self.prototype = definition.get("prototype", False)
 
     def get_branches(self):
         if self.branch == Repository.default_branch:
