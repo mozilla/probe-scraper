@@ -462,6 +462,7 @@ glean-js:
   app_id: glean-js-tmp
   description: Experimentation with Glean.js
   url: https://github.com/brizental/gleanjs
+  prototype: true
   notification_emails:
     - brizental@mozilla.com
     - aplacitelli@mozilla.com
