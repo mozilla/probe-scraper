@@ -29,20 +29,6 @@ glean-android:
     - glean-core/pings.yaml
   library_names:
     - org.mozilla.components:service-glean
-glean:
-  app_id: glean
-  description: Modern cross-platform telemetry (old)
-  deprecated: true
-  notification_emails:
-    - frank@mozilla.com
-    - mdroettboom@mozilla.com
-  url: https://github.com/mozilla/glean
-  branch: main
-  metrics_files:
-    - glean-core/android/metrics.yaml
-    - glean-core/metrics.yaml
-  ping_files:
-    - glean-core/pings.yaml
 glean-deprecated:
   app_id: glean-deprecated
   description: Modern cross-platform telemetry (old)
