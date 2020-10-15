@@ -24,10 +24,6 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-lint: build
-	docker-compose run app flake8 --max-line-length 100 .
-	docker-compose run app yamllint repositories.yaml .circleci
-
 format: 
 	python3 -m black probe_scraper tests ./*.py
 	python3 -m isort probe_scraper tests ./*.py
@@ -37,7 +33,7 @@ lint: build
 	docker-compose run app yamllint repositories.yaml .circleci
 	docker-compose run app python -m black --check probe_scraper tests ./*.py
 	docker-compose run app python -m isort --check-only probe_scraper tests ./*.py
-	
+
 check-repos: 
 	docker-compose run app python probe_scraper/check_repositories.py
 
