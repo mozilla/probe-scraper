@@ -41,9 +41,12 @@ with open(REPOSITORIES) as data:
             )
             if temp_erros:
                 print(f"Errors found in {repo} metrics file : {print(temp_erros)}")
-                if "prototype" in repos[repo] and repos[repo]["prototype"]:
-                    validation_errors.append(temp_erros)
+                if "prototype" in repos[repo] and not repos[repo]["prototype"]:
+                    validation_errors.append({"repo": repo, "errors": temp_erros})
     os.remove("temp-metrics.yaml")
     os.remove("yaml-lint-errors.txt")
     if validation_errors:
+        print(
+            f"\nSummary of validation errors \n==========================\n {validation_errors}"
+        )
         exit(1)
