@@ -1,5 +1,4 @@
 import os
-import sys
 
 import requests as reqs
 import yaml
