@@ -202,6 +202,7 @@ firefox-reality:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
     - dmu@mozilla.com
+  branch: main
   url: https://github.com/MozillaReality/FirefoxReality
   metrics_files:
     - app/metrics.yaml
@@ -467,6 +468,7 @@ glean-js:
     - brizental@mozilla.com
     - aplacitelli@mozilla.com
     - mdroettboom@mozilla.com
+  branch: main
   metrics_files:
     - metrics.yaml
   dependencies:
