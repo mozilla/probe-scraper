@@ -1,8 +1,13 @@
+import os
+import sys
+
 import requests as reqs
 import yaml
 
 GITHUB_RAW_URL = "https://raw.githubusercontent.com"
-REPOSITORIES = "../repositories.yaml"
+REPOSITORIES = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
+)
 
 with open(REPOSITORIES) as data:
     repos = yaml.load(data, Loader=yaml.FullLoader)
