@@ -14,6 +14,7 @@ glean-core:
     - glean-core/pings.yaml
   library_names:
     - glean-core
+  retention_days: 60
 glean-android:
   app_id: glean-android
   description: Modern cross-platform telemetry (Android-specific)
