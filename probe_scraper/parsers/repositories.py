@@ -32,6 +32,7 @@ class Repository(object):
         self.library_names = definition.get("library_names", None)
         self.dependencies = definition.get("dependencies", [])
         self.prototype = definition.get("prototype", False)
+        self.retention_days = definition.get("retention_days", None)
 
     def get_branches(self):
         if self.branch == Repository.default_branch:
