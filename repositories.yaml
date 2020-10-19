@@ -471,3 +471,4 @@ glean-js:
     - metrics.yaml
   dependencies:
     - glean-core
+  retention_days: 90
