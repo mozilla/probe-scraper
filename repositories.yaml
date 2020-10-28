@@ -406,7 +406,7 @@ mozphab:
   app_id: mozphab
   description: Phabricator review submission/management tool
   notification_emails:
-    - pzalewa@mozilla.com@mozilla.com
+    - pzalewa@mozilla.com
   url: https://github.com/mozilla-conduit/review
   metrics_files:
     - mozphab/metrics.yaml
