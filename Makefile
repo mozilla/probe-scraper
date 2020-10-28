@@ -2,6 +2,7 @@
 
 help:
 	@echo "  clean                  Remove build artifacts"
+	@echo "  check-repos            Verify all repositories in repositories.yaml are scrapable"
 	@echo "  lint                   Check style with flake8"
 	@echo "  format                 Format code with black and isort"
 	@echo "  test                   Run tests quickly with the default Python"
@@ -32,6 +33,9 @@ lint: build
 	docker-compose run app yamllint repositories.yaml .circleci
 	docker-compose run app python -m black --check probe_scraper tests ./*.py
 	docker-compose run app python -m isort --check-only probe_scraper tests ./*.py
+
+check-repos: 
+	docker-compose run app python probe_scraper/check_repositories.py
 
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
