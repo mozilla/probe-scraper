@@ -16,6 +16,7 @@ jobs:
       - checkout
       - run: make build
       - run: make lint
+      - run: make check-repos
       - run: make test
 
   deploy:
