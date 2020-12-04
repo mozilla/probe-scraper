@@ -53,7 +53,7 @@ What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their definitions files (Histograms.json, Scalars.yaml, Events.yaml).
 2. If one, some, or all of the metrics are still required, please submit a Data Collection Review [2] and patch to extend their expiry.  There is a shorter form for data collection renewal [3].
 
-If you have any problems, please ask for help on the #fx-metrics Slack channel or the #telemetry Matrix room at https://chat.mozilla.org/#/room/#telemetry:mozilla.org. We'll give you a hand.
+If you have any problems, please ask for help on the #data-help Slack channel or the #telemetry Matrix room at https://chat.mozilla.org/#/room/#telemetry:mozilla.org. We'll give you a hand.
 
 Your Friendly, Neighborhood Telemetry Team
 
@@ -104,10 +104,11 @@ def get_bug_component(
     return bug["product"], bug["component"]
 
 
-def find_existing_bugs(version: str, api_key: str) -> Set[str]:
+def find_existing_bugs(version: str, api_key: str) -> Dict[str, int]:
+    """Find bugs filed for the version and return mappings of probe name to bug id."""
     search_query_params = {
         "whiteboard": BUG_WHITEBOARD_TAG,
-        "include_fields": "description,summary",
+        "include_fields": "description,summary,id",
     }
     response = requests.get(
         BUGZILLA_BUG_URL,
@@ -118,7 +119,7 @@ def find_existing_bugs(version: str, api_key: str) -> Set[str]:
 
     found_bugs = response.json()["bugs"]
 
-    probes_with_bugs = set()
+    probes_with_bugs = {}
     for bug in found_bugs:
         if re.search(r"release: version (\d+)", bug["description"]).group(1) != version:
             continue
@@ -126,7 +127,7 @@ def find_existing_bugs(version: str, api_key: str) -> Set[str]:
             re.search(r"```(.*)```", bug["description"], re.DOTALL).group(1).split()
         )
         for probe_name in probes_in_bug:
-            probes_with_bugs.add(probe_name)
+            probes_with_bugs[probe_name] = bug["id"]
 
     return probes_with_bugs
 
@@ -353,11 +354,13 @@ def file_bugs(
     """
     existing_bugs = find_existing_bugs(version, bugzilla_api_key)
 
-    new_expiring_probes = [probe for probe in probes if probe.name not in existing_bugs]
+    new_expiring_probes = [
+        probe for probe in probes if probe.name not in existing_bugs.keys()
+    ]
 
     print(
-        f"Found previously created bugs for {len(probes) - len(new_expiring_probes)} probes "
-        f"for version {version}"
+        f"Found previously created bugs for {len(probes) - len(new_expiring_probes)}"
+        f" probes for version {version}"
     )
 
     # group by component and email
@@ -369,7 +372,7 @@ def file_bugs(
 
     print(f"creating {len(probes_by_component_by_email_set)} new bugs")
 
-    probe_to_bug_id_map = {}
+    probe_to_bug_id_map = existing_bugs
 
     for grouping, probe_group in probes_by_component_by_email_set.items():
         if not dryrun:

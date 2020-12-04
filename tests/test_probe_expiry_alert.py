@@ -136,29 +136,31 @@ def test_not_dryrun_only_once_per_week(
 @mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
 @mock.patch("probe_scraper.probe_expiry_alert.create_bug")
 def test_no_bugs_created_on_dryrun(mock_create_bug, mock_find_bugs):
-    mock_find_bugs.return_value = set()
+    mock_find_bugs.return_value = {}
     expiring_probes = [
         ProbeDetails("p1", "", "", [], 1),
         ProbeDetails("p2", "", "", ["a@test.com"], 1),
     ]
 
-    probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=True)
+    bug_ids = probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=True)
 
     assert mock_create_bug.call_count == 0
+    assert len(bug_ids) == 0
 
 
 @mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
 @mock.patch("probe_scraper.probe_expiry_alert.create_bug")
 def test_bugs_created_not_dryrun(mock_create_bug, mock_find_bugs):
-    mock_find_bugs.return_value = []
+    mock_find_bugs.return_value = {}
     expiring_probes = [
         ProbeDetails("p1", "1", "2", [], 1),
         ProbeDetails("p2", "3", "4", ["a@test.com"], 1),
     ]
 
-    probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=False)
+    bug_ids = probe_expiry_alert.file_bugs(expiring_probes, "76", "", dryrun=False)
 
     assert mock_create_bug.call_count == 2
+    assert len(bug_ids) == 2
 
 
 @mock.patch("boto3.client")
@@ -250,14 +252,17 @@ def test_main_run(
 @mock.patch("probe_scraper.probe_expiry_alert.find_existing_bugs")
 @mock.patch("probe_scraper.probe_expiry_alert.create_bug")
 def test_bugs_created_only_for_new_probes(mock_create_bugs, mock_find_bugs):
-    mock_find_bugs.return_value = {"p2", "p3"}
+    mock_find_bugs.return_value = {"p2": 2, "p3": 3}
+    mock_create_bugs.side_effect = [1, 4]
     probes = [
         ProbeDetails("p1", "", "", ["email1"], 1),
         ProbeDetails("p2", "", "", [], 1),
         ProbeDetails("p3", "", "", [], 1),
         ProbeDetails("p4", "", "", ["email2"], 1),
     ]
-    probe_expiry_alert.file_bugs(probes, "1", "", dryrun=False)
+    bug_ids = probe_expiry_alert.file_bugs(probes, "1", "", dryrun=False)
+
+    assert bug_ids == {"p2": 2, "p3": 3, "p1": 1, "p4": 4}
 
     assert mock_create_bugs.call_count == 2
     mock_create_bugs.has_calls(
@@ -295,18 +300,21 @@ def test_bug_description_parser(mock_get):
         "bugs": [
             {
                 "summary": "",
+                "id": 1,
                 "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
                     version="76", probes="\np1\np2 \n", notes=""
                 ),
             },
             {
                 "summary": "",
+                "id": 2,
                 "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
                     version="77", probes="\n p3 p4", notes=""
                 ),
             },
             {
                 "summary": "",
+                "id": 3,
                 "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
                     version="76", probes="\np5 p6\n", notes=""
                 ),
@@ -319,7 +327,7 @@ def test_bug_description_parser(mock_get):
 
     probes_with_bugs = probe_expiry_alert.find_existing_bugs("76", "")
 
-    assert probes_with_bugs == {"p1", "p2", "p5", "p6"}
+    assert probes_with_bugs == {"p1": 1, "p2": 1, "p5": 3, "p6": 3}
 
 
 def test_get_longest_prefix():
