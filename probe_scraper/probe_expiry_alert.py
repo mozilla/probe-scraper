@@ -9,7 +9,7 @@ import re
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import requests
 
