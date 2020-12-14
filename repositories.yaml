@@ -475,3 +475,29 @@ glean-js:
   dependencies:
     - glean-core
   retention_days: 90
+firefox-focus-ios:
+  app_id: org-mozilla-ios-focus
+  description: Firefox Focus on iOS. Klar is the sibling application
+  url: https://github.com/mozilla-mobile/focus-ios
+  notification_emails:
+    - jboek@mozilla.com
+    - tlong@mozilla.com
+  branch: main
+  metrics_files:
+    - /Blockzilla/metrics.yaml
+  dependencies:
+    - glean-core
+  retention_days: 720
+firefox-klar-ios:
+  app_id: org-mozilla-ios-klar
+  description: Firefox Klar on iOS. Focus is the sibling application
+  url: https://github.com/mozilla-mobile/focus-ios
+  notification_emails:
+    - jboek@mozilla.com
+    - tlong@mozilla.com
+  branch: main
+  metrics_files:
+    - /Blockzilla/metrics.yaml
+  dependencies:
+    - glean-core
+  retention_days: 720
