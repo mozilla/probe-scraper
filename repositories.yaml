@@ -484,7 +484,7 @@ firefox-focus-ios:
     - tlong@mozilla.com
   branch: main
   metrics_files:
-    - /Blockzilla/metrics.yaml
+    - Blockzilla/metrics.yaml
   dependencies:
     - glean-core
   retention_days: 720
@@ -497,7 +497,7 @@ firefox-klar-ios:
     - tlong@mozilla.com
   branch: main
   metrics_files:
-    - /Blockzilla/metrics.yaml
+    - Blockzilla/metrics.yaml
   dependencies:
     - glean-core
   retention_days: 720
