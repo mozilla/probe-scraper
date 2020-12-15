@@ -189,10 +189,17 @@ def check_for_expired_metrics(
         for metric_name, metric in metrics.items():
             if metric["expires"] == "never":
                 continue
-            expires = datetime.datetime.strptime(metric["expires"], "%Y-%m-%d").date()
-            if expiration_cutoff >= expires:
-                expired_metrics.append(f"- {metric_name} on {expires}")
-                addresses.update(metric["notification_emails"])
+            try:
+                expires = datetime.datetime.strptime(
+                    metric["expires"], "%Y-%m-%d"
+                ).date()
+            except ValueError:
+                # String does not contain a date, so we don't currently handle expiration.
+                pass
+            else:
+                if expiration_cutoff >= expires:
+                    expired_metrics.append(f"- {metric_name} on {expires}")
+                    addresses.update(metric["notification_emails"])
         expired_metrics.sort()
 
         if len(expired_metrics) == 0:
