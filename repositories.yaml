@@ -288,7 +288,6 @@ firefox-android-beta:
   app_id: org-mozilla-firefox-beta
   description: Firefox for Android
   channel: beta
-  deprecated: true
   notification_emails:
     - frank@mozilla.com
     - mdroettboom@mozilla.com
