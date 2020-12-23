@@ -1,0 +1,152 @@
+---
+$schema: http://json-schema.org/schema#
+type: object
+additionalProperties: false
+properties:
+  libraries:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - library_id
+        - notification_emails
+        - url
+      properties:
+        library_id:
+          type: string
+          pattern: "^[a-z][a-z-]{0,1023}$"
+        description:
+          type: string
+        notification_emails:
+          type: array
+          items:
+            type: string
+            format: email
+        url:
+          type: string
+          format: uri
+        branch:
+          type: string
+          default: master
+        metrics_files:
+          type: array
+          items:
+            type: string
+            pattern: metrics\.yaml$
+        ping_files:
+          type: array
+          items:
+            type: string
+            pattern: pings\.yaml$
+        library_names:
+          type: array
+          items:
+            type: string
+        prototype:
+          type: boolean
+          default: false
+        deprecated:
+          type: boolean
+          default: false
+        app_channel:
+          type: string
+          enum:
+            - release
+            - beta
+            - nightly
+            - esr
+  application_families:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - apps
+        - notification_emails
+        - url
+      properties:
+        app_name:
+          type: string
+          pattern: "^[a-z][a-z_]{0,29}$"
+        canonical_app_name:
+          type: string
+        description:
+          type: string
+        notification_emails:
+          type: array
+          items:
+            type: string
+            format: email
+        url:
+          type: string
+          format: uri
+        branch:
+          type: string
+          default: master
+        metrics_files:
+          type: array
+          items:
+            type: string
+            pattern: metrics\.yaml$
+        ping_files:
+          type: array
+          items:
+            type: string
+            pattern: pings\.yaml$
+        dependencies:
+          type: array
+          item:
+            type: string
+        prototype:
+          type: boolean
+          default: false
+        deprecated:
+          type: boolean
+          default: false
+        retention_days:
+          type: integer
+        apps:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - v1_name
+              - app_id
+            properties:
+              v1_name:
+                type: string
+                pattern: "^[a-z][a-z-]{0,29}$"
+              app_id:
+                type: string
+                pattern: "^[a-zA-Z][a-zA-Z-_.]{0,1023}$"
+              app_name:
+                type: string
+                pattern: "^[a-z][a-z_]{0,29}$"
+              canonical_app_name:
+                type: string
+              description:
+                type: string
+              app_channel:
+                type: string
+                enum:
+                  - release
+                  - beta
+                  - nightly
+                  - esr
+              notification_emails:
+                type: array
+                items:
+                  type: string
+                  format: email
+              dependencies:
+                type: array
+                item:
+                  type: string
+              prototype:
+                type: boolean
+                default: false
+              deprecated:
+                type: boolean
+                default: false

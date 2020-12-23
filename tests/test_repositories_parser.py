@@ -7,7 +7,6 @@ import yaml
 
 from probe_scraper.parsers.repositories import RepositoriesParser
 
-
 def write_to_temp_file(data):
     fd, path = tempfile.mkstemp()
     with os.fdopen(fd, "w") as tmp:
@@ -21,31 +20,50 @@ def parser():
 
 
 @pytest.fixture
-def incorrect_repos_file():
+def correct_repos_file():
     data = {
-        "some-repo": {
-            # missing `notification_emails`
-            "app_id": "mobile-metrics-example",
-            "description": "foo",
-            "url": "www.github.com/fbertsch/mobile-metrics-example",
-            "metrics_files": ["metrics.yaml"],
-        }
+        "libraries": [],
+        "application_families": [
+            {
+                "app_name": "mobile_metrics_example",
+                "description": "foo",
+                "url": "www.github.com/fbertsch/mobile-metrics-example",
+                "notification_emails": ["frank@mozilla.com"],
+                "metrics_files": ["metrics.yaml"],
+                "apps": [
+                    {
+                        "v1_name": "test-repo",
+                        "app_id": "mobile_metrics_example",
+                        "app_channel": "release"
+                    }
+                ]
+            }
+        ]
     }
 
     return write_to_temp_file(data)
 
 
 @pytest.fixture
-def correct_repos_file():
+def incorrect_repos_file():
     data = {
-        "test-repo": {
-            "app_id": "mobile-metrics-example",
-            "description": "foo",
-            "channel": "release",
-            "url": "www.github.com/fbertsch/mobile-metrics-example",
-            "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"],
-        }
+        "libraries": [],
+        "application_families": [
+            {
+                "app_name": "mobile-metrics-example",
+                "description": "foo",
+                "url": "www.github.com/fbertsch/mobile-metrics-example",
+                #"notification_emails": ["frank@mozilla.com"],
+                "metrics_files": ["metrics.yaml"],
+                "apps": [
+                    {
+                        "v1_name": "test-repo",
+                        "app_id": "mobile_metrics_example",
+                        "app_channel": "release"
+                    }
+                ]
+            }
+        ]
     }
 
     return write_to_temp_file(data)
@@ -54,13 +72,23 @@ def correct_repos_file():
 @pytest.fixture
 def not_kebab_case_repos_file():
     data = {
-        "some_repo": {
-            "app_id": "mobile-metrics-example",
-            "description": "foo",
-            "url": "www.github.com/fbertsch/mobile-metrics-example",
-            "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"],
-        }
+        "libraries": [],
+        "application_families": [
+            {
+                "app_name": "mobile_metrics_example",
+                "description": "foo",
+                "url": "www.github.com/fbertsch/mobile-metrics-example",
+                "notification_emails": ["frank@mozilla.com"],
+                "metrics_files": ["metrics.yaml"],
+                "apps": [
+                    {
+                        "v1_name": "test_repo",
+                        "app_id": "mobile_metrics_example",
+                        "app_channel": "release"
+                    }
+                ]
+            }
+        ]
     }
 
     return write_to_temp_file(data)
@@ -69,14 +97,23 @@ def not_kebab_case_repos_file():
 @pytest.fixture
 def invalid_release_channel_file():
     data = {
-        "test-repo": {
-            "app_id": "mobile-metrics-example",
-            "description": "foo",
-            "channel": "releaze",
-            "url": "www.github.com/fbertsch/mobile-metrics-example",
-            "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"],
-        }
+        "libraries": [],
+        "application_families": [
+            {
+                "app_name": "mobile_metrics_example",
+                "description": "foo",
+                "url": "www.github.com/fbertsch/mobile-metrics-example",
+                "notification_emails": ["frank@mozilla.com"],
+                "metrics_files": ["metrics.yaml"],
+                "apps": [
+                    {
+                        "v1_name": "test-repo",
+                        "app_id": "mobile_metrics_example",
+                        "app_channel": "semiquarterly"
+                    }
+                ]
+            }
+        ]
     }
 
     return write_to_temp_file(data)

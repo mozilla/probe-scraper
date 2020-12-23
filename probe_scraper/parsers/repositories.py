@@ -8,7 +8,12 @@ import jsonschema
 import yaml
 
 REPOSITORIES_FILENAME = "repositories.yaml"
-REPOSITORIES_SCHEMA = "schemas/repositories.json"
+
+with open("schemas/repositories_v2.yaml", "r") as f:
+    REPOSITORIES_SCHEMA = yaml.load(f, Loader=yaml.SafeLoader)
+
+with open("schemas/repository_v1.yaml", "r") as f:
+    REPOSITORY_V1_SCHEMA = yaml.load(f, Loader=yaml.SafeLoader)
 
 
 class Repository(object):
@@ -33,6 +38,25 @@ class Repository(object):
         self.dependencies = definition.get("dependencies", [])
         self.prototype = definition.get("prototype", False)
         self.retention_days = definition.get("retention_days", None)
+
+    @staticmethod
+    def from_v2_repo(definition):
+        d = definition.copy()
+        d["name"] = d["v1_name"]
+        d["app_id"] = d["app_id"].lower().replace(".", "-").replace("_", "-")
+        channel = d.get("app_channel", None)
+        if channel:
+            d["channel"] = channel
+        jsonschema.validate(d, REPOSITORY_V1_SCHEMA)
+        return Repository(definition["v1_name"], d)
+
+    @staticmethod
+    def from_v2_library(definition):
+        d = definition.copy()
+        d["name"] = definition["library_id"]
+        d["app_id"] = definition["library_id"]
+        jsonschema.validate(d, REPOSITORY_V1_SCHEMA)
+        return Repository(definition["library_id"], d)
 
     def get_branches(self):
         if self.branch == Repository.default_branch:
@@ -74,10 +98,7 @@ class RepositoriesParser(object):
     def validate(self, filename=None):
         repos = self._get_repos(filename)
 
-        with open(REPOSITORIES_SCHEMA, "r") as f:
-            schema = json.load(f)
-
-        jsonschema.validate(repos, schema)
+        jsonschema.validate(repos, REPOSITORIES_SCHEMA)
 
     def filter_repos(self, repos, glean_repo):
         if glean_repo is None:
@@ -89,8 +110,17 @@ class RepositoriesParser(object):
         self.validate(filename)
         repos = self._get_repos(filename)
 
+        v2_apps = []
+        for family in repos["application_families"]:
+            apps = family.pop("apps")
+            for app in apps:
+                dependencies = family.get("dependencies", []) + app.get("dependencies", [])
+                app = {**family, **app}
+                app["dependencies"] = dependencies
+                v2_apps.append(app)
         repos = [
-            Repository(name, definition) for name, definition in list(repos.items())
+            Repository.from_v2_library(definition) for definition in repos["libraries"]
+        ] + [
+            Repository.from_v2_repo(app) for app in v2_apps
         ]
-
         return self.filter_repos(repos, glean_repo)
