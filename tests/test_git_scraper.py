@@ -97,31 +97,42 @@ def get_repo(repo_name, branch="master"):
 def proper_repo(branch="master"):
     location = get_repo(normal_repo_name, branch)
     repositories_info = {
-        normal_repo_name: {
-            "app_id": "normal-app-name",
-            "description": "foo",
-            "notification_emails": ["frank@mozilla.com"],
-            "url": location,
-            "metrics_files": ["metrics.yaml"],
-            "dependencies": [
-                "org.mozilla.components:service-glean",
-                "org.mozilla.components:lib-crash",
-            ],
-        },
-        "glean": {
-            "app_id": "glean",
-            "description": "foo",
-            "notification_emails": ["frank@mozilla.com"],
-            "url": location,
-            "library_names": ["org.mozilla.components:service-glean"],
-        },
-        "lib-crash": {
-            "app_id": "lib-crash",
-            "description": "foo",
-            "notification_emails": ["frank@mozilla.com"],
-            "url": location,
-            "library_names": ["org.mozilla.components:lib-crash"],
-        },
+        "libraries": [
+            {
+                "library_id": "glean",
+                "description": "foo",
+                "notification_emails": ["frank@mozilla.com"],
+                "url": location,
+                "library_names": ["org.mozilla.components:service-glean"],
+            },
+            {
+                "library_id": "lib-crash",
+                "description": "foo",
+                "notification_emails": ["frank@mozilla.com"],
+                "url": location,
+                "library_names": ["org.mozilla.components:lib-crash"],
+            },
+        ],
+        "application_families": [
+            {
+                "app_name": "proper_repo_example",
+                "description": "foo",
+                "url": location,
+                "notification_emails": ["frank@mozilla.com"],
+                "metrics_files": ["metrics.yaml"],
+                "dependencies": [
+                    "org.mozilla.components:service-glean",
+                    "org.mozilla.components:lib-crash",
+                ],
+                "apps": [
+                    {
+                        "v1_name": normal_repo_name,
+                        "app_id": "normal-app-name",
+                        "app_channel": "release",
+                    }
+                ],
+            }
+        ],
     }
 
     with open(repositories_file, "w") as f:
@@ -144,13 +155,23 @@ def main_repo():
 def improper_metrics_repo():
     location = get_repo(improper_repo_name)
     repositories_info = {
-        improper_repo_name: {
-            "app_id": "improper-app-name",
-            "description": "foo",
-            "notification_emails": ["frank@mozilla.com"],
-            "url": location,
-            "metrics_files": ["metrics.yaml"],
-        }
+        "libraries": [],
+        "application_families": [
+            {
+                "app_name": "mobile_metrics_example",
+                "description": "foo",
+                "url": location,
+                "notification_emails": ["frank@mozilla.com"],
+                "metrics_files": ["metrics.yaml"],
+                "apps": [
+                    {
+                        "v1_name": improper_repo_name,
+                        "app_id": "improper-app-name",
+                        "app_channel": "release",
+                    }
+                ],
+            }
+        ],
     }
 
     with open(repositories_file, "w") as f:
@@ -256,22 +277,35 @@ def duplicate_repo():
 
 def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     repositories_info = {
-        normal_repo_name: {
-            "app_id": "normal-app-name",
-            "description": "foo",
-            "notification_emails": ["repo_alice@example.com"],
-            "url": normal_duplicate_repo,
-            "metrics_files": ["metrics.yaml"],
-            "dependencies": ["duplicate_library"],
-        },
-        duplicate_repo_name: {
-            "app_id": "duplicate-library-name",
-            "description": "foo",
-            "notification_emails": ["repo_bob@example.com"],
-            "url": duplicate_repo,
-            "metrics_files": ["metrics.yaml"],
-            "library_names": ["duplicate_library"],
-        },
+        "libraries": [
+            {
+                "library_id": "mylib",
+                "description": "foo",
+                "notification_emails": ["repo_alice@example.com"],
+                "url": normal_duplicate_repo,
+                "metrics_files": ["metrics.yaml"],
+                "library_names": ["duplicate_library"],
+            },
+        ],
+        "application_families": [
+            {
+                "app_name": "duplicate_metrics_example",
+                "description": "foo",
+                "url": duplicate_repo,
+                "notification_emails": ["repo_bob@example.com"],
+                "metrics_files": ["metrics.yaml"],
+                "dependencies": [
+                    "duplicate_library",
+                ],
+                "apps": [
+                    {
+                        "v1_name": normal_repo_name,
+                        "app_id": "normal-app-name",
+                        "app_channel": "release",
+                    }
+                ],
+            }
+        ],
     }
 
     with open(repositories_file, "w") as f:
@@ -329,13 +363,23 @@ def expired_repo():
 
 def test_check_for_expired_metrics(expired_repo):
     repositories_info = {
-        expired_repo_name: {
-            "app_id": "expired-app-name",
-            "description": "foo",
-            "notification_emails": ["repo_alice@example.com"],
-            "url": expired_repo,
-            "metrics_files": ["metrics.yaml"],
-        },
+        "libraries": [],
+        "application_families": [
+            {
+                "app_name": "expired_metrics_example",
+                "description": "foo",
+                "url": expired_repo,
+                "notification_emails": ["repo_alice@example.com"],
+                "metrics_files": ["metrics.yaml"],
+                "apps": [
+                    {
+                        "v1_name": expired_repo_name,
+                        "app_id": "expired-app-name",
+                        "app_channel": "release",
+                    }
+                ],
+            }
+        ],
     }
 
     with open(repositories_file, "w") as f:
