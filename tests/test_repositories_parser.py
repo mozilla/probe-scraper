@@ -7,6 +7,7 @@ import yaml
 
 from probe_scraper.parsers.repositories import RepositoriesParser
 
+
 def write_to_temp_file(data):
     fd, path = tempfile.mkstemp()
     with os.fdopen(fd, "w") as tmp:
@@ -53,7 +54,7 @@ def incorrect_repos_file():
                 "app_name": "mobile-metrics-example",
                 "description": "foo",
                 "url": "www.github.com/fbertsch/mobile-metrics-example",
-                #"notification_emails": ["frank@mozilla.com"],
+                # "notification_emails": ["frank@mozilla.com"],
                 "metrics_files": ["metrics.yaml"],
                 "apps": [
                     {
