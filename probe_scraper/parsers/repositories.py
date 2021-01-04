@@ -112,13 +112,13 @@ class RepositoriesParser(object):
         for family in repos["application_families"]:
             apps = family.pop("apps")
             for app in apps:
-                dependencies = family.get("dependencies", []) + app.get("dependencies", [])
+                dependencies = family.get("dependencies", []) + app.get(
+                    "dependencies", []
+                )
                 app = {**family, **app}
                 app["dependencies"] = dependencies
                 v2_apps.append(app)
         repos = [
             Repository.from_v2_library(definition) for definition in repos["libraries"]
-        ] + [
-            Repository.from_v2_repo(app) for app in v2_apps
-        ]
+        ] + [Repository.from_v2_repo(app) for app in v2_apps]
         return self.filter_repos(repos, glean_repo)

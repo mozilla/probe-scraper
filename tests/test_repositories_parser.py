@@ -35,11 +35,11 @@ def correct_repos_file():
                     {
                         "v1_name": "test-repo",
                         "app_id": "mobile_metrics_example",
-                        "app_channel": "release"
+                        "app_channel": "release",
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
 
     return write_to_temp_file(data)
@@ -60,11 +60,11 @@ def incorrect_repos_file():
                     {
                         "v1_name": "test-repo",
                         "app_id": "mobile_metrics_example",
-                        "app_channel": "release"
+                        "app_channel": "release",
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
 
     return write_to_temp_file(data)
@@ -85,11 +85,11 @@ def not_kebab_case_repos_file():
                     {
                         "v1_name": "test_repo",
                         "app_id": "mobile_metrics_example",
-                        "app_channel": "release"
+                        "app_channel": "release",
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
 
     return write_to_temp_file(data)
@@ -110,11 +110,11 @@ def invalid_release_channel_file():
                     {
                         "v1_name": "test-repo",
                         "app_id": "mobile_metrics_example",
-                        "app_channel": "semiquarterly"
+                        "app_channel": "semiquarterly",
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
 
     return write_to_temp_file(data)
