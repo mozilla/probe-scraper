@@ -1,7 +1,7 @@
 ---
 
 libraries:
-  - library_id: glean-core
+  - v1_name: glean-core
     description: Modern cross-platform telemetry (core library)
     notification_emails:
       - frank@mozilla.com
@@ -14,7 +14,7 @@ libraries:
       - glean-core/pings.yaml
     library_names:
       - glean-core
-  - library_id: glean-android
+  - v1_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
       - frank@mozilla.com
@@ -28,7 +28,7 @@ libraries:
       - glean-core/pings.yaml
     library_names:
       - org.mozilla.components:service-glean
-  - library_id: glean
+  - v1_name: glean
     description: Modern cross-platform telemetry (old)
     deprecated: true
     notification_emails:
@@ -41,7 +41,7 @@ libraries:
       - glean-core/metrics.yaml
     ping_files:
       - glean-core/pings.yaml
-  - library_id: glean-deprecated
+  - v1_name: glean-deprecated
     description: Modern cross-platform telemetry (old)
     deprecated: true
     notification_emails:
@@ -56,7 +56,7 @@ libraries:
       - glean-core/pings.yaml
     library_names:
       - org.mozilla.deprecated:glean
-  - library_id: lib-crash
+  - v1_name: lib-crash
     description: >
       A generic crash reporter component that can report crashes to multiple
       services
@@ -69,7 +69,7 @@ libraries:
       - components/lib/crash/metrics.yaml
     library_names:
       - org.mozilla.components:lib-crash
-  - library_id: sync
+  - v1_name: sync
     description: Sync telemetry helper functionality
     notification_emails:
       - frank@mozilla.com
@@ -82,7 +82,7 @@ libraries:
       - components/support/sync-telemetry/pings.yaml
     library_names:
       - org.mozilla.components:support-sync-telemetry
-  - library_id: engine-gecko
+  - v1_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
       - frank@mozilla.com
@@ -95,7 +95,7 @@ libraries:
     branch: release
     library_names:
       - org.mozilla.components:browser-engine-gecko
-  - library_id: engine-gecko-beta
+  - v1_name: engine-gecko-beta
     description: GeckoView metrics
     notification_emails:
       - frank@mozilla.com
@@ -108,7 +108,7 @@ libraries:
     branch: beta
     library_names:
       - org.mozilla.components:browser-engine-gecko-beta
-  - library_id: engine-gecko-nightly
+  - v1_name: engine-gecko-nightly
     description: GeckoView metrics
     notification_emails:
       - frank@mozilla.com
@@ -120,7 +120,7 @@ libraries:
       - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
     library_names:
       - org.mozilla.components:browser-engine-gecko-nightly
-  - library_id: logins-store
+  - v1_name: logins-store
     description: >
       A collection of Android libraries to build browsers or browser-like
       applications
@@ -134,7 +134,7 @@ libraries:
     branch: main
     library_names:
       - org.mozilla.appservices:logins
-  - library_id: support-migration
+  - v1_name: support-migration
     description: >
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
       an Android Components based app
@@ -147,7 +147,7 @@ libraries:
       - components/support/migration/pings.yaml
     library_names:
       - org.mozilla.components:support-migration
-  - library_id: android-places
+  - v1_name: android-places
     description: >
       A collection of Android libraries to build browsers or browser-like
       applications

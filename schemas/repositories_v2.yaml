@@ -9,11 +9,11 @@ properties:
       type: object
       additionalProperties: false
       required:
-        - library_id
+        - v1_name
         - notification_emails
         - url
       properties:
-        library_id:
+        v1_name:
           type: string
           pattern: "^[a-z][a-z-]{0,1023}$"
         description:

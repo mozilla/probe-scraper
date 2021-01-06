@@ -99,14 +99,14 @@ def proper_repo(branch="master"):
     repositories_info = {
         "libraries": [
             {
-                "library_id": "glean",
+                "v1_name": "glean",
                 "description": "foo",
                 "notification_emails": ["frank@mozilla.com"],
                 "url": location,
                 "library_names": ["org.mozilla.components:service-glean"],
             },
             {
-                "library_id": "lib-crash",
+                "v1_name": "boollib",
                 "description": "foo",
                 "notification_emails": ["frank@mozilla.com"],
                 "url": location,
@@ -233,6 +233,18 @@ def test_normal_repo(normal_repo):
 
     assert len(dependencies) == 2
 
+    path = os.path.join(out_dir, "v2", "glean", "applications")
+
+    with open(path, "r") as data:
+        applications = json.load(data)
+
+    # /v2/glean/applications excludes libraries
+    assert len(applications) == 1
+
+    # /v2/glean/applications includes derived fields
+    assert applications[0]["document_namespace"] == "normal-app-name"
+    assert applications[0]["bq_dataset_family"] == "normal_app_name"
+
 
 def test_improper_metrics_repo(improper_metrics_repo):
     runner.main(
@@ -279,7 +291,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     repositories_info = {
         "libraries": [
             {
-                "library_id": "mylib",
+                "v1_name": "mylib",
                 "description": "foo",
                 "notification_emails": ["repo_alice@example.com"],
                 "url": normal_duplicate_repo,

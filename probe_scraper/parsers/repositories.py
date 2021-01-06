@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from collections import Counter
+
 import jsonschema
 import yaml
 
@@ -22,13 +24,15 @@ class Repository(object):
     default_branch = "master"
 
     def __init__(self, name, definition):
-        self.name = name
+        self.v1_name = definition.get("v1_name", None)
+        self.app_name = definition.get("app_name", None)
+        self.canonical_app_name = definition.get("canonical_app_name", None)
         self.url = definition.get("url")
         self.branch = definition.get("branch", Repository.default_branch)
         self.notification_emails = definition.get("notification_emails")
         self.app_id = definition.get("app_id")
         self.description = definition.get("description")
-        self.channel = definition.get("channel")
+        self.app_channel = definition.get("app_channel")
         self.deprecated = definition.get("deprecated", False)
         self.metrics_file_paths = definition.get("metrics_files", [])
         self.ping_file_paths = definition.get("ping_files", [])
@@ -37,8 +41,22 @@ class Repository(object):
         self.prototype = definition.get("prototype", False)
         self.retention_days = definition.get("retention_days", None)
 
+    @property
+    def name(self):
+        return self.v1_name
+
+    @property
+    def document_namespace(self):
+        if self.app_id:
+            return self.app_id.lower().replace(".", "-").replace("_", "-")
+
+    @property
+    def bq_dataset_family(self):
+        if self.app_id:
+            return self.app_id.lower().replace(".", "_").replace("-", "_")
+
     @staticmethod
-    def from_v2_repo(definition):
+    def from_v2_app(definition):
         d = definition.copy()
         d["name"] = d["v1_name"]
         d["app_id"] = d["app_id"].lower().replace(".", "-").replace("_", "-")
@@ -46,15 +64,15 @@ class Repository(object):
         if channel:
             d["channel"] = channel
         jsonschema.validate(d, REPOSITORY_V1_SCHEMA)
-        return Repository(definition["v1_name"], d)
+        return Repository(definition["v1_name"], definition)
 
     @staticmethod
     def from_v2_library(definition):
         d = definition.copy()
-        d["name"] = definition["library_id"]
-        d["app_id"] = definition["library_id"]
+        d["name"] = definition["v1_name"]
+        d["app_id"] = definition["v1_name"]
         jsonschema.validate(d, REPOSITORY_V1_SCHEMA)
-        return Repository(definition["library_id"], d)
+        return Repository(definition["v1_name"], definition)
 
     def get_branches(self):
         if self.branch == Repository.default_branch:
@@ -76,7 +94,27 @@ class Repository(object):
     def to_dict(self):
         # Remove null elements
         # https://google.github.io/styleguide/jsoncstyleguide.xml#Empty/Null_Property_Values
-        return {k: v for k, v in list(self.__dict__.items()) if v is not None}
+        d = {k: v for k, v in list(self.__dict__.items()) if v is not None}
+        d["name"] = self.name
+        d.pop("v1_name", None)
+        d.pop("app_name", None)
+        d.pop("canonical_app_name", None)
+        if self.app_id:
+            d["app_id"] = self.app_id.lower().replace(".", "-").replace("_", "-")
+        channel = d.pop("app_channel", None)
+        if channel:
+            d["channel"] = channel
+        return d
+
+    def to_v2_dict(self):
+        # Remove null elements
+        # https://google.github.io/styleguide/jsoncstyleguide.xml#Empty/Null_Property_Values
+        d = {k: v for k, v in list(self.__dict__.items()) if v is not None}
+        if self.document_namespace:
+            d["document_namespace"] = self.document_namespace
+        if self.bq_dataset_family:
+            d["bq_dataset_family"] = self.bq_dataset_family
+        return d
 
 
 class RepositoriesParser(object):
@@ -120,5 +158,10 @@ class RepositoriesParser(object):
                 v2_apps.append(app)
         repos = [
             Repository.from_v2_library(definition) for definition in repos["libraries"]
-        ] + [Repository.from_v2_repo(app) for app in v2_apps]
+        ] + [Repository.from_v2_app(app) for app in v2_apps]
+
+        repo_name_counts = Counter([r.name for r in repos])
+        duplicated_names = [k for k, v in repo_name_counts.items() if v > 1]
+        assert len(duplicated_names) == 0, f"Found duplicate identifiers: {duplicated_names}"
+
         return self.filter_repos(repos, glean_repo)
