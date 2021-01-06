@@ -14,9 +14,12 @@ A web tool to explore the data is available [here](https://telemetry.mozilla.org
 ## Adding a New Glean Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
+Each application repository should be listed under `application_families`.
+The following fields are supported:
 
+- `app_name` is a lowercase_with_underscores name that is short and unambiguous. It needs to be something that can be used both in a generated table name in BigQuery or as a value in an `app_name` string field in a derived table. BigQuery users might be using this literal name in a `WHERE` clause, so it should feel reasonable for that use case. Examples: `fenix`, `firefox_ios`
+- `canonical_app_name` is how we would formally name this application in marketing copy or in a dashboard. This should not be materialized in ETL, but rather only made available in user-facing views since it may be verbose and it may change over time. Examples: Firefox for Android, Firefox for Android (Legacy Fennec), Firefox for Desktop, Firefox Focus for iOS
 - `description`: A brief description of the repository.
-- `channel`: (optional) The release channel. Must be one of "release", "beta", "nightly" or "esr".
 - `deprecated` (optional) `true` if repository corresponds to a deprecated product or library.
 - `prototype`: (optional) `true` if the application is still under developement.
 - `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
@@ -25,6 +28,27 @@ will be just about your specific repository.
 - `branch` (optional): The branch in the repository to use. (Defaults to `master`).
 - `metrics_files`: A list of relative paths to `metrics.yaml` files
 - `ping_files`: A list of relative paths to `pings.yaml` files
+
+There is also an `apps` list to define the concrete applications in the family.
+In most cases, there will be only one entry under `apps`, but more complex situations
+like Fenix have separate apps for different logical release channels.
+Each application can override specific fields like `description` from the family, but
+additionally must provide the following:
+
+- `app_id` is the app’s identifier exactly as it appears in the relevant app store listing (for relevant platforms) or in the app’s Glean initialization call (for other platforms). In the case of the Google Play store, it may contain both dots and dashes. For applicable platforms, you should be able to construct an app store URL from this value.
+- `v1_name` is a unique identifier used to look up the app in the V1 probe scraper API;
+  it appears as `name` in the `/glean/repositories` endpoint.
+  The v2 API will use `document_namespace` for this purpose instead, so `v1_name` may
+  eventually be removed.
+- `app_channel`: (optional) The release channel. Must be one of "release", "beta", "nightly" or "esr".
+  If this is not specified, then we assume the application provides a reasonable channel value in
+  `client_info.app_channel` in its pings.
+
+Note that the output in the `/v2/glean/applications` endpoint includes some
+additional derived fields that aren't defined directly in the yaml:
+
+- `document_namespace` is derived from `app_id`, normalized to contain only dashes as punctuation, and it is what Glean inserts into URLs when submitting telemetry.
+- `bq_dataset_family` is derived from app_id, normalized to contain only underscores as punctuation, and it is the value that appears in the names of BigQuery datasets associated with the given application.
 
 ### Adding an application
 
@@ -43,11 +67,12 @@ $ ./gradlew :app:dependencies
 
 ### Adding a library
 
-All **libraries** must define `library_names`.
-
-Probe scraper also needs a way to map dependencies back to an entry in the
-`repositories.yaml` file. Therefore, any libraries defined should also include
-their build-system-specific library names in the `library_names` parameter.
+All **libraries** are defined under the `libraries` top-level key.
+They support a subset of the same fields as applications, and additionally
+must define `library_names`, which allows the probe scraper to map dependencies
+back to an entry in the `repositories.yaml` file.
+We expect `library_names` to be build-system-specific and thus a single
+repository could present multiple library names for different platforms.
 
 ## Developing the probe-scraper
 
@@ -355,3 +380,15 @@ For example, the data for a repository called `fenix` would be found at [`/glean
 
 A list of available repositories is at [`/glean/repositories`](https://probeinfo.telemetry.mozilla.org/glean/repositories).
 
+## Using the v2 Glean API
+
+We are incrementally building a v2 API for Glean applications that will
+provide views of underlying probe scraper data that are more directly
+usable by consuming applications. The general direction is discussed in
+the [Nested structure for Glean repositories.yaml proposal](https://docs.google.com/document/d/1_zx0cxBnnFOhct1cCb_QnXntV-HN9sjqfGfiBwEBL-8/edit?ts=5fca0606#heading=h.uk893w7s4i3o).
+
+The first available endpoint is `/v2/glean/applications` which is similar to the
+v1 `/glean/repositories` endpoint, but filters out libraries and provides
+additional fields like `canonical_app_name` and derived fields like `bq_dataset_family`
+that are intended to provide better usability for future downstream ETL
+and documentation use cases.

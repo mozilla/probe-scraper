@@ -23,7 +23,7 @@ class Repository(object):
 
     default_branch = "master"
 
-    def __init__(self, name, definition):
+    def __init__(self, definition):
         self.v1_name = definition.get("v1_name", None)
         self.app_name = definition.get("app_name", None)
         self.canonical_app_name = definition.get("canonical_app_name", None)
@@ -43,6 +43,7 @@ class Repository(object):
 
     @property
     def name(self):
+        """Legacy "name" field kept for compatibility with the v1 API."""
         return self.v1_name
 
     @property
@@ -64,7 +65,7 @@ class Repository(object):
         if channel:
             d["channel"] = channel
         jsonschema.validate(d, REPOSITORY_V1_SCHEMA)
-        return Repository(definition["v1_name"], definition)
+        return Repository(definition)
 
     @staticmethod
     def from_v2_library(definition):
@@ -72,7 +73,7 @@ class Repository(object):
         d["name"] = definition["v1_name"]
         d["app_id"] = definition["v1_name"]
         jsonschema.validate(d, REPOSITORY_V1_SCHEMA)
-        return Repository(definition["v1_name"], definition)
+        return Repository(definition)
 
     def get_branches(self):
         if self.branch == Repository.default_branch:
@@ -92,6 +93,7 @@ class Repository(object):
         return self.dependencies
 
     def to_dict(self):
+        """Dict representation of the repo for the V1 API."""
         # Remove null elements
         # https://google.github.io/styleguide/jsoncstyleguide.xml#Empty/Null_Property_Values
         d = {k: v for k, v in list(self.__dict__.items()) if v is not None}
@@ -99,14 +101,15 @@ class Repository(object):
         d.pop("v1_name", None)
         d.pop("app_name", None)
         d.pop("canonical_app_name", None)
-        if self.app_id:
-            d["app_id"] = self.app_id.lower().replace(".", "-").replace("_", "-")
+        if self.document_namespace:
+            d["app_id"] = self.document_namespace
         channel = d.pop("app_channel", None)
         if channel:
             d["channel"] = channel
         return d
 
     def to_v2_dict(self):
+        """Dict representation of the repo for the V2 API."""
         # Remove null elements
         # https://google.github.io/styleguide/jsoncstyleguide.xml#Empty/Null_Property_Values
         d = {k: v for k, v in list(self.__dict__.items()) if v is not None}
@@ -162,6 +165,8 @@ class RepositoriesParser(object):
 
         repo_name_counts = Counter([r.name for r in repos])
         duplicated_names = [k for k, v in repo_name_counts.items() if v > 1]
-        assert len(duplicated_names) == 0, f"Found duplicate identifiers: {duplicated_names}"
+        assert (
+            len(duplicated_names) == 0
+        ), f"Found duplicate identifiers: {duplicated_names}"
 
         return self.filter_repos(repos, glean_repo)
