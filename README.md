@@ -382,6 +382,8 @@ A list of available repositories is at [`/glean/repositories`](https://probeinfo
 
 ## Using the v2 Glean API
 
+> **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
+
 We are incrementally building a v2 API for Glean applications that will
 provide views of underlying probe scraper data that are more directly
 usable by consuming applications. The general direction is discussed in
