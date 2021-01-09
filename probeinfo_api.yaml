@@ -1,0 +1,552 @@
+---
+
+openapi: "3.0.3"
+info:
+  description: "Probe-Info Service API"
+  version: "2.0.0"
+  title: "probe-info"
+servers:
+  - url: https://probeinfo.telemetry.mozilla.org
+paths:
+  /repositories.yaml:
+    get:
+      summary: "repositories.yaml"
+      description: This is not an actual endpoint; it exists only to document the input YAML schema.
+      operationId: "getReposYaml"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoriesYamlV2"
+  /glean/{v1_name}/general:
+    get:
+      summary: "Glean repo general properties"
+      tags:
+        - v1
+      description: |
+        Provides general properties related to the scraping process.
+      operationId: "getGeneral"
+      parameters:
+        - name: v1_name
+          in: path
+          description: v1_name from repositories.yaml
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - lastUpdate
+                properties:
+                  lastUpdate:
+                    type: string
+                    description: timestamp when scraping was performed
+                    format: date-time
+  /glean/{v1_name}/metrics:
+    get:
+      summary: "Glean repo metrics"
+      tags:
+        - v1
+      description: ""
+      operationId: "getMetrics"
+      parameters:
+        - name: v1_name
+          in: path
+          description: v1_name from repositories.yaml
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  x-additionalPropertiesName: metric name
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    history:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            example: timespan
+                          description:
+                            type: string
+                            example: The duration of the last foreground session
+                          send_in_pings:
+                            type: array
+                            items:
+                              type: string
+                              example: baseline
+                          bugs:
+                            type: array
+                            items:
+                              type: integer
+                              example: 1497894
+                          data_reviews:
+                            type: array
+                            items:
+                              type: string
+                              example: baseline
+                          notification_emails:
+                            $ref: "#/components/schemas/NotificationEmails"
+                          dates:
+                            type: object
+                            properties:
+                              first:
+                                type: string
+                                format: date-time
+                              last:
+                                type: string
+                                format: date-time
+                          git-commits:
+                            type: object
+                            properties:
+                              first:
+                                type: string
+                                example: "9aa4f48e77001058c05f3d3182228706720bf87a"
+                              last:
+                                type: string
+                                example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+  /glean/{v1_name}/dependencies:
+    get:
+      summary: "Glean repo dependencies"
+      tags:
+        - v1
+      description: |
+        Provides information about the dependencies of an application.
+
+        Each entry in the top-level object represents a dependency of the application.
+      operationId: "getDependencies"
+      parameters:
+        - name: v1_name
+          in: path
+          description: v1_name from repositories.yaml
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  x-additionalPropertiesName: library name
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    history:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          dates:
+                            type: object
+                            properties:
+                              first:
+                                type: string
+                                format: date-time
+                              last:
+                                type: string
+                                format: date-time
+                          git-commits:
+                            type: object
+                            properties:
+                              first:
+                                type: string
+                                example: "9aa4f48e77001058c05f3d3182228706720bf87a"
+                              last:
+                                type: string
+                                example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+  /glean/repositories:
+    get:
+      summary: "List Glean repositories"
+      tags:
+        - v1
+      description: "Includes both applications and libraries"
+      operationId: "getRepos"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoriesV1"
+  /v2/glean/app-listings:
+    get:
+      summary: "v2 Glean app listings"
+      tags:
+        - v2
+      description: |
+        Flattened view of all Glean app listings (one entry per app_id). No libraries are included, and this will eventually link to new v2 per-app endpoints that include information pulled from dependencies.
+
+        **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
+      operationId: "getAppListings"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+components:
+  schemas:
+    RepositoriesYamlV1:
+      type: object
+      # propertyNames:
+      #   pattern: "^[a-z][a-z0-9-]{0,29}$"
+      additionalProperties:
+        type: object
+        additionalProperties: false
+        required:
+          - app_id
+          #- description
+          - url
+          - notification_emails
+        properties:
+          app_id:
+            type: string
+            pattern: "^[a-z][a-z-]{0,1023}$"
+          description:
+            type: string
+          channel:
+            $ref: "#/components/schemas/AppChannel"
+          deprecated:
+            $ref: "#/components/schemas/DeprecatedBool"
+          notification_emails:
+            $ref: "#/components/schemas/NotificationEmails"
+          url:
+            $ref: "#/components/schemas/RepoUrl"
+          branch:
+            $ref: "#/components/schemas/RepoBranch"
+          metrics_files:
+            $ref: "#/components/schemas/MetricsFiles"
+          ping_files:
+            $ref: "#/components/schemas/PingFiles"
+          dependencies:
+            $ref: "#/components/schemas/Dependencies"
+          library_names:
+            $ref: "#/components/schemas/LibraryNames"
+          prototype:
+            $ref: "#/components/schemas/PrototypeBool"
+          retention_days:
+            $ref: "#/components/schemas/RetentionDays"
+    RepositoriesV1:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        properties:
+          name:
+            $ref: "#/components/schemas/V1Name"
+          app_id:
+            type: string
+            pattern: "^[a-z][a-z-]{0,1023}$"
+          description:
+            type: string
+          channel:
+            $ref: "#/components/schemas/AppChannel"
+          deprecated:
+            $ref: "#/components/schemas/DeprecatedBool"
+          notification_emails:
+            $ref: "#/components/schemas/NotificationEmails"
+          url:
+            $ref: "#/components/schemas/RepoUrl"
+          branch:
+            $ref: "#/components/schemas/RepoBranch"
+          metrics_files:
+            $ref: "#/components/schemas/MetricsFiles"
+          ping_files:
+            $ref: "#/components/schemas/PingFiles"
+          dependencies:
+            $ref: "#/components/schemas/Dependencies"
+          library_names:
+            $ref: "#/components/schemas/LibraryNames"
+          prototype:
+            $ref: "#/components/schemas/PrototypeBool"
+          retention_days:
+            $ref: "#/components/schemas/RetentionDays"
+    RepositoriesYamlV2:
+      type: object
+      additionalProperties: false
+      properties:
+        version:
+          type: string
+          description: Used to distinguish from the legacy repositories.yaml format
+          enum:
+            - "2"
+        libraries:
+          type: array
+          description: Repositories that define Glean dependencies
+          items:
+            $ref: "#/components/schemas/Library"
+        applications:
+          type: array
+          description: Repositories that define Glean applications
+          items:
+            $ref: "#/components/schemas/ApplicationYaml"
+    ApplicationYaml:
+      type: object
+      additionalProperties: false
+      required:
+        - app_name
+        - canonical_app_name
+        #- description
+        - url
+        - channels
+      properties:
+        app_name:
+          $ref: "#/components/schemas/AppName"
+        canonical_app_name:
+          $ref: "#/components/schemas/CanonicalAppName"
+        description:
+          $ref: "#/components/schemas/Description"
+        notification_emails:
+          $ref: "#/components/schemas/NotificationEmails"
+        url:
+          $ref: "#/components/schemas/RepoUrl"
+        branch:
+          $ref: "#/components/schemas/RepoBranch"
+        metrics_files:
+          $ref: "#/components/schemas/MetricsFiles"
+        ping_files:
+          $ref: "#/components/schemas/PingFiles"
+        dependencies:
+          $ref: "#/components/schemas/Dependencies"
+        deprecated:
+          $ref: "#/components/schemas/DeprecatedBool"
+        prototype:
+          $ref: "#/components/schemas/PrototypeBool"
+        retention_days:
+          $ref: "#/components/schemas/RetentionDays"
+        channels:
+          type: array
+          additionalProperties: false
+          items:
+            type: object
+            required:
+              - app_id
+              - v1_name
+            properties:
+              app_id:
+                $ref: "#/components/schemas/AppId"
+              v1_name:
+                $ref: "#/components/schemas/V1Name"
+              app_channel:
+                $ref: "#/components/schemas/AppId"
+              additional_dependencies:
+                type: array
+                default: []
+                items:
+                  type: string
+    Library:
+      type: object
+      additionalProperties: false
+      required:
+        - v1_name
+        - library_names
+      properties:
+        v1_name:
+          $ref: "#/components/schemas/V1Name"
+        description:
+          $ref: "#/components/schemas/Description"
+        deprecated:
+          $ref: "#/components/schemas/DeprecatedBool"
+        notification_emails:
+          $ref: "#/components/schemas/NotificationEmails"
+        url:
+          $ref: "#/components/schemas/RepoUrl"
+        branch:
+          $ref: "#/components/schemas/RepoBranch"
+        metrics_files:
+          $ref: "#/components/schemas/MetricsFiles"
+        ping_files:
+          $ref: "#/components/schemas/PingFiles"
+        library_names:
+          $ref: "#/components/schemas/LibraryNames"
+    Application:
+      type: object
+      additionalProperties: false
+      required:
+        - app_id
+        - document_namespace
+        - bq_dataset_family
+        - app_name
+        - v1_name
+        - url
+      properties:
+        app_id:
+          $ref: "#/components/schemas/AppId"
+        document_namespace:
+          $ref: "#/components/schemas/DocumentNamespace"
+        bq_dataset_family:
+          $ref: "#/components/schemas/BqDatasetFamily"
+        app_name:
+          $ref: "#/components/schemas/AppName"
+        canonical_app_name:
+          $ref: "#/components/schemas/CanonicalAppName"
+        v1_name:
+          $ref: "#/components/schemas/V1Name"
+        app_channel:
+          $ref: "#/components/schemas/AppId"
+        description:
+          type: string
+        notification_emails:
+          $ref: "#/components/schemas/NotificationEmails"
+        url:
+          $ref: "#/components/schemas/RepoUrl"
+        branch:
+          $ref: "#/components/schemas/RepoBranch"
+        metrics_files:
+          $ref: "#/components/schemas/MetricsFiles"
+        ping_files:
+          $ref: "#/components/schemas/PingFiles"
+        dependencies:
+          $ref: "#/components/schemas/Dependencies"
+        deprecated:
+          $ref: "#/components/schemas/DeprecatedBool"
+        prototype:
+          $ref: "#/components/schemas/PrototypeBool"
+        retention_days:
+          $ref: "#/components/schemas/RetentionDays"
+    V1Name:
+      type: string
+      pattern: "^[a-z][a-z0-9-]{0,29}$"
+      description: Identifier used in v1 URI paths that reference a specific repository
+      example: firefox-android-beta
+    Description:
+      type: string
+      description: A brief free-text description of the repository
+    AppName:
+      type: string
+      pattern: "^[a-z][a-z0-9_]{0,39}$"
+      description: |
+        A lowercase_with_underscores name that is short and unambiguous. It needs to be something that can be used both in a generated table name in BigQuery or as a value in an `app_name` string field in a derived table. BigQuery users might be using this literal name in a `WHERE` clause, so it should feel reasonable for that use case. Examples: `fenix`, `firefox_ios`
+      example: firefox_ios
+    CanonicalAppName:
+      type: string
+      description: |
+        How we would formally name this application in marketing copy or in a dashboard. This should not be materialized in ETL, but rather only made available in user-facing views since it may be verbose and it may change over time. Examples: Firefox for Android, Firefox for Android (Legacy Fennec), Firefox for Desktop, Firefox Focus for iOS
+      example: Firefox for iOS
+    AppChannel:
+      type: string
+      enum:
+        - release
+        - beta
+        - nightly
+        - esr
+      description: |
+        The release channel.
+        If this is not specified, then we assume the application provides a reasonable channel value in
+        `client_info.app_channel` in its pings.
+    AppId:
+      type: string
+      pattern: '^[a-z][a-zA-Z0-9._-]{0,1023}$'
+      description: |
+        The app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or in the app's Glean initialization call (for other platforms). In the case of the Google Play store, it may contain both dots and dashes. For applicable platforms, you should be able to construct an app store URL from this value.
+      example: "org.mozilla.firefox_beta"
+    DocumentNamespace:
+      type: string
+      pattern: "^[a-z][a-z-]{0,1023}$"
+      description: |
+        Derived from `app_id`, this is the lowercase-with-dashes value that appears
+        as the `document_namespace` element of the submission URI for a ping.
+      example: org-mozilla-firefox-beta
+    BqDatasetFamily:
+      type: string
+      pattern: "^[a-z][a-z_]{0,1023}$"
+      description: |
+        Derived from `app_id`, this is the lowercase-with-underscores prefix for
+        the BigQuery datasets where decoded ping data is written by the pipeline.
+      example: org_mozilla_firefox_beta
+    MetricsFiles:
+      type: array
+      description: A list of relative paths to `metrics.yaml` files in the repo
+      default: []
+      items:
+        type: string
+        pattern: metrics\.yaml$
+        example: app/metrics.yaml
+    PingFiles:
+      type: array
+      description: A list of relative paths to `pings.yaml` files
+      default: []
+      items:
+        type: string
+        pattern: pings\.yaml$
+        example: app/pings.yaml
+    RepoBranch:
+      type: string
+      default: master
+      description: The branch in the repository to use.
+    RepoUrl:
+      type: string
+      format: uri
+      description: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
+      example: https://github.com/mozilla-mobile/firefox-ios
+    NotificationEmails:
+      type: array
+      description: |
+        Where emails about probe-scraper failures and improper files
+        will be forwarded to.
+        These will be just about your specific repository.
+      items:
+        type: string
+        format: email
+        example: nobody@mozilla.com
+    PrototypeBool:
+      type: boolean
+      default: false
+      description: Set to `true` if the application is still under development.
+    DeprecatedBool:
+      type: boolean
+      default: false
+      description: Set to `true` if the repo corresponds to a deprecated product or library.
+    LibraryNames:
+      type: array
+      description: |
+        All the build-specific library names defined in this repository,
+        used as keys to match with the `dependencies` values declared by
+        applications.
+        A single repository could present multiple library names for different
+        platforms, thus there may be multiple values here.
+      items:
+        type: string
+        example: org.mozilla.components:service-glean
+    RetentionDays:
+      description: |
+        The number of days to retain decoded ping data received for this application.
+        If not specified, retention will be unlimited.
+      type: integer
+    Dependencies:
+      type: array
+      default: []
+      description: |
+        List of libraries that this application imports. The values here must
+        match a value defined under `library_names` by one of the libraries.
+      items:
+        type: string
+        example: org.mozilla.components:service-glean

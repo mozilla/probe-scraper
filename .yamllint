@@ -4,3 +4,4 @@ rules:
   line-length:
     ignore: |
       .circleci/config.yml
+      probeinfo_api.yaml

@@ -54,6 +54,40 @@ jobs:
               docker push "${DOCKER_IMAGE}:${CIRCLE_TAG}"
             fi
 
+  docs_build:
+    docker:
+      - image: jklukas/redoc-cli
+    steps:
+      - checkout
+      - run:
+          name: Build docs
+          command: |
+            redoc-cli bundle --options.expandResponses="200,201" --options.jsonSampleExpandLevel=2 probeinfo_api.yaml generate -o docs/index.html
+      - persist_to_workspace:
+          root: docs
+          paths: index.html
+  docs_deploy:
+    docker:
+      - image: node:8.10.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docs/
+      - run:
+          name: Disable jekyll builds
+          command: touch docs/.nojekyll
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "ci-build@mozilla.com"
+            git config user.name "ci-build"
+      - add_ssh_keys:
+          fingerprints:
+            - "9c:4c:28:e5:e6:1b:bf:e9:d6:16:f3:4f:d9:ea:b5:41"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
 
 workflows:
   version: 2
@@ -63,7 +97,13 @@ workflows:
           filters:
             tags:
               only: /.*/
-
+      - docs_build
+      - docs_deploy:
+          requires:
+            - docs_build
+          filters:
+            branches:
+              only: master
       - deploy:
           requires:
             - build_and_test
