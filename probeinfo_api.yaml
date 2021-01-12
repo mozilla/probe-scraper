@@ -1,5 +1,13 @@
 ---
 
+# This file is used both to generate API docs and as the source for schema
+# definitions. Note that OpenAPI has a concept of component schemas that is
+# very similar to, but not quite JSON Schema. We use a standard jsonschema
+# validation library in this codebase, so we need to be careful to keep the
+# schema definitions here to the subset supported by both JSON schema and
+# OpenAPI. There are some comments below to describe the few places where
+# that becomes an issue.
+
 openapi: "3.0.3"
 info:
   description: "Probe-Info Service API"
@@ -216,6 +224,8 @@ components:
   schemas:
     RepositoriesYamlV1:
       type: object
+      # OpenAPI validation does not support propertyNames, so we relax this.
+      # But we validate these names before downgrading to the v1 format anyway.
       # propertyNames:
       #   pattern: "^[a-z][a-z0-9-]{0,29}$"
       additionalProperties:

@@ -11,15 +11,16 @@ REPOSITORIES = os.path.join(
 )
 validation_errors = []
 with open(REPOSITORIES) as data:
-    repos = yaml.load(data, Loader=yaml.SafeLoader)
+    repos_data = yaml.load(data, Loader=yaml.SafeLoader)
+    repos = repos_data["libraries"] + repos_data["applications"]
     for repo in repos:
-        repo_url = repos[repo]["url"]
+        repo_url = repo["url"]
         branch = "master"
-        if "branch" in repos[repo]:
-            branch = repos[repo]["branch"]
+        if "branch" in repo:
+            branch = repo["branch"]
         metrics_files = []
-        if "metrics_files" in repos[repo]:
-            metrics_files = repos[repo]["metrics_files"]
+        if "metrics_files" in repo:
+            metrics_files = repo["metrics_files"]
         if metrics_files:
             temp_url = (
                 GITHUB_RAW_URL
@@ -38,7 +39,7 @@ with open(REPOSITORIES) as data:
                 [Path("./temp-metrics.yaml")], yaml_lint_errors, {}
             )
             if temp_erros:
-                if "prototype" in repos[repo] and not repos[repo]["prototype"]:
+                if not repo.get("prototype", None):
                     validation_errors.append({"repo": repo, "errors": temp_erros})
     os.remove("temp-metrics.yaml")
     os.remove("yaml-lint-errors.txt")
