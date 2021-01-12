@@ -101,9 +101,9 @@ workflows:
       - docs_deploy:
           requires:
             - docs_build
-          filters:
-            branches:
-              only: master
+          # filters:
+          #   branches:
+          #     only: master
       - deploy:
           requires:
             - build_and_test
