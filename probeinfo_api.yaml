@@ -9,25 +9,22 @@
 # that becomes an issue.
 
 openapi: "3.0.3"
+
 info:
   description: "Probe-Info Service API"
   version: "2.0.0"
   title: "probe-info"
+
 servers:
   - url: https://probeinfo.telemetry.mozilla.org
+
+tags:
+  - name: repositories.yaml
+    x-displayName: The repositories.yaml Format
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/RepositoriesYamlV2" />
+
 paths:
-  /repositories.yaml:
-    get:
-      summary: "repositories.yaml"
-      description: This is not an actual endpoint; it exists only to document the input YAML schema.
-      operationId: "getReposYaml"
-      responses:
-        "200":
-          description: "successful operation"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RepositoriesYamlV2"
   /glean/{v1_name}/general:
     get:
       summary: "Glean repo general properties"
@@ -220,6 +217,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Application"
+
 components:
   schemas:
     RepositoriesYamlV1:
