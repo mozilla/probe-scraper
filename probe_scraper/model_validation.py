@@ -1,5 +1,5 @@
-from jsonschema import Draft7Validator, RefResolver, validators
 import yaml
+from jsonschema import Draft7Validator, RefResolver, validators
 
 API_FILENAME = "probeinfo_api.yaml"
 with open(API_FILENAME, "r") as f:
