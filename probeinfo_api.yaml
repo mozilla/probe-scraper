@@ -355,6 +355,17 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         channels:
           type: array
+          description: >-
+            Information for each of the concrete channels that make up this
+            logical application. Most applications will only have a single
+            concrete listing that represents all channels, but Android and iOS
+            applications in particular may need to publish several listings
+            with different `app_id` values in order to make multiple channels
+            available in their respective app stores.
+
+            Note that optional fields here are redundant. If a value is
+            specified here, it will override any value set at the overall
+            application level.
           items:
             type: object
             additionalProperties: false
@@ -367,7 +378,7 @@ components:
               v1_name:
                 $ref: "#/components/schemas/V1Name"
               app_channel:
-                $ref: "#/components/schemas/AppId"
+                $ref: "#/components/schemas/AppChannel"
               description:
                 $ref: "#/components/schemas/Description"
               deprecated:
