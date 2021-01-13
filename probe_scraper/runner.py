@@ -129,6 +129,11 @@ def write_repositories_data(repos, out_dir):
     dump_json(json_data, os.path.join(out_dir, "glean"), "repositories")
 
 
+def write_v2_app_listings_data(repos, out_dir):
+    json_data = repos["applications"]
+    dump_json(json_data, os.path.join(out_dir, "v2", "glean"), "app-listings")
+
+
 def parse_moz_central_probes(scraped_data):
     """
     Parse probe data from files into the form:
@@ -312,6 +317,9 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     write_glean_ping_data(pings_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
     write_general_data(out_dir)
+
+    repos_v2 = RepositoriesParser().parse_v2(repositories_file)
+    write_v2_app_listings_data(repos_v2, out_dir)
 
     for repo_name, email_info in list(emails.items()):
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
