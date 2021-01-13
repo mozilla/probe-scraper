@@ -23,6 +23,19 @@ tags:
     x-displayName: The repositories.yaml Format
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/RepositoriesYamlV2" />
+  - name: v1
+    x-displayName: v1 Glean probeinfo endpoints
+  - name: v2
+    x-displayName: v2 Glean probeinfo endpoints
+
+x-tagGroups:
+  - name: Input Formats
+    tags:
+      - repositories.yaml
+  - name: API
+    tags:
+      - v1
+      - v2
 
 paths:
   /glean/{v1_name}/general:
@@ -322,7 +335,7 @@ components:
       required:
         - app_name
         - canonical_app_name
-        #- description
+        - description
         - url
         - channels
       properties:
@@ -352,9 +365,9 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         channels:
           type: array
-          additionalProperties: false
           items:
             type: object
+            additionalProperties: false
             required:
               - app_id
               - v1_name
@@ -365,6 +378,10 @@ components:
                 $ref: "#/components/schemas/V1Name"
               app_channel:
                 $ref: "#/components/schemas/AppId"
+              description:
+                $ref: "#/components/schemas/Description"
+              deprecated:
+                $ref: "#/components/schemas/DeprecatedBool"
               additional_dependencies:
                 type: array
                 default: []
@@ -375,6 +392,9 @@ components:
       additionalProperties: false
       required:
         - v1_name
+        - description
+        - notification_emails
+        - url
         - library_names
       properties:
         v1_name:

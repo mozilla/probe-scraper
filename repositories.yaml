@@ -15,6 +15,7 @@ libraries:
       - glean-core/pings.yaml
     library_names:
       - glean-core
+
   - v1_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
@@ -29,6 +30,7 @@ libraries:
       - glean-core/pings.yaml
     library_names:
       - org.mozilla.components:service-glean
+
   - v1_name: glean
     description: Modern cross-platform telemetry (old)
     deprecated: true
@@ -43,6 +45,7 @@ libraries:
     ping_files:
       - glean-core/pings.yaml
     library_names: []
+
   - v1_name: glean-deprecated
     description: Modern cross-platform telemetry (old)
     deprecated: true
@@ -58,6 +61,7 @@ libraries:
       - glean-core/pings.yaml
     library_names:
       - org.mozilla.deprecated:glean
+
   - v1_name: lib-crash
     description: >
       A generic crash reporter component that can report crashes to multiple
@@ -71,6 +75,7 @@ libraries:
       - components/lib/crash/metrics.yaml
     library_names:
       - org.mozilla.components:lib-crash
+
   - v1_name: sync
     description: Sync telemetry helper functionality
     notification_emails:
@@ -84,6 +89,7 @@ libraries:
       - components/support/sync-telemetry/pings.yaml
     library_names:
       - org.mozilla.components:support-sync-telemetry
+
   - v1_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
@@ -97,6 +103,7 @@ libraries:
     branch: release
     library_names:
       - org.mozilla.components:browser-engine-gecko
+
   - v1_name: engine-gecko-beta
     description: GeckoView metrics
     notification_emails:
@@ -110,6 +117,7 @@ libraries:
     branch: beta
     library_names:
       - org.mozilla.components:browser-engine-gecko-beta
+
   - v1_name: engine-gecko-nightly
     description: GeckoView metrics
     notification_emails:
@@ -122,6 +130,7 @@ libraries:
       - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
     library_names:
       - org.mozilla.components:browser-engine-gecko-nightly
+
   - v1_name: logins-store
     description: >
       A collection of Android libraries to build browsers or browser-like
@@ -136,6 +145,7 @@ libraries:
     branch: main
     library_names:
       - org.mozilla.appservices:logins
+
   - v1_name: support-migration
     description: >
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
@@ -149,6 +159,7 @@ libraries:
       - components/support/migration/pings.yaml
     library_names:
       - org.mozilla.components:support-migration
+
   - v1_name: android-places
     description: >
       A collection of Android libraries to build browsers or browser-like
@@ -162,6 +173,7 @@ libraries:
     branch: main
     library_names:
       - org.mozilla.components:places
+
 applications:
   - app_name: firefox_desktop
     canonical_app_name: Firefox for Desktop
@@ -178,7 +190,10 @@ applications:
     channels:
       - v1_name: firefox-desktop
         app_id: firefox-desktop
+
+
   - app_name: fenix
+    description: Firefox for Android (Fenix)
     canonical_app_name: Firefox for Android
     url: https://github.com/mozilla-mobile/fenix
     notification_emails:
@@ -236,6 +251,7 @@ applications:
         description: >
           Nightly channel of Firefox for Android users migrated to Fenix;
           delisted in June 2020.
+
   - app_name: firefox_ios
     canonical_app_name: Firefox for iOS
     description: Firefox for iOS
@@ -258,6 +274,7 @@ applications:
       - v1_name: firefox-ios-dev
         app_id: org.mozilla.ios.Fennec
         app_channel: nightly
+
   - app_name: reference_browser
     canonical_app_name: Reference Browser
     description: >
@@ -276,6 +293,7 @@ applications:
     channels:
       - v1_name: reference-browser
         app_id: org-mozilla-reference-browser
+
   - app_name: firefox_fire_tv
     canonical_app_name: Firefox for Fire TV
     description: Firefox for Amazon's Fire TV
@@ -289,6 +307,7 @@ applications:
     channels:
       - v1_name: firefox-for-fire-tv
         app_id: org.mozilla.tv.firefox
+
   - app_name: firefox_reality
     canonical_app_name: Firefox Reality
     description: >
@@ -310,6 +329,7 @@ applications:
     channels:
       - v1_name: firefox-reality
         app_id: org.mozilla.vrbrowser
+
   - app_name: lockwise_android
     canonical_app_name: Lockwise for Android
     description: >
@@ -326,6 +346,7 @@ applications:
     channels:
       - v1_name: lockwise-android
         app_id: mozilla-lockbox
+
   - app_name: lockwise_ios
     canonical_app_name: Lockwise for iOS
     description: >
@@ -340,6 +361,7 @@ applications:
     channels:
       - v1_name: lockwise-ios
         app_id: org-mozilla-ios-lockbox
+
   - app_name: mozregression
     canonical_app_name: mozregression
     description: Regression range finder for Mozilla nightly builds
@@ -355,6 +377,7 @@ applications:
     channels:
       - v1_name: mozregression
         app_id: org-mozilla-mozregression
+
   - app_name: burnham
     canonical_app_name: Burnham
     description: Automated end-to-end testing for Mozilla's Glean telemetry
@@ -372,6 +395,7 @@ applications:
     channels:
       - v1_name: burnham
         app_id: burnham
+
   - app_name: mozphab
     canonical_app_name: mozphab
     description: Phabricator review submission/management tool
@@ -387,6 +411,7 @@ applications:
     channels:
       - v1_name: mozphab
         app_id: mozphab
+
   - app_name: firefox_echo_show
     canonical_app_name: Firefox for Echo Show
     description: Firefox for Amazon's Echo Show
@@ -400,8 +425,9 @@ applications:
     channels:
       - v1_name: firefox-for-echo-show
         app_id: org.mozilla.connect.firefox
+
   - app_name: firefox_reality_pc
-    canonical_app_name: Firefox Reality for PC
+    canonical_app_name: Firefox Reality for PC-connected VR platforms
     description: Firefox Reality for PC-connected VR platforms
     url: https://github.com/MozillaReality/FirefoxRealityPC
     notification_emails:
@@ -415,6 +441,7 @@ applications:
     channels:
       - v1_name: firefox-reality-pc
         app_id: org-mozilla-firefoxreality
+
   - app_name: mach
     canonical_app_name: mach
     description: Mach build telemetry
@@ -430,8 +457,9 @@ applications:
     channels:
       - v1_name: mach
         app_id: mozilla-mach
+
   - app_name: glean_js
-    canonical_app_name: Glean.js experiment
+    canonical_app_name: Experimentation with Glean.js
     description: Experimentation with Glean.js
     url: https://github.com/brizental/gleanjs
     prototype: true
@@ -448,8 +476,10 @@ applications:
     channels:
       - v1_name: glean-js
         app_id: glean-js-tmp
+
   - app_name: focus_ios
-    canonical_app_name: Focus for iOS
+    canonical_app_name: Firefox Focus for iOS
+    description: Firefox Focus on iOS. Klar is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
       - jboek@mozilla.com
@@ -463,9 +493,20 @@ applications:
     channels:
       - v1_name: firefox-focus-ios
         app_id: org-mozilla-ios-focus
-        app_name: focus_ios
-        description: Firefox Focus on iOS. Klar is the sibling application
+        
+  - app_name: klar_ios
+    canonical_app_name: Firefox Klar for iOS
+    description: Firefox Klar on iOS. Focus is the sibling application
+    url: https://github.com/mozilla-mobile/focus-ios
+    notification_emails:
+      - jboek@mozilla.com
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - Blockzilla/metrics.yaml
+    dependencies:
+      - glean-core
+    retention_days: 720
+    channels:
       - v1_name: firefox-klar-ios
         app_id: org-mozilla-ios-klar
-        app_name: klar_ios
-        description: Firefox Klar on iOS. Focus is the sibling application
