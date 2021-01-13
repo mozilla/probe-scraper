@@ -12,7 +12,12 @@ REPOSITORIES_SCHEMA = "schemas/repositories.json"
 
 def remove_none(obj):
     """
-    See https://stackoverflow.com/a/20558778
+    Recursively traverses a dict or list, removing all dict items where the value
+    is None. This helps us meet the existing probeinfo API contract and sidesteps
+    an awkward incompatibility between JSON schemas and OpenAPI schemas, which use
+    incompatible constructs for marking fields as nullable.
+
+    Implementation from https://stackoverflow.com/a/20558778
     """
     if isinstance(obj, (list, tuple, set)):
         return type(obj)(remove_none(x) for x in obj if x is not None)

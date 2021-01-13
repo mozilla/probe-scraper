@@ -8,6 +8,12 @@
 # OpenAPI. There are some comments below to describe the few places where
 # that becomes an issue.
 
+# Docs for supported keywords:
+# https://swagger.io/docs/specification/data-models/keywords/
+
+# Docs for ReDoc-specific keywords (x-*):
+# https://github.com/Redocly/redoc#configuration
+
 openapi: "3.0.3"
 
 info:
