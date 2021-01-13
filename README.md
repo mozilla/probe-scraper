@@ -9,13 +9,18 @@ The data is pulled from two different sources:
 - From [`hg.mozilla.org`](https://hg.mozilla.org) for Firefox data.
 - From a [configurable set of Github repositories](repositories.yaml) that use [Glean](https://github.com/mozilla-mobile/android-components/tree/master/components/service/glean).
 
-A web tool to explore the Firefox-related data is available at
-[probes.telemetry.mozilla.org](https://probes.telemetry.mozilla.org/).
+Probe Scraper outputs JSON to https://probeinfo.telemetry.mozilla.org.
+Effectively, this creates a REST API which can be used by downstream tools like
+[mozilla-schema-generator](https://github.com/mozilla/mozilla-schema-generator)
+and various data dictionary type applications (see below).
 
-CI on this repository handles publishing the data to populate the `probeinfo` API
-and the related [API docs](https://mozilla.github.io/probe-scraper/):
+An [OpenAPI reference](https://mozilla.github.io/probe-scraper/) to this API is available:
 
-![probeinfo API docs](docs.png)
+<a href="https://mozilla.github.io/probe-scraper/" rel="probeinfo API docs">![probeinfo API docs](docs.png)</a>
+
+A web tool to explore the Firefox-related data is available at [probes.telemetry.mozilla.org](https://probes.telemetry.mozilla.org/). A project to develop a similar view for Glean-based data
+is under development in the [Glean Dictionary](https://github.com/mozilla/glean-dictionary).
+
 
 ## Adding a New Glean Repository
 
