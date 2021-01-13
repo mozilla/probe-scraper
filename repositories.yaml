@@ -219,7 +219,7 @@ applications:
         description: >
           Release channel of Firefox for Android.
       - v1_name: firefox-android-beta
-        app_id: org-mozilla-firefox-beta
+        app_id: org.mozilla.firefox_beta
         app_channel: beta
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-beta
@@ -292,7 +292,7 @@ applications:
       - org.mozilla.components:lib-crash
     channels:
       - v1_name: reference-browser
-        app_id: org-mozilla-reference-browser
+        app_id: org.mozilla.reference.browser
 
   - app_name: firefox_fire_tv
     canonical_app_name: Firefox for Fire TV
@@ -345,7 +345,7 @@ applications:
       - org.mozilla.components:support-sync-telemetry
     channels:
       - v1_name: lockwise-android
-        app_id: mozilla-lockbox
+        app_id: mozilla.lockbox
 
   - app_name: lockwise_ios
     canonical_app_name: Lockwise for iOS
@@ -360,7 +360,7 @@ applications:
       - org.mozilla.components:service-glean
     channels:
       - v1_name: lockwise-ios
-        app_id: org-mozilla-ios-lockbox
+        app_id: org.mozilla.ios.Lockbox
 
   - app_name: mozregression
     canonical_app_name: mozregression
@@ -376,7 +376,7 @@ applications:
       - org.mozilla.deprecated:glean
     channels:
       - v1_name: mozregression
-        app_id: org-mozilla-mozregression
+        app_id: org.mozilla.mozregression
 
   - app_name: burnham
     canonical_app_name: Burnham
@@ -440,7 +440,7 @@ applications:
       - glean-core
     channels:
       - v1_name: firefox-reality-pc
-        app_id: org-mozilla-firefoxreality
+        app_id: org.mozilla.firefoxreality
 
   - app_name: mach
     canonical_app_name: mach
@@ -492,7 +492,7 @@ applications:
     retention_days: 720
     channels:
       - v1_name: firefox-focus-ios
-        app_id: org-mozilla-ios-focus
+        app_id: org.mozilla.ios.Focus
         
   - app_name: klar_ios
     canonical_app_name: Firefox Klar for iOS
@@ -509,4 +509,4 @@ applications:
     retention_days: 720
     channels:
       - v1_name: firefox-klar-ios
-        app_id: org-mozilla-ios-klar
+        app_id: org.mozilla.ios.Klar
