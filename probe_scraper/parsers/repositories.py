@@ -106,6 +106,17 @@ class RepositoriesParser(object):
         return [r for r in repos if r.name == glean_repo]
 
     def parse(self, filename=None, glean_repo=None):
+        """
+        Parse the given filename as a set of repository definitions for v1 endpoints.
+
+        The passed file can either be in the old RepositoriesYamlV1 format
+        or the current RepositoriesYamlV2 format, in which case it will be
+        "downgraded" to v1 format. This is to maintain existing code and output for
+        the v1 probeinfo endpoints.
+
+        New endpoints should be built with the data format returned from parse_v2
+        rather than this function.
+        """
         self.validate(filename)
         repos = self._get_repos(filename)
 
@@ -116,6 +127,11 @@ class RepositoriesParser(object):
         return self.filter_repos(repos, glean_repo)
 
     def parse_v2(self, filename=None) -> dict:
+        """
+        Parse the given filename as a set of repository definitions.
+
+        The passed file must be in the current RepositoriesYamlV2 format.
+        """
         with open(filename or REPOSITORIES_FILENAME, "r") as f:
             data = yaml.load(f, Loader=yaml.SafeLoader)
         model_validation.apply_defaults_and_validate(data, "RepositoriesYamlV2")
