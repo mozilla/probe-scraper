@@ -79,6 +79,12 @@ To test whether the code conforms to the style rules, you can run:
 flake8 --max-line-length 100 .
 ```
 
+To render API documentation locally to `index.html`:
+```
+# Check .circleci/config.yml for the latest invocation
+docker run --rm -v ${PWD}:/local node:15.5.1-alpine3.12 sh -c "npm install -g redoc-cli; redoc-cli bundle --options.expandResponses=200,201 --options.jsonSampleExpandLevel=2 /local/probeinfo_api.yaml generate -o /local/index.html"
+```
+
 ### Developing using the container
 
 Run tests in container. This does not run tests that require a web connection:
