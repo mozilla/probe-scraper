@@ -32,10 +32,15 @@ tags:
     x-displayName: The repositories.yaml Format
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/RepositoriesYamlV2" />
+  - name: telemetry
+    x-displayName: v1 Legacy telemetry endpoints
   - name: v1
     x-displayName: v1 Glean probeinfo endpoints
   - name: v2
     x-displayName: v2 Glean probeinfo endpoints
+    description: |
+      **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
+
 
 x-tagGroups:
   - name: Input Formats
@@ -43,10 +48,68 @@ x-tagGroups:
       - repositories.yaml
   - name: API
     tags:
+      - telemetry
       - v1
       - v2
 
 paths:
+  /firefox/general:
+    get:
+      summary: "Telemetry scraping general properties"
+      tags:
+        - telemetry
+      description: |
+        Provides general properties related to the scraping process.
+      operationId: "getGeneral"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneralFile"
+  /firefox/revisions:
+    get:
+      summary: "Revision hashes listing"
+      tags:
+        - telemetry
+      description: |
+        Contains the revision hashes of the changesets for the probe files that were scraped.
+        These hashes are mapped to a human-readable version string.
+      operationId: "getGeneral"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevisionsFile"
+              example:
+                $ref: "#/components/examples/RevisionsFile"
+  /firefox/{channel}/main/all_probes:
+    get:
+      summary: "Probe listing"
+      tags:
+        - telemetry
+      description: |
+        Refer to the [Telemetry data collection documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/collection/index.html) for a detailed explanation of the field information reported for each probe (e.g. `cpp_guard`).
+      operationId: "getMetrics"
+      parameters:
+        - name: channel
+          in: path
+          description: Firefox application channel
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TelemetryProbesFile"
+              example:
+                $ref: "#/components/examples/TelemetryProbesFile"
   /glean/{v1_name}/general:
     get:
       summary: "Glean repo general properties"
@@ -68,14 +131,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - lastUpdate
-                properties:
-                  lastUpdate:
-                    type: string
-                    description: timestamp when scraping was performed
-                    format: date-time
+                $ref: "#/components/schemas/GeneralFile"
   /glean/{v1_name}/metrics:
     get:
       summary: "Glean repo metrics"
@@ -96,61 +152,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-                  x-additionalPropertiesName: metric name
-                  properties:
-                    name:
-                      type: string
-                    type:
-                      type: string
-                    history:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            example: timespan
-                          description:
-                            type: string
-                            example: The duration of the last foreground session
-                          send_in_pings:
-                            type: array
-                            items:
-                              type: string
-                              example: baseline
-                          bugs:
-                            type: array
-                            items:
-                              type: integer
-                              example: 1497894
-                          data_reviews:
-                            type: array
-                            items:
-                              type: string
-                              example: baseline
-                          notification_emails:
-                            $ref: "#/components/schemas/NotificationEmails"
-                          dates:
-                            type: object
-                            properties:
-                              first:
-                                type: string
-                                format: date-time
-                              last:
-                                type: string
-                                format: date-time
-                          git-commits:
-                            type: object
-                            properties:
-                              first:
-                                type: string
-                                example: "9aa4f48e77001058c05f3d3182228706720bf87a"
-                              last:
-                                type: string
-                                example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+                $ref: "#/components/schemas/GleanMetricsFile"
   /glean/{v1_name}/dependencies:
     get:
       summary: "Glean repo dependencies"
@@ -174,38 +176,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-                  x-additionalPropertiesName: library name
-                  properties:
-                    name:
-                      type: string
-                    type:
-                      type: string
-                    history:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          dates:
-                            type: object
-                            properties:
-                              first:
-                                type: string
-                                format: date-time
-                              last:
-                                type: string
-                                format: date-time
-                          git-commits:
-                            type: object
-                            properties:
-                              first:
-                                type: string
-                                example: "9aa4f48e77001058c05f3d3182228706720bf87a"
-                              last:
-                                type: string
-                                example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+                $ref: "#/components/schemas/DependenciesFile"
   /glean/repositories:
     get:
       summary: "List Glean repositories"
@@ -226,7 +197,7 @@ paths:
       tags:
         - v2
       description: |
-        Flattened view of all Glean app listings (one entry per app_id). No libraries are included, and this will eventually link to new v2 per-app endpoints that include information pulled from dependencies.
+        Flattened view of all Glean app listings (one entry per `app_id`). No libraries are included, and this will eventually link to new v2 per-app endpoints that include information pulled from dependencies.
 
         **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
       operationId: "getAppListings"
@@ -253,7 +224,7 @@ components:
         additionalProperties: false
         required:
           - app_id
-          #- description
+          - description
           - url
           - notification_emails
         properties:
@@ -587,3 +558,198 @@ components:
       items:
         type: string
         example: org.mozilla.components:service-glean
+    GeneralFile:
+      type: object
+      required:
+        - lastUpdate
+      properties:
+        lastUpdate:
+          type: string
+          description: timestamp when scraping was performed
+          format: date-time
+    RevisionsFile:
+      type: object
+      additionalProperties:
+        type: object
+        x-additionalPropertiesName: channel
+        additionalProperties:
+          type: object
+          x-additionalPropertiesName: revision hash
+          properties:
+            version:
+              type: string
+    TelemetryProbesFile:
+      type: object
+      additionalProperties:
+        type: object
+        x-additionalPropertiesName: <probe type>/<probe name>
+        properties:
+          name:
+            type: string
+          type:
+            type: string
+          history:
+            type: object
+            additionalProperties:
+              x-additionalPropertiesName: channel
+              type: array
+              items:
+                type: object
+                properties:
+                  cpp_guard:
+                    type: string
+                    nullable: true
+                  description:
+                    type: string
+                    example: The duration of the last foreground session
+                  details:
+                    type: object
+                    properties:
+                      record_in_processes:
+                        type: array
+                        items:
+                          type: string
+                    additionalProperties:
+                      x-additionalPropertiesName: type-specific detail
+                      type: string
+                  expiry_version:
+                    type: string
+                  optout:
+                    type: boolean
+                  revisions:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: "9aa4f48e77001058c05f3d3182228706720bf87a"
+                      last:
+                        type: string
+                        example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+                  versions:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: "56"
+                      last:
+                        type: string
+                        example: "59"
+    GleanMetricsFile:
+      type: object
+      additionalProperties:
+        type: object
+        x-additionalPropertiesName: metric name
+        properties:
+          name:
+            type: string
+          type:
+            type: string
+          history:
+            type: array
+            items:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: timespan
+                description:
+                  type: string
+                  example: The duration of the last foreground session
+                send_in_pings:
+                  type: array
+                  items:
+                    type: string
+                    example: baseline
+                bugs:
+                  type: array
+                  items:
+                    type: integer
+                    example: 1497894
+                data_reviews:
+                  type: array
+                  items:
+                    type: string
+                    example: baseline
+                notification_emails:
+                  $ref: "#/components/schemas/NotificationEmails"
+                dates:
+                  type: object
+                  properties:
+                    first:
+                      type: string
+                      format: date-time
+                    last:
+                      type: string
+                      format: date-time
+                git-commits:
+                  type: object
+                  properties:
+                    first:
+                      type: string
+                      example: "9aa4f48e77001058c05f3d3182228706720bf87a"
+                    last:
+                      type: string
+                      example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+    DependenciesFile:
+      type: object
+      additionalProperties:
+        type: object
+        x-additionalPropertiesName: library name
+        properties:
+          name:
+            type: string
+          type:
+            type: string
+          history:
+            type: array
+            items:
+              type: object
+              properties:
+                dates:
+                  type: object
+                  properties:
+                    first:
+                      type: string
+                      format: date-time
+                    last:
+                      type: string
+                      format: date-time
+                git-commits:
+                  type: object
+                  properties:
+                    first:
+                      type: string
+                      example: "9aa4f48e77001058c05f3d3182228706720bf87a"
+                    last:
+                      type: string
+                      example: "69c485078950fb09ee2cef609b75ea9dd30d249b"
+  examples:
+    TelemetryProbesFile:
+      histogram/A11Y_CONSUMERS:
+        history:
+          nightly:
+          - cpp_guard:
+            description: |
+              A list of known accessibility clients that inject into Firefox
+              process space (see
+              https://dxr.mozilla.org/mozilla-central/source/accessible/windows/msaa/Compatibility.h).
+            details:
+              high: 11
+              keyed: false
+              kind: enumerated
+              low: 1
+              n_buckets: 12
+            expiry_version: never
+            optout: true
+            revisions:
+              first: 320642944e42a889db13c6c55b404e32319d4de6
+              last: 6f5fac320fcb6625603fa8a744ffa8523f8b3d71
+            versions:
+              first: '56'
+              last: '59'
+        name: A11Y_CONSUMERS
+        type: histogram
+    RevisionsFile:
+     aurora: 
+       1196bf3032e1bce1fb07a01fd9082a767426c5fb: 
+         version: 51
