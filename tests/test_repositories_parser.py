@@ -52,21 +52,6 @@ def correct_repos_file():
 
 
 @pytest.fixture
-def not_kebab_case_repos_file():
-    data = {
-        "some_repo": {
-            "app_id": "mobile-metrics-example",
-            "description": "foo",
-            "url": "www.github.com/fbertsch/mobile-metrics-example",
-            "notification_emails": ["frank@mozilla.com"],
-            "metrics_files": ["metrics.yaml"],
-        }
-    }
-
-    return write_to_temp_file(data)
-
-
-@pytest.fixture
 def invalid_release_channel_file():
     data = {
         "test-repo": {
@@ -94,11 +79,6 @@ def test_repositories_parser_incorrect(parser, incorrect_repos_file):
 def test_repositories_parser_invalid_channel(parser, invalid_release_channel_file):
     with pytest.raises(jsonschema.exceptions.ValidationError):
         parser.validate(invalid_release_channel_file)
-
-
-def test_repositories_parser_not_kebab_case(parser, not_kebab_case_repos_file):
-    with pytest.raises(jsonschema.exceptions.ValidationError):
-        parser.validate(not_kebab_case_repos_file)
 
 
 def test_repositories_class(parser, correct_repos_file):

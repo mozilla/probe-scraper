@@ -9,22 +9,23 @@ The data is pulled from two different sources:
 - From [`hg.mozilla.org`](https://hg.mozilla.org) for Firefox data.
 - From a [configurable set of Github repositories](repositories.yaml) that use [Glean](https://github.com/mozilla-mobile/android-components/tree/master/components/service/glean).
 
-A web tool to explore the data is available [here](https://telemetry.mozilla.org/probe-dictionary/).
+Probe Scraper outputs JSON to https://probeinfo.telemetry.mozilla.org.
+Effectively, this creates a REST API which can be used by downstream tools like
+[mozilla-schema-generator](https://github.com/mozilla/mozilla-schema-generator)
+and various data dictionary type applications (see below).
+
+An [OpenAPI reference](https://mozilla.github.io/probe-scraper/) to this API is available:
+
+<a href="https://mozilla.github.io/probe-scraper/" rel="probeinfo API docs">![probeinfo API docs](docs.png)</a>
+
+A web tool to explore the Firefox-related data is available at [probes.telemetry.mozilla.org](https://probes.telemetry.mozilla.org/). A project to develop a similar view for Glean-based data
+is under development in the [Glean Dictionary](https://github.com/mozilla/glean-dictionary).
+
 
 ## Adding a New Glean Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
-
-- `description`: A brief description of the repository.
-- `channel`: (optional) The release channel. Must be one of "release", "beta", "nightly" or "esr".
-- `deprecated` (optional) `true` if repository corresponds to a deprecated product or library.
-- `prototype`: (optional) `true` if the application is still under developement.
-- `notification_emails`: Where emails about probe-scraper failures and improper files will be forwarded to. These
-will be just about your specific repository.
-- `url`: The URL of the repository to scrape. It should be able to be cloned directly from that URL.
-- `branch` (optional): The branch in the repository to use. (Defaults to `master`).
-- `metrics_files`: A list of relative paths to `metrics.yaml` files
-- `ping_files`: A list of relative paths to `pings.yaml` files
+Refer to the [repository schema documentation](https://mozilla.github.io/probe-scraper/#tag/repositories.yaml) for details.
 
 ### Adding an application
 
@@ -76,6 +77,12 @@ pytest tests/ --run-web-tests
 To test whether the code conforms to the style rules, you can run:
 ```
 flake8 --max-line-length 100 .
+```
+
+To render API documentation locally to `index.html`:
+```
+# Check .circleci/config.yml for the latest invocation
+docker run --rm -v ${PWD}:/local node:15.5.1-alpine3.12 sh -c "npm install -g redoc-cli; redoc-cli bundle --options.expandResponses=200,201 --options.jsonSampleExpandLevel=2 /local/probeinfo_api.yaml generate -o /local/index.html"
 ```
 
 ### Developing using the container
@@ -149,182 +156,6 @@ The code layout consists mainly of:
    - `transform_*.py` - transform the extracted raw data into output formats
 - `tests/` - the unit tests
 
-## File formats
-This scraper generates three different JSON file types.
-
-### `revisions`
-This file contains the revision hashes of the changesets the probe files were scraped. These hashes are mapped to an human-readable version string.
-
-```
-{
-  "<channel>": {
-    "<revision hash>": {
-      "version": "<human-readable version string>"
-    },
-    ...
-  },
-  ...
-  "aurora": {
-    "1196bf3032e1bce1fb07a01fd9082a767426c5fb": {
-      "version": "51"
-    },
-  },
-  ...
-}
-```
-
-### `general`
-This file contains general properties related to the scraping process. As of today, it only contains the `lastUpdate` property, which is the day and time the scraping was performed, in ISO 8601 format.
-
-```
-{
-  "lastUpdate": "2018-01-15T17:57:08.944690+01:00"
-}
-```
-
-### Probe data file
-This file contains the data for the probes. The data might be spread across multiple files. It has the following format:
-
-```
-{
-  "<probe type>/<probe name>": {
-    "history": {
-      "<channel>": [
-        {
-          "cpp_guard": <string or null>,
-          "description": "<string>",
-          "details": {
-            "<type specific detail>": "<detail data>",
-            ...
-            "record_in_processes": [
-              "<string>",
-              ...
-            ]
-          },
-          "expiry_version": "<string>",
-          "optout": <bool>,
-          "revisions": {
-            "first": "<string>",
-            "last": "<string>"
-          },
-          "versions": {
-            "first": "<string>",
-            "last": "<string>"
-          }
-        },
-        ...
-      ]
-    },
-    "name": "<probe name>",
-    "type": "<probe type>"
-  },
-  ...
-  "histogram/A11Y_CONSUMERS": {
-    "history": {
-      "nightly": [
-        {
-          "cpp_guard": null,
-          "description": "A list of known accessibility clients that inject into Firefox process space (see https://dxr.mozilla.org/mozilla-central/source/accessible/windows/msaa/Compatibility.h).",
-          "details": {
-            "high": 11,
-            "keyed": false,
-            "kind": "enumerated",
-            "low": 1,
-            "n_buckets": 12
-          },
-          "expiry_version": "never",
-          "optout": true,
-          "revisions": {
-            "first": "320642944e42a889db13c6c55b404e32319d4de6",
-            "last": "6f5fac320fcb6625603fa8a744ffa8523f8b3d71"
-          },
-          "versions": {
-            "first": "56",
-            "last": "59"
-          }
-        }
-      ]
-    },
-    "name": "A11Y_CONSUMERS",
-    "type": "histogram"
-  },
-}
-```
-
-Please refer to the Telemetry data collection [documentation](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/collection/index.html) for a detailed explanation of the field information reported for each probe (e.g. `cpp_guard`).
-
-## Glean Metrics Data Files
-The format is similar for probe data files, but without the `revisions` and `versions` keys. Instead it has `git-commits` and `dates` keys, which contains the
-first and last commits that definition has been seen in, and when those commits were committed.
-
-```
-{
-  "<metric name>": {
-    "history": [
-      {
-        "type": "timespan",
-        "description": "  The duration of the last foreground session.",
-        "time_unit": "second",
-        "send_in_pings": ["baseline"],
-        "bugs": [1497894, 1519120],
-        "data_reviews": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"],
-        "notification_emails": ["telemetry-client-dev@mozilla.com"],
-        "git-commits": {
-          "first": "<commit-hash>",
-          "last": "<commit-hash>"
-        },
-        "dates": {
-          "first": "2019-01-01 12:12:12",
-          "last": "2019-02-01 14:14:14"
-        },
-      },
-      ...
-    ]
-    "name": "<metric name>",
-    "type": "<metric type>"
-  },
-  ...
-}
-```
-
-### Glean dependencies files
-
-The Glean dependency file contains information about the dependencies of an
-application in `repositories.yaml`.
-
-The format is similar for Glean metrics data files. Each entry in the top-level
-object represents a dependency of the application. The only data point tracked
-in the `history` log is `version`, which is the version number of the
-dependency. At the top-level of each entry is:
-
-- `name`: the name of the dependency (for Android, this is a Maven
-  package name).
-- `type`: Always `"dependency"`.
-
-```
-{
-  "<library name>": {
-    "history": [
-      {
-        "dates": {
-          "first": "2019-05-25 00:39:19",
-          "last": "2019-05-28 10:24:06"
-        },
-        "git-commits": {
-          "first": "9aa4f48e77001058c05f3d3182228706720bf87a",
-          "last": "69c485078950fb09ee2cef609b75ea9dd30d249b"
-        },
-        "type": "dependency",
-        "version": "1.1.0-alpha05"
-      }
-    ],
-    "name": "<library-name>",
-    "type": "dependency"
-  },
-  ...
-}
-```
-
 ## Accessing the data files
 The processed probe data is serialized to the disk in a directory hierarchy starting from the provided output directory. The directory layout resembles a REST-friendly structure.
 
@@ -337,7 +168,8 @@ The processed probe data is serialized to the disk in a directory hierarchy star
 
 For example, all the JSON probe data in the [main ping]() for the *Firefox Nightly* channel can be accessed with the following path: `firefox/nightly/main/all_probes`. The probe data for all the channels (same product and ping) can be accessed instead using `firefox/all/main/all_probes`.
 
-The root directory for the output generated from the scheduled job can be found at: https://probeinfo.telemetry.mozilla.org/ . All the probe data for Firefox coming from the main ping can be found [here](https://probeinfo.telemetry.mozilla.org/firefox/all/main/all_probes).
+The root directory for the output generated from the scheduled job can be found at https://probeinfo.telemetry.mozilla.org/ . 
+All the probe data for Firefox coming from the main ping can be found at https://probeinfo.telemetry.mozilla.org/firefox/all/main/all_probes .
 
 ## Accessing `Glean` metrics data
 Glean data is generally laid out as follows:
@@ -354,4 +186,3 @@ Glean data is generally laid out as follows:
 For example, the data for a repository called `fenix` would be found at [`/glean/fenix/metrics`](https://probeinfo.telemetry.mozilla.org/glean/fenix/metrics). The time the data was last updated for that project can be found at [`glean/fenix/general`](https://probeinfo.telemetry.mozilla.org/glean/fenix/general).
 
 A list of available repositories is at [`/glean/repositories`](https://probeinfo.telemetry.mozilla.org/glean/repositories).
-

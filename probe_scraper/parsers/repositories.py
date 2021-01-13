@@ -2,13 +2,33 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
-
-import jsonschema
 import yaml
+
+from probe_scraper import model_validation
 
 REPOSITORIES_FILENAME = "repositories.yaml"
 REPOSITORIES_SCHEMA = "schemas/repositories.json"
+
+
+def remove_none(obj):
+    """
+    Recursively traverses a dict or list, removing all dict items where the value
+    is None. This helps us meet the existing probeinfo API contract and sidesteps
+    an awkward incompatibility between JSON schemas and OpenAPI schemas, which use
+    incompatible constructs for marking fields as nullable.
+
+    Implementation from https://stackoverflow.com/a/20558778
+    """
+    if isinstance(obj, (list, tuple, set)):
+        return type(obj)(remove_none(x) for x in obj if x is not None)
+    elif isinstance(obj, dict):
+        return type(obj)(
+            (remove_none(k), remove_none(v))
+            for k, v in obj.items()
+            if k is not None and v is not None
+        )
+    else:
+        return obj
 
 
 class Repository(object):
@@ -69,15 +89,15 @@ class RepositoriesParser(object):
         with open(filename, "r") as f:
             repos = yaml.load(f, Loader=yaml.SafeLoader)
 
-        return repos
+        version = repos.get("version", "1")
+        if version == "1":
+            return repos
+        else:
+            return self._v2_to_v1(filename)
 
     def validate(self, filename=None):
-        repos = self._get_repos(filename)
-
-        with open(REPOSITORIES_SCHEMA, "r") as f:
-            schema = json.load(f)
-
-        jsonschema.validate(repos, schema)
+        data = self._get_repos(filename)
+        model_validation.validate_as(data, "RepositoriesYamlV1")
 
     def filter_repos(self, repos, glean_repo):
         if glean_repo is None:
@@ -86,6 +106,17 @@ class RepositoriesParser(object):
         return [r for r in repos if r.name == glean_repo]
 
     def parse(self, filename=None, glean_repo=None):
+        """
+        Parse the given filename as a set of repository definitions for v1 endpoints.
+
+        The passed file can either be in the old RepositoriesYamlV1 format
+        or the current RepositoriesYamlV2 format, in which case it will be
+        "downgraded" to v1 format. This is to maintain existing code and output for
+        the v1 probeinfo endpoints.
+
+        New endpoints should be built with the data format returned from parse_v2
+        rather than this function.
+        """
         self.validate(filename)
         repos = self._get_repos(filename)
 
@@ -94,3 +125,57 @@ class RepositoriesParser(object):
         ]
 
         return self.filter_repos(repos, glean_repo)
+
+    def parse_v2(self, filename=None) -> dict:
+        """
+        Parse the given filename as a set of repository definitions.
+
+        The passed file must be in the current RepositoriesYamlV2 format.
+        """
+        with open(filename or REPOSITORIES_FILENAME, "r") as f:
+            data = yaml.load(f, Loader=yaml.SafeLoader)
+        model_validation.apply_defaults_and_validate(data, "RepositoriesYamlV2")
+        repos = data
+        listings = []
+        for app in repos["applications"]:
+            channels = app.pop("channels")
+            for channel in channels:
+                dependencies = app.get("dependencies", []) + channel.pop(
+                    "additional_dependencies", []
+                )
+                listing = {**app, **channel}
+                listing["dependencies"] = dependencies
+                app_id = listing["app_id"]
+                listing["document_namespace"] = (
+                    app_id.lower().replace("_", "-").replace(".", "-")
+                )
+                listing["bq_dataset_family"] = (
+                    app_id.lower().replace("-", "_").replace(".", "_")
+                )
+                listing = remove_none(listing)
+                model_validation.validate_as(listing, "Application")
+                listings.append(listing)
+        return {
+            "libraries": repos["libraries"],
+            "applications": listings,
+        }
+
+    def _v2_to_v1(self, filename):
+        repos_v2 = self.parse_v2(filename)
+        repos = {}
+        for lib in repos_v2["libraries"]:
+            v1_name = lib.pop("v1_name")
+            lib["app_id"] = v1_name
+            repos[v1_name] = lib
+        for app in repos_v2["applications"]:
+            app_channel = app.pop("app_channel", None)
+            if app_channel is not None:
+                app["channel"] = app_channel
+            v1_name = app.pop("v1_name")
+            app.pop("app_name")
+            app.pop("canonical_app_name", None)
+            app.pop("bq_dataset_family")
+            namespace = app.pop("document_namespace")
+            app["app_id"] = namespace
+            repos[v1_name] = app
+        return repos
