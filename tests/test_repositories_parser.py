@@ -71,17 +71,6 @@ def test_repositories(parser):
     parser.validate()
 
 
-def test_parse_v2(parser):
-    repos = parser.parse_v2()
-    app = repos["applications"][0]
-    print(app)
-
-
-def test_v2_to_v1(parser):
-    repos = parser.parse()
-    print(repos)
-
-
 def test_repositories_parser_incorrect(parser, incorrect_repos_file):
     with pytest.raises(jsonschema.exceptions.ValidationError):
         parser.validate(incorrect_repos_file)
