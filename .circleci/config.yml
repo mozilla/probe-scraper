@@ -107,8 +107,7 @@ workflows:
             - docs_build
           filters:
             branches:
-              # TODO: Change to master before merging
-              only: nested-openapi
+              only: master
       - deploy:
           requires:
             - build_and_test
