@@ -63,7 +63,7 @@ libraries:
       - org.mozilla.deprecated:glean
 
   - v1_name: lib-crash
-    description: >
+    description: >-
       A generic crash reporter component that can report crashes to multiple
       services
     notification_emails:
@@ -132,7 +132,7 @@ libraries:
       - org.mozilla.components:browser-engine-gecko-nightly
 
   - v1_name: logins-store
-    description: >
+    description: >-
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
@@ -147,7 +147,7 @@ libraries:
       - org.mozilla.appservices:logins
 
   - v1_name: support-migration
-    description: >
+    description: >-
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
       an Android Components based app
     notification_emails:
@@ -161,7 +161,7 @@ libraries:
       - org.mozilla.components:support-migration
 
   - v1_name: android-places
-    description: >
+    description: >-
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
@@ -216,21 +216,21 @@ applications:
         app_channel: release
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-beta
-        description: >
+        description: >-
           Release channel of Firefox for Android.
       - v1_name: firefox-android-beta
         app_id: org.mozilla.firefox_beta
         app_channel: beta
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-beta
-        description: >
+        description: >-
           Beta channel of Firefox for Android.
       - v1_name: fenix
         app_id: org.mozilla.fenix
         app_channel: nightly
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-beta
-        description: >
+        description: >-
           Nightly channel of Firefox for Android.
           Prior to June 2020, this app_id was used for the beta channel
           of Firefox Preview.
@@ -240,7 +240,7 @@ applications:
         deprecated: true
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-nightly
-        description: >
+        description: >-
           Nightly channel of Firefox Preview.
       - v1_name: firefox-android-nightly
         app_id: org.mozilla.fennec.aurora
@@ -248,7 +248,7 @@ applications:
         deprecated: true
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-beta
-        description: >
+        description: >-
           Nightly channel of Firefox for Android users migrated to Fenix;
           delisted in June 2020.
 
@@ -277,7 +277,7 @@ applications:
 
   - app_name: reference_browser
     canonical_app_name: Reference Browser
-    description: >
+    description: >-
       A full-featured browser reference implementation using Mozilla Android
       Components
     notification_emails:
@@ -310,7 +310,7 @@ applications:
 
   - app_name: firefox_reality
     canonical_app_name: Firefox Reality
-    description: >
+    description: >-
       A fast and secure browser for standalone virtual-reality and
       augmented-reality headsets
     notification_emails:
@@ -332,7 +332,7 @@ applications:
 
   - app_name: lockwise_android
     canonical_app_name: Lockwise for Android
-    description: >
+    description: >-
       Firefox's Lockwise app for Android
     notification_emails:
       - frank@mozilla.com
@@ -349,7 +349,7 @@ applications:
 
   - app_name: lockwise_ios
     canonical_app_name: Lockwise for iOS
-    description: >
+    description: >-
       Firefox's Lockwise app for iOS
     notification_emails:
       - frank@mozilla.com
