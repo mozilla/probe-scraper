@@ -20,7 +20,7 @@ and the related [API docs](https://mozilla.github.io/probe-scraper/):
 ## Adding a New Glean Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
-Refer the the [schema docs](https://mozilla.github.io/probe-scraper/#operation/getReposYaml).
+Refer to the [repository schema documentation](https://mozilla.github.io/probe-scraper/#tag/repositories.yaml) for details.
 
 ### Adding an application
 
