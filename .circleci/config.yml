@@ -56,9 +56,13 @@ jobs:
 
   docs_build:
     docker:
-      - image: jklukas/redoc-cli
+      - image: node:15.5.1-alpine3.12
     steps:
       - checkout
+      - run:
+          name: Install redoc-cli
+          command: |
+            npm install -g redoc-cli
       - run:
           name: Build docs
           command: |
