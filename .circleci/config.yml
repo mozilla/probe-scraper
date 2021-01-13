@@ -101,9 +101,10 @@ workflows:
       - docs_deploy:
           requires:
             - docs_build
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              # TODO: Change to master before merging
+              only: nested-openapi
       - deploy:
           requires:
             - build_and_test

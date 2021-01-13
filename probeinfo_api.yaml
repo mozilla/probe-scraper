@@ -17,9 +17,12 @@
 openapi: "3.0.3"
 
 info:
-  description: "Probe-Info Service API"
-  version: "2.0.0"
-  title: "probe-info"
+  title: "Probe-Info Service API"
+  description: |
+    Mozilla's [probe-scraper machinery](https://github.com/mozilla/probe-scraper)
+    stores its output as JSON files in S3, exposed to the web under
+    probeinfo.telemetry.mozilla.org. These API docs are automatically
+    generated from the schema definitions in probe-scraper.
 
 servers:
   - url: https://probeinfo.telemetry.mozilla.org

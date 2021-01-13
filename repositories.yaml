@@ -493,7 +493,7 @@ applications:
     channels:
       - v1_name: firefox-focus-ios
         app_id: org.mozilla.ios.Focus
-        
+
   - app_name: klar_ios
     canonical_app_name: Firefox Klar for iOS
     description: Firefox Klar on iOS. Focus is the sibling application
