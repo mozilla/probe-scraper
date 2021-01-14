@@ -1,6 +1,7 @@
-.PHONY: help clean lint test build docker-rm shell run stop
+.PHONY: help clean lint test build docker-rm shell run stop apidoc
 
 help:
+	@echo "  apidoc                 Render the API documentation locally to index.html"
 	@echo "  clean                  Remove build artifacts"
 	@echo "  check-repos            Verify all repositories in repositories.yaml are scrapable"
 	@echo "  lint                   Check style with flake8"
@@ -23,6 +24,13 @@ clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
+
+apidoc:
+	# Keep in sync with doc task in .circleci/config.yml
+	docker run --rm \
+		-v ${PWD}:/local \
+		node:15.5.1-alpine3.12 \
+		sh -c "npm install -g redoc-cli; redoc-cli bundle --options.expandResponses=200,201 --options.jsonSampleExpandLevel=2 /local/probeinfo_api.yaml generate -o /local/index.html"
 
 format:
 	python3 -m black probe_scraper tests ./*.py
