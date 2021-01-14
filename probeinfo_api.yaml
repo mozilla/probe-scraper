@@ -28,10 +28,14 @@ servers:
   - url: https://probeinfo.telemetry.mozilla.org
 
 tags:
-  - name: repositories.yaml
-    x-displayName: The repositories.yaml Format
+  - name: library
+    x-displayName: The repositories.yaml Library Format
     description: |
-      <SchemaDefinition schemaRef="#/components/schemas/RepositoriesYamlV2" />
+      <SchemaDefinition schemaRef="#/components/schemas/Library" exampleRef="#/components/examples/Library" />
+  - name: application
+    x-displayName: The repositories.yaml Application Format
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/ApplicationYaml" />
   - name: telemetry
     x-displayName: v1 Legacy telemetry endpoints
   - name: v1
@@ -45,7 +49,8 @@ tags:
 x-tagGroups:
   - name: Input Formats
     tags:
-      - repositories.yaml
+      - library
+      - application
   - name: API
     tags:
       - telemetry
@@ -157,6 +162,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GleanMetricsFile"
+              example:
+                $ref: "#/components/examples/GleanMetricsFile"
 
   /glean/{v1_name}/dependencies:
     get:
@@ -182,6 +189,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DependenciesFile"
+              example:
+                $ref: "#/components/examples/DependenciesFile"
 
   /glean/repositories:
     get:
@@ -364,8 +373,8 @@ components:
             available in their respective app stores.
 
             Note that optional fields here are redundant. If a value is
-            specified here, it will override any value set at the overall
-            application level.
+            specified for a specific channel, it will override any value
+            set at the overall application level.
           items:
             type: object
             additionalProperties: false
@@ -783,31 +792,90 @@ components:
 
   examples:
     TelemetryProbesFile:
-      histogram/A11Y_CONSUMERS:
-        history:
-          nightly:
-          - cpp_guard:
-            description: |
-              A list of known accessibility clients that inject into Firefox
-              process space (see
-              https://dxr.mozilla.org/mozilla-central/source/accessible/windows/msaa/Compatibility.h).
-            details:
-              high: 11
-              keyed: false
-              kind: enumerated
-              low: 1
-              n_buckets: 12
-            expiry_version: never
-            optout: true
-            revisions:
-              first: 320642944e42a889db13c6c55b404e32319d4de6
-              last: 6f5fac320fcb6625603fa8a744ffa8523f8b3d71
-            versions:
-              first: '56'
-              last: '59'
-        name: A11Y_CONSUMERS
-        type: histogram
+      value:
+        histogram/A11Y_CONSUMERS:
+          history:
+            nightly:
+            - cpp_guard:
+              description: |
+                A list of known accessibility clients that inject into Firefox
+                process space (see
+                https://dxr.mozilla.org/mozilla-central/source/accessible/windows/msaa/Compatibility.h).
+              details:
+                high: 11
+                keyed: false
+                kind: enumerated
+                low: 1
+                n_buckets: 12
+              expiry_version: never
+              optout: true
+              revisions:
+                first: 320642944e42a889db13c6c55b404e32319d4de6
+                last: 6f5fac320fcb6625603fa8a744ffa8523f8b3d71
+              versions:
+                first: '56'
+                last: '59'
+          name: A11Y_CONSUMERS
+          type: histogram
     RevisionsFile:
-     aurora: 
-       1196bf3032e1bce1fb07a01fd9082a767426c5fb: 
-         version: 51
+      value:
+        aurora: 
+          1196bf3032e1bce1fb07a01fd9082a767426c5fb: 
+            version: 51
+    DependenciesFile:
+      value:
+        org.mozilla.deprecated:glean:
+          name: org.mozilla.deprecated:glean
+          type: dependency
+    GleanMetricsFile:
+      value:
+        app.opened_as_default_browser:
+          history:
+          - _config:
+              allow_reserved: false
+              do_not_disable_expired: true
+            bugs:
+            - https://github.com/mozilla-mobile/firefox-ios/issues/7151
+            data_reviews:
+            - https://github.com/mozilla-mobile/firefox-ios/pull/7245
+            dates:
+              first: '2020-09-02 22:57:11'
+              last: '2021-01-13 23:05:09'
+            description: |
+              Recorded when a preference is changed and includes the
+              preference that changed as well as the value changed to
+              recorded in the extra keys.
+            disabled: false
+            expires: '2021-03-01'
+            gecko_datapoint: ''
+            git-commits:
+              first: ecd3060791ba43162afc0718cac76c7599c62686
+              last: b274ef21927c892e6f87fd7d7b8a04a594acb9f9
+            lifetime: ping
+            no_lint: []
+            notification_emails:
+            - firefox-ios@mozilla.com
+            reflog-index:
+              first: 8
+              last: 0
+            send_in_pings:
+            - metrics
+            type: counter
+            version: 0
+          name: app.opened_as_default_browser
+          type: counter
+    Library:
+      value:
+        v1_name: glean-core
+        description: Modern cross-platform telemetry (core library)
+        notification_emails:
+          - frank@mozilla.com
+          - mdroettboom@mozilla.com
+        url: https://github.com/mozilla/glean
+        branch: main
+        metrics_files:
+          - glean-core/metrics.yaml
+        ping_files:
+          - glean-core/pings.yaml
+        library_names:
+          - glean-core

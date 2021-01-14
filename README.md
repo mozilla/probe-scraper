@@ -25,7 +25,7 @@ is under development in the [Glean Dictionary](https://github.com/mozilla/glean-
 ## Adding a New Glean Repository
 
 To scrape a git repository for probe definitions, an entry needs to be added in `repositories.yaml`.
-Refer to the [repository schema documentation](https://mozilla.github.io/probe-scraper/#tag/repositories.yaml) for details.
+Refer to the [repository schema documentation](https://mozilla.github.io/probe-scraper/#tag/library) for details.
 
 ### Adding an application
 
