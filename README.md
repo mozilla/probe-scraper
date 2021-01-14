@@ -1,7 +1,7 @@
 # probe-scraper
 Scrape Telemetry probe data from Firefox repositories.
 
-This extracts per-version Telemetry probe data for Firefox and mobile products from registry files like Histograms.json and Scalars.yaml.
+This extracts per-version Telemetry probe data for Firefox and other Mozilla products from registry files like Histograms.json and Scalars.yaml.
 The data allows answering questions like "which Firefox versions is this Telemetry probe in anyway?".
 Also, probes outside of Histograms.json - like the CSS use counters - are included in the output data.
 
@@ -81,8 +81,7 @@ flake8 --max-line-length 100 .
 
 To render API documentation locally to `index.html`:
 ```
-# Check .circleci/config.yml for the latest invocation
-docker run --rm -v ${PWD}:/local node:15.5.1-alpine3.12 sh -c "npm install -g redoc-cli; redoc-cli bundle --options.expandResponses=200,201 --options.jsonSampleExpandLevel=2 /local/probeinfo_api.yaml generate -o /local/index.html"
+make doc
 ```
 
 ### Developing using the container
@@ -168,8 +167,8 @@ The processed probe data is serialized to the disk in a directory hierarchy star
 
 For example, all the JSON probe data in the [main ping]() for the *Firefox Nightly* channel can be accessed with the following path: `firefox/nightly/main/all_probes`. The probe data for all the channels (same product and ping) can be accessed instead using `firefox/all/main/all_probes`.
 
-The root directory for the output generated from the scheduled job can be found at https://probeinfo.telemetry.mozilla.org/ . 
-All the probe data for Firefox coming from the main ping can be found at https://probeinfo.telemetry.mozilla.org/firefox/all/main/all_probes .
+The root directory for the output generated from the scheduled job can be found at <https://probeinfo.telemetry.mozilla.org/>.
+All the probe data for Firefox coming from the main ping can be found at <https://probeinfo.telemetry.mozilla.org/firefox/all/main/all_probes>.
 
 ## Accessing `Glean` metrics data
 Glean data is generally laid out as follows:
