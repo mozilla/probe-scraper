@@ -1,6 +1,10 @@
 ---
+# The version tag is used to distinguish for the legacy repositories.yaml format
+# that some probe-scraper code still expects. We downgrade to the old format
+# where necessary.
 version: "2"
 
+# See https://mozilla.github.io/probe-scraper/#tag/library
 libraries:
   - v1_name: glean-core
     description: Modern cross-platform telemetry (core library)
@@ -174,6 +178,7 @@ libraries:
     library_names:
       - org.mozilla.components:places
 
+# See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
   - app_name: firefox_desktop
     canonical_app_name: Firefox for Desktop
