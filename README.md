@@ -81,7 +81,7 @@ flake8 --max-line-length 100 .
 
 To render API documentation locally to `index.html`:
 ```
-make doc
+make apidoc
 ```
 
 ### Developing using the container
