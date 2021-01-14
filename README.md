@@ -42,13 +42,17 @@ For Android applications, if you're not sure what the dependencies of the applic
 $ ./gradlew :app:dependencies
 ```
 
-### Adding a library
+See the full [application schema documentation](https://mozilla.github.io/probe-scraper/#tag/application)
+for descriptions of all the available parameters.
 
-All **libraries** must define `library_names`.
+### Adding a library
 
 Probe scraper also needs a way to map dependencies back to an entry in the
 `repositories.yaml` file. Therefore, any libraries defined should also include
 their build-system-specific library names in the `library_names` parameter.
+
+See the full [library schema documentation](https://mozilla.github.io/probe-scraper/#tag/library)
+for descriptions of all the available parameters.
 
 ## Developing the probe-scraper
 
