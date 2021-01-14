@@ -1,7 +1,7 @@
 # probe-scraper
 Scrape Telemetry probe data from Firefox repositories.
 
-This extracts per-version Telemetry probe data for Firefox and mobile products from registry files like Histograms.json and Scalars.yaml.
+This extracts per-version Telemetry probe data for Firefox and other Mozilla products from registry files like Histograms.json and Scalars.yaml.
 The data allows answering questions like "which Firefox versions is this Telemetry probe in anyway?".
 Also, probes outside of Histograms.json - like the CSS use counters - are included in the output data.
 
