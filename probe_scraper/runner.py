@@ -151,12 +151,38 @@ def parse_moz_central_probes(scraped_data):
     }
     """
 
+    lookup_table = {}
+
+    def dedupe_probes(results):
+        # Most probes have exactly the same contents across revisions, so we
+        # can get significant memory savings by deduplicating them across the
+        # entire history.
+        deduped = {}
+        for key, value in results.items():
+            # Get a stable hash for a dict, by sorting the keys when writing
+            # out values.
+            probe_hash = hash(json.dumps(value, sort_keys=True))
+            lookup_for_name = lookup_table.get(key, None)
+            if lookup_for_name is None:
+                lookup_table[key] = {probe_hash: value}
+                deduped[key] = value
+            else:
+                existing_probe = lookup_for_name.get(probe_hash, None)
+                if existing_probe is None:
+                    lookup_for_name[probe_hash] = value
+                    deduped[key] = value
+                else:
+                    deduped[key] = existing_probe
+
+        return deduped
+
     probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for channel, revisions in scraped_data.items():
         for revision, details in revisions.items():
             for probe_type, paths in details["registries"].items():
                 results = PARSERS[probe_type].parse(paths, details["version"], channel)
-                probes[channel][revision][probe_type] = results
+                deduped = dedupe_probes(results)
+                probes[channel][revision][probe_type] = deduped
 
     return probes
 
