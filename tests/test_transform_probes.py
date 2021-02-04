@@ -669,6 +669,7 @@ def test_sort_ordering():
 
     assert transform.transform_metrics_by_hash(timestamps, probes) == expected_out
 
+
 def test_transform_shared_object():
     shared_defn = {
         "cpp_guard": None,
@@ -687,73 +688,69 @@ def test_transform_shared_object():
 
     # Different channels have differen revisions, but same definition
     in_probe_data = {
-        CHANNELS[0]: {
-            "node_id_1": {
-                "histogram": {
-                    "SHARED_DEFN_HIST": shared_defn
-                }
-            }
-        },
-        CHANNELS[1]: {
-            "node_id_2": {
-                "histogram": {
-                    "SHARED_DEFN_HIST": shared_defn
-                }
-            }
-        },
+        CHANNELS[0]: {"node_id_1": {"histogram": {"SHARED_DEFN_HIST": shared_defn}}},
+        CHANNELS[1]: {"node_id_2": {"histogram": {"SHARED_DEFN_HIST": shared_defn}}},
     }
 
     expected = {
         CHANNELS[0]: {
             "histogram/SHARED_DEFN_HIST": {
-                "history": {CHANNELS[0]: [{
-                    "cpp_guard": None,
-                    "description": "A description.",
-                    "expiry_version": "53.0",
-                    "optout": False,
-                    "details": {
-                        "low": 1,
-                        "high": 10,
-                        "keyed": False,
-                        "kind": "exponential",
-                        "n_buckets": 5,
-                        "record_in_processes": ["main", "content"],
-                    },
-                    "revisions": {
-                        "first": "node_id_1",
-                        "last": "node_id_1",
-                    },
-                    "versions": {"first": "50", "last": "50"},
-                }]},
+                "history": {
+                    CHANNELS[0]: [
+                        {
+                            "cpp_guard": None,
+                            "description": "A description.",
+                            "expiry_version": "53.0",
+                            "optout": False,
+                            "details": {
+                                "low": 1,
+                                "high": 10,
+                                "keyed": False,
+                                "kind": "exponential",
+                                "n_buckets": 5,
+                                "record_in_processes": ["main", "content"],
+                            },
+                            "revisions": {
+                                "first": "node_id_1",
+                                "last": "node_id_1",
+                            },
+                            "versions": {"first": "50", "last": "50"},
+                        }
+                    ]
+                },
                 "name": "SHARED_DEFN_HIST",
                 "type": "histogram",
             }
         },
         CHANNELS[1]: {
             "histogram/SHARED_DEFN_HIST": {
-                "history": {CHANNELS[1]: [{
-                    "cpp_guard": None,
-                    "description": "A description.",
-                    "expiry_version": "53.0",
-                    "optout": False,
-                    "details": {
-                        "low": 1,
-                        "high": 10,
-                        "keyed": False,
-                        "kind": "exponential",
-                        "n_buckets": 5,
-                        "record_in_processes": ["main", "content"],
-                    },
-                    "revisions": {
-                        "first": "node_id_2",
-                        "last": "node_id_2",
-                    },
-                    "versions": {"first": "51", "last": "51"},
-                }]},
+                "history": {
+                    CHANNELS[1]: [
+                        {
+                            "cpp_guard": None,
+                            "description": "A description.",
+                            "expiry_version": "53.0",
+                            "optout": False,
+                            "details": {
+                                "low": 1,
+                                "high": 10,
+                                "keyed": False,
+                                "kind": "exponential",
+                                "n_buckets": 5,
+                                "record_in_processes": ["main", "content"],
+                            },
+                            "revisions": {
+                                "first": "node_id_2",
+                                "last": "node_id_2",
+                            },
+                            "versions": {"first": "51", "last": "51"},
+                        }
+                    ]
+                },
                 "name": "SHARED_DEFN_HIST",
                 "type": "histogram",
             }
-        }
+        },
     }
 
     revision_data = {
