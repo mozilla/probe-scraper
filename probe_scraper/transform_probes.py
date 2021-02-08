@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
+import copy
 from collections import defaultdict
 from datetime import datetime
 
@@ -140,6 +140,8 @@ def extract_node_data(
 
         if channel not in storage[probe_id][HISTORY_KEY]:
             storage[probe_id][HISTORY_KEY][channel] = []
+
+        probe = copy.deepcopy(probe)
 
         probe["revisions"] = {
             "first": node_id,
