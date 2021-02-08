@@ -463,25 +463,6 @@ applications:
       - v1_name: mach
         app_id: mozilla-mach
 
-  - app_name: glean_js
-    canonical_app_name: Experimentation with Glean.js
-    description: Experimentation with Glean.js
-    url: https://github.com/brizental/gleanjs
-    prototype: true
-    notification_emails:
-      - brizental@mozilla.com
-      - aplacitelli@mozilla.com
-      - mdroettboom@mozilla.com
-    branch: main
-    metrics_files:
-      - metrics.yaml
-    dependencies:
-      - glean-core
-    retention_days: 90
-    channels:
-      - v1_name: glean-js
-        app_id: glean-js-tmp
-
   - app_name: focus_ios
     canonical_app_name: Firefox Focus for iOS
     description: Firefox Focus on iOS. Klar is the sibling application
