@@ -257,6 +257,38 @@ def load_moz_central_probes(
     write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
 
 
+def add_source_url(results, url, filepath):
+    for result in results:
+        line_number = results[result]["defined_in"]["line"]
+        results[result]["source_url"] = f"{url}/blob/{filepath}#L{line_number}"
+        # the 'defined_in' structure is no longer needed
+        del results[result]["defined_in"]
+    return results
+
+
+def get_file_path_with_hash(path):
+    """
+    Get the relative file path with commit hash included
+    from disk path (to be used with GitHub repo link to
+    create a source url)
+
+    The structure of disk path is "base_path / _hash / rel_path"
+    We want to extract _hash and rel_path from this string.
+
+    Example input:
+    '/var/folders/yf/q5zg5fjx2kz2lc2sbfdht4bm0000gn/T/tmpt9x11our/glean-android/
+    530a5128526fcf133d57ec3d188590c600895fa1/glean-core/metrics.yaml'
+
+    Output:
+    '530a5128526fcf133d57ec3d188590c600895fa1/glean-core/metrics.yaml'
+    """
+    split_path = "".join(path).split("/")
+    for i, word in enumerate(split_path):
+        if len(word) == 40:  # i.e. a commit hash
+            file_path = "/".join(split_path[i:])
+    return file_path
+
+
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
     repositories = RepositoriesParser().parse(repositories_file, glean_repo)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
@@ -280,16 +312,26 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
         for commit_hash, paths in commits.items():
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
             pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
-
             try:
                 config = {"allow_reserved": repo_name.startswith("glean")}
+                for d in repositories:
+                    if vars(d)["name"] == repo_name:
+                        repo_dict = d.to_dict()
+
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
-
+                    results = add_source_url(
+                        results,
+                        repo_dict["url"],
+                        get_file_path_with_hash(metrics_files),
+                    )
                 if pings_files:
                     results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
                     pings[repo_name][commit_hash] = results
+                    results = add_source_url(
+                        results, repo_dict["url"], get_file_path_with_hash(pings_files)
+                    )
             except Exception:
                 files = metrics_files + pings_files
                 msg = "Improper file in {}\n{}".format(
