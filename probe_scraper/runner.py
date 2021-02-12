@@ -266,7 +266,7 @@ def add_source_url(results, url, filepath):
     return results
 
 
-def get_file_path_with_hash(path):
+def get_file_path_with_hash(path, commit_hash):
     """
     Get the relative file path with commit hash included
     from disk path (to be used with GitHub repo link to
@@ -284,7 +284,7 @@ def get_file_path_with_hash(path):
     """
     split_path = "".join(path).split("/")
     for i, word in enumerate(split_path):
-        if len(word) == 40:  # i.e. a commit hash
+        if word == commit_hash:
             file_path = "/".join(split_path[i:])
     return file_path
 
@@ -312,25 +312,26 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
         for commit_hash, paths in commits.items():
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
             pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
+
             try:
                 config = {"allow_reserved": repo_name.startswith("glean")}
-                for d in repositories:
-                    if vars(d)["name"] == repo_name:
-                        repo_dict = d.to_dict()
+                repo = next(r for r in repositories if r.name == repo_name).to_dict()
 
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(metrics_files, config)
                     metrics[repo_name][commit_hash] = results
                     results = add_source_url(
                         results,
-                        repo_dict["url"],
-                        get_file_path_with_hash(metrics_files),
+                        repo["url"],
+                        get_file_path_with_hash(metrics_files, commit_hash),
                     )
                 if pings_files:
                     results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
                     pings[repo_name][commit_hash] = results
                     results = add_source_url(
-                        results, repo_dict["url"], get_file_path_with_hash(pings_files)
+                        results,
+                        repo["url"],
+                        get_file_path_with_hash(pings_files, commit_hash),
                     )
             except Exception:
                 files = metrics_files + pings_files
