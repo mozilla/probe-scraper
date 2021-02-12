@@ -268,25 +268,20 @@ def add_source_url(results, url, filepath):
 
 def get_file_path_with_hash(path, commit_hash):
     """
-    Get the relative file path with commit hash included
-    from disk path (to be used with GitHub repo link to
-    create a source url)
+    Get the relative file path with commit hash included.
 
     The structure of disk path is "base_path / _hash / rel_path"
     We want to extract _hash and rel_path from this string.
 
     Example input:
-    '/var/folders/yf/q5zg5fjx2kz2lc2sbfdht4bm0000gn/T/tmpt9x11our/glean-android/
-    530a5128526fcf133d57ec3d188590c600895fa1/glean-core/metrics.yaml'
+    ['/var/folders/yf/q5zg5fjx2kz2lc2sbfdht4bm0000gn/T/tmpt9x11our/glean-android/
+    530a5128526fcf133d57ec3d188590c600895fa1/glean-core/metrics.yaml']
 
     Output:
     '530a5128526fcf133d57ec3d188590c600895fa1/glean-core/metrics.yaml'
     """
-    split_path = "".join(path).split("/")
-    for i, word in enumerate(split_path):
-        if word == commit_hash:
-            file_path = "/".join(split_path[i:])
-    return file_path
+    file_path = "".join(path).split(commit_hash)[-1]
+    return "".join([commit_hash, file_path])
 
 
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
