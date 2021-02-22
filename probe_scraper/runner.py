@@ -262,8 +262,9 @@ def add_source_url(results, url, commit_hash):
     for result in results:
         defined_in = results[result]["defined_in"]
         line_number = defined_in["line"]
-        file_path = defined_in["filepath"][defined_in["filepath"]
-                                           .find(commit_hash) :]  # noqa: E203
+        file_path = defined_in["filepath"][
+            defined_in["filepath"].find(commit_hash) :  # noqa: E203
+        ]
         results[result]["source_url"] = f"{url}/blob/{file_path}#L{line_number}"
         # the 'defined_in' structure is no longer needed
         del results[result]["defined_in"]
