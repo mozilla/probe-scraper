@@ -34,11 +34,8 @@ class GleanMetricsParser:
 
         for v in metrics.values():
             v["send_in_pings"] = [normalize_ping_name(p) for p in v["send_in_pings"]]
-            v["source_url"] = (
-                get_source_url(v["defined_in"], repo_url, commit_hash)
-                if repo_url and commit_hash
-                else v
-            )
+            if repo_url and commit_hash:
+                v["source_url"] = get_source_url(v["defined_in"], repo_url, commit_hash)
             # the 'defined_in' structure is no longer needed
             del v["defined_in"]
         return metrics, errors

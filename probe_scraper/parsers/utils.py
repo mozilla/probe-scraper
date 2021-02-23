@@ -26,10 +26,10 @@ def get_major_version(version):
     return version.split(".")[0]
 
 
-def get_source_url(defined_in, repo_url, commit_hash):
+def get_source_url(glean_definition, repo_url, commit_hash):
     """Add source URL where metrics and pings are defined."""
-    line_number = defined_in["line"]
-    file_path = defined_in["filepath"][
-        defined_in["filepath"].find(commit_hash) :  # noqa: E203
+    line_number = glean_definition["line"]
+    file_path = glean_definition["filepath"][
+        glean_definition["filepath"].find(commit_hash) :  # noqa: E203
     ]
     return f"{repo_url}/blob/{file_path}#L{line_number}"
