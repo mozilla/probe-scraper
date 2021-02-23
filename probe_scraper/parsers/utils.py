@@ -24,3 +24,15 @@ def get_major_version(version):
     :return: a string containing the leftmost number before the first dot
     """
     return version.split(".")[0]
+
+
+def add_source_url(v, repo_url, commit_hash):
+    """Add source URL where metrics and pings are defined."""
+    file_path = v["defined_in"]["filepath"][
+        v["defined_in"]["filepath"].find(commit_hash) :  # noqa: E203
+    ]
+    line_number = v["defined_in"]["line"]
+    v["source_url"] = f"{repo_url}/blob/{file_path}#L{line_number}"
+    # the 'defined_in' structure is no longer needed
+    del v["defined_in"]
+    return v

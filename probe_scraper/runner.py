@@ -257,20 +257,6 @@ def load_moz_central_probes(
     write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
 
 
-def add_source_url(results, url, commit_hash):
-    """Add source URL where metrics and pings are defined."""
-    for result in results:
-        defined_in = results[result]["defined_in"]
-        line_number = defined_in["line"]
-        file_path = defined_in["filepath"][
-            defined_in["filepath"].find(commit_hash) :  # noqa: E203
-        ]
-        results[result]["source_url"] = f"{url}/blob/{file_path}#L{line_number}"
-        # the 'defined_in' structure is no longer needed
-        del results[result]["defined_in"]
-    return results
-
-
 def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
     repositories = RepositoriesParser().parse(repositories_file, glean_repo)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
@@ -300,14 +286,16 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
                 repo = next(r for r in repositories if r.name == repo_name).to_dict()
 
                 if metrics_files:
-                    results, errs = GLEAN_PARSER.parse(metrics_files, config)
+                    results, errs = GLEAN_PARSER.parse(
+                        metrics_files, config, repo["url"], commit_hash
+                    )
                     metrics[repo_name][commit_hash] = results
-                    results = add_source_url(results, repo["url"], commit_hash)
 
                 if pings_files:
-                    results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
+                    results, errs = GLEAN_PINGS_PARSER.parse(
+                        pings_files, config, repo["url"], commit_hash
+                    )
                     pings[repo_name][commit_hash] = results
-                    results = add_source_url(results, repo["url"], commit_hash)
             except Exception:
                 files = metrics_files + pings_files
                 msg = "Improper file in {}\n{}".format(

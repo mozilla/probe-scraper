@@ -6,6 +6,8 @@ from pathlib import Path
 
 from glean_parser.parser import parse_objects
 
+from .utils import add_source_url
+
 PING_NAME_NORMALIZATION = {
     "deletion_request": "deletion-request",
     "bookmarks_sync": "bookmarks-sync",
@@ -25,18 +27,21 @@ class GleanPingsParser:
     to parse the pings.yaml files.
     """
 
-    def parse(self, filenames, config):
+    def parse(self, filenames, config, repo_url=None, commit_hash=None):
         config = config.copy()
         paths = [Path(fname) for fname in filenames]
         paths = [path for path in paths if path.is_file()]
         results = parse_objects(paths, config)
         errors = [err for err in results]
 
-        return (
-            {
-                normalize_ping_name(ping_name): ping_data.serialize()
-                for category, pings in results.value.items()
-                for ping_name, ping_data in pings.items()
-            },
-            errors,
-        )
+        pings = {
+            normalize_ping_name(ping_name): ping_data.serialize()
+            for category, pings in results.value.items()
+            for ping_name, ping_data in pings.items()
+        }
+
+        if repo_url and commit_hash:
+            for v in pings.values():
+                v = add_source_url(v, repo_url, commit_hash)
+
+        return pings, errors
