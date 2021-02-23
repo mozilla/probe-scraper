@@ -26,13 +26,10 @@ def get_major_version(version):
     return version.split(".")[0]
 
 
-def add_source_url(v, repo_url, commit_hash):
+def get_source_url(defined_in, repo_url, commit_hash):
     """Add source URL where metrics and pings are defined."""
-    file_path = v["defined_in"]["filepath"][
-        v["defined_in"]["filepath"].find(commit_hash) :  # noqa: E203
+    line_number = defined_in["line"]
+    file_path = defined_in["filepath"][
+        defined_in["filepath"].find(commit_hash) :  # noqa: E203
     ]
-    line_number = v["defined_in"]["line"]
-    v["source_url"] = f"{repo_url}/blob/{file_path}#L{line_number}"
-    # the 'defined_in' structure is no longer needed
-    del v["defined_in"]
-    return v
+    return f"{repo_url}/blob/{file_path}#L{line_number}"

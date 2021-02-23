@@ -6,7 +6,7 @@ from pathlib import Path
 
 from glean_parser.parser import parse_objects
 
-from .utils import add_source_url
+from .utils import get_source_url
 
 PING_NAME_NORMALIZATION = {
     "deletion_request": "deletion-request",
@@ -42,6 +42,7 @@ class GleanPingsParser:
 
         if repo_url and commit_hash:
             for v in pings.values():
-                v = add_source_url(v, repo_url, commit_hash)
-
+                v["source_url"] = get_source_url(v["defined_in"], repo_url, commit_hash)
+                # the 'defined_in' structure is no longer needed
+                del v["defined_in"]
         return pings, errors

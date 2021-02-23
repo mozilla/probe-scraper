@@ -7,7 +7,7 @@ from pathlib import Path
 from glean_parser.parser import parse_objects
 
 from .pings import normalize_ping_name
-from .utils import add_source_url
+from .utils import get_source_url
 
 
 class GleanMetricsParser:
@@ -34,9 +34,11 @@ class GleanMetricsParser:
 
         for v in metrics.values():
             v["send_in_pings"] = [normalize_ping_name(p) for p in v["send_in_pings"]]
-            v = (
-                add_source_url(v, repo_url, commit_hash)
+            v["source_url"] = (
+                get_source_url(v["defined_in"], repo_url, commit_hash)
                 if repo_url and commit_hash
                 else v
             )
+            # the 'defined_in' structure is no longer needed
+            del v["defined_in"]
         return metrics, errors
