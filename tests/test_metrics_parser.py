@@ -1,5 +1,6 @@
-from probe_scraper.parsers.metrics import GleanMetricsParser
 import pytest
+
+from probe_scraper.parsers.metrics import GleanMetricsParser
 
 
 def is_string(s):
