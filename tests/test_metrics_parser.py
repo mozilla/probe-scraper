@@ -28,16 +28,16 @@ def test_metrics_parser():
 def test_source_url():
     parser = GleanMetricsParser()
     parsed_metrics, errs = parser.parse(
-        ["tests/resources/metrics.yaml"], {}, "test.com/foo", "tests"
+        ["tests/resources/metrics.yaml"], {}, "https://www.test.com/foo", "tests"
     )
 
     assert (
         parsed_metrics["example.duration"]["source_url"]
-        == "test.com/foo/blob/tests/resources/metrics.yaml#L4"
+        == "https://www.test.com/foo/blob/tests/resources/metrics.yaml#L4"
     )
     assert (
         parsed_metrics["example.os"]["source_url"]
-        == "test.com/foo/blob/tests/resources/metrics.yaml#L19"
+        == "https://www.test.com/foo/blob/tests/resources/metrics.yaml#L19"
     )
     with pytest.raises(KeyError):
         parsed_metrics["example.os"]["defined_in"]
