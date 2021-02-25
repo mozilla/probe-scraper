@@ -1,3 +1,5 @@
+import pytest
+
 from probe_scraper.parsers.metrics import GleanMetricsParser
 
 
@@ -21,3 +23,21 @@ def test_metrics_parser():
 
     # Check that ping names are normalized
     assert "session-end" in parsed_metrics["example.os"]["send_in_pings"]
+
+
+def test_source_url():
+    parser = GleanMetricsParser()
+    parsed_metrics, errs = parser.parse(
+        ["tests/resources/metrics.yaml"], {}, "https://www.test.com/foo", "tests"
+    )
+
+    assert (
+        parsed_metrics["example.duration"]["source_url"]
+        == "https://www.test.com/foo/blob/tests/resources/metrics.yaml#L4"
+    )
+    assert (
+        parsed_metrics["example.os"]["source_url"]
+        == "https://www.test.com/foo/blob/tests/resources/metrics.yaml#L19"
+    )
+    with pytest.raises(KeyError):
+        parsed_metrics["example.os"]["defined_in"]

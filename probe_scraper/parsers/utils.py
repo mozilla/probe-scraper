@@ -24,3 +24,12 @@ def get_major_version(version):
     :return: a string containing the leftmost number before the first dot
     """
     return version.split(".")[0]
+
+
+def get_source_url(glean_definition, repo_url, commit_hash):
+    """Add source URL where metrics and pings are defined."""
+    line_number = glean_definition["line"]
+    file_path = glean_definition["filepath"][
+        glean_definition["filepath"].find(commit_hash) :  # noqa: E203
+    ]
+    return f"{repo_url}/blob/{file_path}#L{line_number}"

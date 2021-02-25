@@ -7,6 +7,7 @@ from pathlib import Path
 from glean_parser.parser import parse_objects
 
 from .pings import normalize_ping_name
+from .utils import get_source_url
 
 
 class GleanMetricsParser:
@@ -16,7 +17,7 @@ class GleanMetricsParser:
     to parse the metrics.yaml files.
     """
 
-    def parse(self, filenames, config):
+    def parse(self, filenames, config, repo_url=None, commit_hash=None):
         config = config.copy()
         config["do_not_disable_expired"] = True
 
@@ -31,7 +32,10 @@ class GleanMetricsParser:
             for probe_name, metric in probes.items()
         }
 
-        for i, v in metrics.items():
+        for v in metrics.values():
             v["send_in_pings"] = [normalize_ping_name(p) for p in v["send_in_pings"]]
-
+            if repo_url and commit_hash:
+                v["source_url"] = get_source_url(v["defined_in"], repo_url, commit_hash)
+            # the 'defined_in' structure is no longer needed
+            del v["defined_in"]
         return metrics, errors

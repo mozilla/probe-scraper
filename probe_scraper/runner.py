@@ -283,12 +283,18 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
 
             try:
                 config = {"allow_reserved": repo_name.startswith("glean")}
+                repo = next(r for r in repositories if r.name == repo_name).to_dict()
+
                 if metrics_files:
-                    results, errs = GLEAN_PARSER.parse(metrics_files, config)
+                    results, errs = GLEAN_PARSER.parse(
+                        metrics_files, config, repo["url"], commit_hash
+                    )
                     metrics[repo_name][commit_hash] = results
 
                 if pings_files:
-                    results, errs = GLEAN_PINGS_PARSER.parse(pings_files, config)
+                    results, errs = GLEAN_PINGS_PARSER.parse(
+                        pings_files, config, repo["url"], commit_hash
+                    )
                     pings[repo_name][commit_hash] = results
             except Exception:
                 files = metrics_files + pings_files

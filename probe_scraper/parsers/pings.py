@@ -6,6 +6,8 @@ from pathlib import Path
 
 from glean_parser.parser import parse_objects
 
+from .utils import get_source_url
+
 PING_NAME_NORMALIZATION = {
     "deletion_request": "deletion-request",
     "bookmarks_sync": "bookmarks-sync",
@@ -18,6 +20,17 @@ def normalize_ping_name(name):
     return PING_NAME_NORMALIZATION.get(name, name)
 
 
+def generate_definition(ping_data, repo_url, commit_hash):
+    serialized = ping_data.serialize()
+    if repo_url and commit_hash:
+        serialized["source_url"] = get_source_url(
+            serialized["defined_in"], repo_url, commit_hash
+        )
+        # the 'defined_in' structure is no longer needed
+        del serialized["defined_in"]
+    return serialized
+
+
 class GleanPingsParser:
     """
     Use the [Glean Parser]
@@ -25,18 +38,19 @@ class GleanPingsParser:
     to parse the pings.yaml files.
     """
 
-    def parse(self, filenames, config):
+    def parse(self, filenames, config, repo_url=None, commit_hash=None):
         config = config.copy()
         paths = [Path(fname) for fname in filenames]
         paths = [path for path in paths if path.is_file()]
         results = parse_objects(paths, config)
         errors = [err for err in results]
 
-        return (
-            {
-                normalize_ping_name(ping_name): ping_data.serialize()
-                for category, pings in results.value.items()
-                for ping_name, ping_data in pings.items()
-            },
-            errors,
-        )
+        pings = {
+            normalize_ping_name(ping_name): generate_definition(
+                ping_data, repo_url, commit_hash
+            )
+            for category, pings in results.value.items()
+            for ping_name, ping_data in pings.items()
+        }
+
+        return pings, errors
