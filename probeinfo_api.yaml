@@ -448,6 +448,8 @@ components:
           $ref: "#/components/schemas/AppName"
         canonical_app_name:
           $ref: "#/components/schemas/CanonicalAppName"
+        canonical_app_description:
+          $ref: "#/components/schemas/CanonicalAppDescription"
         v1_name:
           $ref: "#/components/schemas/V1Name"
         app_channel:
@@ -481,7 +483,17 @@ components:
 
     Description:
       type: string
-      description: A brief free-text description of the repository
+      description: A brief free-text description of this application variant.
+
+    CanonicalAppDescription:
+      type: string
+      description: |
+        A brief free-text description of an application, applicable across any variants.
+
+        This should not be materialized in ETL, but rather only made available in user-facing views since it may be verbose
+        and it may change over time.
+
+        example: The desktop version of Firefox
 
     AppName:
       type: string
