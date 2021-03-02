@@ -118,7 +118,7 @@ def proper_repo(branch="master"):
             {
                 "app_name": "proper_repo_example",
                 "canonical_app_name": "Proper Repo Example",
-                "description": "foo",
+                "app_description": "foo",
                 "url": location,
                 "notification_emails": ["frank@mozilla.com"],
                 "metrics_files": ["metrics.yaml"],
@@ -163,7 +163,7 @@ def improper_metrics_repo():
             {
                 "app_name": "mobile_metrics_example",
                 "canonical_app_name": "Mobile Metrics Example",
-                "description": "foo",
+                "app_description": "foo",
                 "url": location,
                 "notification_emails": ["frank@mozilla.com"],
                 "metrics_files": ["metrics.yaml"],
@@ -308,7 +308,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
             {
                 "app_name": "duplicate_metrics_example",
                 "canonical_app_name": "Duplicate Metrics Example",
-                "description": "foo",
+                "app_description": "foo",
                 "url": duplicate_repo,
                 "notification_emails": ["repo_bob@example.com"],
                 "metrics_files": ["metrics.yaml"],
@@ -387,7 +387,7 @@ def test_check_for_expired_metrics(expired_repo):
             {
                 "app_name": "expired_metrics_example",
                 "canonical_app_name": "Expired Metrics Example",
-                "description": "foo",
+                "app_description": "foo",
                 "url": expired_repo,
                 "notification_emails": ["repo_alice@example.com"],
                 "metrics_files": ["metrics.yaml"],

@@ -144,7 +144,6 @@ class RepositoriesParser(object):
                     "additional_dependencies", []
                 )
                 listing = {**app, **channel}
-                listing["canonical_app_description"] = app["description"]
                 listing["dependencies"] = dependencies
                 app_id = listing["app_id"]
                 listing["document_namespace"] = (
@@ -175,8 +174,9 @@ class RepositoriesParser(object):
             v1_name = app.pop("v1_name")
             app.pop("app_name")
             app.pop("canonical_app_name", None)
-            app.pop("canonical_app_description", None)
             app.pop("bq_dataset_family")
+            app["description"] = app["app_description"]
+            app.pop("app_description", None)
             namespace = app.pop("document_namespace")
             app["app_id"] = namespace
             repos[v1_name] = app

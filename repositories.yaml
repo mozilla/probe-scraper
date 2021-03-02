@@ -182,7 +182,7 @@ libraries:
 applications:
   - app_name: firefox_desktop
     canonical_app_name: Firefox for Desktop
-    description: The desktop version of Firefox
+    app_description: The desktop version of Firefox
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
@@ -198,7 +198,7 @@ applications:
 
 
   - app_name: fenix
-    description: Firefox for Android (Fenix)
+    app_description: Firefox for Android (Fenix)
     canonical_app_name: Firefox for Android
     url: https://github.com/mozilla-mobile/fenix
     notification_emails:
@@ -259,7 +259,7 @@ applications:
 
   - app_name: firefox_ios
     canonical_app_name: Firefox for iOS
-    description: Firefox for iOS
+    app_description: Firefox for iOS
     notification_emails:
       - tlong@mozilla.com
       - frank@mozilla.com
@@ -282,7 +282,7 @@ applications:
 
   - app_name: reference_browser
     canonical_app_name: Reference Browser
-    description: >-
+    app_description: >-
       A full-featured browser reference implementation using Mozilla Android
       Components
     notification_emails:
@@ -301,7 +301,7 @@ applications:
 
   - app_name: firefox_fire_tv
     canonical_app_name: Firefox for Fire TV
-    description: Firefox for Amazon's Fire TV
+    app_description: Firefox for Amazon's Fire TV
     notification_emails:
       - frank@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-tv
@@ -315,7 +315,7 @@ applications:
 
   - app_name: firefox_reality
     canonical_app_name: Firefox Reality
-    description: >-
+    app_description: >-
       A fast and secure browser for standalone virtual-reality and
       augmented-reality headsets
     notification_emails:
@@ -337,7 +337,7 @@ applications:
 
   - app_name: lockwise_android
     canonical_app_name: Lockwise for Android
-    description: >-
+    app_description: >-
       Firefox's Lockwise app for Android
     notification_emails:
       - frank@mozilla.com
@@ -354,7 +354,7 @@ applications:
 
   - app_name: lockwise_ios
     canonical_app_name: Lockwise for iOS
-    description: >-
+    app_description: >-
       Firefox's Lockwise app for iOS
     notification_emails:
       - frank@mozilla.com
@@ -369,7 +369,7 @@ applications:
 
   - app_name: mozregression
     canonical_app_name: mozregression
-    description: Regression range finder for Mozilla nightly builds
+    app_description: Regression range finder for Mozilla nightly builds
     notification_emails:
       - wlachance@mozilla.com
     url: https://github.com/mozilla/mozregression
@@ -385,7 +385,7 @@ applications:
 
   - app_name: burnham
     canonical_app_name: Burnham
-    description: Automated end-to-end testing for Mozilla's Glean telemetry
+    app_description: Automated end-to-end testing for Mozilla's Glean telemetry
     notification_emails:
       - rpierzina@mozilla.com
     url: https://github.com/mozilla/burnham
@@ -403,7 +403,7 @@ applications:
 
   - app_name: mozphab
     canonical_app_name: mozphab
-    description: Phabricator review submission/management tool
+    app_description: Phabricator review submission/management tool
     notification_emails:
       - pzalewa@mozilla.com
     url: https://github.com/mozilla-conduit/review
@@ -419,7 +419,7 @@ applications:
 
   - app_name: firefox_echo_show
     canonical_app_name: Firefox for Echo Show
-    description: Firefox for Amazon's Echo Show
+    app_description: Firefox for Amazon's Echo Show
     url: https://github.com/mozilla-mobile/firefox-echo-show
     notification_emails:
       - tlong@mozilla.com
@@ -433,7 +433,7 @@ applications:
 
   - app_name: firefox_reality_pc
     canonical_app_name: Firefox Reality for PC-connected VR platforms
-    description: Firefox Reality for PC-connected VR platforms
+    app_description: Firefox Reality for PC-connected VR platforms
     url: https://github.com/MozillaReality/FirefoxRealityPC
     notification_emails:
       - dmu@mozilla.com
@@ -449,7 +449,7 @@ applications:
 
   - app_name: mach
     canonical_app_name: mach
-    description: Mach build telemetry
+    app_description: Mach build telemetry
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - mhentges@mozilla.com
@@ -465,7 +465,7 @@ applications:
 
   - app_name: focus_ios
     canonical_app_name: Firefox Focus for iOS
-    description: Firefox Focus on iOS. Klar is the sibling application
+    app_description: Firefox Focus on iOS. Klar is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
       - jboek@mozilla.com
@@ -482,7 +482,7 @@ applications:
 
   - app_name: klar_ios
     canonical_app_name: Firefox Klar for iOS
-    description: Firefox Klar on iOS. Focus is the sibling application
+    app_description: Firefox Klar on iOS. Focus is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
       - jboek@mozilla.com

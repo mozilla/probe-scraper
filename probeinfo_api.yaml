@@ -248,7 +248,7 @@ components:
             type: string
             pattern: "^[a-z][a-z-]{0,1023}$"
           description:
-            type: string
+            $ref: "#/components/schemas/AppDescription"
           channel:
             $ref: "#/components/schemas/AppChannel"
           deprecated:
@@ -334,7 +334,7 @@ components:
       required:
         - app_name
         - canonical_app_name
-        - description
+        - app_description
         - url
         - channels
       properties:
@@ -342,8 +342,8 @@ components:
           $ref: "#/components/schemas/AppName"
         canonical_app_name:
           $ref: "#/components/schemas/CanonicalAppName"
-        description:
-          $ref: "#/components/schemas/Description"
+        app_description:
+          $ref: "#/components/schemas/AppDescription"
         notification_emails:
           $ref: "#/components/schemas/NotificationEmails"
         url:
@@ -448,8 +448,8 @@ components:
           $ref: "#/components/schemas/AppName"
         canonical_app_name:
           $ref: "#/components/schemas/CanonicalAppName"
-        canonical_app_description:
-          $ref: "#/components/schemas/CanonicalAppDescription"
+        app_description:
+          $ref: "#/components/schemas/AppDescription"
         v1_name:
           $ref: "#/components/schemas/V1Name"
         app_channel:
@@ -485,7 +485,7 @@ components:
       type: string
       description: A brief free-text description of this application variant.
 
-    CanonicalAppDescription:
+    AppDescription:
       type: string
       description: |
         A brief free-text description of an application, applicable across any variants.
