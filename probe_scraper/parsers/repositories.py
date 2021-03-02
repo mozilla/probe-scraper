@@ -175,8 +175,8 @@ class RepositoriesParser(object):
             app.pop("app_name")
             app.pop("canonical_app_name", None)
             app.pop("bq_dataset_family")
-            app["description"] = app["app_description"]
-            app.pop("app_description", None)
+            app_description = app.pop("app_description", None)
+            app["description"] = app.get("description", app_description)
             namespace = app.pop("document_namespace")
             app["app_id"] = namespace
             repos[v1_name] = app
