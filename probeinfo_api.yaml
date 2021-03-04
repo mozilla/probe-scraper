@@ -248,7 +248,7 @@ components:
             type: string
             pattern: "^[a-z][a-z-]{0,1023}$"
           description:
-            type: string
+            $ref: "#/components/schemas/AppDescription"
           channel:
             $ref: "#/components/schemas/AppChannel"
           deprecated:
@@ -334,7 +334,7 @@ components:
       required:
         - app_name
         - canonical_app_name
-        - description
+        - app_description
         - url
         - channels
       properties:
@@ -342,8 +342,8 @@ components:
           $ref: "#/components/schemas/AppName"
         canonical_app_name:
           $ref: "#/components/schemas/CanonicalAppName"
-        description:
-          $ref: "#/components/schemas/Description"
+        app_description:
+          $ref: "#/components/schemas/AppDescription"
         notification_emails:
           $ref: "#/components/schemas/NotificationEmails"
         url:
@@ -448,6 +448,8 @@ components:
           $ref: "#/components/schemas/AppName"
         canonical_app_name:
           $ref: "#/components/schemas/CanonicalAppName"
+        app_description:
+          $ref: "#/components/schemas/AppDescription"
         v1_name:
           $ref: "#/components/schemas/V1Name"
         app_channel:
@@ -481,7 +483,17 @@ components:
 
     Description:
       type: string
-      description: A brief free-text description of the repository
+      description: A brief free-text description of this application variant.
+
+    AppDescription:
+      type: string
+      description: |
+        A brief free-text description of an application, applicable across any variants.
+
+        This should not be materialized in ETL, but rather only made available in user-facing views since it may be verbose
+        and it may change over time.
+
+        example: The desktop version of Firefox
 
     AppName:
       type: string
