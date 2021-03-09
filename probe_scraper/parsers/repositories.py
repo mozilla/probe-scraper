@@ -136,7 +136,8 @@ class RepositoriesParser(object):
             data = yaml.load(f, Loader=yaml.SafeLoader)
         model_validation.apply_defaults_and_validate(data, "RepositoriesYamlV2")
         repos = data
-        listings = []
+
+        app_listings = []
         for app in repos["applications"]:
             channels = app.pop("channels")
             for channel in channels:
@@ -154,19 +155,26 @@ class RepositoriesParser(object):
                 )
                 listing = remove_none(listing)
                 model_validation.validate_as(listing, "Application")
-                listings.append(listing)
+                app_listings.append(listing)
+
         return {
             "libraries": repos["libraries"],
-            "applications": listings,
+            "applications": app_listings,
         }
 
     def _v2_to_v1(self, filename):
         repos_v2 = self.parse_v2(filename)
         repos = {}
         for lib in repos_v2["libraries"]:
-            v1_name = lib.pop("v1_name")
-            lib["app_id"] = v1_name
-            repos[v1_name] = lib
+            variants = lib.pop("variants")
+            for variant in variants:
+                newlib = {**lib, **variant}
+                newlib.pop("library_name")
+                newlib["library_names"] = [newlib["dependency_name"]]
+                newlib.pop("dependency_name")
+                v1_name = newlib.pop("v1_name")
+                newlib["app_id"] = v1_name
+                repos[v1_name] = newlib
         for app in repos_v2["applications"]:
             app_channel = app.pop("app_channel", None)
             if app_channel is not None:

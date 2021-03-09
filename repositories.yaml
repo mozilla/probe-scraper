@@ -6,67 +6,35 @@ version: "2"
 
 # See https://mozilla.github.io/probe-scraper/#tag/library
 libraries:
-  - v1_name: glean-core
+  - library_name: glean-core
     description: Modern cross-platform telemetry (core library)
     notification_emails:
       - frank@mozilla.com
       - mdroettboom@mozilla.com
     url: https://github.com/mozilla/glean
-    branch: main
-    metrics_files:
-      - glean-core/metrics.yaml
-    ping_files:
-      - glean-core/pings.yaml
-    library_names:
-      - glean-core
+    variants:
+      - v1_name: glean-core
+        branch: main
+        metrics_files:
+          - glean-core/metrics.yaml
+        ping_files:
+          - glean-core/pings.yaml
+        dependency_name: glean-core
 
-  - v1_name: glean-android
+  - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
       - frank@mozilla.com
       - mdroettboom@mozilla.com
     url: https://github.com/mozilla/glean
-    branch: main
-    metrics_files:
-      - glean-core/android/metrics.yaml
-      - glean-core/metrics.yaml
-    ping_files:
-      - glean-core/pings.yaml
-    library_names:
-      - org.mozilla.components:service-glean
+    variants:
+      - v1_name: glean-android
+        metrics_files:
+          - glean-core/android/metrics.yaml
+        branch: main
+        dependency_name: org.mozilla.components:service-glean
 
-  - v1_name: glean
-    description: Modern cross-platform telemetry (old)
-    deprecated: true
-    notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
-    url: https://github.com/mozilla/glean
-    branch: main
-    metrics_files:
-      - glean-core/android/metrics.yaml
-      - glean-core/metrics.yaml
-    ping_files:
-      - glean-core/pings.yaml
-    library_names: []
-
-  - v1_name: glean-deprecated
-    description: Modern cross-platform telemetry (old)
-    deprecated: true
-    notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
-    url: https://github.com/mozilla/glean
-    branch: main
-    metrics_files:
-      - glean-core/android/metrics.yaml
-      - glean-core/metrics.yaml
-    ping_files:
-      - glean-core/pings.yaml
-    library_names:
-      - org.mozilla.deprecated:glean
-
-  - v1_name: lib-crash
+  - library_name: lib-crash
     description: >-
       A generic crash reporter component that can report crashes to multiple
       services
@@ -75,26 +43,28 @@ libraries:
       - mdroettboom@mozilla.com
       - android-components-team@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
-    metrics_files:
-      - components/lib/crash/metrics.yaml
-    library_names:
-      - org.mozilla.components:lib-crash
+    variants:
+      - v1_name: lib-crash
+        metrics_files:
+          - components/lib/crash/metrics.yaml
+        dependency_name: org.mozilla.components:lib-crash
 
-  - v1_name: sync
+  - library_name: sync
     description: Sync telemetry helper functionality
     notification_emails:
       - frank@mozilla.com
       - lina@mozilla.com
       - grisha@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
-    metrics_files:
-      - components/support/sync-telemetry/metrics.yaml
-    ping_files:
-      - components/support/sync-telemetry/pings.yaml
-    library_names:
-      - org.mozilla.components:support-sync-telemetry
+    variants:
+      - v1_name: sync
+        metrics_files:
+          - components/support/sync-telemetry/metrics.yaml
+        ping_files:
+          - components/support/sync-telemetry/pings.yaml
+        dependency_name: org.mozilla.components:support-sync-telemetry
 
-  - v1_name: engine-gecko
+  - library_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
       - frank@mozilla.com
@@ -102,40 +72,23 @@ libraries:
       - android-components-team@mozilla.com
       - geckoview-team@mozilla.com
     url: https://github.com/mozilla/gecko-dev
-    metrics_files:
-      - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
-    branch: release
-    library_names:
-      - org.mozilla.components:browser-engine-gecko
+    variants:
+      - v1_name: engine-gecko
+        branch: release
+        metrics_files:
+          - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
+        dependency_name: org.mozilla.components:browser-engine-gecko
+      - v1_name: engine-gecko-beta
+        branch: beta
+        metrics_files:
+          - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
+        dependency_name: org.mozilla.components:browser-engine-gecko-beta
+      - v1_name: engine-gecko-nightly
+        metrics_files:
+          - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
+        dependency_name: org.mozilla.components:browser-engine-gecko-nightly
 
-  - v1_name: engine-gecko-beta
-    description: GeckoView metrics
-    notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
-      - android-components-team@mozilla.com
-      - geckoview-team@mozilla.com
-    url: https://github.com/mozilla/gecko-dev
-    metrics_files:
-      - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
-    branch: beta
-    library_names:
-      - org.mozilla.components:browser-engine-gecko-beta
-
-  - v1_name: engine-gecko-nightly
-    description: GeckoView metrics
-    notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
-      - android-components-team@mozilla.com
-      - geckoview-team@mozilla.com
-    url: https://github.com/mozilla/gecko-dev
-    metrics_files:
-      - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
-    library_names:
-      - org.mozilla.components:browser-engine-gecko-nightly
-
-  - v1_name: logins-store
+  - library_name: logins-store
     description: >-
       A collection of Android libraries to build browsers or browser-like
       applications
@@ -144,27 +97,29 @@ libraries:
       - lina@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
-    metrics_files:
-      - components/logins/android/metrics.yaml
-    branch: main
-    library_names:
-      - org.mozilla.appservices:logins
+    variants:
+      - v1_name: logins-store
+        branch: main
+        metrics_files:
+          - components/logins/android/metrics.yaml
+        dependency_name: org.mozilla.appservices:logins
 
-  - v1_name: support-migration
+  - library_name: support-migration
     description: >-
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
       an Android Components based app
     notification_emails:
       - frank@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
-    metrics_files:
-      - components/support/migration/metrics.yaml
-    ping_files:
-      - components/support/migration/pings.yaml
-    library_names:
-      - org.mozilla.components:support-migration
+    variants:
+      - v1_name: support-migration
+        metrics_files:
+          - components/support/migration/metrics.yaml
+        ping_files:
+          - components/support/migration/pings.yaml
+        dependency_name: org.mozilla.components:support-migration
 
-  - v1_name: android-places
+  - library_name: android-places
     description: >-
       A collection of Android libraries to build browsers or browser-like
       applications
@@ -172,25 +127,28 @@ libraries:
       - frank@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
-    metrics_files:
-      - components/places/android/metrics.yaml
-    branch: main
-    library_names:
-      - org.mozilla.components:places
-  - v1_name: glean-js
+    variants:
+      - v1_name: android-places
+        branch: main
+        metrics_files:
+          - components/places/android/metrics.yaml
+        dependency_name: org.mozilla.components:places
+
+  - library_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
     notification_emails:
       - frank@mozilla.com
       - mdroettboom@mozilla.com
       - brizental@mozilla.com
     url: https://github.com/mozilla/glean.js
-    branch: main
-    metrics_files:
-      - glean/src/metrics.yaml
-    ping_files:
-      - glean/src/pings.yaml
-    library_names:
-      - glean-js
+    variants:
+      - v1_name: glean-js
+        branch: main
+        metrics_files:
+        - glean/src/metrics.yaml
+        ping_files:
+        - glean/src/pings.yaml
+        dependency_name: glean-js
 
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
@@ -205,11 +163,13 @@ applications:
     ping_files:
       - toolkit/components/glean/pings.yaml
     dependencies:
-      - org.mozilla.deprecated:glean
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
     channels:
       - v1_name: firefox-desktop
         app_id: firefox-desktop
-
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
@@ -282,7 +242,10 @@ applications:
       - Client/metrics.yaml
     branch: main
     dependencies:
-      - org.mozilla.deprecated:glean
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
@@ -392,7 +355,10 @@ applications:
     ping_files:
       - mozregression/pings.yaml
     dependencies:
-      - org.mozilla.deprecated:glean
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
     channels:
       - v1_name: mozregression
         app_id: org.mozilla.mozregression
@@ -409,7 +375,10 @@ applications:
     ping_files:
       - application/src/burnham/config/pings.yaml
     dependencies:
-      - org.mozilla.deprecated:glean
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
     prototype: false
     channels:
       - v1_name: burnham
@@ -426,7 +395,10 @@ applications:
     ping_files:
       - mozphab/pings.yaml
     dependencies:
-      - org.mozilla.deprecated:glean
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
     channels:
       - v1_name: mozphab
         app_id: mozphab
@@ -472,7 +444,10 @@ applications:
     ping_files:
       - python/mach/pings.yaml
     dependencies:
-      - org.mozilla.deprecated:glean
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
     channels:
       - v1_name: mach
         app_id: mozilla-mach
