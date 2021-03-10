@@ -177,6 +177,21 @@ libraries:
     branch: main
     library_names:
       - org.mozilla.components:places
+      
+  - v1_name: glean-js
+    description: Modern cross-platform telemetry (Javascript library)
+    notification_emails:
+      - frank@mozilla.com
+      - mdroettboom@mozilla.com
+      - brizental@mozilla.com
+    url: https://github.com/mozilla/glean.js
+    branch: main
+    metrics_files:
+      - glean/src/metrics.yaml
+    ping_files:
+      - glean/src/pings.yaml
+    library_names:
+      - glean-js
 
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
