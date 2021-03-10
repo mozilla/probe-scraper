@@ -177,7 +177,6 @@ libraries:
     branch: main
     library_names:
       - org.mozilla.components:places
-      
   - v1_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
     notification_emails:
