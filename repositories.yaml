@@ -496,3 +496,25 @@ applications:
     channels:
       - v1_name: firefox-klar-ios
         app_id: org.mozilla.ios.Klar
+
+  - app_name: bergamot
+    canonical_app_name: Bergamot Translator
+    app_description: Web extension for on-device machine translation in Firefox
+    url: https://github.com/mozilla-extensions/bergamot-browser-extension
+    notification_emails:
+      - epavlov@mozilla.com
+    branch: main
+    metrics_files:
+      - extension/ts/background-scripts/background.js/telemetry/metrics.yaml
+    ping_files:
+      - extension/ts/background-scripts/background.js/telemetry/pings.yaml
+    dependencies:
+      - glean-core
+    retention_days: 180
+    channels:
+      - v1_name: bergamot
+        app_id: org.mozilla.bergamot
+        channel: firefox
+      - v1_name: bergamot-cross-browser
+        app_id: org.mozilla.bergamot.cross-browser
+        channel: cross-browser
