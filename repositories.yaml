@@ -519,9 +519,9 @@ applications:
       - epavlov@mozilla.com
     branch: main
     metrics_files:
-      - extension/ts/background-scripts/background.js/telemetry/metrics.yaml
+      - src/core/ts/background-scripts/background.js/telemetry/metrics.yaml
     ping_files:
-      - extension/ts/background-scripts/background.js/telemetry/pings.yaml
+      - src/core/ts/background-scripts/background.js/telemetry/pings.yaml
     dependencies:
       - glean-js
     retention_days: 180
