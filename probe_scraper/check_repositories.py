@@ -21,26 +21,29 @@ with open(REPOSITORIES) as data:
         metrics_files = []
         if "metrics_files" in repo:
             metrics_files = repo["metrics_files"]
-        if metrics_files:
+        temp_errors = []
+        for metric_file in metrics_files:
             temp_url = (
                 GITHUB_RAW_URL
                 + repo_url.replace("https://github.com", "")
                 + "/"
                 + branch
                 + "/"
-                + metrics_files[0]
+                + metric_file
             )
             response = reqs.get(temp_url)
-            assert response.status_code == 200
-            with open("temp-metrics.yaml", "w") as filehandle:
-                filehandle.write(response.text)
-            yaml_lint_errors = open("yaml-lint-errors.txt", "w")
-            temp_erros = lint_yaml_files(
-                [Path("./temp-metrics.yaml")], yaml_lint_errors, {}
-            )
-            if temp_erros:
-                if not repo.get("prototype", None):
-                    validation_errors.append({"repo": repo, "errors": temp_erros})
+            if response.status_code != 200:
+                temp_errors += ["Metrics file was not found at " + temp_url]
+            else:
+                with open("temp-metrics.yaml", "w") as filehandle:
+                    filehandle.write(response.text)
+                yaml_lint_errors = open("yaml-lint-errors.txt", "w")
+                temp_errors += lint_yaml_files(
+                    [Path("./temp-metrics.yaml")], yaml_lint_errors, {}
+                )
+        if temp_errors:
+            if not repo.get("prototype", None):
+                validation_errors.append({"repo": repo, "errors": temp_errors})
     os.remove("temp-metrics.yaml")
     os.remove("yaml-lint-errors.txt")
     if validation_errors:
