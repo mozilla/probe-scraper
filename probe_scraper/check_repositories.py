@@ -28,7 +28,9 @@ with open(REPOSITORIES) as data:
         for channel_info in repo.get("channels", []):
             name = channel_info.get("app_channel", None)
             if name in channel_names and not channel_info.get("deprecated", False):
-                temp_errors += [f"Non-deprecated channel names must be unique, found {name}"]
+                temp_errors += [
+                    f"Non-deprecated channel names must be unique, found {name}"
+                ]
             channel_names.add(name)
 
         for metric_file in metrics_files:
