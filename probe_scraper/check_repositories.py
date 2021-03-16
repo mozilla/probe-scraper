@@ -22,6 +22,15 @@ with open(REPOSITORIES) as data:
         if "metrics_files" in repo:
             metrics_files = repo["metrics_files"]
         temp_errors = []
+
+        # Ensure non-deprecated channels are uniquely named
+        channel_names = set()
+        for channel_info in repo.get("channels", []):
+            name = channel_info.get("app_channel", None)
+            if name in channel_names and not channel_info.get("deprecated", False):
+                temp_errors += ["Non-deprecated hannel names must be unique, found " + str(name)]
+            channel_names.add(name)
+
         for metric_file in metrics_files:
             temp_url = (
                 GITHUB_RAW_URL
