@@ -649,7 +649,7 @@ components:
     DependencyName:
       type: string
       description: |
-        Name of this dependency name, to be referenced by dependencies by an application.
+        Name of this dependency, to be referenced by the dependencies section of an application's definition.
 
     Dependencies:
       type: array
