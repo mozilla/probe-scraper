@@ -145,9 +145,9 @@ libraries:
       - v1_name: glean-js
         branch: main
         metrics_files:
-        - glean/src/metrics.yaml
+          - glean/src/metrics.yaml
         ping_files:
-        - glean/src/pings.yaml
+          - glean/src/pings.yaml
         dependency_name: glean-js
 
 # See https://mozilla.github.io/probe-scraper/#tag/application
