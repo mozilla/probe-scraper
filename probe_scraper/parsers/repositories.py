@@ -172,11 +172,9 @@ class RepositoriesParser(object):
                 v1_name = lib_info["v1_name"]
                 lib_info["library_names"] = [lib_info["dependency_name"]]
                 lib_info["app_id"] = v1_name
-                
                 del lib_info["library_name"]
                 del lib_info["dependency_name"]
                 del lib_info["v1_name"]
-                
                 repos[v1_name] = lib_info
         for app in repos_v2["applications"]:
             app_channel = app.pop("app_channel", None)
