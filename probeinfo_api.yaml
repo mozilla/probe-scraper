@@ -649,7 +649,9 @@ components:
     DependencyName:
       type: string
       description: |
-        Name of this dependency, to be referenced by the dependencies section of an application's definition.
+        Build system-specific name of this dependency, to be referenced by the `dependencies` section
+        of an application's definition.
+      example: org.mozilla.components:browser-engine-gecko
 
     Dependencies:
       type: array
