@@ -12,13 +12,13 @@ libraries:
       - frank@mozilla.com
       - mdroettboom@mozilla.com
     url: https://github.com/mozilla/glean
+    metrics_files:
+      - glean-core/metrics.yaml
+    ping_files:
+      - glean-core/pings.yaml
     variants:
       - v1_name: glean-core
         branch: main
-        metrics_files:
-          - glean-core/metrics.yaml
-        ping_files:
-          - glean-core/pings.yaml
         dependency_name: glean-core
 
   - library_name: glean-android
@@ -27,10 +27,10 @@ libraries:
       - frank@mozilla.com
       - mdroettboom@mozilla.com
     url: https://github.com/mozilla/glean
+    metrics_files:
+      - glean-core/android/metrics.yaml
     variants:
       - v1_name: glean-android
-        metrics_files:
-          - glean-core/android/metrics.yaml
         branch: main
         dependency_name: org.mozilla.components:service-glean
 
@@ -43,10 +43,10 @@ libraries:
       - mdroettboom@mozilla.com
       - android-components-team@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
+    metrics_files:
+      - components/lib/crash/metrics.yaml
     variants:
       - v1_name: lib-crash
-        metrics_files:
-          - components/lib/crash/metrics.yaml
         dependency_name: org.mozilla.components:lib-crash
 
   - library_name: sync
@@ -56,12 +56,12 @@ libraries:
       - lina@mozilla.com
       - grisha@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
+    metrics_files:
+      - components/support/sync-telemetry/metrics.yaml
+    ping_files:
+      - components/support/sync-telemetry/pings.yaml
     variants:
       - v1_name: sync
-        metrics_files:
-          - components/support/sync-telemetry/metrics.yaml
-        ping_files:
-          - components/support/sync-telemetry/pings.yaml
         dependency_name: org.mozilla.components:support-sync-telemetry
 
   - library_name: engine-gecko
@@ -72,20 +72,16 @@ libraries:
       - android-components-team@mozilla.com
       - geckoview-team@mozilla.com
     url: https://github.com/mozilla/gecko-dev
+    metrics_files:
+      - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
     variants:
       - v1_name: engine-gecko
         branch: release
-        metrics_files:
-          - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
         dependency_name: org.mozilla.components:browser-engine-gecko
       - v1_name: engine-gecko-beta
         branch: beta
-        metrics_files:
-          - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
         dependency_name: org.mozilla.components:browser-engine-gecko-beta
       - v1_name: engine-gecko-nightly
-        metrics_files:
-          - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
         dependency_name: org.mozilla.components:browser-engine-gecko-nightly
 
   - library_name: logins-store
@@ -97,11 +93,11 @@ libraries:
       - lina@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/logins/android/metrics.yaml
     variants:
       - v1_name: logins-store
         branch: main
-        metrics_files:
-          - components/logins/android/metrics.yaml
         dependency_name: org.mozilla.appservices:logins
 
   - library_name: support-migration
@@ -111,12 +107,12 @@ libraries:
     notification_emails:
       - frank@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
+    metrics_files:
+      - components/support/migration/metrics.yaml
+    ping_files:
+      - components/support/migration/pings.yaml
     variants:
       - v1_name: support-migration
-        metrics_files:
-          - components/support/migration/metrics.yaml
-        ping_files:
-          - components/support/migration/pings.yaml
         dependency_name: org.mozilla.components:support-migration
 
   - library_name: android-places
@@ -127,11 +123,11 @@ libraries:
       - frank@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/places/android/metrics.yaml
     variants:
       - v1_name: android-places
         branch: main
-        metrics_files:
-          - components/places/android/metrics.yaml
         dependency_name: org.mozilla.components:places
 
   - library_name: glean-js
@@ -141,13 +137,13 @@ libraries:
       - mdroettboom@mozilla.com
       - brizental@mozilla.com
     url: https://github.com/mozilla/glean.js
+    metrics_files:
+      - glean/src/metrics.yaml
+    ping_files:
+      - glean/src/pings.yaml
     variants:
       - v1_name: glean-js
         branch: main
-        metrics_files:
-          - glean/src/metrics.yaml
-        ping_files:
-          - glean/src/pings.yaml
         dependency_name: glean-js
 
 # See https://mozilla.github.io/probe-scraper/#tag/application

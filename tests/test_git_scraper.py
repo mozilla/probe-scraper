@@ -310,10 +310,10 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
                 "description": "foo",
                 "notification_emails": ["repo_alice@example.com"],
                 "url": normal_duplicate_repo,
+                "metrics_files": ["metrics.yaml"],
                 "variants": [
                     {
                         "v1_name": "mylib",
-                        "metrics_files": ["metrics.yaml"],
                         "dependency_name": "duplicate_library",
                     }
                 ],
