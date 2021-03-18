@@ -416,6 +416,10 @@ components:
           $ref: "#/components/schemas/NotificationEmails"
         url:
           $ref: "#/components/schemas/RepoUrl"
+        metrics_files:
+          $ref: "#/components/schemas/MetricsFiles"
+        ping_files:
+          $ref: "#/components/schemas/PingFiles"
         variants:
           $ref: "#/components/schemas/LibraryVariants"
 
@@ -621,10 +625,6 @@ components:
             $ref: "#/components/schemas/DeprecatedBool"
           branch:
             $ref: "#/components/schemas/RepoBranch"
-          metrics_files:
-            $ref: "#/components/schemas/MetricsFiles"
-          ping_files:
-            $ref: "#/components/schemas/PingFiles"
           dependency_name:
             $ref: "#/components/schemas/DependencyName"
 
