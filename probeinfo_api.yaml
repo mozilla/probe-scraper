@@ -31,7 +31,7 @@ tags:
   - name: library
     x-displayName: The repositories.yaml Library Format
     description: |
-      <SchemaDefinition schemaRef="#/components/schemas/LibraryYaml" />
+      <SchemaDefinition schemaRef="#/components/schemas/Library" exampleRef="#/components/examples/Library" />
   - name: application
     x-displayName: The repositories.yaml Application Format
     description: |
@@ -321,7 +321,7 @@ components:
           type: array
           description: Repositories that define Glean dependencies
           items:
-            $ref: "#/components/schemas/LibraryYaml"
+            $ref: "#/components/schemas/Library"
         applications:
           type: array
           description: Repositories that define Glean applications
@@ -398,26 +398,34 @@ components:
                 items:
                   type: string
 
-    LibraryYaml:
+    Library:
       type: object
       additionalProperties: false
       required:
-        - library_name
+        - v1_name
         - description
         - notification_emails
         - url
-        - variants
+        - library_names
       properties:
-        library_name:
-          $ref: "#/components/schemas/LibraryName"
+        v1_name:
+          $ref: "#/components/schemas/V1Name"
         description:
           $ref: "#/components/schemas/Description"
+        deprecated:
+          $ref: "#/components/schemas/DeprecatedBool"
         notification_emails:
           $ref: "#/components/schemas/NotificationEmails"
         url:
           $ref: "#/components/schemas/RepoUrl"
-        variants:
-          $ref: "#/components/schemas/LibraryVariants"
+        branch:
+          $ref: "#/components/schemas/RepoBranch"
+        metrics_files:
+          $ref: "#/components/schemas/MetricsFiles"
+        ping_files:
+          $ref: "#/components/schemas/PingFiles"
+        library_names:
+          $ref: "#/components/schemas/LibraryNames"
 
     Application:
       type: object
@@ -596,38 +604,6 @@ components:
       default: false
       description: Set to `true` if the repo corresponds to a deprecated product or library.
 
-    LibraryName:
-      type: string
-      description: |
-        A unique identifier for this library, applicable across all variants of it.
-      example: glean-core
-
-    LibraryVariants:
-      type: array
-      description: |
-        Variants of this library.
-      items:
-        type: object
-        additionalProperties: false
-        required:
-          - dependency_name
-          - v1_name
-        properties:
-          v1_name:
-            $ref: "#/components/schemas/V1Name"
-          description:
-            $ref: "#/components/schemas/Description"
-          deprecated:
-            $ref: "#/components/schemas/DeprecatedBool"
-          branch:
-            $ref: "#/components/schemas/RepoBranch"
-          metrics_files:
-            $ref: "#/components/schemas/MetricsFiles"
-          ping_files:
-            $ref: "#/components/schemas/PingFiles"
-          dependency_name:
-            $ref: "#/components/schemas/DependencyName"
-
     LibraryNames:
       type: array
       description: |
@@ -646,19 +622,12 @@ components:
         If not specified, retention will be unlimited.
       type: integer
 
-    DependencyName:
-      type: string
-      description: |
-        Build system-specific name of this dependency, to be referenced by the `dependencies` section
-        of an application's definition.
-      example: org.mozilla.components:browser-engine-gecko
-
     Dependencies:
       type: array
       default: []
       description: |
         List of libraries that this application imports. The values here must
-        match a value defined under `dependency_name` by a library variant.
+        match a value defined under `library_names` by one of the libraries.
       items:
         type: string
         example: org.mozilla.components:service-glean

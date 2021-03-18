@@ -100,28 +100,18 @@ def proper_repo(branch="master"):
         "version": "2",
         "libraries": [
             {
-                "library_name": "glean-core",
+                "v1_name": "glean",
                 "description": "foo",
                 "notification_emails": ["frank@mozilla.com"],
                 "url": location,
-                "variants": [
-                    {
-                        "v1_name": "glean",
-                        "dependency_name": "org.mozilla.components:service-glean",
-                    }
-                ],
+                "library_names": ["org.mozilla.components:service-glean"],
             },
             {
-                "library_name": "boollib",
+                "v1_name": "boollib",
                 "description": "foo",
                 "notification_emails": ["frank@mozilla.com"],
                 "url": location,
-                "variants": [
-                    {
-                        "v1_name": "boollib",
-                        "dependency_name": "org.mozilla.components:lib-crash",
-                    }
-                ],
+                "library_names": ["org.mozilla.components:lib-crash"],
             },
         ],
         "applications": [
@@ -306,17 +296,12 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
         "version": "2",
         "libraries": [
             {
-                "library_name": "mylib",
+                "v1_name": "mylib",
                 "description": "foo",
                 "notification_emails": ["repo_alice@example.com"],
                 "url": normal_duplicate_repo,
-                "variants": [
-                    {
-                        "v1_name": "mylib",
-                        "metrics_files": ["metrics.yaml"],
-                        "dependency_name": "duplicate_library",
-                    }
-                ],
+                "metrics_files": ["metrics.yaml"],
+                "library_names": ["duplicate_library"],
             },
         ],
         "applications": [
