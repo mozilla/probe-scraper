@@ -48,6 +48,9 @@ check-repos:
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
 
+burnham-dryrun:
+	docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run
+
 build:
 	docker-compose build
 
