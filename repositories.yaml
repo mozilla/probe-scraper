@@ -419,7 +419,7 @@ applications:
     canonical_app_name: mozphab
     app_description: Phabricator review submission/management tool
     notification_emails:
-      - pzalewa@mozilla.com
+      - zeid@mozilla.com
     url: https://github.com/mozilla-conduit/review
     metrics_files:
       - mozphab/metrics.yaml
