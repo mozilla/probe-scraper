@@ -1,69 +1,76 @@
 import os
+from collections import defaultdict
 from pathlib import Path
 
 import requests as reqs
 import yaml
 from glean_parser.lint import lint_yaml_files
 
+from .parsers.repositories import RepositoriesParser
+
 GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
 validation_errors = []
-with open(REPOSITORIES) as data:
-    repos_data = yaml.load(data, Loader=yaml.SafeLoader)
-    repos = repos_data["libraries"] + repos_data["applications"]
-    for repo in repos:
-        repo_url = repo["url"]
-        branch = "master"
-        if "branch" in repo:
-            branch = repo["branch"]
-        metrics_files = []
-        if "metrics_files" in repo:
-            metrics_files = repo["metrics_files"]
-        temp_errors = []
+repos = RepositoriesParser().parse(REPOSITORIES)
 
-        # Ensure non-deprecated channels are uniquely named
-        channel_names = set()
-        for channel_info in repo.get("channels", []):
-            name = channel_info.get("app_channel", None)
-            if name in channel_names and not channel_info.get("deprecated", False):
-                temp_errors += [
-                    f"Non-deprecated channel names must be unique, found {name}"
-                ]
-            channel_names.add(name)
+app_id_channels = defaultdict(lambda: defaultdict(lambda: 0))
 
-        for metric_file in metrics_files:
-            temp_url = (
-                GITHUB_RAW_URL
-                + repo_url.replace("https://github.com", "")
-                + "/"
-                + branch
-                + "/"
-                + metric_file
+for repo in repos:
+    metrics_files = repo.get_metrics_file_paths()
+    temp_errors = []
+
+    if repo.app_id and repo.channel and not repo.deprecated:
+        app_id_channels[repo.app_id][repo.channel] += 1
+
+    for metric_file in metrics_files:
+        temp_url = (
+            GITHUB_RAW_URL
+            + repo.url.replace("https://github.com", "")
+            + "/"
+            + repo.branch
+            + "/"
+            + metric_file
+        )
+        response = reqs.get(temp_url)
+        if response.status_code != 200:
+            temp_errors += ["Metrics file was not found at " + temp_url]
+        else:
+            with open("temp-metrics.yaml", "w") as filehandle:
+                filehandle.write(response.text)
+            yaml_lint_errors = open("yaml-lint-errors.txt", "w")
+            temp_errors += lint_yaml_files(
+                [Path("./temp-metrics.yaml")], yaml_lint_errors, {}
             )
-            response = reqs.get(temp_url)
-            if response.status_code != 200:
-                temp_errors += ["Metrics file was not found at " + temp_url]
-            else:
-                with open("temp-metrics.yaml", "w") as filehandle:
-                    filehandle.write(response.text)
-                yaml_lint_errors = open("yaml-lint-errors.txt", "w")
-                temp_errors += lint_yaml_files(
-                    [Path("./temp-metrics.yaml")], yaml_lint_errors, {}
-                )
-        if temp_errors:
-            if not repo.get("prototype", None):
-                validation_errors.append({"repo": repo, "errors": temp_errors})
-    os.remove("temp-metrics.yaml")
-    os.remove("yaml-lint-errors.txt")
-    if validation_errors:
-        print("\nSummary of validation errors \n====================================\n")
-        print(f"{len(validation_errors)} repositories had problems\n")
-        for error in validation_errors:
-            print(
-                f"\nErrors found in {error['repo']} \n====================================\n"
+            os.remove("yaml-lint-errors.txt")
+            os.remove("temp-metrics.yaml")
+    if temp_errors and not repo.prototype:
+        validation_errors.append({"repo": repo.name, "errors": temp_errors})
+
+# Ensure non-deprecated channels are uniquely named
+duplication_errors = []
+for app_id, channels in app_id_channels.items():
+    temp_errors = []
+    for channel_name, num in channels.items():
+        if num > 1:
+            duplication_errors.append(
+                f"Non-deprecated channel names must be unique, found {channel_name} {num} times for "
+                f"{app_id}"
             )
-            for line_errors in error["errors"]:
-                print(line_errors)
-        exit(1)
+
+if validation_errors:
+    print("\nSummary of validation errors:\n")
+    print(f"{len(validation_errors)} repositories had problems\n")
+    for error in validation_errors:
+        print(f"\nErrors found in {error['repo']}:\n")
+        for line_errors in error["errors"]:
+            print(line_errors)
+
+if duplication_errors:
+    print("\nDuplicate channel names found:\n")
+    for duplication_error in duplication_errors:
+        print(duplication_error)
+
+if validation_errors or duplication_errors:
+    exit(1)
