@@ -257,8 +257,8 @@ def load_moz_central_probes(
     write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
 
 
-def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo):
-    repositories = RepositoriesParser().parse(repositories_file, glean_repo)
+def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repos):
+    repositories = RepositoriesParser().parse(repositories_file, glean_repos)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
         cache_dir, repositories
     )
@@ -335,9 +335,11 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             dependencies[dependency] = {"type": "dependency", "name": dependency}
         dependencies_by_repo[repo.name] = dependencies
 
-    if glean_repo is None:
-        # Don't need to check for duplicate metrics if we're only parsing
-        # 1 glean repository (otherwise this would crash)
+    if glean_repos is None or len(glean_repos) > 1:
+        # Don't check for duplicate metrics if we're only parsing
+        # one glean repository (this will almost always crash, since
+        # the libraries that most repositories depend on will not
+        # be specified)
         abort_after_emails |= glean_checks.check_for_duplicate_metrics(
             repositories, metrics_by_repo, emails
         )
@@ -431,7 +433,7 @@ def main(
     process_glean_metrics,
     repositories_file,
     dry_run,
-    glean_repo,
+    glean_repos,
     firefox_channel,
     output_bucket,
     cache_bucket,
@@ -450,7 +452,7 @@ def main(
             cache_dir, out_dir, firefox_version, min_firefox_version, firefox_channel
         )
     if process_glean_metrics or process_both:
-        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repo)
+        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repos)
 
     # Sync results with s3 if we are not running pytest or local dryruns
     if env == "prod":
@@ -484,8 +486,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--glean-repo",
-        help="The Glean Repository to scrape. If unspecified, scrapes all.",
+        help="The Glean Repositories to scrape (may be specified multiple times). "
+        "If unspecified, scrapes all.",
         type=str,
+        dest="glean_repos",
+        action="append",
         required=False,
     )
     parser.add_argument(
@@ -549,7 +554,7 @@ if __name__ == "__main__":
         args.glean,
         args.repositories_file,
         args.dry_run,
-        args.glean_repo,
+        args.glean_repos,
         args.firefox_channel,
         args.output_bucket,
         args.cache_bucket,
