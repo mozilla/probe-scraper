@@ -3,7 +3,6 @@ from collections import defaultdict
 from pathlib import Path
 
 import requests as reqs
-import yaml
 from glean_parser.lint import lint_yaml_files
 
 from .parsers.repositories import RepositoriesParser
@@ -55,8 +54,8 @@ for app_id, channels in app_id_channels.items():
     for channel_name, num in channels.items():
         if num > 1:
             duplication_errors.append(
-                f"Non-deprecated channel names must be unique, found {channel_name} {num} times for "
-                f"{app_id}"
+                f"Non-deprecated channel names must be unique, found {channel_name} {num} "
+                f"times for {app_id}"
             )
 
 if validation_errors:
