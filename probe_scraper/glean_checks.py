@@ -83,8 +83,21 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         metric_sources = {}
         for dependency in dependencies:
-            for metric_name in metrics_by_repo[dependency].keys():
-                metric_sources.setdefault(metric_name, []).append(dependency)
+            # skip if no metrics
+            if not metrics_by_repo[dependency]:
+                continue
+            # otherwise look for the latest timestamp for all metrics --
+            # metrics which don't appear in the latest can be assumed to
+            # no longer be present
+            last_timestamp = max(
+                [
+                    metric["history"][-1]["dates"]["last"]
+                    for metric in metrics_by_repo[dependency].values()
+                ]
+            )
+            for (metric_name, metric) in metrics_by_repo[dependency].items():
+                if metric["history"][-1]["dates"]["last"] == last_timestamp:
+                    metric_sources.setdefault(metric_name, []).append(dependency)
 
         duplicate_sources = dict(
             (k, v) for (k, v) in metric_sources.items() if len(v) > 1
