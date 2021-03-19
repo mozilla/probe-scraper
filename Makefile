@@ -43,10 +43,16 @@ lint: build
 	docker-compose run app python -m isort --check-only probe_scraper tests ./*.py
 
 check-repos:
-	docker-compose run app python probe_scraper/check_repositories.py
+	docker-compose run app python -m probe_scraper.check_repositories
 
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
+
+# For this test, we scrape glean-deprecated so we can also test the dependency resolution logic
+# (burnham depends on glean-deprecated) which we use to validate against duplicate metrics
+# and failed in mozilla/probe-scraper#283
+burnham-dryrun:
+	docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-deprecated --glean-repo burnham --dry-run
 
 build:
 	docker-compose build

@@ -99,13 +99,13 @@ class RepositoriesParser(object):
         data = self._get_repos(filename)
         model_validation.validate_as(data, "RepositoriesYamlV1")
 
-    def filter_repos(self, repos, glean_repo):
-        if glean_repo is None:
+    def filter_repos(self, repos, glean_repos):
+        if not glean_repos:
             return repos
 
-        return [r for r in repos if r.name == glean_repo]
+        return [r for r in repos if r.name in glean_repos]
 
-    def parse(self, filename=None, glean_repo=None):
+    def parse(self, filename=None, glean_repos=None):
         """
         Parse the given filename as a set of repository definitions for v1 endpoints.
 
@@ -124,7 +124,7 @@ class RepositoriesParser(object):
             Repository(name, definition) for name, definition in list(repos.items())
         ]
 
-        return self.filter_repos(repos, glean_repo)
+        return self.filter_repos(repos, glean_repos)
 
     def parse_v2(self, filename=None) -> dict:
         """
