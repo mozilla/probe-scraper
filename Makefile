@@ -52,7 +52,7 @@ test: build
 # (burnham depends on glean-deprecated) which we use to validate against duplicate metrics
 # and failed in mozilla/probe-scraper#283
 burnham-dryrun:
-	docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-deprecated --glean-repo burnham --dry-run
+	docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run
 
 build:
 	docker-compose build
