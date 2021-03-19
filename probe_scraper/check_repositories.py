@@ -25,8 +25,7 @@ for repo in repos:
 
     for metric_file in metrics_files:
         temp_url = (
-            GITHUB_RAW_URL
-            + repo.url.replace("https://github.com", "")
+            repo.url.replace("https://github.com", GITHUB_RAW_URL)
             + "/"
             + repo.branch
             + "/"
