@@ -43,7 +43,7 @@ lint: build
 	docker-compose run app python -m isort --check-only probe_scraper tests ./*.py
 
 check-repos:
-	docker-compose run app python probe_scraper/check_repositories.py
+	docker-compose run app python -m probe_scraper.check_repositories
 
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
