@@ -157,8 +157,16 @@ class RepositoriesParser(object):
                 model_validation.validate_as(listing, "Application")
                 app_listings.append(listing)
 
+        library_listings = []
+        for lib in repos["libraries"]:
+            variants = lib.pop("variants")
+            for variant in variants:
+                listing = {**lib, **variant}
+                model_validation.validate_as(listing, "Library")
+                library_listings.append(listing)
+
         return {
-            "libraries": repos["libraries"],
+            "libraries": library_listings,
             "applications": app_listings,
         }
 
