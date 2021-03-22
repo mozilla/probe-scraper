@@ -226,6 +226,26 @@ paths:
                 items:
                   $ref: "#/components/schemas/Application"
 
+  /v2/glean/library-variants:
+    get:
+      summary: "v2 Glean library variants"
+      tags:
+        - v2
+      description: |
+        Flattened view of all Glean library variant (one entry per `dependency_name`).
+
+        **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
+      operationId: "getLibraryVariants"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Library"
+
 components:
   schemas:
     RepositoriesYamlV1:
@@ -478,7 +498,6 @@ components:
         - description
         - notification_emails
         - url
-        - variants
         - dependency_name
         - v1_name
       properties:
@@ -494,8 +513,6 @@ components:
           $ref: "#/components/schemas/MetricsFiles"
         ping_files:
           $ref: "#/components/schemas/PingFiles"
-        variants:
-          $ref: "#/components/schemas/LibraryVariants"
         v1_name:
           $ref: "#/components/schemas/V1Name"
         deprecated:

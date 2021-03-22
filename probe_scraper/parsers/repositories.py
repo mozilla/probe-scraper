@@ -174,16 +174,13 @@ class RepositoriesParser(object):
         repos_v2 = self.parse_v2(filename)
         repos = {}
         for lib in repos_v2["libraries"]:
-            variants = lib.pop("variants")
-            for variant in variants:
-                lib_info = {**lib, **variant}
-                v1_name = lib_info["v1_name"]
-                lib_info["library_names"] = [lib_info["dependency_name"]]
-                lib_info["app_id"] = v1_name
-                del lib_info["library_name"]
-                del lib_info["dependency_name"]
-                del lib_info["v1_name"]
-                repos[v1_name] = lib_info
+            v1_name = lib["v1_name"]
+            lib["library_names"] = [lib["dependency_name"]]
+            lib["app_id"] = v1_name
+            del lib["library_name"]
+            del lib["dependency_name"]
+            del lib["v1_name"]
+            repos[v1_name] = lib
         for app in repos_v2["applications"]:
             app_channel = app.pop("app_channel", None)
             if app_channel is not None:
