@@ -282,8 +282,10 @@ def metrics_equal(def1, def2):
             for l in {
                 "bugs",
                 "data_reviews",
+                "data_sensitivity",
                 "description",
                 "disabled",
+                "expires",
                 "labeled",
                 "labels",
                 "lifetime",
