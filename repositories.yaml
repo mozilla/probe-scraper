@@ -179,6 +179,7 @@ applications:
     ping_files:
       - app/pings.yaml
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - org.mozilla.components:support-sync-telemetry
@@ -266,6 +267,7 @@ applications:
     metrics_files:
       - app/metrics.yaml
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
     channels:
@@ -281,6 +283,7 @@ applications:
     metrics_files:
       - app/metrics.yaml
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
     channels:
       - v1_name: firefox-for-fire-tv
@@ -302,6 +305,7 @@ applications:
     ping_files:
       - app/pings.yaml
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:support-sync-telemetry
     channels:
@@ -319,6 +323,7 @@ applications:
     metrics_files:
       - app/metrics.yaml
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:support-sync-telemetry
     channels:
@@ -335,6 +340,7 @@ applications:
       - lockwise-dev@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-ios
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
     channels:
       - v1_name: lockwise-ios
@@ -408,6 +414,7 @@ applications:
     metrics_files:
       - app/metrics.yaml
     dependencies:
+      - glean-core
       - org.mozilla.components:service-glean
     channels:
       - v1_name: firefox-for-echo-show
