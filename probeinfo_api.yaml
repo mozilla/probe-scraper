@@ -45,7 +45,6 @@ tags:
     description: |
       **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
 
-
 x-tagGroups:
   - name: Input Formats
     tags:
@@ -226,6 +225,26 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Application"
+
+  /v2/glean/library-variants:
+    get:
+      summary: "v2 Glean library variants"
+      tags:
+        - v2
+      description: |
+        Flattened view of all Glean library variant (one entry per `dependency_name`).
+
+        **⚠** The v2 API is in-development and subject to change without notice. **Do not** depend on it in production!
+      operationId: "getLibraryVariants"
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Library"
 
 components:
   schemas:
@@ -470,6 +489,38 @@ components:
           $ref: "#/components/schemas/PrototypeBool"
         retention_days:
           $ref: "#/components/schemas/RetentionDays"
+
+    Library:
+      type: object
+      additionalProperties: false
+      required:
+        - library_name
+        - description
+        - notification_emails
+        - url
+        - dependency_name
+        - v1_name
+      properties:
+        library_name:
+          $ref: "#/components/schemas/LibraryName"
+        description:
+          $ref: "#/components/schemas/Description"
+        notification_emails:
+          $ref: "#/components/schemas/NotificationEmails"
+        url:
+          $ref: "#/components/schemas/RepoUrl"
+        metrics_files:
+          $ref: "#/components/schemas/MetricsFiles"
+        ping_files:
+          $ref: "#/components/schemas/PingFiles"
+        v1_name:
+          $ref: "#/components/schemas/V1Name"
+        deprecated:
+          $ref: "#/components/schemas/DeprecatedBool"
+        branch:
+          $ref: "#/components/schemas/RepoBranch"
+        dependency_name:
+          $ref: "#/components/schemas/DependencyName"
 
     V1Name:
       type: string
