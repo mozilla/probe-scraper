@@ -1,6 +1,11 @@
 [[headers]]
-  # Define which paths this specific [[headers]] block will cover.
-  for = "^(?!\/index\.html).*$"
+  for = "/*"
 
   [headers.values]
-    content-type = "application/json"
+    Content-Type = "application/json"
+
+[[headers]]
+  for = "/index.html"
+
+  [headers.values]
+    Content-Type = "text/html"
