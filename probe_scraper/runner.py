@@ -106,7 +106,7 @@ def write_general_data(out_dir):
             """
             <html><head><title>Mozilla Probe Info</title></head>
             <body>This site contains metadata used by Mozilla's data collection
-            infrastructure, for more information see "
+            infrastructure, for more information see
             <a href=\"https://mozilla.github.io/probe-scraper/\">the generated documentation</a>.
             </body></html>
             """
