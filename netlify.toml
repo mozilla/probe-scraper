@@ -1,0 +1,11 @@
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+    Content-Type = "application/json"
+
+[[headers]]
+  for = "/"
+
+  [headers.values]
+    Content-Type = "text/html"
