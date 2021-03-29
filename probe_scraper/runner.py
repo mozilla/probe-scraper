@@ -104,7 +104,11 @@ def write_general_data(out_dir):
     with open(os.path.join(out_dir, "index.html"), "w") as f:
         f.write(
             """
-            <html><head><title>Mozilla Probe Info</title></head>
+            <html>
+              <head><title>Mozilla Probe Info</title>
+              <!-- Bootstrap CSS: https://getbootstrap.com/docs/5.0/getting-started/introduction/ -->
+              <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+            </head>
             <body>This site contains metadata used by Mozilla's data collection
             infrastructure, for more information see
             <a href=\"https://mozilla.github.io/probe-scraper/\">the generated documentation</a>.
