@@ -43,8 +43,8 @@ jobs:
           name: Deploy to GCR
           command: |
             DOCKER_IMAGE="gcr.io/${GOOGLE_PROJECT_ID}/probe-scraper"
-            # Deploy master
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            # Deploy main
+            if [ "${CIRCLE_BRANCH}" == main ]; then
               docker tag app:build "${DOCKER_IMAGE}:latest"
               docker push "${DOCKER_IMAGE}:latest"
             elif  [ ! -z "${CIRCLE_TAG}" ]; then
@@ -108,7 +108,7 @@ workflows:
             - docs_build
           filters:
             branches:
-              only: master
+              only: main
       - deploy:
           requires:
             - build_and_test
@@ -116,4 +116,4 @@ workflows:
             tags:
               only: /.*/
             branches:
-              only: master
+              only: main
