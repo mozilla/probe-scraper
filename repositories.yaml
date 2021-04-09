@@ -145,6 +145,18 @@ libraries:
       - v1_name: glean-js
         branch: main
         dependency_name: glean-js
+  - library_name: nimbus
+    description: Rapid experimentation platform
+    notification_emails:
+      - tlong@mozilla.com
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/nimbus/metrics.yaml
+    variants:
+      - v1_name: nimbus
+        branch: main
+        dependency_name: org.mozilla.components:nimbus
 
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
