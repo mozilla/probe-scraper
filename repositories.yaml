@@ -146,6 +146,19 @@ libraries:
         branch: main
         dependency_name: glean-js
 
+  - library_name: nimbus
+    description: Rapid experimentation platform
+    notification_emails:
+      - tlong@mozilla.com
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/nimbus/metrics.yaml
+    variants:
+      - v1_name: nimbus
+        branch: main
+        dependency_name: nimbus
+
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
   - app_name: firefox_desktop
@@ -186,6 +199,7 @@ applications:
       - org.mozilla.appservices:logins
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
+      - nimbus
     channels:
       - v1_name: firefox-android-release
         app_id: org.mozilla.firefox
@@ -243,6 +257,7 @@ applications:
       # does not actually depend on glean-android, including for backwards
       # compat
       - org.mozilla.components:service-glean
+      - nimbus
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
