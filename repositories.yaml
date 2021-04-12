@@ -262,12 +262,18 @@ applications:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
         app_channel: release
+        description: >-
+          Release channel of Firefox for iOS.
       - v1_name: firefox-ios-beta
         app_id: org.mozilla.ios.FirefoxBeta
         app_channel: beta
+        description: >-
+          Beta channel of Firefox for iOS.
       - v1_name: firefox-ios-dev
         app_id: org.mozilla.ios.Fennec
         app_channel: nightly
+        description: >-
+          Nightly channel of Firefox for iOS.
 
   - app_name: reference_browser
     canonical_app_name: Reference Browser
