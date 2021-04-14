@@ -154,18 +154,26 @@ applications:
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
-    metrics_files:
-      - toolkit/components/glean/metrics.yaml
-    ping_files:
-      - toolkit/components/glean/pings.yaml
     dependencies:
       - glean-core
-      # does not actually depend on glean-android, including for backwards
-      # compat
-      - org.mozilla.components:service-glean
     channels:
       - v1_name: firefox-desktop
         app_id: firefox-desktop
+        metrics_files:
+          - toolkit/components/glean/metrics.yaml
+        ping_files:
+          - toolkit/components/glean/pings.yaml
+        additional_dependencies:
+          # does not actually depend on glean-android, including for backwards
+          # compat
+          - org.mozilla.components:service-glean
+      - v1_name: firefox-background-updater
+        app_id: firefox-background-updater
+        description: The desktop version of Firefox's background update tasks
+        metrics_files:
+          - toolkit/mozapps/update/update_metrics.yaml
+        ping_files:
+          - toolkit/mozapps/update/update_pings.yaml
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
