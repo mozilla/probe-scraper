@@ -173,6 +173,9 @@ applications:
       The desktop version of Firefox's background update tasks. This is
       considered a seperate application because it has its own client
       id and sends its own version of the standard pings.
+    url: https://github.com/mozilla/gecko-dev
+    notification_emails:
+      - chutten@mozilla.com
     metrics_files:
       - toolkit/mozapps/update/update_metrics.yaml
     ping_files:
