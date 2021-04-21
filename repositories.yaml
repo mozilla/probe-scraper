@@ -178,7 +178,7 @@ applications:
       - org.mozilla.components:service-glean
     channels:
       - v1_name: firefox-desktop
-        app_id: firefox-desktop
+        app_id: firefox.desktop
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
