@@ -180,10 +180,10 @@ applications:
       - v1_name: firefox-desktop
         app_id: firefox.desktop
 
-  - app_name: firefox_desktop_background_updater
-    canonical_app_name: Firefox for Desktop Background Updater
+  - app_name: firefox_desktop_background_update
+    canonical_app_name: Firefox for Desktop Background Update Task
     app_description: >-
-      The desktop version of Firefox's background update tasks. This is
+      Firefox Desktop's background update task. This is
       considered a separate application because it has its own client
       id and sends its own version of the standard pings.
     url: https://github.com/mozilla/gecko-dev
@@ -196,8 +196,8 @@ applications:
     dependencies:
       - glean-core
     channels:
-      - v1_name: firefox-desktop-background-updater
-        app_id: firefox.desktop.backgroundupdate
+      - v1_name: firefox-desktop-background-update
+        app_id: firefox.desktop.background.update
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
