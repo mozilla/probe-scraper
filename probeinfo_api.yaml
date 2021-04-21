@@ -524,7 +524,7 @@ components:
 
     V1Name:
       type: string
-      pattern: "^[a-z][a-z0-9-]{0,29}$"
+      pattern: "^[a-z][a-z0-9-]{0,39}$"
       description: Identifier used in v1 URI paths that reference a specific repository
       example: firefox-android-beta
 
