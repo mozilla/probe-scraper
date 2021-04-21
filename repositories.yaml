@@ -177,9 +177,9 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
-      - toolkit/mozapps/update/update_metrics.yaml
+      - toolkit/mozapps/update/metrics.yaml
     ping_files:
-      - toolkit/mozapps/update/update_pings.yaml
+      - toolkit/mozapps/update/pings.yaml
     dependencies:
       - glean-core
     channels:
