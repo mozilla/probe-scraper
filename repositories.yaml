@@ -184,7 +184,7 @@ applications:
       - glean-core
     channels:
       - v1_name: firefox-desktop-background-updater
-        app_id: firefox-desktop-background-updater
+        app_id: firefox.desktop.backgroundupdate
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
