@@ -546,3 +546,23 @@ applications:
     channels:
       - v1_name: bergamot
         app_id: org.mozilla.bergamot
+
+  - app_name: rally_debug
+    canonical_app_name: Rally Core Add-on Debug Ingestion
+    app_description: Rally Core Add-on debug ingestion
+    url: https://github.com/mozilla-rally/rally-core-addon
+    notification_emails:
+      - than@mozilla.com
+    branch: master
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: rally-debug
+        app_id: rally.debug
+    encryption:
+      use_jwk: true
