@@ -72,6 +72,14 @@
       },
       "retention_days": {
         "type": "integer"
+      },
+      "encryption": {
+        "type": "object",
+        "properties": {
+          "use_jwk": {
+            "type": "boolean"
+          }
+        }
       }
     },
     "required": [

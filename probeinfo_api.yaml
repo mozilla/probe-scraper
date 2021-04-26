@@ -290,6 +290,8 @@ components:
             $ref: "#/components/schemas/PrototypeBool"
           retention_days:
             $ref: "#/components/schemas/RetentionDays"
+          encryption:
+            $ref: "#/components/schemas/Encryption"
 
     RepositoriesV1:
       type: array
@@ -326,6 +328,8 @@ components:
             $ref: "#/components/schemas/PrototypeBool"
           retention_days:
             $ref: "#/components/schemas/RetentionDays"
+          encryption:
+            $ref: "#/components/schemas/Encryption"
 
     RepositoriesYamlV2:
       type: object
@@ -381,6 +385,8 @@ components:
           $ref: "#/components/schemas/PrototypeBool"
         retention_days:
           $ref: "#/components/schemas/RetentionDays"
+        encryption:
+          $ref: "#/components/schemas/Encryption"
         channels:
           type: array
           description: >-
@@ -489,6 +495,8 @@ components:
           $ref: "#/components/schemas/PrototypeBool"
         retention_days:
           $ref: "#/components/schemas/RetentionDays"
+        encryption:
+          $ref: "#/components/schemas/Encryption"
 
     Library:
       type: object
@@ -696,6 +704,18 @@ components:
         The number of days to retain decoded ping data received for this application.
         If not specified, retention will be unlimited.
       type: integer
+
+    Encryption:
+      type: object
+      properties:
+        use_jwk:
+          type: boolean
+          description: |
+            If set to true, the pipeline will treat the entire payload as
+            a JSON Web Encryption (JWE) object in compact serialization,
+            using a private JSON Web Key (JWK) to decrypt it.
+      description: |
+        Options related to pipeline handling of encrypted fields.
 
     DependencyName:
       type: string
