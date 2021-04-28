@@ -550,6 +550,7 @@ applications:
   - app_name: rally_debug
     canonical_app_name: Rally Core Add-on Debug Ingestion
     app_description: Rally Core Add-on debug ingestion
+    prototype: true
     url: https://github.com/mozilla-rally/rally-core-addon
     notification_emails:
       - than@mozilla.com
