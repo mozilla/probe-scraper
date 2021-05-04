@@ -5,7 +5,7 @@ boto3==1.9.250
 glean_parser==3.0.0
 jsonschema==3.1.1
 python-dateutil==2.8.0
-PyYAML==5.1.2
+PyYAML==5.4
 requests==2.22.0
 requests_cache==0.5.2
 requests_file==1.4.3
