@@ -567,3 +567,24 @@ applications:
         app_id: rally.debug
     encryption:
       use_jwk: true
+
+  - app_name: rally_core
+    canonical_app_name: Rally Core Add-on
+    app_description: |
+      The Rally Core Add-on orchestrates the installation
+      and the lifecycle of Rally studies.
+    url: https://github.com/mozilla-rally/rally-core-addon
+    notification_emails:
+      - than@mozilla.com
+    branch: master
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-core
+        app_id: rally-core
+    encryption:
+      use_jwk: true
