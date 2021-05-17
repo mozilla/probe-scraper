@@ -565,6 +565,7 @@ applications:
     channels:
       - v1_name: rally-debug
         app_id: rally.debug
+        deprecated: true
     encryption:
       use_jwk: true
 
@@ -572,7 +573,8 @@ applications:
     canonical_app_name: Rally Core Add-on
     app_description: |
       The Rally Core Add-on orchestrates the installation
-      and the lifecycle of Rally studies.
+      and the lifecycle of [Rally](https://rally.mozilla.org/)
+      studies.
     url: https://github.com/mozilla-rally/rally-core-addon
     notification_emails:
       - than@mozilla.com
