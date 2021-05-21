@@ -141,10 +141,10 @@ def write_repositories_data(repos, out_dir):
 
 def write_v2_data(repos, out_dir):
     dump_json(
-        repos["applications"], os.path.join(out_dir, "v2", "glean"), "app-listings"
+        repos["app-listings"], os.path.join(out_dir, "v2", "glean"), "app-listings"
     )
     dump_json(
-        repos["libraries"], os.path.join(out_dir, "v2", "glean"), "library-variants"
+        repos["library-variants"], os.path.join(out_dir, "v2", "glean"), "library-variants"
     )
 
 

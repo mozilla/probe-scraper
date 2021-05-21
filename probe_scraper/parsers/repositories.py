@@ -167,14 +167,14 @@ class RepositoriesParser(object):
                 library_listings.append(listing)
 
         return {
-            "libraries": library_listings,
-            "applications": app_listings,
+            "library-variants": library_listings,
+            "app-listings": app_listings,
         }
 
     def _v2_to_v1(self, filename):
         repos_v2 = self.parse_v2(filename)
         repos = {}
-        for lib in repos_v2["libraries"]:
+        for lib in repos_v2["library-variants"]:
             v1_name = lib["v1_name"]
             lib["library_names"] = [lib["dependency_name"]]
             lib["app_id"] = v1_name
@@ -182,7 +182,7 @@ class RepositoriesParser(object):
             del lib["dependency_name"]
             del lib["v1_name"]
             repos[v1_name] = lib
-        for app in repos_v2["applications"]:
+        for app in repos_v2["app-listings"]:
             app_channel = app.pop("app_channel", None)
             if app_channel is not None:
                 app["channel"] = app_channel
