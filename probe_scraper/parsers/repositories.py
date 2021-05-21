@@ -155,19 +155,19 @@ class RepositoriesParser(object):
                     app_id.lower().replace("-", "_").replace(".", "_")
                 )
                 listing = remove_none(listing)
-                model_validation.validate_as(listing, "Application")
+                model_validation.validate_as(listing, "AppListing")
                 app_listings.append(listing)
 
-        library_listings = []
+        library_variants = []
         for lib in repos["libraries"]:
             variants = lib.pop("variants")
             for variant in variants:
                 listing = {**lib, **variant}
-                model_validation.validate_as(listing, "Library")
-                library_listings.append(listing)
+                model_validation.validate_as(listing, "LibraryVariant")
+                library_variants.append(listing)
 
         return {
-            "library-variants": library_listings,
+            "library-variants": library_variants,
             "app-listings": app_listings,
         }
 
