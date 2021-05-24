@@ -155,26 +155,26 @@ class RepositoriesParser(object):
                     app_id.lower().replace("-", "_").replace(".", "_")
                 )
                 listing = remove_none(listing)
-                model_validation.validate_as(listing, "Application")
+                model_validation.validate_as(listing, "AppListing")
                 app_listings.append(listing)
 
-        library_listings = []
+        library_variants = []
         for lib in repos["libraries"]:
             variants = lib.pop("variants")
             for variant in variants:
                 listing = {**lib, **variant}
-                model_validation.validate_as(listing, "Library")
-                library_listings.append(listing)
+                model_validation.validate_as(listing, "LibraryVariant")
+                library_variants.append(listing)
 
         return {
-            "libraries": library_listings,
-            "applications": app_listings,
+            "library-variants": library_variants,
+            "app-listings": app_listings,
         }
 
     def _v2_to_v1(self, filename):
         repos_v2 = self.parse_v2(filename)
         repos = {}
-        for lib in repos_v2["libraries"]:
+        for lib in repos_v2["library-variants"]:
             v1_name = lib["v1_name"]
             lib["library_names"] = [lib["dependency_name"]]
             lib["app_id"] = v1_name
@@ -182,7 +182,7 @@ class RepositoriesParser(object):
             del lib["dependency_name"]
             del lib["v1_name"]
             repos[v1_name] = lib
-        for app in repos_v2["applications"]:
+        for app in repos_v2["app-listings"]:
             app_channel = app.pop("app_channel", None)
             if app_channel is not None:
                 app["channel"] = app_channel
