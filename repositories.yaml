@@ -611,3 +611,27 @@ applications:
     channels:
       - v1_name: mozilla-vpn
         app_id: mozillavpn
+
+  - app_name: rally_study_zero_one
+    canonical_app_name: Rally Study-01
+    app_description: |
+      This is an exploratory study on what sites people
+      use and how long they use them, for the Rally
+      platform. It is implemented as a cross-browser
+      WebExtension.
+    url: https://github.com/mozilla-rally/rally-study-01
+    notification_emails:
+      - than@mozilla.com
+      - hulmer@mozilla.com
+    branch: master
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-study-zero-one
+        app_id: rally-study-zero-one
+    encryption:
+      use_jwk: true
