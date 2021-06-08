@@ -568,6 +568,7 @@ applications:
         deprecated: true
     encryption:
       use_jwk: true
+    skip_documentation: true
 
   - app_name: rally_core
     canonical_app_name: Rally Core Add-on
@@ -590,6 +591,7 @@ applications:
         app_id: rally-core
     encryption:
       use_jwk: true
+    skip_documentation: true
 
   - app_name: mozilla_vpn
     canonical_app_name: Mozilla VPN
