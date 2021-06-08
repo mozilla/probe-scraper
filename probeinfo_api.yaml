@@ -292,6 +292,8 @@ components:
             $ref: "#/components/schemas/RetentionDays"
           encryption:
             $ref: "#/components/schemas/Encryption"
+          skip_documentation:
+            $ref: "#/components/schemas/SkipDocumentationBool"
 
     RepositoriesV1:
       type: array
@@ -330,6 +332,8 @@ components:
             $ref: "#/components/schemas/RetentionDays"
           encryption:
             $ref: "#/components/schemas/Encryption"
+          skip_documentation:
+            $ref: "#/components/schemas/SkipDocumentationBool"
 
     RepositoriesYamlV2:
       type: object
@@ -387,6 +391,8 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         encryption:
           $ref: "#/components/schemas/Encryption"
+        skip_documentation:
+          $ref: "#/components/schemas/SkipDocumentationBool"
         channels:
           type: array
           description: >-
@@ -497,6 +503,8 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         encryption:
           $ref: "#/components/schemas/Encryption"
+        skip_documentation:
+          $ref: "#/components/schemas/SkipDocumentationBool"
 
     LibraryVariant:
       type: object
@@ -716,6 +724,13 @@ components:
             using a private JSON Web Key (JWK) to decrypt it.
       description: |
         Options related to pipeline handling of encrypted fields.
+
+    SkipDocumentationBool:
+      type: boolean
+      default: false
+      description: |
+        Set to `true` if the application does not want to show up in automated
+        documentation tools (e.g. Glean Dictionary).
 
     DependencyName:
       type: string
