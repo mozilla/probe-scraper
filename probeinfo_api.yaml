@@ -730,7 +730,7 @@ components:
       default: false
       description: |
         Set to `true` if the application does not want to show up in automated
-        documentation tools (e.g. Glean Dictionary).
+        documentation tools (e.g. the Glean Dictionary).
 
     DependencyName:
       type: string
