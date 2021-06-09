@@ -54,6 +54,7 @@ class Repository(object):
         self.prototype = definition.get("prototype", False)
         self.retention_days = definition.get("retention_days", None)
         self.encryption = definition.get("encryption", None)
+        self.skip_documentation = definition.get("skip_documentation", False)
 
     def get_branches(self):
         if self.branch == Repository.default_branch:

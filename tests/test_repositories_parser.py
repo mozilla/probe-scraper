@@ -99,4 +99,5 @@ def test_repositories_class(parser, correct_repos_file):
         "ping_file_paths": [],
         "prototype": False,
         "url": "www.github.com/fbertsch/mobile-metrics-example",
+        "skip_documentation": False,
     }

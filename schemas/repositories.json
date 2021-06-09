@@ -80,6 +80,10 @@
             "type": "boolean"
           }
         }
+      },
+      "skip_documentation":{
+        "type": "boolean",
+        "default": false
       }
     },
     "required": [
