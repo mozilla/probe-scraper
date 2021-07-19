@@ -530,6 +530,48 @@ applications:
       - v1_name: firefox-klar-ios
         app_id: org.mozilla.ios.Klar
 
+  - app_name: focus_android
+    canonical_app_name: Firefox Focus for Android
+    app_description: Firefox Focus on Android. Klar is the sibling application
+    url: https://github.com/mozilla-mobile/focus-android
+    notification_emails:
+      - jalmeida@mozilla.com
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - app/metrics.yaml
+    ping_files:
+      - app/pings.yaml
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+      - org.mozilla.components:lib-crash
+    retention_days: 180
+    channels:
+      - v1_name: firefox-focus-android
+        app_id: org.mozilla.focus
+
+  - app_name: klar_android
+    canonical_app_name: Firefox Klar for Android
+    app_description: Firefox Klar on Android. Focus is the sibling application
+    url: https://github.com/mozilla-mobile/focus-android
+    notification_emails:
+      - jalmeida@mozilla.com
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - app/metrics.yaml
+    ping_files:
+      - app/pings.yaml
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+      - org.mozilla.components:lib-crash
+    retention_days: 180
+    channels:
+      - v1_name: firefox-klar-android
+        app_id: org.mozilla.klar
+
   - app_name: bergamot
     canonical_app_name: Bergamot Translator
     app_description: Web extension for on-device machine translation
