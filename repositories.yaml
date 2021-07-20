@@ -169,6 +169,7 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - toolkit/components/glean/metrics.yaml
+      - browser/base/content/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     dependencies:
@@ -529,6 +530,48 @@ applications:
       - v1_name: firefox-klar-ios
         app_id: org.mozilla.ios.Klar
 
+  - app_name: focus_android
+    canonical_app_name: Firefox Focus for Android
+    app_description: Firefox Focus on Android. Klar is the sibling application
+    url: https://github.com/mozilla-mobile/focus-android
+    notification_emails:
+      - jalmeida@mozilla.com
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - app/metrics.yaml
+    ping_files:
+      - app/pings.yaml
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+      - org.mozilla.components:lib-crash
+    retention_days: 180
+    channels:
+      - v1_name: firefox-focus-android
+        app_id: org.mozilla.focus
+
+  - app_name: klar_android
+    canonical_app_name: Firefox Klar for Android
+    app_description: Firefox Klar on Android. Focus is the sibling application
+    url: https://github.com/mozilla-mobile/focus-android
+    notification_emails:
+      - jalmeida@mozilla.com
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - app/metrics.yaml
+    ping_files:
+      - app/pings.yaml
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+      - org.mozilla.components:lib-crash
+    retention_days: 180
+    channels:
+      - v1_name: firefox-klar-android
+        app_id: org.mozilla.klar
+
   - app_name: bergamot
     canonical_app_name: Bergamot Translator
     app_description: Web extension for on-device machine translation
@@ -568,6 +611,7 @@ applications:
         deprecated: true
     encryption:
       use_jwk: true
+    skip_documentation: true
 
   - app_name: rally_core
     canonical_app_name: Rally Core Add-on
@@ -590,3 +634,50 @@ applications:
         app_id: rally-core
     encryption:
       use_jwk: true
+    skip_documentation: true
+
+  - app_name: mozilla_vpn
+    canonical_app_name: Mozilla VPN
+    app_description: |
+      Mozilla VPN is a VPN client application. The first
+      Mozilla premium service.
+    url: https://github.com/mozilla-mobile/mozilla-vpn-client
+    notification_emails:
+      - vpn@mozilla.com
+      - amarchesini@mozilla.com
+    branch: main
+    metrics_files:
+      - glean/metrics.yaml
+    ping_files:
+      - glean/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: mozilla-vpn
+        app_id: mozillavpn
+
+  - app_name: rally_study_zero_one
+    canonical_app_name: Rally Study-01
+    app_description: |
+      This is an exploratory study on what sites people
+      use and how long they use them, for the Rally
+      platform. It is implemented as a cross-browser
+      WebExtension.
+    url: https://github.com/mozilla-rally/rally-study-01
+    notification_emails:
+      - than@mozilla.com
+      - hulmer@mozilla.com
+    branch: master
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-study-zero-one
+        app_id: rally-study-zero-one
+    encryption:
+      use_jwk: true
+    skip_documentation: true

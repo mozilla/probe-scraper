@@ -29,6 +29,7 @@ MIN_DATES = {
     "reference-browser": "2019-04-01 00:00:00",
     "firefox-desktop": "2020-07-29 00:00:00",
     "glean-js": "2020-09-21 13:35:00",
+    "mozilla-vpn": "2021-05-25 00:00:00",
 }
 
 

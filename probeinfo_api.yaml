@@ -224,7 +224,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Application"
+                  $ref: "#/components/schemas/AppListing"
 
   /v2/glean/library-variants:
     get:
@@ -244,7 +244,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Library"
+                  $ref: "#/components/schemas/LibraryVariant"
 
 components:
   schemas:
@@ -292,6 +292,8 @@ components:
             $ref: "#/components/schemas/RetentionDays"
           encryption:
             $ref: "#/components/schemas/Encryption"
+          skip_documentation:
+            $ref: "#/components/schemas/SkipDocumentationBool"
 
     RepositoriesV1:
       type: array
@@ -330,6 +332,8 @@ components:
             $ref: "#/components/schemas/RetentionDays"
           encryption:
             $ref: "#/components/schemas/Encryption"
+          skip_documentation:
+            $ref: "#/components/schemas/SkipDocumentationBool"
 
     RepositoriesYamlV2:
       type: object
@@ -387,6 +391,8 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         encryption:
           $ref: "#/components/schemas/Encryption"
+        skip_documentation:
+          $ref: "#/components/schemas/SkipDocumentationBool"
         channels:
           type: array
           description: >-
@@ -446,9 +452,9 @@ components:
         ping_files:
           $ref: "#/components/schemas/PingFiles"
         variants:
-          $ref: "#/components/schemas/LibraryVariants"
+          $ref: "#/components/schemas/LibraryVariantsYaml"
 
-    Application:
+    AppListing:
       type: object
       additionalProperties: false
       required:
@@ -497,8 +503,10 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         encryption:
           $ref: "#/components/schemas/Encryption"
+        skip_documentation:
+          $ref: "#/components/schemas/SkipDocumentationBool"
 
-    Library:
+    LibraryVariant:
       type: object
       additionalProperties: false
       required:
@@ -665,7 +673,7 @@ components:
         A unique identifier for this library, applicable across all variants of it.
       example: glean-core
 
-    LibraryVariants:
+    LibraryVariantsYaml:
       type: array
       description: |
         Variants of this library.
@@ -716,6 +724,13 @@ components:
             using a private JSON Web Key (JWK) to decrypt it.
       description: |
         Options related to pipeline handling of encrypted fields.
+
+    SkipDocumentationBool:
+      type: boolean
+      default: false
+      description: |
+        Set to `true` if the application does not want to show up in automated
+        documentation tools (e.g. the Glean Dictionary).
 
     DependencyName:
       type: string
@@ -978,7 +993,7 @@ components:
             version: 0
           name: app.opened_as_default_browser
           type: counter
-    Library:
+    LibraryVariant:
       value:
         v1_name: glean-core
         description: Modern cross-platform telemetry (core library)
