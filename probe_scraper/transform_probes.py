@@ -294,6 +294,7 @@ def metrics_equal(def1, def2):
                 "time_unit",
                 "type",
                 "version",
+                "extra_keys",
             }
         )
     )
