@@ -6,6 +6,7 @@ import argparse
 import datetime
 import os
 import re
+import sys
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
@@ -67,6 +68,8 @@ This is an automated message sent from probe-scraper.  See https://github.com/mo
 BUG_LINK_LIST_TEMPLATE = """The following bugs were filed for the above probes:
 {bug_links}
 """
+
+NEEDINFO_BLOCKED_TEXT = "is not currently accepting \"needinfo\" requests."
 
 
 @dataclass
@@ -170,7 +173,7 @@ def get_longest_prefix(values: List[str], tolerance: int = 0) -> str:
     )
 
 
-def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
+def create_bug(probes: List[ProbeDetails], version: str, api_key: str, needinfo: bool = True) -> int:
     probe_names = [probe.name for probe in probes]
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
 
@@ -220,8 +223,9 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
                 "status": "?",
                 "requestee": email,
             }
-            for email in probes[0].emails
+            for email in probes[0].emails if needinfo
         ],
+        "cc": [email for email in probes[0].emails if not needinfo],
     }
     create_response = requests.post(
         BUGZILLA_BUG_URL, json=create_params, headers=bugzilla_request_header(api_key)
@@ -229,8 +233,13 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str) -> int:
     try:
         create_response.raise_for_status()
     except requests.exceptions.HTTPError:
-        print(f"Failed to create bugs with arguments: {create_params}")
-        raise
+        print(f"Failed to create bugs with arguments: {create_params}", file=sys.stderr)
+        print(f"Error response: {create_response.text}", file=sys.stderr)
+        if needinfo and NEEDINFO_BLOCKED_TEXT in create_response.text:
+            print("Needinfo request blocked, retrying request without needinfo", file=sys.stderr)
+            create_bug(probes, version, api_key, needinfo=False)
+        else:
+            raise
     print(f"Created bug {str(create_response.json())} for {probe_prefix}")
     return create_response.json()["id"]
 
