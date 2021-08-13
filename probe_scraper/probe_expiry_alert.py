@@ -69,7 +69,7 @@ BUG_LINK_LIST_TEMPLATE = """The following bugs were filed for the above probes:
 {bug_links}
 """
 
-NEEDINFO_BLOCKED_TEXT = "is not currently accepting \"needinfo\" requests."
+NEEDINFO_BLOCKED_TEXT = 'is not currently accepting "needinfo" requests.'
 
 
 @dataclass
@@ -173,7 +173,9 @@ def get_longest_prefix(values: List[str], tolerance: int = 0) -> str:
     )
 
 
-def create_bug(probes: List[ProbeDetails], version: str, api_key: str, needinfo: bool = True) -> int:
+def create_bug(
+    probes: List[ProbeDetails], version: str, api_key: str, needinfo: bool = True
+) -> int:
     probe_names = [probe.name for probe in probes]
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
 
@@ -217,13 +219,9 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str, needinfo:
         "whiteboard": BUG_WHITEBOARD_TAG,
         "see_also": see_also_bugs,
         "flags": [
-            {
-                "name": "needinfo",
-                "type_id": 800,
-                "status": "?",
-                "requestee": email,
-            }
-            for email in probes[0].emails if needinfo
+            {"name": "needinfo", "type_id": 800, "status": "?", "requestee": email}
+            for email in probes[0].emails
+            if needinfo
         ],
         "cc": [email for email in probes[0].emails if not needinfo],
     }
@@ -236,7 +234,10 @@ def create_bug(probes: List[ProbeDetails], version: str, api_key: str, needinfo:
         print(f"Failed to create bugs with arguments: {create_params}", file=sys.stderr)
         print(f"Error response: {create_response.text}", file=sys.stderr)
         if needinfo and NEEDINFO_BLOCKED_TEXT in create_response.text:
-            print("Needinfo request blocked, retrying request without needinfo", file=sys.stderr)
+            print(
+                "Needinfo request blocked, retrying request without needinfo",
+                file=sys.stderr,
+            )
             create_bug(probes, version, api_key, needinfo=False)
         else:
             raise
@@ -443,21 +444,11 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--date", type=datetime.date.fromisoformat, required=True)
     parser.add_argument(
-        "--date",
-        type=datetime.date.fromisoformat,
-        required=True,
+        "--dry-run", help="Whether emails should be sent", action="store_true"
     )
-    parser.add_argument(
-        "--dry-run",
-        help="Whether emails should be sent",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--bugzilla-api-key",
-        type=str,
-        required=True,
-    )
+    parser.add_argument("--bugzilla-api-key", type=str, required=True)
     return parser.parse_args()
 
 
