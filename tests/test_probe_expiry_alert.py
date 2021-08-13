@@ -2,6 +2,7 @@ import datetime
 from dataclasses import dataclass
 from unittest import mock
 
+import pytest
 from requests.exceptions import HTTPError
 
 from probe_scraper import probe_expiry_alert
@@ -30,22 +31,14 @@ def test_bugzilla_prod_urls():
 
 def test_find_expiring_probes_no_expiring():
     probes = {"p1": {"expiry_version": "never"}}
-    expiring_probes = probe_expiry_alert.find_expiring_probes(
-        probes,
-        "75",
-        "",
-    )
+    expiring_probes = probe_expiry_alert.find_expiring_probes(probes, "75", "")
     expected = []
     assert expiring_probes == expected
 
 
 def test_find_expiring_probes_channel_no_probes():
     probes = {}
-    expiring_probes = probe_expiry_alert.find_expiring_probes(
-        probes,
-        "75",
-        "",
-    )
+    expiring_probes = probe_expiry_alert.find_expiring_probes(probes, "75", "")
     expected = []
     assert expiring_probes == expected
 
@@ -65,16 +58,9 @@ def test_find_expiring_probes_expiring(mock_get_bug_component):
             "notification_emails": ["test@email.com"],
             "bug_numbers": [1],
         },
-        "p3": {
-            "expiry_version": "75",
-            "bug_numbers": [],
-        },
+        "p3": {"expiry_version": "75", "bug_numbers": []},
     }
-    expiring_probes = probe_expiry_alert.find_expiring_probes(
-        probes,
-        "75",
-        "",
-    )
+    expiring_probes = probe_expiry_alert.find_expiring_probes(probes, "75", "")
     expected = [
         {
             "name": "p2",
@@ -170,11 +156,7 @@ def test_no_email_sent_on_dryrun(mock_boto_client):
         "b@test.com": ["p1", "p2"],
         "c@test.com": ["p3"],
     }
-    probe_to_bug_id = {
-        "p1": 1,
-        "p2": 2,
-        "p3": 3,
-    }
+    probe_to_bug_id = {"p1": 1, "p2": 2, "p3": 3}
 
     probe_expiry_alert.send_emails(probes_by_email, probe_to_bug_id, "75", dryrun=True)
 
@@ -188,11 +170,7 @@ def test_send_email_not_dryrun(mock_boto_client):
         "b@test.com": ["p1", "p2"],
         "c@test.com": ["p3"],
     }
-    probe_to_bug_id = {
-        "p1": 1,
-        "p2": 2,
-        "p3": 3,
-    }
+    probe_to_bug_id = {"p1": 1, "p2": 2, "p3": 3}
 
     probe_expiry_alert.send_emails(probes_by_email, probe_to_bug_id, "75", dryrun=False)
 
@@ -287,6 +265,32 @@ def test_create_bug(mock_post):
     bug_id = probe_expiry_alert.create_bug(probes, "76", "")
 
     assert bug_id == 2
+
+
+@mock.patch("requests.post")
+def test_create_bug_try_on_needinfo_blocked(mock_post):
+    mock_response = mock.MagicMock()
+    mock_response.text = (
+        '{"error": "a <a@test.com> is not currently accepting "needinfo" requests."}'
+    )
+    mock_response.raise_for_status.side_effect = HTTPError()
+    mock_post.return_value = mock_response
+
+    probes = [ProbeDetails("p1", "prod", "comp", ["a@test.com"], 1)]
+
+    with pytest.raises(HTTPError):
+        probe_expiry_alert.create_bug(probes, "76", "", needinfo=True)
+
+    assert mock_post.call_count == 2
+
+    call_args_1 = mock_post.call_args_list[0][1]["json"]
+    call_args_2 = mock_post.call_args_list[1][1]["json"]
+
+    assert len(call_args_1["flags"]) == 1
+    assert len(call_args_1["cc"]) == 0
+
+    assert len(call_args_2["flags"]) == 0
+    assert len(call_args_2["cc"]) == 1
 
 
 @mock.patch("requests.get")
