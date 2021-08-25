@@ -424,15 +424,24 @@ def sync_output_and_cache_dirs(
                         with gzip.open(out_filename, "wb") as f2:
                             f2.write(f1.read())
 
-            sync_cft_cmd = (
-                f"aws s3 sync {tmpdirname}/ s3://{output_bucket}/ "
-                f"--delete "
-                f"--content-type 'application/json' "
+            # Synchronize the json files and index.html seperately,
+            # as they have different mimetypes
+            sync_params = (
                 f"--content-encoding 'gzip' "
                 f"--cache-control 'max-age=28800' "
                 f"--acl public-read"
             )
-            os.system(sync_cft_cmd)
+            os.system(
+                f"aws s3 sync {tmpdirname}/ s3://{output_bucket}/ "
+                f"--delete "
+                f"--exclude index.html"
+                f"--content-type 'application/json' " + sync_params
+            )
+            os.system(
+                f"aws s3 sync {tmpdirname}/index.html s3://{output_bucket}/ "
+                + f"--content-type 'text/html' "
+                + sync_params
+            )
 
         # Sync cache data
         print("Syncing cache dir {}/ with s3://{}/".format(cache_dir, cache_path))
