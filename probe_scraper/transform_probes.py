@@ -14,6 +14,7 @@ TYPE_KEY = "type"
 REFLOG_KEY = "reflog-index"
 IN_SOURCE_KEY = "in-source"
 
+
 def is_test_probe(probe_type, name):
     if probe_type == "histogram":
         # These are test-only probes and never sent out.
@@ -309,7 +310,12 @@ def ping_equal(def1, def2):
 
 
 def metric_constructor(defn, metric):
-    return {TYPE_KEY: defn[TYPE_KEY], NAME_KEY: metric, HISTORY_KEY: [defn], IN_SOURCE_KEY: False}
+    return {
+        TYPE_KEY: defn[TYPE_KEY],
+        NAME_KEY: metric,
+        HISTORY_KEY: [defn],
+        IN_SOURCE_KEY: False,
+    }
 
 
 def ping_constructor(defn, metric):
@@ -317,7 +323,14 @@ def ping_constructor(defn, metric):
 
 
 def update_or_add_item(
-    repo_items, commit_hash, item, definition, commit_timestamps, last_timestamp, equal_fn, type_ctor
+    repo_items,
+    commit_hash,
+    item,
+    definition,
+    commit_timestamps,
+    last_timestamp,
+    equal_fn,
+    type_ctor,
 ):
     # If we've seen this item before, check previous definitions
     if item in repo_items:
@@ -347,7 +360,6 @@ def update_or_add_item(
         # if this commit has the latest timestamp for the repository, we consider
         # this object to be present "in-source" (aka in the source code and not removed)
         repo_items[item]["in-source"] = True
-
 
     return repo_items
 

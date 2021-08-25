@@ -72,8 +72,9 @@ IN_METRICS_DATA = {
     for repo in REPOS
 }
 
+
 def _fake_metric_repo_data(in_source):
-    return { 
+    return {
         "example.duration": {
             "type": "timespan",
             "name": "example.duration",
@@ -100,15 +101,10 @@ def _fake_metric_repo_data(in_source):
         }
     }
 
-OUT_METRICS_DATA = {
-    repo: _fake_metric_repo_data(True)
-    for repo in REPOS
-}
 
-OUT_METRICS_DATA_NOT_IN_SOURCE = {
-    repo: _fake_metric_repo_data(False)
-    for repo in REPOS
-}
+OUT_METRICS_DATA = {repo: _fake_metric_repo_data(True) for repo in REPOS}
+
+OUT_METRICS_DATA_NOT_IN_SOURCE = {repo: _fake_metric_repo_data(False) for repo in REPOS}
 
 IN_PING_DATA = {
     repo: {
