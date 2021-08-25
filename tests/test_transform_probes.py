@@ -72,11 +72,12 @@ IN_METRICS_DATA = {
     for repo in REPOS
 }
 
-OUT_METRICS_DATA = {
-    repo: {
+def _fake_metric_repo_data(in_source):
+    return { 
         "example.duration": {
             "type": "timespan",
             "name": "example.duration",
+            "in-source": in_source,
             "history": [
                 {
                     "type": "timespan",
@@ -98,6 +99,14 @@ OUT_METRICS_DATA = {
             ],
         }
     }
+
+OUT_METRICS_DATA = {
+    repo: _fake_metric_repo_data(True)
+    for repo in REPOS
+}
+
+OUT_METRICS_DATA_NOT_IN_SOURCE = {
+    repo: _fake_metric_repo_data(False)
     for repo in REPOS
 }
 
@@ -124,6 +133,7 @@ OUT_PING_DATA = {
     repo: {
         "metrics": {
             "name": "metrics",
+            "in-source": True,
             "history": [
                 {
                     "description": "Metrics ping",
@@ -515,6 +525,17 @@ def test_transform_metrics_by_hash():
     print_and_test(expected, result)
 
 
+def test_transform_metrics_by_hash_not_in_source():
+    # like the above test, but add some timestamps corresponding to some revisions
+    # that are not in the source code, indicating that there is expiry
+    timestamps = {repo: {str(i): (-i, i) for i in range(5)} for repo in REPOS}
+
+    result = transform.transform_metrics_by_hash(timestamps, IN_METRICS_DATA)
+    expected = OUT_METRICS_DATA_NOT_IN_SOURCE
+
+    print_and_test(expected, result)
+
+
 def test_transform_pings_by_hash():
     timestamps = {repo: {str(i): (-i, i) for i in range(4)} for repo in REPOS}
 
@@ -610,6 +631,7 @@ def test_sort_ordering():
             "example.duration": {
                 "type": "timespan",
                 "name": "example.duration",
+                "in-source": True,
                 "history": [
                     {
                         "type": "timespan",

@@ -12,7 +12,7 @@ HISTORY_KEY = "history"
 NAME_KEY = "name"
 TYPE_KEY = "type"
 REFLOG_KEY = "reflog-index"
-
+IN_SOURCE_KEY = "in-source"
 
 def is_test_probe(probe_type, name):
     if probe_type == "histogram":
@@ -309,15 +309,15 @@ def ping_equal(def1, def2):
 
 
 def metric_constructor(defn, metric):
-    return {TYPE_KEY: defn[TYPE_KEY], NAME_KEY: metric, HISTORY_KEY: [defn]}
+    return {TYPE_KEY: defn[TYPE_KEY], NAME_KEY: metric, HISTORY_KEY: [defn], IN_SOURCE_KEY: False}
 
 
 def ping_constructor(defn, metric):
-    return {NAME_KEY: metric, HISTORY_KEY: [defn]}
+    return {NAME_KEY: metric, HISTORY_KEY: [defn], IN_SOURCE_KEY: False}
 
 
 def update_or_add_item(
-    repo_items, commit_hash, item, definition, commit_timestamps, equal_fn, type_ctor
+    repo_items, commit_hash, item, definition, commit_timestamps, last_timestamp, equal_fn, type_ctor
 ):
     # If we've seen this item before, check previous definitions
     if item in repo_items:
@@ -342,6 +342,12 @@ def update_or_add_item(
     else:
         defn = make_item_defn(definition, commit_hash, commit_timestamps)
         repo_items[item] = type_ctor(defn, item)
+
+    if commit_timestamps[commit_hash][1] == last_timestamp:
+        # if this commit has the latest timestamp for the repository, we consider
+        # this object to be present "in-source" (aka in the source code and not removed)
+        repo_items[item]["in-source"] = True
+
 
     return repo_items
 
@@ -401,7 +407,7 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
             iter(commits.items()),
             key=lambda x_y: timestamp_sorter(commit_timestamps[repo_name][x_y[0]]),
         )
-
+        last_timestamp = max([t[1] for t in commit_timestamps[repo_name].values()])
         for commit_hash, items in sorted_commits:
             for item, definition in items.items():
                 repo_items = update_or_add_item(
@@ -410,12 +416,12 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
                     item,
                     definition,
                     commit_timestamps[repo_name],
+                    last_timestamp,
                     equal_fn,
                     type_ctor,
                 )
 
         all_items[repo_name] = repo_items
-
     return all_items
 
 
