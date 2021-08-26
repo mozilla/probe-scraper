@@ -424,7 +424,7 @@ def sync_output_and_cache_dirs(
                         with gzip.open(out_filename, "wb") as f2:
                             f2.write(f1.read())
 
-            # Synchronize the json files and index.html seperately,
+            # Synchronize the json files and index.html separately,
             # as they have different mimetypes
             sync_params = (
                 f"--content-encoding 'gzip' "
