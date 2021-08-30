@@ -52,28 +52,38 @@ REVISION_DATES = {
 
 REPOS = {"test-repo-0", "test-repo-1"}
 
-IN_METRICS_DATA = {
-    repo: {
-        str(i): {
-            "example.duration": {
-                "type": "timespan",
-                "description": "  The duration of the last foreground session.",
-                "time_unit": "second",
-                "send_in_pings": ["baseline"],
-                "bugs": [1497894, 1519120],
-                "data_reviews": [
-                    "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
-                ],
-                "notification_emails": ["telemetry-client-dev@mozilla.com"],
+
+def _fake_in_metrics_data(in_source):
+    return {
+        repo: {
+            str(i): {
+                "example.duration": {
+                    "type": "timespan",
+                    "description": "  The duration of the last foreground session.",
+                    "time_unit": "second",
+                    "send_in_pings": ["baseline"],
+                    "bugs": [1497894, 1519120],
+                    "data_reviews": [
+                        "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
+                    ],
+                    "notification_emails": ["telemetry-client-dev@mozilla.com"],
+                }
             }
+            # "0" means the latest commit index
+            for i in range(0 if in_source else 1, 4)
         }
-        for i in range(4)
+        for repo in REPOS
     }
-    for repo in REPOS
-}
+
+
+IN_METRICS_DATA = _fake_in_metrics_data(True)
+
+IN_METRICS_DATA_NOT_IN_SOURCE = _fake_in_metrics_data(False)
 
 
 def _fake_metric_repo_data(in_source):
+    last_index = 0 if in_source else 1
+    last_timestamp = "1970-01-01 00:00:00" if in_source else "1969-12-31 23:59:59"
     return {
         "example.duration": {
             "type": "timespan",
@@ -90,12 +100,12 @@ def _fake_metric_repo_data(in_source):
                         "https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3"
                     ],
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
-                    "git-commits": {"first": "3", "last": "0"},
+                    "git-commits": {"first": "3", "last": str(last_index)},
                     "dates": {
                         "first": "1969-12-31 23:59:57",
-                        "last": "1970-01-01 00:00:00",
+                        "last": last_timestamp,
                     },
-                    "reflog-index": {"first": 3, "last": 0},
+                    "reflog-index": {"first": 3, "last": last_index},
                 }
             ],
         }
@@ -526,7 +536,9 @@ def test_transform_metrics_by_hash_not_in_source():
     # that are not in the source code, indicating that there is expiry
     timestamps = {repo: {str(i): (-i, i) for i in range(5)} for repo in REPOS}
 
-    result = transform.transform_metrics_by_hash(timestamps, IN_METRICS_DATA)
+    result = transform.transform_metrics_by_hash(
+        timestamps, IN_METRICS_DATA_NOT_IN_SOURCE
+    )
     expected = OUT_METRICS_DATA_NOT_IN_SOURCE
 
     print_and_test(expected, result)
