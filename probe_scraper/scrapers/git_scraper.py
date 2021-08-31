@@ -32,6 +32,17 @@ MIN_DATES = {
     "mozilla-vpn": "2021-05-25 00:00:00",
 }
 
+# Some commits in projects might contain inconsistent metric files.
+# When we know the metric files are fixed in later commits we can skip those.
+SKIP_COMMITS = {
+    "engine-gecko": [
+        "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
+    ],
+    "engine-gecko-beta": [
+        "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
+    ],
+}
+
 
 def get_commits(repo, filename):
     sep = ":"
@@ -70,6 +81,8 @@ def retrieve_files(repo_info, cache_dir):
     if repo_info.name in MIN_DATES:
         min_date = utc_timestamp(datetime.fromisoformat(MIN_DATES[repo_info.name]))
 
+    skip_commits = SKIP_COMMITS.get(repo_info.name, [])
+
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
     repo = git.Repo.clone_from(repo_info.url, repo_info.name)
@@ -87,6 +100,8 @@ def retrieve_files(repo_info, cache_dir):
             hashes = get_commits(repo, rel_path)
             for _hash, (ts, index) in hashes.items():
                 if min_date and ts < min_date:
+                    continue
+                if _hash in skip_commits:
                     continue
 
                 disk_path = os.path.join(base_path, _hash, rel_path)
