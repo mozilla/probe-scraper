@@ -32,8 +32,8 @@ MIN_DATES = {
     "mozilla-vpn": "2021-05-25 00:00:00",
 }
 
-# Some commits in projects might contain inconsistent metric files.
-# When we know the metric files are fixed in later commits we can skip those.
+# Some commits in projects might contain invalid metric files.
+# When we know these problems are fixed in later commits we can skip them.
 SKIP_COMMITS = {
     "engine-gecko": [
         "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
