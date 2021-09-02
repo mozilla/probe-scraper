@@ -434,7 +434,7 @@ def sync_output_and_cache_dirs(
             os.system(
                 f"aws s3 sync {tmpdirname}/ s3://{output_bucket}/ "
                 f"--delete "
-                f"--exclude index.html"
+                f"--exclude index.html "
                 f"--content-type 'application/json' " + sync_params
             )
             os.system(
