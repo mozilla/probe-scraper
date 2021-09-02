@@ -324,6 +324,10 @@ def send_emails(
 
     email_count = 0
     for email, probe_names in probes_by_email.items():
+        # No probes found -> nothing to do
+        if not probe_names:
+            continue
+
         bug_links = {
             BUGZILLA_BUG_LINK_TEMPLATE.format(bug_id=probe_to_bug_id[probe])
             for probe in probe_names
