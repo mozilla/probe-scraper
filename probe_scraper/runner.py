@@ -453,7 +453,7 @@ def sync_output_and_cache_dirs(
                 [
                     "aws",
                     "s3",
-                    "sync",
+                    "cp",
                     f"{tmpdirname}/index.html",
                     f"s3://{output_bucket}/",
                     "--content-type",
