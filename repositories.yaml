@@ -701,6 +701,4 @@ applications:
     channels:
       - v1_name: mlhackweek-search
         app_id: mlhackweek-search
-    encryption:
-      use_jwk: true
     skip_documentation: true
