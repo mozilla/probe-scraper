@@ -682,3 +682,25 @@ applications:
     encryption:
       use_jwk: true
     skip_documentation: true
+
+  - app_name: mlhackweek_search
+    canonical_app_name: ML Hack Week Search App
+    app_description: |
+      This application collects search terms and results to build a data set
+      for a Data Org Hack Week.
+    url: https://github.com/mozilla/mlhackweek2021
+    notification_emails:
+      - gleonard@mozilla.com
+    branch: main
+    metrics_files:
+      - searchapp/mysite/searchranking/glean_config/metrics.yaml
+    ping_files:
+      - searchapp/mysite/searchranking/glean_config/pings.yaml
+    dependencies:
+      - glean-core
+    channels:
+      - v1_name: mlhackweek-search
+        app_id: mlhackweek-search
+    encryption:
+      use_jwk: true
+    skip_documentation: true
