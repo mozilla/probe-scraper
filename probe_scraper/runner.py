@@ -8,6 +8,7 @@ import errno
 import gzip
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import traceback
@@ -393,8 +394,7 @@ def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
     # Sync the cache directory
     cache_loc = f"s3://{cache_bucket}/cache/probe-scraper"
     print("Syncing cache from {} with {}".format(cache_loc, cache_dir))
-    sync_command = f"aws s3 sync {cache_loc} {cache_dir}"
-    os.system(sync_command)
+    subprocess.check_call(["aws", "s3", "sync", cache_loc, cache_dir])
     return cache_loc
 
 
@@ -426,20 +426,39 @@ def sync_output_and_cache_dirs(
 
             # Synchronize the json files and index.html separately,
             # as they have different mimetypes
-            sync_params = (
-                f"--content-encoding 'gzip' "
-                f"--cache-control 'max-age=28800' "
-                f"--acl public-read"
+            sync_params = [
+                "--content-encoding",
+                "gzip",
+                "--cache-control",
+                "max-age=28800",
+                "--acl",
+                "public-read",
+            ]
+            subprocess.check_call(
+                [
+                    "aws",
+                    "s3",
+                    "sync",
+                    f"{tmpdirname}/",
+                    f"s3://{output_bucket}/",
+                    "--delete",
+                    "--exclude",
+                    "index.html",
+                    "--content-type",
+                    "application/json",
+                ]
+                + sync_params
             )
-            os.system(
-                f"aws s3 sync {tmpdirname}/ s3://{output_bucket}/ "
-                f"--delete "
-                f"--exclude index.html "
-                f"--content-type 'application/json' " + sync_params
-            )
-            os.system(
-                f"aws s3 sync {tmpdirname}/index.html s3://{output_bucket}/ "
-                + f"--content-type 'text/html' "
+            subprocess.check_call(
+                [
+                    "aws",
+                    "s3",
+                    "sync",
+                    f"{tmpdirname}/index.html",
+                    f"s3://{output_bucket}/",
+                    "--content-type",
+                    "text/html",
+                ]
                 + sync_params
             )
 
