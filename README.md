@@ -125,17 +125,27 @@ or locally via:
 python -m probe_scraper.runner --firefox-version 65 --dry-run
 ```
 
+Including `--dry-run` means emails will not be sent.
+
 Additionally, you can test just on Glean repositories:
 ```
 export COMMAND='python -m probe_scraper.runner --glean --dry-run'
 make run
 ```
-or locally via:
+
+By default that will test against every Glean repository, which might take a while. If you want to test against just one (e.g. a new repository you're adding), you can use the `--glean-repo` argument to just test the repositories you care about:
 ```
-python -m probe_scraper.runner --glean --dry-run
+export COMMAND='python -m probe_scraper.runner --glean -glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run'
+make run
 ```
 
-Including `--dry-run` means emails will not be sent.
+Replace burnham in the example above with your repository and its dependencies.
+
+You can also do the dry-run locally:
+
+```
+python -m probe_scraper.runner --glean -glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run
+```
 
 ## Module overview
 
