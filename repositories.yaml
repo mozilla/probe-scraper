@@ -170,7 +170,6 @@ applications:
     metrics_files:
       - toolkit/components/glean/metrics.yaml
       - browser/base/content/metrics.yaml
-      - gfx/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     dependencies:
