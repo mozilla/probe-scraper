@@ -159,6 +159,21 @@ libraries:
         branch: main
         dependency_name: nimbus
 
+  - library_name: gecko
+    description: The browser engine developed by Mozilla
+    notification_emails:
+      - chutten@mozilla.com
+    url: https://github.com/mozilla/gecko-dev
+    metrics_files:
+      - toolkit/components/glean/metrics.yaml
+      - browser/base/content/metrics.yaml
+      - gfx/metrics.yaml
+    ping_files:
+      - toolkit/components/glean/pings.yaml
+    variants:
+      - v1_name: gecko
+        dependency_name: gecko
+
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
   - app_name: firefox_desktop
@@ -167,13 +182,8 @@ applications:
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
-    metrics_files:
-      - toolkit/components/glean/metrics.yaml
-      - browser/base/content/metrics.yaml
-      - gfx/metrics.yaml
-    ping_files:
-      - toolkit/components/glean/pings.yaml
     dependencies:
+      - gecko
       - glean-core
       # does not actually depend on glean-android, including for backwards
       # compat
@@ -213,6 +223,7 @@ applications:
     ping_files:
       - app/pings.yaml
     dependencies:
+      - gecko
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
@@ -226,6 +237,7 @@ applications:
         app_id: org.mozilla.firefox
         app_channel: release
         additional_dependencies:
+          # TODO: This is using beta and not release because...
           - org.mozilla.components:browser-engine-gecko-beta
         description: >-
           Release channel of Firefox for Android.
