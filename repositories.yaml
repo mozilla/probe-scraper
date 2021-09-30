@@ -237,8 +237,7 @@ applications:
         app_id: org.mozilla.firefox
         app_channel: release
         additional_dependencies:
-          # TODO: This is using beta and not release because...
-          - org.mozilla.components:browser-engine-gecko-beta
+          - org.mozilla.components:browser-engine-gecko-release
         description: >-
           Release channel of Firefox for Android.
       - v1_name: firefox-android-beta
