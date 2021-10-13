@@ -41,7 +41,11 @@ SKIP_COMMITS = {
     "engine-gecko-beta": [
         "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
     ],
-    "gecko": ["43d8cf138695faae2fca0adf44c94f47fdadfca8"],  # Missing gfx/metrics.yaml
+    "gecko": [
+        "43d8cf138695faae2fca0adf44c94f47fdadfca8",  # Missing gfx/metrics.yaml
+        "340c8521a54ad4d4a32dd16333676a6ff85aaec2",  # Missing toolkit/components/glean/pings.yaml
+        "4520632fe0664572c5f70688595b7721d167e2d0",  # Missing toolkit/components/glean/pings.yaml
+    ],
 }
 
 
