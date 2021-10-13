@@ -11,7 +11,7 @@ GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
-EXPECTED_MISSING_FILES = {("firefox-desktop", "gfx/metrics.yaml")}
+EXPECTED_MISSING_FILES = {("gecko", "gfx/metrics.yaml")}
 validation_errors = []
 repos = RepositoriesParser().parse(REPOSITORIES)
 
