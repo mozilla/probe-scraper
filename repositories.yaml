@@ -237,7 +237,7 @@ applications:
         app_id: org.mozilla.firefox
         app_channel: release
         additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko-release
+          - org.mozilla.components:browser-engine-gecko
         description: >-
           Release channel of Firefox for Android.
       - v1_name: firefox-android-beta
