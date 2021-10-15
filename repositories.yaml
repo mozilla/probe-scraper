@@ -513,7 +513,7 @@ applications:
     app_description: Firefox Focus on iOS. Klar is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
-      - jboek@mozilla.com
+      - sarentz@mozilla.com
       - tlong@mozilla.com
     branch: main
     metrics_files:
@@ -530,7 +530,7 @@ applications:
     app_description: Firefox Klar on iOS. Focus is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
-      - jboek@mozilla.com
+      - sarentz@mozilla.com
       - tlong@mozilla.com
     branch: main
     metrics_files:
