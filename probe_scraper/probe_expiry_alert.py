@@ -239,7 +239,7 @@ def create_bug(
                 "Needinfo request blocked, retrying request without needinfo",
                 file=sys.stderr,
             )
-            create_bug(probes, version, api_key, needinfo=False)
+            return create_bug(probes, version, api_key, needinfo=False)
         else:
             raise
     print(f"Created bug {str(create_response.json())} for {probe_prefix}")
