@@ -69,7 +69,8 @@ BUG_LINK_LIST_TEMPLATE = """The following bugs were filed for the above probes:
 {bug_links}
 """
 
-NEEDINFO_BLOCKED_TEXT = 'is not currently accepting "needinfo" requests.'
+# This text is compared to a json blob, where quotes are escaped
+NEEDINFO_BLOCKED_TEXT = 'is not currently accepting \\"needinfo\\" requests.'
 
 
 @dataclass

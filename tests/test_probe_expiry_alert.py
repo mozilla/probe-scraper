@@ -1,4 +1,5 @@
 import datetime
+import json
 from dataclasses import dataclass
 from unittest import mock
 
@@ -270,8 +271,8 @@ def test_create_bug(mock_post):
 @mock.patch("requests.post")
 def test_create_bug_try_on_needinfo_blocked(mock_post):
     mock_response = mock.MagicMock()
-    mock_response.text = (
-        '{"error": "a <a@test.com> is not currently accepting "needinfo" requests."}'
+    mock_response.text = json.dumps(
+        {"error": 'a <a@test.com> is not currently accepting "needinfo" requests.'}
     )
     mock_response.raise_for_status.side_effect = HTTPError()
     mock_post.return_value = mock_response
