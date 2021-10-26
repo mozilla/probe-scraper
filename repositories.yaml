@@ -168,6 +168,7 @@ libraries:
       - toolkit/components/glean/metrics.yaml
       - browser/base/content/metrics.yaml
       - gfx/metrics.yaml
+      - toolkit/components/processtools/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     variants:
