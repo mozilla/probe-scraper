@@ -144,7 +144,7 @@ Replace burnham in the example above with your repository and its dependencies.
 You can also do the dry-run locally:
 
 ```
-python -m probe_scraper.runner --glean -glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run
+python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run
 ```
 
 ## Module overview
