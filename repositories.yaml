@@ -165,9 +165,10 @@ libraries:
       - chutten@mozilla.com
     url: https://github.com/mozilla/gecko-dev
     metrics_files:
-      - toolkit/components/glean/metrics.yaml
       - browser/base/content/metrics.yaml
       - gfx/metrics.yaml
+      - toolkit/components/glean/metrics.yaml
+      - toolkit/components/processtools/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     variants:
