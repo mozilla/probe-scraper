@@ -11,6 +11,7 @@ GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
+EXPECTED_MISSING_FILES = {("gecko", "gfx/metrics.yaml")}
 validation_errors = []
 repos = RepositoriesParser().parse(REPOSITORIES)
 
@@ -24,6 +25,8 @@ for repo in repos:
         app_id_channels[repo.app_id][repo.channel] += 1
 
     for metric_file in metrics_files:
+        if (repo.name, metric_file) in EXPECTED_MISSING_FILES:
+            continue  # ignore missing files
         temp_url = (
             repo.url.replace("https://github.com", GITHUB_RAW_URL)
             + "/"

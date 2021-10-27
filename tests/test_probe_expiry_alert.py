@@ -1,8 +1,8 @@
 import datetime
+import json
 from dataclasses import dataclass
 from unittest import mock
 
-import pytest
 from requests.exceptions import HTTPError
 
 from probe_scraper import probe_expiry_alert
@@ -269,17 +269,23 @@ def test_create_bug(mock_post):
 
 @mock.patch("requests.post")
 def test_create_bug_try_on_needinfo_blocked(mock_post):
-    mock_response = mock.MagicMock()
-    mock_response.text = (
-        '{"error": "a <a@test.com> is not currently accepting "needinfo" requests."}'
+    error_response = mock.MagicMock()
+    error_response.text = json.dumps(
+        {"error": 'a <a@test.com> is not currently accepting "needinfo" requests.'}
     )
-    mock_response.raise_for_status.side_effect = HTTPError()
-    mock_post.return_value = mock_response
+    good_response = mock.MagicMock()
+    good_response.json = mock.MagicMock(return_value={"id": 2})
+
+    def raise_for_status():
+        mock_post.return_value = good_response
+        raise HTTPError()
+
+    mock_post.return_value = error_response
+    error_response.raise_for_status = raise_for_status
 
     probes = [ProbeDetails("p1", "prod", "comp", ["a@test.com"], 1)]
 
-    with pytest.raises(HTTPError):
-        probe_expiry_alert.create_bug(probes, "76", "", needinfo=True)
+    assert probe_expiry_alert.create_bug(probes, "76", "", needinfo=True) == 2
 
     assert mock_post.call_count == 2
 

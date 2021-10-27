@@ -32,13 +32,43 @@ MIN_DATES = {
     "mozilla-vpn": "2021-05-25 00:00:00",
 }
 
+# Some commits in projects might contain invalid metric files.
+# When we know these problems are fixed in later commits we can skip them.
+SKIP_COMMITS = {
+    "engine-gecko": [
+        "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
+    ],
+    "engine-gecko-beta": [
+        "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
+    ],
+    "gecko": [
+        "43d8cf138695faae2fca0adf44c94f47fdadfca8",  # Missing gfx/metrics.yaml
+        "340c8521a54ad4d4a32dd16333676a6ff85aaec2",  # Missing toolkit/components/glean/pings.yaml
+        "4520632fe0664572c5f70688595b7721d167e2d0",  # Missing toolkit/components/glean/pings.yaml
+    ],
+}
+
+
+def _file_in_repo_head(repo, filename):
+    # adapted from https://stackoverflow.com/a/25961128
+    subtree = repo.head.commit.tree
+    for path_element in filename.split(os.path.sep)[:-1]:
+        try:
+            subtree = subtree[path_element]
+        except KeyError:
+            return False  # subdirectory not in tree
+    return filename in subtree
+
 
 def get_commits(repo, filename):
     sep = ":"
     log_format = '--format="%H{}%ct"'.format(sep)
-    change_commits = enumerate(repo.git.log(log_format, filename).split("\n"))
-    most_recent_commit = enumerate(repo.git.log("-n", "1", log_format).split("\n"))
-    commits = set(change_commits) | set(most_recent_commit)
+    # include "--" to prevent error for filename not in current tree
+    change_commits = repo.git.log(log_format, "--", filename).split("\n")
+    commits = set(enumerate(change_commits))
+    if _file_in_repo_head(repo, filename):
+        # include HEAD when it contains filename
+        commits |= set(enumerate(repo.git.log("-n", "1", log_format).split("\n")))
 
     # Store the index in the ref-log as well as the timestamp, so that the
     # ordering of commits will be deterministic and always in the correct
@@ -70,6 +100,8 @@ def retrieve_files(repo_info, cache_dir):
     if repo_info.name in MIN_DATES:
         min_date = utc_timestamp(datetime.fromisoformat(MIN_DATES[repo_info.name]))
 
+    skip_commits = SKIP_COMMITS.get(repo_info.name, [])
+
     if os.path.exists(repo_info.name):
         shutil.rmtree(repo_info.name)
     repo = git.Repo.clone_from(repo_info.url, repo_info.name)
@@ -87,6 +119,8 @@ def retrieve_files(repo_info, cache_dir):
             hashes = get_commits(repo, rel_path)
             for _hash, (ts, index) in hashes.items():
                 if min_date and ts < min_date:
+                    continue
+                if _hash in skip_commits:
                     continue
 
                 disk_path = os.path.join(base_path, _hash, rel_path)
