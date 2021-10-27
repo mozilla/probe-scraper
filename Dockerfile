@@ -29,10 +29,13 @@ RUN pip install --upgrade pip
 
 WORKDIR ${HOME}
 
-COPY . ${HOME}
-
+COPY requirements.txt ${HOME}/
 RUN pip install -r requirements.txt
+
+COPY test_requirements.txt ${HOME}/
 RUN pip install -r test_requirements.txt
+
+COPY . ${HOME}
 RUN pip install .
 
 # Drop root and change ownership of the application folder to the user
