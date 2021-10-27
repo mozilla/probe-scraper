@@ -49,6 +49,7 @@ class Repository(object):
         self.deprecated = definition.get("deprecated", False)
         self.metrics_file_paths = definition.get("metrics_files", [])
         self.ping_file_paths = definition.get("ping_files", [])
+        self.tag_file_paths = definition.get("tag_files", [])
         self.library_names = definition.get("library_names", None)
         self.dependencies = definition.get("dependencies", [])
         self.prototype = definition.get("prototype", False)
@@ -68,7 +69,7 @@ class Repository(object):
         return self.ping_file_paths
 
     def get_change_files(self):
-        return self.metrics_file_paths + self.ping_file_paths
+        return self.metrics_file_paths + self.ping_file_paths + self.tag_file_paths
 
     def get_dependencies(self):
         return self.dependencies

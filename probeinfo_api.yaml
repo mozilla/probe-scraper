@@ -278,6 +278,8 @@ components:
             $ref: "#/components/schemas/RepoUrl"
           branch:
             $ref: "#/components/schemas/RepoBranch"
+          tag_files:
+            $ref: "#/components/schemas/TagFiles"
           metrics_files:
             $ref: "#/components/schemas/MetricsFiles"
           ping_files:
@@ -318,6 +320,8 @@ components:
             $ref: "#/components/schemas/RepoUrl"
           branch:
             $ref: "#/components/schemas/RepoBranch"
+          tag_files:
+            $ref: "#/components/schemas/TagFiles"
           metrics_files:
             $ref: "#/components/schemas/MetricsFiles"
           ping_files:
@@ -377,6 +381,8 @@ components:
           $ref: "#/components/schemas/RepoUrl"
         branch:
           $ref: "#/components/schemas/RepoBranch"
+        tag_files:
+          $ref: "#/components/schemas/TagFiles"
         metrics_files:
           $ref: "#/components/schemas/MetricsFiles"
         ping_files:
@@ -447,6 +453,8 @@ components:
           $ref: "#/components/schemas/NotificationEmails"
         url:
           $ref: "#/components/schemas/RepoUrl"
+        tag_files:
+          $ref: "#/components/schemas/TagFiles"
         metrics_files:
           $ref: "#/components/schemas/MetricsFiles"
         ping_files:
@@ -489,6 +497,8 @@ components:
           $ref: "#/components/schemas/RepoUrl"
         branch:
           $ref: "#/components/schemas/RepoBranch"
+        tag_files:
+          $ref: "#/components/schemas/TagFiles"
         metrics_files:
           $ref: "#/components/schemas/MetricsFiles"
         ping_files:
@@ -525,6 +535,8 @@ components:
           $ref: "#/components/schemas/NotificationEmails"
         url:
           $ref: "#/components/schemas/RepoUrl"
+        tag_files:
+          $ref: "#/components/schemas/TagFiles"
         metrics_files:
           $ref: "#/components/schemas/MetricsFiles"
         ping_files:
@@ -617,6 +629,15 @@ components:
         Derived from `app_id`, this is the lowercase-with-underscores prefix for
         the BigQuery datasets where decoded ping data is written by the pipeline.
       example: org_mozilla_firefox_beta
+
+    TagFiles:
+      type: array
+      description: A list of relative paths to `tags.yaml` files
+      default: []
+      items:
+        type: string
+        pattern: tags\.yaml$
+        example: app/tags.yaml
 
     MetricsFiles:
       type: array
@@ -1002,6 +1023,8 @@ components:
           - mdroettboom@mozilla.com
         url: https://github.com/mozilla/glean
         branch: main
+        tag_files:
+          - glean-core/tags.yaml
         metrics_files:
           - glean-core/metrics.yaml
         ping_files:
