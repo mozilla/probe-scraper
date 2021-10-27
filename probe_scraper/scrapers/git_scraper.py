@@ -87,8 +87,7 @@ def retrieve_files(repo_info, cache_dir):
     if os.path.exists(repo_path):
         print(f"Pulling latest commits into {repo_path}")
         repo = git.Repo(repo_path)
-        o = repo.remotes.origin
-        o.pull()
+        repo.remotes.origin.pull()
     else:
         print(f"Cloning {repo_info.url} into {repo_path}")
         repo = git.Repo.clone_from(repo_info.url, repo_path)
