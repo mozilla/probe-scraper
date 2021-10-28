@@ -563,6 +563,19 @@ applications:
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
+        app_channel: release
+        description: >-
+          Release channel of Focus for Android.
+      - v1_name: firefox-focus-android-beta
+        app_id: org.mozilla.focus.beta
+        app_channel: beta
+        description: >-
+          Beta channel of Focus for Android.
+      - v1_name: firefox-focus-android-nightly
+        app_id: org.mozilla.focus.nightly
+        app_channel: nightly
+        description: >-
+          Nightly channel of Focus for Android.
 
   - app_name: klar_android
     canonical_app_name: Firefox Klar for Android
