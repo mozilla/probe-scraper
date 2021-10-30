@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
+import shutil
 import tempfile
 import traceback
 from collections import defaultdict
@@ -94,7 +95,6 @@ def retrieve_files(repo_info, cache_dir):
     results = defaultdict(list)
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_info.name)
-    repo_path = os.path.join(base_path, "git")
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -102,14 +102,9 @@ def retrieve_files(repo_info, cache_dir):
 
     skip_commits = SKIP_COMMITS.get(repo_info.name, [])
 
-    repo = None
-    if os.path.exists(repo_path):
-        print(f"Pulling latest commits into {repo_path}")
-        repo = git.Repo(repo_path)
-        repo.remotes.origin.pull()
-    else:
-        print(f"Cloning {repo_info.url} into {repo_path}")
-        repo = git.Repo.clone_from(repo_info.url, repo_path)
+    if os.path.exists(repo_info.name):
+        shutil.rmtree(repo_info.name)
+    repo = git.Repo.clone_from(repo_info.url, repo_info.name)
 
     branches = repo_info.get_branches()
     for branch in branches:
@@ -143,6 +138,8 @@ def retrieve_files(repo_info, cache_dir):
     except Exception:
         # without this, the error will be silently discarded
         raise
+    finally:
+        shutil.rmtree(repo_info.name)
 
     return timestamps, results
 
