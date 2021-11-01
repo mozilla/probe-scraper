@@ -1,3 +1,11 @@
+[build]
+command = """
+    set -e
+    python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run --out-dir public
+"""
+environment = { PYTHON_VERSION = "3.8" }
+publish = "public"
+
 [[headers]]
   for = "/*"
 
