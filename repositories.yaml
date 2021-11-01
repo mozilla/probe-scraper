@@ -165,9 +165,10 @@ libraries:
       - chutten@mozilla.com
     url: https://github.com/mozilla/gecko-dev
     metrics_files:
-      - toolkit/components/glean/metrics.yaml
       - browser/base/content/metrics.yaml
       - gfx/metrics.yaml
+      - toolkit/components/glean/metrics.yaml
+      - toolkit/components/processtools/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     variants:
@@ -562,6 +563,19 @@ applications:
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
+        app_channel: release
+        description: >-
+          Release channel of Focus for Android.
+      - v1_name: firefox-focus-android-beta
+        app_id: org.mozilla.focus.beta
+        app_channel: beta
+        description: >-
+          Beta channel of Focus for Android.
+      - v1_name: firefox-focus-android-nightly
+        app_id: org.mozilla.focus.nightly
+        app_channel: nightly
+        description: >-
+          Nightly channel of Focus for Android.
 
   - app_name: klar_android
     canonical_app_name: Firefox Klar for Android
