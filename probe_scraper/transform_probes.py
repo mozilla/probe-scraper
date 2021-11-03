@@ -276,6 +276,10 @@ def make_item_defn(definition, commit, commit_timestamps):
     return definition
 
 
+def tags_equal(def1, def2):
+    return def1["description"] == def2["description"]
+
+
 def metrics_equal(def1, def2):
     return all(
         (
@@ -290,6 +294,7 @@ def metrics_equal(def1, def2):
                 "labeled",
                 "labels",
                 "lifetime",
+                "metadata",
                 "notification_emails",
                 "send_in_pings",
                 "time_unit",
@@ -309,6 +314,10 @@ def ping_equal(def1, def2):
     return all((def1.get(l) == def2.get(l) for l in all_keys))
 
 
+def tag_constructor(defn, tag):
+    return {NAME_KEY: tag, HISTORY_KEY: [defn], IN_SOURCE_KEY: False}
+
+
 def metric_constructor(defn, metric):
     return {
         TYPE_KEY: defn[TYPE_KEY],
@@ -318,8 +327,8 @@ def metric_constructor(defn, metric):
     }
 
 
-def ping_constructor(defn, metric):
-    return {NAME_KEY: metric, HISTORY_KEY: [defn], IN_SOURCE_KEY: False}
+def ping_constructor(defn, ping):
+    return {NAME_KEY: ping, HISTORY_KEY: [defn], IN_SOURCE_KEY: False}
 
 
 def update_or_add_item(
@@ -432,6 +441,10 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
 
         all_items[repo_name] = repo_items
     return all_items
+
+
+def transform_tags_by_hash(commit_timestamps, tag_data):
+    return transform_by_hash(commit_timestamps, tag_data, tags_equal, tag_constructor)
 
 
 def transform_metrics_by_hash(commit_timestamps, metric_data):
