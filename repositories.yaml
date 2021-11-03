@@ -424,14 +424,12 @@ applications:
     app_description: Automated end-to-end testing for Mozilla's Glean telemetry
     notification_emails:
       - rpierzina@mozilla.com
-    url: https://github.com/wlach/burnham
-    branch: add-tags
+    url: https://github.com/mozilla/burnham
+    branch: main
     metrics_files:
       - application/src/burnham/config/metrics.yaml
     ping_files:
       - application/src/burnham/config/pings.yaml
-    tag_files:
-      - application/src/burnham/config/tags.yaml
     dependencies:
       - glean-core
       # does not actually depend on glean-android, including for backwards
