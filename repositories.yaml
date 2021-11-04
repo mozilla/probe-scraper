@@ -291,6 +291,7 @@ applications:
       # compat
       - org.mozilla.components:service-glean
       - nimbus
+      - org.mozilla.appservices:logins
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
@@ -521,6 +522,7 @@ applications:
       - Blockzilla/metrics.yaml
     dependencies:
       - glean-core
+      - nimbus
     retention_days: 720
     channels:
       - v1_name: firefox-focus-ios
@@ -538,6 +540,7 @@ applications:
       - Blockzilla/metrics.yaml
     dependencies:
       - glean-core
+      - nimbus
     retention_days: 720
     channels:
       - v1_name: firefox-klar-ios
@@ -559,6 +562,7 @@ applications:
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
+      - nimbus
     retention_days: 180
     channels:
       - v1_name: firefox-focus-android
@@ -593,6 +597,7 @@ applications:
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
+      - nimbus
     retention_days: 180
     channels:
       - v1_name: firefox-klar-android
