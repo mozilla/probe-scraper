@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
-import shutil
 import tempfile
 import traceback
 from collections import defaultdict
@@ -95,6 +94,7 @@ def retrieve_files(repo_info, cache_dir):
     results = defaultdict(list)
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_info.name)
+    repo_path = f"{base_path}.git"
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -102,44 +102,42 @@ def retrieve_files(repo_info, cache_dir):
 
     skip_commits = SKIP_COMMITS.get(repo_info.name, [])
 
-    if os.path.exists(repo_info.name):
-        shutil.rmtree(repo_info.name)
-    repo = git.Repo.clone_from(repo_info.url, repo_info.name)
+    if os.path.exists(repo_path):
+        print(f"Pulling latest commits into {repo_path}")
+        repo = git.Repo(repo_path)
+    else:
+        print(f"Cloning {repo_info.url} into {repo_path}")
+        repo = git.Repo.clone_from(repo_info.url, repo_path, bare=True)
 
     branches = repo_info.get_branches()
     for branch in branches:
         try:
-            repo.git.checkout(repo_info.branch)
+            repo.git.fetch("origin", f"{branch}:{branch}")
+            repo.git.symbolic_ref("HEAD", f"refs/heads/{branch}")
             break
         except git.exc.GitCommandError:
             pass
 
-    try:
-        for rel_path in repo_info.get_change_files():
-            hashes = get_commits(repo, rel_path)
-            for _hash, (ts, index) in hashes.items():
-                if min_date and ts < min_date:
-                    continue
-                if _hash in skip_commits:
-                    continue
+    for rel_path in repo_info.get_change_files():
+        hashes = get_commits(repo, rel_path)
+        for _hash, (ts, index) in hashes.items():
+            if min_date and ts < min_date:
+                continue
+            if _hash in skip_commits:
+                continue
 
-                disk_path = os.path.join(base_path, _hash, rel_path)
-                if not os.path.exists(disk_path):
-                    contents = get_file_at_hash(repo, _hash, rel_path)
+            disk_path = os.path.join(base_path, _hash, rel_path)
+            if not os.path.exists(disk_path):
+                contents = get_file_at_hash(repo, _hash, rel_path)
 
-                    dir = os.path.split(disk_path)[0]
-                    if not os.path.exists(dir):
-                        os.makedirs(dir)
-                    with open(disk_path, "wb") as f:
-                        f.write(contents.encode("UTF-8"))
+                dir = os.path.split(disk_path)[0]
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                with open(disk_path, "wb") as f:
+                    f.write(contents.encode("UTF-8"))
 
-                results[_hash].append(disk_path)
-                timestamps[_hash] = (ts, index)
-    except Exception:
-        # without this, the error will be silently discarded
-        raise
-    finally:
-        shutil.rmtree(repo_info.name)
+            results[_hash].append(disk_path)
+            timestamps[_hash] = (ts, index)
 
     return timestamps, results
 

@@ -392,10 +392,10 @@ def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
     os.mkdir(out_dir)
 
     # Sync the cache directory
-    cache_loc = f"s3://{cache_bucket}/cache/probe-scraper"
-    print("Syncing cache from {} with {}".format(cache_loc, cache_dir))
-    subprocess.check_call(["aws", "s3", "sync", cache_loc, cache_dir])
-    return cache_loc
+    cache_path = f"s3://{cache_bucket}/cache/probe-scraper"
+    print(f"Syncing cache from {cache_path} with {cache_dir}")
+    subprocess.check_call(["aws", "s3", "sync", cache_path, cache_dir])
+    return cache_path
 
 
 def sync_output_and_cache_dirs(
@@ -463,9 +463,10 @@ def sync_output_and_cache_dirs(
             )
 
         # Sync cache data
-        print("Syncing cache dir {}/ with s3://{}/".format(cache_dir, cache_path))
-        sync_cache_cmd = f"aws s3 sync {cache_dir} {cache_path}"
-        os.system(sync_cache_cmd)
+        print(f"Syncing cache dir {cache_dir}/ with {cache_path}")
+        subprocess.check_call(
+            ["aws", "s3", "sync", "--exclude=*.git/*", cache_dir, cache_path]
+        )
 
 
 def main(
