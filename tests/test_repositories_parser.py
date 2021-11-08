@@ -88,7 +88,6 @@ def test_repositories_class(parser, correct_repos_file):
     assert set(repos[0].get_metrics_file_paths()) == {"metrics.yaml"}
     assert repos[0].to_dict() == {
         "app_id": "mobile-metrics-example",
-        "branch": "master",
         "channel": "release",
         "dependencies": [],
         "deprecated": False,

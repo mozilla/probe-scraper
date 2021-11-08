@@ -106,13 +106,8 @@ def retrieve_files(repo_info, cache_dir):
         shutil.rmtree(repo_info.name)
     repo = git.Repo.clone_from(repo_info.url, repo_info.name)
 
-    branches = repo_info.get_branches()
-    for branch in branches:
-        try:
-            repo.git.checkout(repo_info.branch)
-            break
-        except git.exc.GitCommandError:
-            pass
+    if repo_info.branch is not None:
+        repo.git.checkout(repo_info.branch)
 
     try:
         for rel_path in repo_info.get_change_files():
