@@ -431,6 +431,8 @@ applications:
       - application/src/burnham/config/metrics.yaml
     ping_files:
       - application/src/burnham/config/pings.yaml
+    tag_files:
+      - application/src/burnham/config/tags.yaml
     dependencies:
       - glean-core
       # does not actually depend on glean-android, including for backwards
