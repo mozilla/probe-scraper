@@ -2,7 +2,7 @@ awscli==1.20.15
 beautifulsoup4==4.8.2
 GitPython==3.0.8
 boto3==1.18.15
-glean_parser==3.7.0
+glean_parser==4.3.1
 jsonschema==3.1.1
 python-dateutil==2.8.0
 PyYAML==5.4.1
