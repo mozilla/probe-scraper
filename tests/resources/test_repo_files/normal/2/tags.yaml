@@ -1,0 +1,5 @@
+---
+$schema: moz://mozilla.org/schemas/glean/tags/1-0-0
+
+foo:
+  description: "the foo tag"

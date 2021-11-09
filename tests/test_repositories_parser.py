@@ -97,6 +97,7 @@ def test_repositories_class(parser, correct_repos_file):
         "notification_emails": ["frank@mozilla.com"],
         "ping_file_paths": [],
         "prototype": False,
+        "tag_file_paths": [],
         "url": "www.github.com/fbertsch/mobile-metrics-example",
         "skip_documentation": False,
     }

@@ -1,4 +1,4 @@
-$schema: moz://mozilla.org/schemas/glean/metrics/1-0-0
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
 example:
   duration:
@@ -9,7 +9,8 @@ example:
     send_in_pings:
       - baseline
     bugs:
-      - 1497894, 1519120
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1497894
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1519120
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
     notification_emails:
@@ -23,8 +24,11 @@ example:
       - baseline
     description: |
       pop
+    metadata:
+      tags:
+        - foo
     bugs:
-      - 1497894
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1497894
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
     notification_emails:

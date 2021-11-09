@@ -24,6 +24,7 @@ from .parsers.metrics import GleanMetricsParser
 from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
+from .parsers.tags import GleanTagsParser
 from .scrapers import git_scraper, moz_central_scraper
 
 
@@ -48,8 +49,10 @@ PARSERS = {
 
 GLEAN_PARSER = GleanMetricsParser()
 GLEAN_PINGS_PARSER = GleanPingsParser()
+GLEAN_TAGS_PARSER = GleanTagsParser()
 GLEAN_METRICS_FILENAME = "metrics.yaml"
 GLEAN_PINGS_FILENAME = "pings.yaml"
+GLEAN_TAGS_FILENAME = "tags.yaml"
 
 
 def general_data():
@@ -121,11 +124,16 @@ def write_glean_metric_data(metrics, dependencies, out_dir):
 
         base_dir = os.path.join(out_dir, "glean", repo)
 
-        print("\nwriting output:")
-
         dump_json(general_data(), base_dir, "general")
         dump_json(metrics_data, base_dir, "metrics")
         dump_json(dependencies_data, base_dir, "dependencies")
+
+
+def write_glean_tag_data(tags, out_dir):
+    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+    for repo, tags_data in tags.items():
+        base_dir = os.path.join(out_dir, "glean", repo)
+        dump_json(tags_data, base_dir, "tags")
 
 
 def write_glean_ping_data(pings, out_dir):
@@ -291,16 +299,24 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     #   },
     #   ...
     # }
+    tags = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
+            tags_files = [p for p in paths if p.endswith(GLEAN_TAGS_FILENAME)]
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
             pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
 
             try:
                 config = {"allow_reserved": repo_name.startswith("glean")}
                 repo = next(r for r in repositories if r.name == repo_name).to_dict()
+
+                if tags_files:
+                    results, errs = GLEAN_TAGS_PARSER.parse(
+                        tags_files, config, repo["url"], commit_hash
+                    )
+                    tags[repo_name][commit_hash] = results
 
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(
@@ -335,6 +351,11 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
 
     abort_after_emails = False
 
+    tags_by_repo = {repo: {} for repo in repos_metrics_data}
+    tags_by_repo.update(
+        transform_probes.transform_tags_by_hash(commit_timestamps, tags)
+    )
+
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(
         transform_probes.transform_metrics_by_hash(commit_timestamps, metrics)
@@ -364,6 +385,8 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
         repositories, metrics, commit_timestamps, emails
     )
 
+    print("\nwriting output:")
+    write_glean_tag_data(tags_by_repo, out_dir)
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_glean_ping_data(pings_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
