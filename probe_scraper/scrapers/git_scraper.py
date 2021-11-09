@@ -109,14 +109,9 @@ def retrieve_files(repo_info, cache_dir):
         print(f"Cloning {repo_info.url} into {repo_path}")
         repo = git.Repo.clone_from(repo_info.url, repo_path, bare=True)
 
-    branches = repo_info.get_branches()
-    for branch in branches:
-        try:
-            repo.git.fetch("origin", f"{branch}:{branch}")
-            repo.git.symbolic_ref("HEAD", f"refs/heads/{branch}")
-            break
-        except git.exc.GitCommandError:
-            pass
+    branch = repo_info.branch or repo.active_branch
+    repo.git.fetch("origin", f"{branch}:{branch}")
+    repo.git.symbolic_ref("HEAD", f"refs/heads/{branch}")
 
     for rel_path in repo_info.get_change_files():
         hashes = get_commits(repo, rel_path)
