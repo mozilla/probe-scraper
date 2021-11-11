@@ -104,3 +104,6 @@ _temp/
 
 # Generated files
 index.html
+
+# Ignore .DS_Store
+.DS_Store
