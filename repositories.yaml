@@ -735,3 +735,28 @@ applications:
       - v1_name: mlhackweek-search
         app_id: mlhackweek-search
     skip_documentation: true
+
+  - app_name: regrets_reporter
+    canonical_app_name: RegretsReporter
+    app_description: |
+      The RegretsReporter extension gives you a way to easily report bad or
+      unwanted YouTube recommended videos to control your YouTube
+      experience and power Mozilla’s research into YouTube’s recommendation
+      algorithm.
+    # TODO, bug 1740483: change this to the final location after
+    # product launch.
+    url: https://github.com/jmccrosky/playing/
+    notification_emails:
+      - jessed@mozillafoundation.org
+      - brandi@mozillafoundation.org
+    branch: main
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 365
+    channels:
+      - v1_name: regrets-reporter-ucs
+        app_id: regrets.reporter.ucs
