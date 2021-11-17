@@ -756,6 +756,7 @@ applications:
       - pings.yaml
     dependencies:
       - glean-js
+    prototype: true
     retention_days: 365
     channels:
       - v1_name: regrets-reporter-ucs
