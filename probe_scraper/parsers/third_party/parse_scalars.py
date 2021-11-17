@@ -2,12 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import io
 import re
-
+import six
 import yaml
-
+import atexit
 from . import shared_telemetry_utils as utils
+
 from .shared_telemetry_utils import ParserError
+
+atexit.register(ParserError.exit_func)
 
 # The map of containing the allowed scalar types and their mapping to
 # nsITelemetry::SCALAR_TYPE_* type constants.
@@ -58,33 +62,33 @@ class ScalarType:
         MAX_NAME_LENGTH = 40
         for n in [category_name, probe_name]:
             if len(n) > MAX_NAME_LENGTH:
-                raise ParserError(
+                ParserError(
                     (
                         "Name '{}' exceeds maximum name length of {} characters.\n"
                         "See: {}#the-yaml-definition-file"
                     ).format(n, MAX_NAME_LENGTH, BASE_DOC_URL)
-                )
+                ).handle_later()
 
         def check_name(name, error_msg_prefix, allowed_char_regexp):
             # Check if we only have the allowed characters.
             chars_regxp = r"^[a-zA-Z0-9" + allowed_char_regexp + r"]+$"
             if not re.search(chars_regxp, name):
-                raise ParserError(
+                ParserError(
                     (
                         error_msg_prefix + " name must be alpha-numeric. Got: '{}'.\n"
                         "See: {}#the-yaml-definition-file"
                     ).format(name, BASE_DOC_URL)
-                )
+                ).handle_later()
 
             # Don't allow leading/trailing digits, '.' or '_'.
             if re.search(r"(^[\d\._])|([\d\._])$", name):
-                raise ParserError(
+                ParserError(
                     (
                         error_msg_prefix + " name must not have a leading/trailing "
                         "digit, a dot or underscore. Got: '{}'.\n"
                         " See: {}#the-yaml-definition-file"
                     ).format(name, BASE_DOC_URL)
-                )
+                ).handle_later()
 
         check_name(category_name, "Category", r"\.")
         check_name(probe_name, "Probe", r"_")
@@ -102,29 +106,38 @@ class ScalarType:
         if not self._strict_type_checks:
             return
 
+        def validate_notification_email(notification_email):
+            # Perform simple email validation to make sure it doesn't contain spaces or commas.
+            return not any(c in notification_email for c in [",", " "])
+
         # The required and optional fields in a scalar type definition.
         REQUIRED_FIELDS = {
             "bug_numbers": list,  # This contains ints. See LIST_FIELDS_CONTENT.
-            "description": str,
-            "expires": str,
-            "kind": str,
+            "description": six.string_types,
+            "expires": six.string_types,
+            "kind": six.string_types,
             "notification_emails": list,  # This contains strings. See LIST_FIELDS_CONTENT.
             "record_in_processes": list,
+            "products": list,
         }
 
         OPTIONAL_FIELDS = {
-            "cpp_guard": str,
-            "release_channel_collection": str,
+            "release_channel_collection": six.string_types,
             "keyed": bool,
+            "keys": list,
+            "operating_systems": list,
             "record_into_store": list,
         }
 
         # The types for the data within the fields that hold lists.
         LIST_FIELDS_CONTENT = {
             "bug_numbers": int,
-            "notification_emails": str,
-            "record_in_processes": str,
-            "record_into_store": str,
+            "notification_emails": six.string_types,
+            "record_in_processes": six.string_types,
+            "products": six.string_types,
+            "keys": six.string_types,
+            "operating_systems": six.string_types,
+            "record_into_store": six.string_types,
         }
 
         # Concatenate the required and optional field definitions.
@@ -132,40 +145,49 @@ class ScalarType:
         ALL_FIELDS.update(OPTIONAL_FIELDS)
 
         # Checks that all the required fields are available.
-        missing_fields = [
-            f for f in list(REQUIRED_FIELDS.keys()) if f not in definition
-        ]
+        missing_fields = [f for f in REQUIRED_FIELDS.keys() if f not in definition]
         if len(missing_fields) > 0:
-            raise ParserError(
+            ParserError(
                 self._name
                 + " - missing required fields: "
                 + ", ".join(missing_fields)
                 + ".\nSee: {}#required-fields".format(BASE_DOC_URL)
-            )
+            ).handle_later()
 
         # Do we have any unknown field?
-        unknown_fields = [f for f in list(definition.keys()) if f not in ALL_FIELDS]
+        unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
         if len(unknown_fields) > 0:
-            raise ParserError(
+            ParserError(
                 self._name
                 + " - unknown fields: "
                 + ", ".join(unknown_fields)
                 + ".\nSee: {}#required-fields".format(BASE_DOC_URL)
-            )
+            ).handle_later()
 
         # Checks the type for all the fields.
         wrong_type_names = [
             "{} must be {}".format(f, ALL_FIELDS[f].__name__)
-            for f in list(definition.keys())
+            for f in definition.keys()
             if not isinstance(definition[f], ALL_FIELDS[f])
         ]
         if len(wrong_type_names) > 0:
-            raise ParserError(
+            ParserError(
                 self._name
                 + " - "
                 + ", ".join(wrong_type_names)
                 + ".\nSee: {}#required-fields".format(BASE_DOC_URL)
-            )
+            ).handle_later()
+
+        # Check that the email addresses doesn't contain spaces or commas
+        notification_emails = definition.get("notification_emails")
+        for notification_email in notification_emails:
+            if not validate_notification_email(notification_email):
+                ParserError(
+                    self._name
+                    + " - invalid email address: "
+                    + notification_email
+                    + ".\nSee: {}".format(BASE_DOC_URL)
+                ).handle_later()
 
         # Check that the lists are not empty and that data in the lists
         # have the correct types.
@@ -173,18 +195,18 @@ class ScalarType:
         for field in list_fields:
             # Check for empty lists.
             if len(definition[field]) == 0:
-                raise ParserError(
+                ParserError(
                     (
                         "Field '{}' for probe '{}' must not be empty"
                         + ".\nSee: {}#required-fields)"
                     ).format(field, self._name, BASE_DOC_URL)
-                )
+                ).handle_later()
             # Check the type of the list content.
             broken_types = [
                 not isinstance(v, LIST_FIELDS_CONTENT[field]) for v in definition[field]
             ]
             if any(broken_types):
-                raise ParserError(
+                ParserError(
                     (
                         "Field '{}' for probe '{}' must only contain values of type {}"
                         ".\nSee: {}#the-yaml-definition-file)"
@@ -194,7 +216,35 @@ class ScalarType:
                         LIST_FIELDS_CONTENT[field].__name__,
                         BASE_DOC_URL,
                     )
-                )
+                ).handle_later()
+
+        # Check that keys are only added to keyed scalars and that their values are valid
+        MAX_KEY_COUNT = 100
+        MAX_KEY_LENGTH = 72
+        keys = definition.get("keys")
+        if keys is not None:
+            if not definition.get("keyed", False):
+                ParserError(
+                    self._name
+                    + "- invalid field: "
+                    + "\n`keys` field only valid for keyed histograms"
+                ).handle_later()
+
+            if len(keys) > MAX_KEY_COUNT:
+                ParserError(
+                    self._name
+                    + " - exceeding key count: "
+                    + "\n`keys` values count  must not exceed {}".format(MAX_KEY_COUNT)
+                ).handle_later()
+
+            invalid = list(filter(lambda k: len(k) > MAX_KEY_LENGTH, keys))
+            if len(invalid) > 0:
+                ParserError(
+                    self._name
+                    + " - invalid key value"
+                    + "\n `keys` values are exceeding length {}:".format(MAX_KEY_LENGTH)
+                    + ", ".join(invalid)
+                ).handle_later()
 
     def validate_values(self, definition):
         """This function checks that the fields have the correct values.
@@ -208,53 +258,80 @@ class ScalarType:
 
         # Validate the scalar kind.
         scalar_kind = definition.get("kind")
-        if scalar_kind not in list(SCALAR_TYPES_MAP.keys()):
-            raise ParserError(
+        if scalar_kind not in SCALAR_TYPES_MAP.keys():
+            ParserError(
                 self._name
                 + " - unknown scalar kind: "
                 + scalar_kind
                 + ".\nSee: {}".format(BASE_DOC_URL)
-            )
+            ).handle_later()
 
         # Validate the collection policy.
         collection_policy = definition.get("release_channel_collection", None)
         if collection_policy and collection_policy not in ["opt-in", "opt-out"]:
-            raise ParserError(
+            ParserError(
                 self._name
                 + " - unknown collection policy: "
                 + collection_policy
                 + ".\nSee: {}#optional-fields".format(BASE_DOC_URL)
-            )
+            ).handle_later()
 
-        # Validate the cpp_guard.
-        cpp_guard = definition.get("cpp_guard")
-        if cpp_guard and re.match(r"\W", cpp_guard):
-            raise ParserError(
-                self._name
-                + " - invalid cpp_guard: "
-                + cpp_guard
-                + ".\nSee: {}#optional-fields".format(BASE_DOC_URL)
-            )
+        # Validate operating_systems.
+        operating_systems = definition.get("operating_systems", [])
+        for operating_system in operating_systems:
+            if not utils.is_valid_os(operating_system):
+                ParserError(
+                    self._name
+                    + " - invalid entry in operating_systems: "
+                    + operating_system
+                    + ".\nSee: {}#optional-fields".format(BASE_DOC_URL)
+                ).handle_later()
 
         # Validate record_in_processes.
         record_in_processes = definition.get("record_in_processes", [])
         for proc in record_in_processes:
             if not utils.is_valid_process_name(proc):
-                raise ParserError(
+                ParserError(
                     self._name
                     + " - unknown value in record_in_processes: "
                     + proc
                     + ".\nSee: {}".format(BASE_DOC_URL)
-                )
+                ).handle_later()
+
+        # Validate product.
+        products = definition.get("products", [])
+        for product in products:
+            if not utils.is_valid_product(product):
+                ParserError(
+                    self._name
+                    + " - unknown value in products: "
+                    + product
+                    + ".\nSee: {}".format(BASE_DOC_URL)
+                ).handle_later()
+            if utils.is_geckoview_streaming_product(product):
+                keyed = definition.get("keyed")
+                if keyed:
+                    ParserError(
+                        "%s - keyed Scalars not supported for product %s"
+                        % (self._name, product)
+                    ).handle_later()
 
         # Validate the expiration version.
+        # Historical versions of Scalars.json may contain expiration versions
+        # using the deprecated format 'N.Na1'. Those scripts set
+        # self._strict_type_checks to false.
         expires = definition.get("expires")
-        if not utils.validate_expiration_version(expires):
-            raise ParserError(
+        if not utils.validate_expiration_version(expires) and self._strict_type_checks:
+            ParserError(
                 "{} - invalid expires: {}.\nSee: {}#required-fields".format(
                     self._name, expires, BASE_DOC_URL
                 )
-            )
+            ).handle_later()
+
+    @property
+    def category(self):
+        """Get the category name"""
+        return self._category_name
 
     @property
     def name(self):
@@ -297,6 +374,11 @@ class ScalarType:
         return self._definition["kind"]
 
     @property
+    def keys(self):
+        """Get the allowed keys for this scalar or [] if there aren't any'"""
+        return self._definition.get("keys", [])
+
+    @property
     def keyed(self):
         """Boolean indicating whether this is a keyed scalar"""
         return self._definition.get("keyed", False)
@@ -324,23 +406,51 @@ class ScalarType:
         return [utils.process_name_to_enum(p) for p in self.record_in_processes]
 
     @property
-    def dataset(self):
-        """Get the nsITelemetry constant equivalent to the chose release channel collection
-        policy for the scalar.
-        """
-        # The collection policy is optional, but we still define a default
-        # behaviour for it.
-        rcc = self._definition.get("release_channel_collection", "opt-in")
-        table = {
-            "opt-in": "OPTIN",
-            "opt-out": "OPTOUT",
-        }
-        return "nsITelemetry::DATASET_RELEASE_CHANNEL_" + table[rcc]
+    def products(self):
+        """Get the non-empty list of products to record data on"""
+        return self._definition.get("products")
 
     @property
-    def cpp_guard(self):
-        """Get the cpp guard for this scalar"""
-        return self._definition.get("cpp_guard")
+    def products_enum(self):
+        """Get the non-empty list of flags representing products to record data on"""
+        return [utils.product_name_to_enum(p) for p in self.products]
+
+    @property
+    def dataset(self):
+        """Get the nsITelemetry constant equivalent to the chosen release channel collection
+        policy for the scalar.
+        """
+        rcc = self.dataset_short
+        table = {
+            "opt-in": "DATASET_PRERELEASE_CHANNELS",
+            "opt-out": "DATASET_ALL_CHANNELS",
+        }
+        return "nsITelemetry::" + table[rcc]
+
+    @property
+    def dataset_short(self):
+        """Get the short name of the chosen release channel collection policy for the scalar."""
+        # The collection policy is optional, but we still define a default
+        # behaviour for it.
+        return self._definition.get("release_channel_collection", "opt-in")
+
+    @property
+    def operating_systems(self):
+        """Get the list of operating systems to record data on"""
+        return self._definition.get("operating_systems", ["all"])
+
+    def record_on_os(self, target_os):
+        """Check if this probe should be recorded on the passed os."""
+        os = self.operating_systems
+        if "all" in os:
+            return True
+
+        canonical_os = utils.canonical_os(target_os)
+
+        if "unix" in os and canonical_os in utils.UNIX_LIKE_OS:
+            return True
+
+        return canonical_os in os
 
     @property
     def record_into_store(self):
@@ -358,32 +468,32 @@ def load_scalars(filename, strict_type_checks=True):
     # Parse the scalar definitions from the YAML file.
     scalars = None
     try:
-        with open(filename, "r") as f:
+        with io.open(filename, "r", encoding="utf-8") as f:
             scalars = yaml.safe_load(f)
     except IOError as e:
-        raise ParserError("Error opening " + filename + ": " + e.message)
+        ParserError("Error opening " + filename + ": " + str(e)).handle_now()
     except ValueError as e:
-        raise ParserError(
+        ParserError(
             "Error parsing scalars in {}: {}"
-            ".\nSee: {}".format(filename, e.message, BASE_DOC_URL)
-        )
+            ".\nSee: {}".format(filename, e, BASE_DOC_URL)
+        ).handle_now()
 
     scalar_list = []
 
     # Scalars are defined in a fixed two-level hierarchy within the definition file.
     # The first level contains the category name, while the second level contains the
     # probe name (e.g. "category.name: probe: ...").
-    for category_name in scalars:
+    for category_name in sorted(scalars):
         category = scalars[category_name]
 
         # Make sure that the category has at least one probe in it.
         if not category or len(category) == 0:
-            raise ParserError(
+            ParserError(
                 'Category "{}" must have at least one probe in it'
-                + ".\nSee: {}".format(category_name, BASE_DOC_URL)
-            )
+                ".\nSee: {}".format(category_name, BASE_DOC_URL)
+            ).handle_later()
 
-        for probe_name in category:
+        for probe_name in sorted(category):
             # We found a scalar type. Go ahead and parse it.
             scalar_info = category[probe_name]
             scalar_list.append(

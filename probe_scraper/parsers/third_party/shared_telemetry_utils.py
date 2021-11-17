@@ -5,10 +5,11 @@
 # This file contains utility functions shared by the scalars and the histogram generation
 # scripts.
 
+from __future__ import print_function
 
+import os
 import re
 import sys
-
 import yaml
 
 # This is a list of flags that determine which process a measurement is allowed
@@ -24,7 +25,50 @@ KNOWN_PROCESS_FLAGS = {
     "all_childs": "AllChildren",  # Supporting files from before bug 1363725
 }
 
+GECKOVIEW_STREAMING_PRODUCT = "geckoview_streaming"
+
+SUPPORTED_PRODUCTS = {
+    "firefox": "Firefox",
+    "fennec": "Fennec",
+    GECKOVIEW_STREAMING_PRODUCT: "GeckoviewStreaming",
+    "thunderbird": "Thunderbird",
+    # Historical, deprecated values:
+    # 'geckoview': 'Geckoview',
+}
+
+SUPPORTED_OPERATING_SYSTEMS = [
+    "mac",
+    "linux",
+    "windows",
+    "android",
+    "unix",
+    "all",
+]
+
+# mozinfo identifies linux, BSD variants, Solaris and SunOS as unix
+# Solaris and SunOS are identified as "unix" OS.
+UNIX_LIKE_OS = [
+    "unix",
+    "linux",
+    "bsd",
+]
+
+CANONICAL_OPERATING_SYSTEMS = {
+    "darwin": "mac",
+    "linux": "linux",
+    "winnt": "windows",
+    "android": "android",
+    # for simplicity we treat all BSD and Solaris systems as unix
+    "gnu/kfreebsd": "unix",
+    "sunos": "unix",
+    "dragonfly": "unix",
+    "freeunix": "unix",
+    "netunix": "unix",
+    "openunix": "unix",
+}
+
 PROCESS_ENUM_PREFIX = "mozilla::Telemetry::Common::RecordedProcessType::"
+PRODUCT_ENUM_PREFIX = "mozilla::Telemetry::Common::SupportedProduct::"
 
 
 class ParserError(Exception):
@@ -42,13 +86,14 @@ class ParserError(Exception):
 
     def handle_now(self):
         ParserError.print_eventuals()
-        print(self.message, file=sys.stderr)
-        sys.exit(1)
+        print(str(self), file=sys.stderr)
+        sys.stderr.flush()
+        os._exit(1)
 
     @classmethod
     def print_eventuals(cls):
         while cls.eventual_errors:
-            print(cls.eventual_errors.pop(0).message, file=sys.stderr)
+            print(str(cls.eventual_errors.pop(0)), file=sys.stderr)
 
     @classmethod
     def exit_func(cls):
@@ -64,81 +109,28 @@ def process_name_to_enum(name):
     return PROCESS_ENUM_PREFIX + KNOWN_PROCESS_FLAGS.get(name)
 
 
-class StringTable:
-    """Manages a string table and allows C style serialization to a file."""
+def is_valid_product(name):
+    return name in SUPPORTED_PRODUCTS
 
-    def __init__(self):
-        self.current_index = 0
-        self.table = {}
 
-    def c_strlen(self, string):
-        """The length of a string including the null terminating character.
-        :param string: the input string.
-        """
-        return len(string) + 1
+def is_geckoview_streaming_product(name):
+    return name == GECKOVIEW_STREAMING_PRODUCT
 
-    def stringIndex(self, string):
-        """Returns the index in the table of the provided string. Adds the string to
-        the table if it's not there.
-        :param string: the input string.
-        """
-        if string in self.table:
-            return self.table[string]
-        else:
-            result = self.current_index
-            self.table[string] = result
-            self.current_index += self.c_strlen(string)
-            return result
 
-    def stringIndexes(self, strings):
-        """Returns a list of indexes for the provided list of strings.
-        Adds the strings to the table if they are not in it yet.
-        :param strings: list of strings to put into the table.
-        """
-        return [self.stringIndex(s) for s in strings]
+def is_valid_os(name):
+    return name in SUPPORTED_OPERATING_SYSTEMS
 
-    def writeDefinition(self, f, name):
-        """Writes the string table to a file as a C const char array.
 
-        This writes out the string table as one single C char array for memory
-        size reasons, separating the individual strings with '\0' characters.
-        This way we can index directly into the string array and avoid the additional
-        storage costs for the pointers to them (and potential extra relocations for those).
+def canonical_os(os):
+    """Translate possible OS_TARGET names to their canonical value."""
 
-        :param f: the output stream.
-        :param name: the name of the output array.
-        """
-        entries = list(self.table.items())
-        entries.sort(key=lambda x: x[1])
+    return CANONICAL_OPERATING_SYSTEMS.get(os.lower()) or "unknown"
 
-        # Avoid null-in-string warnings with GCC and potentially
-        # overlong string constants; write everything out the long way.
-        def explodeToCharArray(string):
-            def toCChar(s):
-                if s == "'":
-                    return "'\\''"
-                else:
-                    return "'%s'" % s
 
-            return ", ".join(map(toCChar, string))
-
-        f.write("const char %s[] = {\n" % name)
-        for (string, offset) in entries:
-            if "*/" in string:
-                raise ValueError(
-                    "String in string table contains unexpected sequence '*/': %s"
-                    % string
-                )
-
-            e = explodeToCharArray(string)
-            if e:
-                f.write(
-                    "  /* %5d - \"%s\" */ %s, '\\0',\n"
-                    % (offset, string, explodeToCharArray(string))
-                )
-            else:
-                f.write("  /* %5d - \"%s\" */ '\\0',\n" % (offset, string))
-        f.write("};\n\n")
+def product_name_to_enum(product):
+    if not is_valid_product(product):
+        raise ParserError("Invalid product {}".format(product))
+    return PRODUCT_ENUM_PREFIX + SUPPORTED_PRODUCTS.get(product)
 
 
 def static_assert(output, expression, message):
@@ -154,13 +146,13 @@ def static_assert(output, expression, message):
 def validate_expiration_version(expiration):
     """Makes sure the expiration version has the expected format.
 
-    Allowed examples: "1.0", "20", "300.0a1", "60.0a1", "30.5a1", "never"
-    Disallowed examples: "Never", "asd", "4000000", "60a1"
+    Allowed examples: "10", "20", "60", "never"
+    Disallowed examples: "Never", "asd", "4000000", "60a1", "30.5a1"
 
     :param expiration: the expiration version string.
     :return: True if the expiration validates correctly, False otherwise.
     """
-    if expiration != "never" and not re.match(r"^\d{1,3}(\.\d|\.\da1)?$", expiration):
+    if expiration != "never" and not re.match(r"^\d{1,3}$", expiration):
         return False
 
     return True
@@ -187,8 +179,6 @@ def load_yaml_file(filename):
         with open(filename, "r") as f:
             return yaml.safe_load(f)
     except IOError as e:
-        raise ParserError("Error opening " + filename + ": " + e.message)
+        raise ParserError("Error opening " + filename + ": " + str(e))
     except ValueError as e:
-        raise ParserError(
-            "Error parsing processes in {}: {}".format(filename, e.message)
-        )
+        raise ParserError("Error parsing processes in {}: {}".format(filename, e))
