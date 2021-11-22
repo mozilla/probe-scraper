@@ -165,6 +165,7 @@ libraries:
       - chutten@mozilla.com
     url: https://github.com/mozilla/gecko-dev
     metrics_files:
+      - browser/base/content/metrics.yaml
       - gfx/metrics.yaml
       - toolkit/components/glean/metrics.yaml
       - toolkit/components/processtools/metrics.yaml
@@ -183,7 +184,6 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
-      - browser/base/content/metrics.yaml
       - browser/components/metrics.yaml
     dependencies:
       - gecko
