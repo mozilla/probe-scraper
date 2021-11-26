@@ -185,6 +185,7 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - browser/components/metrics.yaml
+      - browser/modules/metrics.yaml
     dependencies:
       - gecko
       - glean-core
