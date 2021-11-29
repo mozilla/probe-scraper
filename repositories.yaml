@@ -335,6 +335,7 @@ applications:
   - app_name: firefox_fire_tv
     canonical_app_name: Firefox for Fire TV
     app_description: Firefox for Amazon's Fire TV
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-tv
@@ -374,6 +375,7 @@ applications:
     canonical_app_name: Lockwise for Android
     app_description: >-
       Firefox's Lockwise app for Android
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
       - lockwise-dev@mozilla.com
@@ -392,6 +394,7 @@ applications:
     canonical_app_name: Lockwise for iOS
     app_description: >-
       Firefox's Lockwise app for iOS
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
       - tlong@mozilla.com
@@ -468,6 +471,7 @@ applications:
   - app_name: firefox_echo_show
     canonical_app_name: Firefox for Echo Show
     app_description: Firefox for Amazon's Echo Show
+    deprecated: true
     url: https://github.com/mozilla-mobile/firefox-echo-show
     notification_emails:
       - tlong@mozilla.com
