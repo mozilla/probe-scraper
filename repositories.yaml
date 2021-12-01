@@ -750,20 +750,17 @@ applications:
       unwanted YouTube recommended videos to control your YouTube
       experience and power Mozilla’s research into YouTube’s recommendation
       algorithm.
-    # TODO, bug 1740483: change this to the final location after
-    # product launch.
-    url: https://github.com/jmccrosky/playing/
+    url: https://github.com/mozilla-extensions/regrets-reporter/
     notification_emails:
       - jessed@mozillafoundation.org
       - brandi@mozillafoundation.org
     branch: main
     metrics_files:
-      - metrics.yaml
+      - source/telemetry/metrics.yaml
     ping_files:
-      - pings.yaml
+      - source/telemetry/pings.yaml
     dependencies:
       - glean-js
-    prototype: true
     retention_days: 365
     channels:
       - v1_name: regrets-reporter-ucs
