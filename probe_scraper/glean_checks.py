@@ -204,6 +204,13 @@ def check_for_expired_metrics(
         for metric_name, metric in metrics.items():
             if metric["expires"] == "never":
                 continue
+
+            # `expires` field supports manual expiry, too.
+            if metric["expires"] == "expired":
+                expired_metrics.append(f"- {metric_name} manually expired")
+                addresses.update(metric["notification_emails"])
+                continue
+
             try:
                 expires = datetime.datetime.strptime(
                     metric["expires"], "%Y-%m-%d"
