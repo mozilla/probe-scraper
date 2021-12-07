@@ -14,6 +14,7 @@ import tempfile
 import traceback
 from collections import defaultdict
 
+import requests
 from dateutil.tz import tzlocal
 
 from . import glean_checks, transform_probes, transform_revisions
@@ -25,6 +26,7 @@ from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
 from .parsers.tags import GleanTagsParser
+from .parsers.utils import get_major_version
 from .scrapers import git_scraper, moz_central_scraper
 
 
@@ -381,9 +383,21 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
         abort_after_emails |= glean_checks.check_for_duplicate_metrics(
             repositories, metrics_by_repo, emails
         )
-    glean_checks.check_for_expired_metrics(
-        repositories, metrics, commit_timestamps, emails
-    )
+
+    latest_nightly_version = None
+    if "firefox_desktop" in {repo.name for repo in repositories}:
+        # Firefox Desktop expires by version, so we need to know what the latest
+        # Nightly version is.
+        versions = requests.get(
+            "https://product-details.mozilla.org/1.0/firefox_versions.json"
+        ).json()
+        latest_nightly_version = get_major_version(versions["FIREFOX_NIGHTLY"])
+
+    # Only perform the check on Mondays.
+    if datetime.date.today().weekday() == 0:
+        glean_checks.check_for_expired_metrics(
+            repositories, metrics, commit_timestamps, emails, latest_nightly_version
+        )
 
     print("\nwriting output:")
     write_glean_tag_data(tags_by_repo, out_dir)

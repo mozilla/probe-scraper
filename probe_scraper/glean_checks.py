@@ -8,6 +8,7 @@ This file contains various sanity checks for Glean.
 
 import datetime
 import os
+import typing
 
 from schema import And, Optional, Schema
 
@@ -142,21 +143,25 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     return found_duplicates
 
 
+FIREFOX_DESKTOP_EXPIRY_LANGUAGE = (
+    "expire in the next version (Firefox {latest_nightly_version})"
+)
+DATE_BASED_EXPIRY_LANGUAGE = "expire in the next {expire_days} days"
 EXPIRED_METRICS_EMAIL_TEMPLATE = """
-Each metric in the following list from {repo_name} will expire in the next {expire_days} days or has already expired.
+Each metric in the following list from {repo_name} will {expiry_language} or has already expired.
 
 {expired_metrics}
 
 What to do about this:
 
 1. If the metric is no longer needed, remove it from its `metrics.yaml` [1] file.
-2. If the metric is still required, resubmit a data review [2] and extend its expiration date.
+2. If the metric is still required, resubmit a data review [2] and extend its expiration.
 
 If you have any problems, please ask for help on the #glean Matrix channel[3]. We'll give you a hand.
 
 What happens if you don't fix this:
 
-The metrics listed above will stop collecting data from builds built after this expiration date,
+The metrics listed above will stop collecting data from builds built after they expire,
 and you will continue to get this e-mail as a reminder.
 
 Your Friendly, Neighborhood Glean Team
@@ -170,18 +175,64 @@ This is an automated message sent from probe-scraper.  See https://github.com/mo
 """  # noqa
 
 
+def has_expired(
+    repo_name: str,
+    metric_name: str,
+    metric_expires: str,
+    latest_nightly_version: typing.Optional[str],
+    expiration_cutoff: datetime.datetime,
+) -> typing.Tuple[bool, typing.Optional[str]]:
+    """
+    Determines if the supplied repo's metric is expired,
+    and if so supplies an explanation of why and when it was expired.
+    """
+
+    if metric_expires == "never":
+        return (False, None)
+
+    if metric_expires == "expired":
+        return (True, f"- {metric_name} manually expired")
+
+    # Firefox Desktop expires by version, not date.
+    # https://firefox-source-docs.mozilla.org/toolkit/components/glean/user/new_definitions_file.html#how-does-expiry-work
+    if repo_name == "firefox-desktop":
+        # If we don't know what version to expire against, nothing is expired.
+        if latest_nightly_version is None:
+            return (False, None)
+
+        try:
+            expiry_version = int(metric_expires)
+        except ValueError:
+            # Couldn't parse expiry as a version. Assume not expired.
+            return (False, None)
+
+        # Warn one version ahead to give time to make changes.
+        if expiry_version <= int(latest_nightly_version) + 1:
+            return (True, f"- {metric_name} in version {expiry_version}")
+    else:
+        try:
+            expires = datetime.datetime.strptime(metric_expires, "%Y-%m-%d").date()
+        except ValueError:
+            # Couldn't parse expiry as a date. Assume not expired.
+            return (False, None)
+
+        if expiration_cutoff >= expires:
+            return (True, f"- {metric_name} on {expires}")
+
+    return (False, None)
+
+
 def check_for_expired_metrics(
-    repositories, repos_metrics, commit_timestamps, emails, expire_days=14
+    repositories,
+    repos_metrics,
+    commit_timestamps,
+    emails,
+    latest_nightly_version=None,
+    expire_days=14,
 ):
     """
     Checks for all expired metrics and generates e-mails, one per repository.
-
-    This check is only performed on Mondays, to avoid daily spamming.
     """
-    # Only perform the check on Mondays.
-    if datetime.date.today().weekday() != 0:
-        return
-
     expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
         days=expire_days
     )
@@ -191,6 +242,7 @@ def check_for_expired_metrics(
         repo_by_name[repo.name] = repo
 
     for repo_name, commits in repos_metrics.items():
+
         repo = repo_by_name[repo_name]
         timestamps = list(commit_timestamps[repo_name].items())
         timestamps.sort(key=lambda x: (-x[1][0], x[1][1]))
@@ -202,26 +254,17 @@ def check_for_expired_metrics(
 
         expired_metrics = []
         for metric_name, metric in metrics.items():
-            if metric["expires"] == "never":
-                continue
-
-            # `expires` field supports manual expiry, too.
-            if metric["expires"] == "expired":
-                expired_metrics.append(f"- {metric_name} manually expired")
+            expired, msg = has_expired(
+                repo_name,
+                metric_name,
+                metric["expires"],
+                latest_nightly_version,
+                expiration_cutoff,
+            )
+            if expired:
+                expired_metrics.append(msg)
                 addresses.update(metric["notification_emails"])
-                continue
 
-            try:
-                expires = datetime.datetime.strptime(
-                    metric["expires"], "%Y-%m-%d"
-                ).date()
-            except ValueError:
-                # String does not contain a date, so we don't currently handle expiration.
-                pass
-            else:
-                if expiration_cutoff >= expires:
-                    expired_metrics.append(f"- {metric_name} on {expires}")
-                    addresses.update(metric["notification_emails"])
         expired_metrics.sort()
 
         if len(expired_metrics) == 0:
@@ -240,6 +283,15 @@ def check_for_expired_metrics(
                         expire_days=expire_days,
                         expired_metrics="\n".join(expired_metrics),
                         metrics_yaml_url=metrics_yaml_url,
+                        expiry_language=(
+                            FIREFOX_DESKTOP_EXPIRY_LANGUAGE.format(
+                                latest_nightly_version=latest_nightly_version
+                            )
+                            if repo_name == "firefox-desktop"
+                            else DATE_BASED_EXPIRY_LANGUAGE.format(
+                                expire_days=expire_days
+                            )
+                        ),
                     ),
                 }
             ],
