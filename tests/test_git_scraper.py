@@ -50,7 +50,7 @@ def rm_if_exists(*paths):
                 shutil.rmtree(path)
 
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def run_before_tests():
     rm_if_exists(EMAIL_FILE, cache_dir, out_dir)
     os.mkdir(cache_dir)
