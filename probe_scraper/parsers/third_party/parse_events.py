@@ -2,14 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import datetime
-import itertools
+import atexit
 import re
-import string
-
 import yaml
-
+import itertools
+import string
 from . import shared_telemetry_utils as utils
+
+from .shared_telemetry_utils import ParserError
+
+atexit.register(ParserError.exit_func)
 
 MAX_CATEGORY_NAME_LENGTH = 30
 MAX_METHOD_NAME_LENGTH = 20
@@ -18,11 +20,10 @@ MAX_EXTRA_KEYS_COUNT = 10
 MAX_EXTRA_KEY_NAME_LENGTH = 15
 
 IDENTIFIER_PATTERN = r"^[a-zA-Z][a-zA-Z0-9_.]*[a-zA-Z0-9]$"
-DATE_PATTERN = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
 
 
 def nice_type_name(t):
-    if isinstance(t, str):
+    if issubclass(t, str):
         return "string"
     return t.__name__
 
@@ -40,177 +41,182 @@ class OneOf:
     pass
 
 
-class TypeChecker:
-    """This implements a convenience type TypeChecker to make the validation code more readable."""
+class AtomicTypeChecker:
+    """Validate a simple value against a given type"""
 
-    def __init__(self, kind, *args):
-        """This takes 1-3 arguments, specifying the value type to check for.
-        It supports:
-        - atomic values, e.g.: TypeChecker(int)
-        - list values, e.g.: TypeChecker(list, basestring)
-        - dict values, e.g.: TypeChecker(dict, basestring, int)
-        - atomic values that can have different types, e.g.: TypeChecker(OneOf, int, date)"""
-        self._kind = kind
-        self._args = args
+    def __init__(self, instance_type):
+        self.instance_type = instance_type
 
     def check(self, identifier, key, value):
-        # Check fields that can be one of two different types.
-        if self._kind is OneOf:
-            if not isinstance(value, self._args[0]) and not isinstance(
-                value, self._args[1]
-            ):
-                raise ValueError(
-                    "%s: failed type check for %s - expected %s or %s, got %s"
-                    % (
-                        identifier,
-                        key,
-                        nice_type_name(self._args[0]),
-                        nice_type_name(self._args[1]),
-                        nice_type_name(type(value)),
-                    )
-                )
-            return
-
-        # Check basic type of value.
-        if not isinstance(value, self._kind):
-            raise ValueError(
-                "%s: failed type check for %s - expected %s, got %s"
+        if not isinstance(value, self.instance_type):
+            ParserError(
+                "%s: Failed type check for %s - expected %s, got %s."
                 % (
                     identifier,
                     key,
-                    nice_type_name(self._kind),
+                    nice_type_name(self.instance_type),
                     nice_type_name(type(value)),
                 )
-            )
+            ).handle_later()
 
-        # Check types of values in lists.
-        if self._kind is list:
-            if len(value) < 1:
-                raise ValueError(
-                    "%s: failed check for %s - list should not be empty"
-                    % (identifier, key)
+
+class MultiTypeChecker:
+    """Validate a simple value against a list of possible types"""
+
+    def __init__(self, *instance_types):
+        if not instance_types:
+            raise Exception("At least one instance type is required.")
+        self.instance_types = instance_types
+
+    def check(self, identifier, key, value):
+        if not any(isinstance(value, i) for i in self.instance_types):
+            ParserError(
+                "%s: Failed type check for %s - got %s, expected one of:\n%s"
+                % (
+                    identifier,
+                    key,
+                    nice_type_name(type(value)),
+                    " or ".join(map(nice_type_name, self.instance_types)),
                 )
-            for x in value:
-                if not isinstance(x, self._args[0]):
-                    raise ValueError(
-                        "%s: failed type check for %s - expected list value type %s, got %s"
-                        % (
-                            identifier,
-                            key,
-                            nice_type_name(self._args[0]),
-                            nice_type_name(type(x)),
-                        )
-                    )
-
-        # Check types of keys and values in dictionaries.
-        elif self._kind is dict:
-            if len(list(value.keys())) < 1:
-                raise ValueError(
-                    "%s: failed check for %s - dict should not be empty"
-                    % (identifier, key)
-                )
-            for x in value.keys():
-                if not isinstance(x, self._args[0]):
-                    raise ValueError(
-                        "%s: failed dict type check for %s - expected key type %s, got %s"
-                        % (
-                            identifier,
-                            key,
-                            nice_type_name(self._args[0]),
-                            nice_type_name(type(x)),
-                        )
-                    )
-            for k, v in value.items():
-                if not isinstance(x, self._args[1]):
-                    raise ValueError(
-                        "%s: failed dict type check for %s - expected value type %s for key %s, got %s"
-                        % (
-                            identifier,
-                            key,
-                            nice_type_name(self._args[1]),
-                            k,
-                            nice_type_name(type(x)),
-                        )
-                    )
+            ).handle_later()
 
 
-def type_check_event_fields(identifier, name, definition, strict):
+class ListTypeChecker:
+    """Validate a list of values against a given type"""
+
+    def __init__(self, instance_type):
+        self.instance_type = instance_type
+
+    def check(self, identifier, key, value):
+        if len(value) < 1:
+            ParserError(
+                "%s: Failed check for %s - list should not be empty."
+                % (identifier, key)
+            ).handle_now()
+
+        for x in value:
+            if not isinstance(x, self.instance_type):
+                ParserError(
+                    "%s: Failed type check for %s - expected list value type %s, got"
+                    " %s."
+                    % (
+                        identifier,
+                        key,
+                        nice_type_name(self.instance_type),
+                        nice_type_name(type(x)),
+                    )
+                ).handle_later()
+
+
+class DictTypeChecker:
+    """Validate keys and values of a dict against a given type"""
+
+    def __init__(self, keys_instance_type, values_instance_type):
+        self.keys_instance_type = keys_instance_type
+        self.values_instance_type = values_instance_type
+
+    def check(self, identifier, key, value):
+        if len(value.keys()) < 1:
+            ParserError(
+                "%s: Failed check for %s - dict should not be empty."
+                % (identifier, key)
+            ).handle_now()
+        for x in value.keys():
+            if not isinstance(x, self.keys_instance_type):
+                ParserError(
+                    "%s: Failed dict type check for %s - expected key type %s, got "
+                    "%s."
+                    % (
+                        identifier,
+                        key,
+                        nice_type_name(self.keys_instance_type),
+                        nice_type_name(type(x)),
+                    )
+                ).handle_later()
+        for k, v in value.items():
+            if not isinstance(v, self.values_instance_type):
+                ParserError(
+                    "%s: Failed dict type check for %s - "
+                    "expected value type %s for key %s, got %s."
+                    % (
+                        identifier,
+                        key,
+                        nice_type_name(self.values_instance_type),
+                        k,
+                        nice_type_name(type(v)),
+                    )
+                ).handle_later()
+
+
+def type_check_event_fields(identifier, name, definition):
     """Perform a type/schema check on the event definition."""
     REQUIRED_FIELDS = {
-        "objects": TypeChecker(list, str),
-        "bug_numbers": TypeChecker(list, int),
-        "notification_emails": TypeChecker(list, str),
-        "description": TypeChecker(str),
+        "objects": ListTypeChecker(str),
+        "bug_numbers": ListTypeChecker(int),
+        "notification_emails": ListTypeChecker(str),
+        "record_in_processes": ListTypeChecker(str),
+        "description": AtomicTypeChecker(str),
+        "products": ListTypeChecker(str),
     }
     OPTIONAL_FIELDS = {
-        "methods": TypeChecker(list, str),
-        "release_channel_collection": TypeChecker(str),
-        "expiry_date": TypeChecker(OneOf, str, datetime.date),
-        "expiry_version": TypeChecker(str),
-        "extra_keys": TypeChecker(dict, str, str),
+        "methods": ListTypeChecker(str),
+        "release_channel_collection": AtomicTypeChecker(str),
+        "expiry_version": AtomicTypeChecker(str),
+        "extra_keys": DictTypeChecker(str, str),
+        "operating_systems": ListTypeChecker(str),
     }
-
-    # Some fields were added later, so we can't be strict about it unless this
-    # is a client build.
-    changed_fields = REQUIRED_FIELDS
-    if not strict:
-        changed_fields = OPTIONAL_FIELDS
-    changed_fields["record_in_processes"] = TypeChecker(list, str)
-
     ALL_FIELDS = REQUIRED_FIELDS.copy()
     ALL_FIELDS.update(OPTIONAL_FIELDS)
 
     # Check that all the required fields are available.
     missing_fields = [f for f in REQUIRED_FIELDS.keys() if f not in definition]
     if len(missing_fields) > 0:
-        raise KeyError(
-            identifier + " - missing required fields: " + ", ".join(missing_fields)
-        )
+        ParserError(
+            identifier + ": Missing required fields: " + ", ".join(missing_fields)
+        ).handle_now()
 
-    # Are there any unknown field?
-    if strict:
-        unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
-        if len(unknown_fields) > 0:
-            raise KeyError(
-                identifier + " - unknown fields: " + ", ".join(unknown_fields)
-            )
+    # Is there any unknown field?
+    unknown_fields = [f for f in definition.keys() if f not in ALL_FIELDS]
+    if len(unknown_fields) > 0:
+        ParserError(
+            identifier + ": Unknown fields: " + ", ".join(unknown_fields)
+        ).handle_later()
 
     # Type-check fields.
     for k, v in definition.items():
-        if k in ALL_FIELDS:
-            ALL_FIELDS[k].check(identifier, k, v)
+        ALL_FIELDS[k].check(identifier, k, v)
 
 
 def string_check(identifier, field, value, min_length=1, max_length=None, regex=None):
     # Length check.
     if len(value) < min_length:
-        raise ValueError(
-            "%s: value '%s' for field %s is less than minimum length of %d"
+        ParserError(
+            "%s: Value '%s' for field %s is less than minimum length of %d."
             % (identifier, value, field, min_length)
-        )
+        ).handle_later()
     if max_length and len(value) > max_length:
-        raise ValueError(
-            "%s: value '%s' for field %s is greater than maximum length of %d"
+        ParserError(
+            "%s: Value '%s' for field %s is greater than maximum length of %d."
             % (identifier, value, field, max_length)
-        )
+        ).handle_later()
     # Regex check.
     if regex and not re.match(regex, value):
-        raise ValueError(
-            '%s: string value "%s" for %s is not matching pattern "%s"'
+        ParserError(
+            '%s: String value "%s" for %s is not matching pattern "%s".'
             % (identifier, value, field, regex)
-        )
+        ).handle_later()
 
 
 class EventData:
     """A class representing one event."""
 
-    def __init__(self, category, name, definition, strict_type_checks=True):
+    def __init__(self, category, name, definition, strict_type_checks=False):
         self._category = category
         self._name = name
         self._definition = definition
         self._strict_type_checks = strict_type_checks
 
-        type_check_event_fields(self.identifier, name, definition, strict_type_checks)
+        type_check_event_fields(self.identifier, name, definition)
 
         # Check method & object string patterns.
         if strict_type_checks:
@@ -237,60 +243,82 @@ class EventData:
         rcc_key = "release_channel_collection"
         rcc = definition.get(rcc_key, "opt-in")
         allowed_rcc = ["opt-in", "opt-out"]
-        if not rcc in allowed_rcc:
-            raise ValueError(
-                "%s: value for %s should be one of: %s"
+        if rcc not in allowed_rcc:
+            ParserError(
+                "%s: Value for %s should be one of: %s"
                 % (self.identifier, rcc_key, ", ".join(allowed_rcc))
-            )
+            ).handle_later()
 
         # Check record_in_processes.
-        record_in_processes = definition.get("record_in_processes", ["main"])
+        record_in_processes = definition.get("record_in_processes")
         for proc in record_in_processes:
             if not utils.is_valid_process_name(proc):
-                raise ValueError(
-                    self.identifier + ": unknown value in record_in_processes: " + proc
-                )
+                ParserError(
+                    self.identifier + ": Unknown value in record_in_processes: " + proc
+                ).handle_later()
+
+        # Check products.
+        products = definition.get("products")
+        for product in products:
+            if not utils.is_valid_product(product) and self._strict_type_checks:
+                ParserError(
+                    self.identifier + ": Unknown value in products: " + product
+                ).handle_later()
+            if utils.is_geckoview_streaming_product(product):
+                ParserError(
+                    "{}: Product `{}` unsupported for Event Telemetry".format(
+                        self.identifier, product
+                    )
+                ).handle_later()
+
+        # Check operating_systems.
+        operating_systems = definition.get("operating_systems", [])
+        for operating_system in operating_systems:
+            if not utils.is_valid_os(operating_system):
+                ParserError(
+                    self.identifier
+                    + ": Unknown value in operating_systems: "
+                    + operating_system
+                ).handle_later()
 
         # Check extra_keys.
         extra_keys = definition.get("extra_keys", {})
         if len(extra_keys.keys()) > MAX_EXTRA_KEYS_COUNT:
-            raise ValueError(
-                "%s: number of extra_keys exceeds limit %d"
+            ParserError(
+                "%s: Number of extra_keys exceeds limit %d."
                 % (self.identifier, MAX_EXTRA_KEYS_COUNT)
+            ).handle_later()
+        for key in extra_keys.keys():
+            string_check(
+                self.identifier,
+                field="extra_keys",
+                value=key,
+                min_length=1,
+                max_length=MAX_EXTRA_KEY_NAME_LENGTH,
+                regex=IDENTIFIER_PATTERN,
             )
-        if strict_type_checks:
-            for key in extra_keys.keys():
-                string_check(
-                    self.identifier,
-                    field="extra_keys",
-                    value=key,
-                    min_length=1,
-                    max_length=MAX_EXTRA_KEY_NAME_LENGTH,
-                    regex=IDENTIFIER_PATTERN,
-                )
 
         # Check expiry.
-        if not "expiry_version" in definition and not "expiry_date" in definition:
-            raise KeyError(
-                "%s: event is missing an expiration - either expiry_version or expiry_date is required"
-                % (self.identifier)
-            )
-        expiry_date = definition.get("expiry_date")
-        if expiry_date and isinstance(expiry_date, str) and expiry_date != "never":
-            if not re.match(DATE_PATTERN, expiry_date):
-                raise ValueError(
-                    "%s: event has invalid expiry_date, it should be either 'never' or match this format: %s"
-                    % (self.identifier, DATE_PATTERN)
-                )
-            # Parse into date.
-            definition["expiry_date"] = datetime.datetime.strptime(
-                expiry_date, "%Y-%m-%d"
-            )
+        if "expiry_version" not in definition:
+            ParserError(
+                "%s: event is missing required field expiry_version" % (self.identifier)
+            ).handle_later()
 
         # Finish setup.
-        definition["expiry_version"] = utils.add_expiration_postfix(
-            definition.get("expiry_version", "never")
-        )
+        # Historical versions of Events.yaml may contain expiration versions
+        # using the deprecated format 'N.Na1'. Those scripts set
+        # self._strict_type_checks to false.
+        expiry_version = definition.get("expiry_version", "never")
+        if (
+            not utils.validate_expiration_version(expiry_version)
+            and self._strict_type_checks
+        ):
+            ParserError(
+                "{}: invalid expiry_version: {}.".format(
+                    self.identifier, expiry_version
+                )
+            ).handle_now()
+        definition["expiry_version"] = utils.add_expiration_postfix(expiry_version)
 
     @property
     def category(self):
@@ -300,10 +328,6 @@ class EventData:
     def category_cpp(self):
         # Transform e.g. category.example into CategoryExample.
         return convert_to_cpp_identifier(self._category, ".")
-
-    @property
-    def description(self):
-        return self._definition.get("description")
 
     @property
     def name(self):
@@ -323,7 +347,7 @@ class EventData:
 
     @property
     def record_in_processes(self):
-        return self._definition.get("record_in_processes", ["main"])
+        return self._definition.get("record_in_processes")
 
     @property
     def record_in_processes_enum(self):
@@ -331,25 +355,36 @@ class EventData:
         return [utils.process_name_to_enum(p) for p in self.record_in_processes]
 
     @property
+    def products(self):
+        """Get the non-empty list of products to record data on"""
+        return self._definition.get("products")
+
+    @property
+    def products_enum(self):
+        """Get the non-empty list of flags representing products to record data on"""
+        return [utils.product_name_to_enum(p) for p in self.products]
+
+    @property
     def expiry_version(self):
         return self._definition.get("expiry_version")
 
     @property
-    def expiry_day(self):
-        date = self._definition.get("expiry_date")
-        if not date:
-            return 0
-        if isinstance(date, str) and date == "never":
-            return 0
+    def operating_systems(self):
+        """Get the list of operating systems to record data on"""
+        return self._definition.get("operating_systems", ["all"])
 
-        # Convert date to days since UNIX epoch.
-        epoch = datetime.date(1970, 1, 1)
-        days = (date - epoch).total_seconds() / (24 * 60 * 60)
-        return round(days)
+    def record_on_os(self, target_os):
+        """Check if this probe should be recorded on the passed os."""
+        os = self.operating_systems
+        if "all" in os:
+            return True
 
-    @property
-    def cpp_guard(self):
-        return self._definition.get("cpp_guard")
+        canonical_os = utils.canonical_os(target_os)
+
+        if "unix" in os and canonical_os in utils.UNIX_LIKE_OS:
+            return True
+
+        return canonical_os in os
 
     @property
     def enum_labels(self):
@@ -364,22 +399,29 @@ class EventData:
     @property
     def dataset(self):
         """Get the nsITelemetry constant equivalent for release_channel_collection."""
-        rcc = self._definition.get("release_channel_collection", "opt-in")
+        rcc = self.dataset_short
         if rcc == "opt-out":
-            return "nsITelemetry::DATASET_RELEASE_CHANNEL_OPTOUT"
-        else:
-            return "nsITelemetry::DATASET_RELEASE_CHANNEL_OPTIN"
+            return "nsITelemetry::DATASET_ALL_CHANNELS"
+        return "nsITelemetry::DATASET_PRERELEASE_CHANNELS"
+
+    @property
+    def dataset_short(self):
+        """Get the short name of the chosen release channel collection policy for the event."""
+        # The collection policy is optional, but we still define a default
+        # behaviour for it.
+        return self._definition.get("release_channel_collection", "opt-in")
 
     @property
     def extra_keys(self):
-        return list(self._definition.get("extra_keys", {}).keys())
+        return list(sorted(self._definition.get("extra_keys", {}).keys()))
 
 
-def load_events(filename, strict_type_checks=True):
+def load_events(filename, strict_type_checks):
     """Parses a YAML file containing the event definitions.
 
     :param filename: the YAML file containing the event definitions.
-    :raises Exception: if the event file cannot be opened or parsed.
+    :strict_type_checks A boolean indicating whether to use the stricter type checks.
+    :raises ParserError: if the event file cannot be opened or parsed.
     """
 
     # Parse the event definitions from the YAML file.
@@ -388,9 +430,11 @@ def load_events(filename, strict_type_checks=True):
         with open(filename, "r") as f:
             events = yaml.safe_load(f)
     except IOError as e:
-        raise Exception("Error opening " + filename + ": " + e.message)
-    except ValueError as e:
-        raise Exception("Error parsing events in " + filename + ": " + e.message)
+        ParserError("Error opening " + filename + ": " + str(e) + ".").handle_now()
+    except ParserError as e:
+        ParserError(
+            "Error parsing events in " + filename + ": " + str(e) + "."
+        ).handle_now()
 
     event_list = []
 
@@ -402,35 +446,31 @@ def load_events(filename, strict_type_checks=True):
     #       <event definition>
     #      ...
     #   ...
-    for category_name, category in events.items():
-        if strict_type_checks:
-            string_check(
-                "top level structure",
-                field="category",
-                value=category_name,
-                min_length=1,
-                max_length=MAX_CATEGORY_NAME_LENGTH,
-                regex=IDENTIFIER_PATTERN,
-            )
+    for category_name, category in sorted(events.items()):
+        string_check(
+            "top level structure",
+            field="category",
+            value=category_name,
+            min_length=1,
+            max_length=MAX_CATEGORY_NAME_LENGTH,
+            regex=IDENTIFIER_PATTERN,
+        )
 
         # Make sure that the category has at least one entry in it.
-        if strict_type_checks and not category or len(category) == 0:
-            raise ValueError(category_name + " must contain at least one entry")
+        if not category or len(category) == 0:
+            ParserError(
+                "Category " + category_name + " must contain at least one entry."
+            ).handle_now()
 
-        for name, entry in category.items():
-            if strict_type_checks:
-                string_check(
-                    category_name,
-                    field="event name",
-                    value=name,
-                    min_length=1,
-                    max_length=MAX_METHOD_NAME_LENGTH,
-                    regex=IDENTIFIER_PATTERN,
-                )
-            event_list.append(
-                EventData(
-                    category_name, name, entry, strict_type_checks=strict_type_checks
-                )
+        for name, entry in sorted(category.items()):
+            string_check(
+                category_name,
+                field="event name",
+                value=name,
+                min_length=1,
+                max_length=MAX_METHOD_NAME_LENGTH,
+                regex=IDENTIFIER_PATTERN,
             )
+            event_list.append(EventData(category_name, name, entry, strict_type_checks))
 
     return event_list

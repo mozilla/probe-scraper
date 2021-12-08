@@ -7,8 +7,9 @@ telemetry.test:
     bug_numbers: [1286606]
     notification_emails: ["telemetry-client-dev@mozilla.com"]
     record_in_processes: ['main', 'content']
+    products: [firefox]
     description: This is a test entry for Telemetry.
-    expiry_date: never
+    expiry_version: never
     extra_keys:
       key1: This is just a test description.
       key2: This is another test description.
@@ -16,8 +17,10 @@ telemetry.test:
     objects: ["object1", "object2"]
     bug_numbers: [1286606]
     notification_emails: ["telemetry-client-dev@mozilla.com"]
+    record_in_processes: [main]
+    products: [firefox]
     description: This is an opt-out test entry.
-    expiry_date: never
+    expiry_version: never
     release_channel_collection: opt-out
     extra_keys:
       key1: This is just a test description.
@@ -25,17 +28,21 @@ telemetry.test:
     objects: ["object1", "object2"]
     bug_numbers: [1286606]
     notification_emails: ["telemetry-client-dev@mozilla.com"]
+    record_in_processes: [main]
+    products: [firefox]
     description: This is a test entry with an expired version.
     expiry_version: "3.6"
   too_long_of_an_event_name:
     objects: ["object1", "object2"]
     bug_numbers: [1286606]
     notification_emails: ["telemetry-client-dev@mozilla.com"]
+    record_in_processes: [main]
+    products: [firefox]
     description: This is an opt-out test entry.
-    expiry_date: never
+    expiry_version: never
     release_channel_collection: opt-out
     extra_keys:
-      key1: This is just a test description.   
+      key1: This is just a test description.
       pause_behavior_change: This is a too-long extra key
 
 # This is a secondary category used for Telemetry tests.
@@ -45,7 +52,9 @@ telemetry.test.second:
     objects: ["object1", "object2", "object3"]
     bug_numbers: [1286606]
     notification_emails: ["telemetry-client-dev@mozilla.com"]
+    record_in_processes: [main]
+    products: [firefox]
     description: This is a test entry for Telemetry.
-    expiry_date: never
+    expiry_version: never
     extra_keys:
       key1: This is just a test description.
