@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from probe_scraper.parsers.events import EventsParser
 
 
@@ -5,7 +7,12 @@ def is_string(s):
     return isinstance(s, str)
 
 
-def test_event_parser():
+@patch("os._exit")
+@patch(
+    "probe_scraper.parsers.third_party.shared_telemetry_utils.ParserError.eventual_errors"
+)
+def test_event_parser(MockExit, MockEventualErrors):
+    MockExit.side_effect = Exception("os._exit called")
     # Parse the events from the test definitions.
     parser = EventsParser()
     parsed_events = parser.parse(["tests/resources/test_events.yaml"], "55")
@@ -40,7 +47,12 @@ def parse(channel, version):
     return parser.parse(["tests/resources/test_events.yaml"], version, channel)
 
 
-def test_channel_version_ignore():
+@patch("os._exit")
+@patch(
+    "probe_scraper.parsers.third_party.shared_telemetry_utils.ParserError.eventual_errors"
+)
+def test_channel_version_ignore(MockExit, MockEventualErrors):
+    MockExit.side_effect = Exception("os._exit called")
     assert parse("release", 52) == {}
     assert parse("release", 53) != {}
 

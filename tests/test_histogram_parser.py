@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from probe_scraper.parsers.histograms import HistogramsParser
 
 
@@ -47,8 +49,6 @@ def histogram_parser(version, usecounter_optout):
         "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_getter_PAGE",
         "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_setter_DOCUMENT",
         "USE_COUNTER2_SVGSVGELEMENT_CURRENTSCALE_setter_PAGE",
-        "USE_COUNTER2_PROPERTY_FILL_DOCUMENT",
-        "USE_COUNTER2_PROPERTY_FILL_PAGE",
     ]
 
     DEPRECATED_OPERATIONS = [
@@ -117,10 +117,14 @@ def histogram_parser(version, usecounter_optout):
 
 
 # Test for an old Firefox version.
-def test_histogram_parser_old():
+@patch("os._exit")
+def test_histogram_parser_old(MockExit):
+    MockExit.side_effect = Exception("os._exit called")
     histogram_parser("55", usecounter_optout=False)
 
 
 # Test for a newer Firefox version with Use Counters on release
-def test_histogram_parser_new():
+@patch("os._exit")
+def test_histogram_parser_new(MockExit):
+    MockExit.side_effect = Exception("os._exit called")
     histogram_parser("70", usecounter_optout=True)
