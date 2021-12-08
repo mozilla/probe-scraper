@@ -183,6 +183,9 @@ applications:
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
+    metrics_files:
+      - browser/components/metrics.yaml
+      - browser/modules/metrics.yaml
     dependencies:
       - gecko
       - glean-core
@@ -332,6 +335,7 @@ applications:
   - app_name: firefox_fire_tv
     canonical_app_name: Firefox for Fire TV
     app_description: Firefox for Amazon's Fire TV
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-tv
@@ -371,6 +375,7 @@ applications:
     canonical_app_name: Lockwise for Android
     app_description: >-
       Firefox's Lockwise app for Android
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
       - lockwise-dev@mozilla.com
@@ -389,6 +394,7 @@ applications:
     canonical_app_name: Lockwise for iOS
     app_description: >-
       Firefox's Lockwise app for iOS
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
       - tlong@mozilla.com
@@ -465,6 +471,7 @@ applications:
   - app_name: firefox_echo_show
     canonical_app_name: Firefox for Echo Show
     app_description: Firefox for Amazon's Echo Show
+    deprecated: true
     url: https://github.com/mozilla-mobile/firefox-echo-show
     notification_emails:
       - tlong@mozilla.com
@@ -743,20 +750,17 @@ applications:
       unwanted YouTube recommended videos to control your YouTube
       experience and power Mozilla’s research into YouTube’s recommendation
       algorithm.
-    # TODO, bug 1740483: change this to the final location after
-    # product launch.
-    url: https://github.com/jmccrosky/playing/
+    url: https://github.com/mozilla-extensions/regrets-reporter/
     notification_emails:
       - jessed@mozillafoundation.org
       - brandi@mozillafoundation.org
     branch: main
     metrics_files:
-      - metrics.yaml
+      - source/telemetry/metrics.yaml
     ping_files:
-      - pings.yaml
+      - source/telemetry/pings.yaml
     dependencies:
       - glean-js
-    prototype: true
     retention_days: 365
     channels:
       - v1_name: regrets-reporter-ucs
