@@ -788,7 +788,7 @@ applications:
       - glean-js
     channels:
       - v1_name: rally-markup-fb-pixel-hunt
-        app-id: rally-markup-fb-pixel-hunt
+        app_id: rally-markup-fb-pixel-hunt
     encryption:
       use_jwk: true
     skip_documentation: true
