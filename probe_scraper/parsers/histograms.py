@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from .third_party import parse_histograms
+from .third_party import histogram_tools
 from .utils import get_major_version, set_in_nested_dict
 
 
@@ -37,8 +37,8 @@ def extract_histogram_data(histogram, version):
         value = None
         if hasattr(histogram, source_field):
             value = getattr(histogram, source_field)()
-        elif hasattr(histogram, "_" + source_field):
-            value = getattr(histogram, source_field)
+        elif source_field in histogram._definition:
+            value = histogram._definition.get(source_field)
         elif source_field in defaults:
             value = defaults[source_field]
         set_in_nested_dict(data, target_field, value)
@@ -85,9 +85,7 @@ def transform_probe_info(probes, version):
 class HistogramsParser:
     def parse(self, filenames, version=None, channel=None):
         # Call the histogram tools for each file.
-        parsed_probes = list(
-            parse_histograms.from_files(filenames, strict_type_checks=False)
-        )
+        parsed_probes = list(histogram_tools.from_files(filenames))
 
         # Get the probe information in a standard format.
         return transform_probe_info(parsed_probes, version)
