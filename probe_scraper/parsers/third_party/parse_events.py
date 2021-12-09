@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import atexit
+import datetime
 import re
 import yaml
 import itertools
@@ -154,9 +155,7 @@ def type_check_event_fields(identifier, name, definition):
         "objects": ListTypeChecker(str),
         "bug_numbers": ListTypeChecker(int),
         "notification_emails": ListTypeChecker(str),
-        "record_in_processes": ListTypeChecker(str),
         "description": AtomicTypeChecker(str),
-        "products": ListTypeChecker(str),
     }
     OPTIONAL_FIELDS = {
         "methods": ListTypeChecker(str),
@@ -164,6 +163,11 @@ def type_check_event_fields(identifier, name, definition):
         "expiry_version": AtomicTypeChecker(str),
         "extra_keys": DictTypeChecker(str, str),
         "operating_systems": ListTypeChecker(str),
+        # legacy fields that were upgraded to required
+        "record_in_processes": ListTypeChecker(str),
+        "products": ListTypeChecker(str),
+        # legacy fields that were removed
+        "expiry_date": MultiTypeChecker(str, datetime.date),
     }
     ALL_FIELDS = REQUIRED_FIELDS.copy()
     ALL_FIELDS.update(OPTIONAL_FIELDS)
@@ -250,7 +254,7 @@ class EventData:
             ).handle_later()
 
         # Check record_in_processes.
-        record_in_processes = definition.get("record_in_processes")
+        record_in_processes = definition.get("record_in_processes", ["main"])
         for proc in record_in_processes:
             if not utils.is_valid_process_name(proc):
                 ParserError(
@@ -258,7 +262,7 @@ class EventData:
                 ).handle_later()
 
         # Check products.
-        products = definition.get("products")
+        products = definition.get("products", [])
         for product in products:
             if not utils.is_valid_product(product) and self._strict_type_checks:
                 ParserError(
@@ -299,9 +303,10 @@ class EventData:
             )
 
         # Check expiry.
-        if "expiry_version" not in definition:
+        if not "expiry_version" in definition and not "expiry_date" in definition:
             ParserError(
-                "%s: event is missing required field expiry_version" % (self.identifier)
+                "%s: event is missing an expiration - either expiry_version or expiry_date is required"
+                % (self.identifier)
             ).handle_later()
 
         # Finish setup.
