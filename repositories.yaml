@@ -765,3 +765,30 @@ applications:
     channels:
       - v1_name: regrets-reporter-ucs
         app_id: regrets.reporter.ucs
+
+  - app_name: rally_markup_fb_pixel_hunt
+    canonical_app_name: Rally Facebook Pixel Hunt
+    app_description: |
+      In a collaboration between journalists at the Markup and Mozilla,
+      this study seeks to map Facebook’s pixel tracking network and
+      understand the kinds of information it collects on sites across
+      the web. The Markup will use the data collected in this study
+      to create investigative journalism around the kinds of information
+      Facebook collects about you, and where.
+    url: https://github.com/mozilla-rally/facebook-pixel-hunt/
+    notification_emails:
+      - than@mozilla.com
+      - jepstein@mozilla.com
+    branch: main
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-markup-fb-pixel-hunt
+        app_id: rally-markup-fb-pixel-hunt
+    encryption:
+      use_jwk: true
+    skip_documentation: true
