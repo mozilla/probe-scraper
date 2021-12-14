@@ -1,3 +1,7 @@
 # Adding/changing the data in repositories.yaml can have large downstream
 # effects, so we're a little stricter on who can sign off on changes here.
 repositories.yaml @wlach @jklukas @relud @whd @jasonthomas
+
+# The exclusion list in git_scraper.py can cause similar problems (see e.g.
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1745771)
+probe_scraper/scrapers/git_scraper.py @wlach @jklukas @relud @whd @jasonthomas
