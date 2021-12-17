@@ -792,3 +792,24 @@ applications:
     encryption:
       use_jwk: true
     skip_documentation: true
+
+  - app_name: glean_dictionary
+    canonical_app_name: Glean Dictionary
+    app_description: |
+       The Glean Dictionary documents the data collected
+       by Mozilla projects that use Glean.
+    url: https://github.com/mozilla/glean-dictionary
+    notification_emails:
+      - brizental@mozilla.com
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/metrics.yaml
+    ping_files:
+      - src/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: glean-dictionary
+        app_id: glean-dictionary
