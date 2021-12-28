@@ -30,7 +30,7 @@ examples of this, look at some of the
 [fixed issues](https://github.com/mozilla/probe-scraper/issues?q=is%3Aissue+is%3Aclosed)
 filed by the project maintainers.
 
-Occasionally probe-scraper bugs are tracked inside Bugzilla, especially for issues
+Occasionally, probe-scraper bugs are tracked inside Bugzilla, especially for issues
 which might affect other parts of the pipeline.
 
 ## Opening pull requests
@@ -61,24 +61,27 @@ met), mark your pull request as a draft.
 
 ## Dangerous changes
 
-This repository is central to how ingestion and processing Telemetry data at
-Mozilla: in particular, adding new Glean repositories (`repositories.yaml` at the root
-of this repository) needs to be done with some care.
+This repository is central to the ingestion and processing of Telemetry data at
+Mozilla.
+Changes made to probe-scraper can have large downstream consequences, such as unwanted changes to our BigQuery tables.
+In particular, adding new Glean repositories (`repositories.yaml` at the root
+of this repository) needs to be done with care.
 
 Things to bear in mind:
 
 - Once probe scraper has successfully run, there is no changing or rewriting history of the metrics files, as this will cause problems downstream with [mozilla-schema-generator].
-- There is currently no provision for deleting a repository once added.
+- There is currently no provision for deleting a repository once added (see [bug 1747811]).
 
-As such, testing works in progress should happen locally with a probe-scraper checkout (see the "dry run" instructions in the README) and/or evaluating test pings via the [Glean Debug Ping Viewer].
-Under no circumstances should a testing application be added to this repository to "see what happens".
-If you only want part of the history of a repository to be processed by probe-scraper, you can set a "start
+As such, testing of works in progress should happen locally with a probe-scraper checkout (see the "dry run" instructions in the README) and/or evaluating test pings via the [Glean Debug Ping Viewer].
+Under no circumstances should you add a testing application to "see what happens".
+If you only want part of the history of a repository processed by probe-scraper, you can set a "start
 date" in `probe_scraper/scrapers/git_scraper.py` _before_ the first successful run of probe-scraper
 against it (i.e. the changes to `git_scraper.py` and `repositories.yaml` should land as a unit).
 
-To try and prevent problems from occurring, changes to these files must go through people who have extensive
+To try and prevent incidents from occurring, changes to these files must go through people who have extensive
 experience debugging and reasoning about the schema generation portions of the data pipeline, documented in `.github/CODEOWNERS`.
 If you submit a pull request, these people will automatically be flagged for review.
 
 [mozilla-schema-generator]: https://github.com/mozilla/mozilla-schema-generator
+[bug 1747811]: https://bugzilla.mozilla.org/show_bug.cgi?id=1747811
 [glean debug ping viewer]: https://mozilla.github.io/glean/book/user/debugging/index.html#glean-debug-view
