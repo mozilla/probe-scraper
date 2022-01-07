@@ -13,10 +13,11 @@ import sys
 import tempfile
 import traceback
 from collections import defaultdict
+from typing import Optional
 
 from dateutil.tz import tzlocal
 
-from . import glean_checks, transform_probes, transform_revisions
+from . import fog_checks, glean_checks, transform_probes, transform_revisions
 from .emailer import send_ses
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
@@ -282,7 +283,14 @@ def load_moz_central_probes(
     write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
 
 
-def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repos):
+def load_glean_metrics(
+    cache_dir,
+    out_dir,
+    repositories_file,
+    dry_run,
+    glean_repos,
+    bugzilla_api_key: Optional[str],
+):
     repositories = RepositoriesParser().parse(repositories_file, glean_repos)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
         cache_dir, repositories
@@ -384,6 +392,14 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     glean_checks.check_for_expired_metrics(
         repositories, metrics, commit_timestamps, emails
     )
+
+    # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
+    # Also, expired metrics in FOG repos can have bugs auto-filed for them.
+    fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
+        repositories, metrics, commit_timestamps, bugzilla_api_key, dry_run
+    )
+    if fog_emails_by_repo is not None:
+        emails.update(fog_emails_by_repo)
 
     print("\nwriting output:")
     write_glean_tag_data(tags_by_repo, out_dir)
@@ -506,6 +522,7 @@ def main(
     output_bucket,
     cache_bucket,
     env,
+    bugzilla_api_key: Optional[str],
 ):
 
     # Sync dirs with s3 if we are not running pytest or local dryruns
@@ -520,7 +537,14 @@ def main(
             cache_dir, out_dir, firefox_version, min_firefox_version, firefox_channel
         )
     if process_glean_metrics or process_both:
-        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repos)
+        load_glean_metrics(
+            cache_dir,
+            out_dir,
+            repositories_file,
+            dry_run,
+            glean_repos,
+            bugzilla_api_key,
+        )
 
     # Sync results with s3 if we are not running pytest or local dryruns
     if env == "prod":
@@ -586,6 +610,13 @@ if __name__ == "__main__":
         choices=["dev", "prod"],
         default="dev",
     )
+    parser.add_argument(
+        "--bugzilla-api-key",
+        help="The bugzilla API key used to find and file bugs for FOG repos."
+        "If not provided, no bugs will be filed.",
+        type=str,
+        required=False,
+    )
 
     application = parser.add_mutually_exclusive_group()
     application.add_argument(
@@ -627,4 +658,5 @@ if __name__ == "__main__":
         args.output_bucket,
         args.cache_bucket,
         args.env,
+        args.bugzilla_api_key,
     )

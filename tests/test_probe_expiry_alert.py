@@ -262,7 +262,14 @@ def test_create_bug(mock_post):
         ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
         ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
     ]
-    bug_id = probe_expiry_alert.create_bug(probes, "76", "")
+    bug_id = probe_expiry_alert.create_bug(
+        probes,
+        "76",
+        probe_expiry_alert.BUG_WHITEBOARD_TAG,
+        probe_expiry_alert.BUG_SUMMARY_TEMPLATE,
+        probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE,
+        "",
+    )
 
     assert bug_id == 2
 
@@ -285,7 +292,18 @@ def test_create_bug_try_on_needinfo_blocked(mock_post):
 
     probes = [ProbeDetails("p1", "prod", "comp", ["a@test.com"], 1)]
 
-    assert probe_expiry_alert.create_bug(probes, "76", "", needinfo=True) == 2
+    assert (
+        probe_expiry_alert.create_bug(
+            probes,
+            "76",
+            probe_expiry_alert.BUG_WHITEBOARD_TAG,
+            probe_expiry_alert.BUG_SUMMARY_TEMPLATE,
+            probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE,
+            "",
+            needinfo=True,
+        )
+        == 2
+    )
 
     assert mock_post.call_count == 2
 
@@ -335,7 +353,9 @@ def test_bug_description_parser(mock_get):
     mock_response.json = mock.MagicMock(return_value=search_results)
     mock_get.return_value = mock_response
 
-    probes_with_bugs = probe_expiry_alert.find_existing_bugs("76", "")
+    probes_with_bugs = probe_expiry_alert.find_existing_bugs(
+        "76", "", probe_expiry_alert.BUG_WHITEBOARD_TAG
+    )
 
     assert probes_with_bugs == {"p1": 1, "p2": 1, "p5": 3, "p6": 3}
 
