@@ -104,6 +104,11 @@ _temp/
 
 # Generated files
 index.html
+emails.txt
+.repositories.yaml
 
 # Ignore .DS_Store
 .DS_Store
+
+# A convenient place for the cache
+.scraper_cache/
