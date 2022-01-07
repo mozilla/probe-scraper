@@ -61,6 +61,16 @@ But using the container method will ensure that your PR passes CircleCI build/te
 
 ### Local development
 
+You may wish to,
+instead of installing all these requirements in your global Python environment,
+start by generating and activating a
+[Python virtual environment](https://docs.python.org/3/library/venv.html).
+The `.gitignore` expects it to be called `ENV` or `venv`:
+```console
+python -m venv venv
+. venv/bin/activate
+```
+
 Install the requirements:
 ```
 pip install -r requirements.txt
@@ -80,7 +90,10 @@ pytest tests/ --run-web-tests
 
 To test whether the code conforms to the style rules, you can run:
 ```
-flake8 --max-line-length 100 .
+python -m black --check probe_scraper tests ./*.py
+flake8 --max-line-length 100 probe_scraper tests ./*.py
+yamllint repositories.yaml .circleci
+python -m isort --profile black --check-only probe_scraper tests ./*.py
 ```
 
 To render API documentation locally to `index.html`:
@@ -135,7 +148,7 @@ make run
 
 By default that will test against every Glean repository, which might take a while. If you want to test against just one (e.g. a new repository you're adding), you can use the `--glean-repo` argument to just test the repositories you care about:
 ```
-export COMMAND='python -m probe_scraper.runner --glean -glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run'
+export COMMAND='python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run'
 make run
 ```
 
