@@ -210,6 +210,7 @@ def test_normal_repo(normal_repo):
         None,
         None,
         "dev",
+        None,
     )
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
@@ -279,6 +280,7 @@ def test_improper_metrics_repo(improper_metrics_repo):
         None,
         None,
         "dev",
+        None,
     )
 
     path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
@@ -363,6 +365,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
             None,
             None,
             "dev",
+            None,
         )
     except ValueError:
         pass
@@ -446,6 +449,7 @@ def test_check_for_expired_metrics(expired_repo):
             None,
             None,
             "dev",
+            None,
         )
 
     with open(EMAIL_FILE, "r") as email_file:
@@ -483,6 +487,7 @@ def test_repo_default_main_branch(main_repo):
         None,
         None,
         "dev",
+        None,
     )
 
     path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
