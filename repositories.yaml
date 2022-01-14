@@ -171,6 +171,8 @@ libraries:
       - toolkit/components/processtools/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     variants:
       - v1_name: gecko
         dependency_name: gecko
@@ -186,6 +188,9 @@ applications:
     metrics_files:
       - browser/components/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/xre/metrics.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
       - gecko
       - glean-core
