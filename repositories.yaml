@@ -214,6 +214,8 @@ applications:
       - toolkit/mozapps/update/metrics.yaml
     ping_files:
       - toolkit/mozapps/update/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
       - glean-core
     channels:
