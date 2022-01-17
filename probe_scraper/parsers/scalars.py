@@ -17,6 +17,7 @@ def extract_scalar_data(s):
     return {
         "description": s.description,
         "expiry_version": get_major_version(s.expires),
+        "cpp_guard": s.cpp_guard,
         "optout": optout,
         "bug_numbers": s.bug_numbers,
         "notification_emails": s.notification_emails,

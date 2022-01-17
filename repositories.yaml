@@ -171,6 +171,8 @@ libraries:
       - toolkit/components/processtools/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     variants:
       - v1_name: gecko
         dependency_name: gecko
@@ -186,6 +188,9 @@ applications:
     metrics_files:
       - browser/components/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/xre/metrics.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
       - gecko
       - glean-core
@@ -209,6 +214,8 @@ applications:
       - toolkit/mozapps/update/metrics.yaml
     ping_files:
       - toolkit/mozapps/update/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
       - glean-core
     channels:
@@ -765,3 +772,51 @@ applications:
     channels:
       - v1_name: regrets-reporter-ucs
         app_id: regrets.reporter.ucs
+
+  - app_name: rally_markup_fb_pixel_hunt
+    canonical_app_name: Rally Facebook Pixel Hunt
+    app_description: |
+      In a collaboration between journalists at the Markup and Mozilla,
+      this study seeks to map Facebook’s pixel tracking network and
+      understand the kinds of information it collects on sites across
+      the web. The Markup will use the data collected in this study
+      to create investigative journalism around the kinds of information
+      Facebook collects about you, and where.
+    url: https://github.com/mozilla-rally/facebook-pixel-hunt/
+    notification_emails:
+      - than@mozilla.com
+      - jepstein@mozilla.com
+    branch: main
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-markup-fb-pixel-hunt
+        app_id: rally-markup-fb-pixel-hunt
+    encryption:
+      use_jwk: true
+    skip_documentation: true
+
+  - app_name: glean_dictionary
+    canonical_app_name: Glean Dictionary
+    app_description: |
+       The Glean Dictionary documents the data collected
+       by Mozilla projects that use Glean.
+    url: https://github.com/mozilla/glean-dictionary
+    notification_emails:
+      - brizental@mozilla.com
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/metrics.yaml
+    ping_files:
+      - src/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: glean-dictionary
+        app_id: glean-dictionary

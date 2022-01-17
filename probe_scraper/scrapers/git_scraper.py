@@ -29,6 +29,7 @@ MIN_DATES = {
     "firefox-desktop": "2020-07-29 00:00:00",
     "glean-js": "2020-09-21 13:35:00",
     "mozilla-vpn": "2021-05-25 00:00:00",
+    "rally-markup-fb-pixel-hunt": "2021-12-04 00:00:00",
 }
 
 # Some commits in projects might contain invalid metric files.

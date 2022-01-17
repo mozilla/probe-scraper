@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from probe_scraper.parsers.scalars import ScalarsParser
 
 
@@ -7,9 +5,7 @@ def is_string(s):
     return isinstance(s, str)
 
 
-@patch("os._exit")
-def test_scalar_parser(MockExit):
-    MockExit.side_effect = Exception("os._exit called")
+def test_scalar_parser():
     # Parse the histograms from the test definitions.
     parser = ScalarsParser()
     parsed_scalars = parser.parse(["tests/resources/test_scalars.yaml"], "55")
@@ -19,6 +15,7 @@ def test_scalar_parser(MockExit):
 
     # Make sure each of them contains all the required fields and details.
     REQUIRED_FIELDS = [
+        "cpp_guard",
         "description",
         "details",
         "expiry_version",
