@@ -233,6 +233,8 @@ applications:
       - app/metrics.yaml
     ping_files:
       - app/pings.yaml
+    tag_files:
+      - app/tags.yaml
     dependencies:
       - gecko
       - glean-core
