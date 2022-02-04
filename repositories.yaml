@@ -624,14 +624,14 @@ applications:
   - app_name: bergamot
     canonical_app_name: Bergamot Translator
     app_description: Web extension for on-device machine translation
-    url: https://github.com/mozilla-extensions/bergamot-browser-extension
+    url: https://github.com/mozilla/firefox-translations
     notification_emails:
       - epavlov@mozilla.com
     branch: main
     metrics_files:
-      - src/core/ts/background-scripts/background.js/telemetry/metrics.yaml
+      - extension/model/telemetry/metrics.yaml
     ping_files:
-      - src/core/ts/background-scripts/background.js/telemetry/pings.yaml
+      - extension/model/telemetry/pings.yaml
     dependencies:
       - glean-js
     retention_days: 180
