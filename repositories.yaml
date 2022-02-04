@@ -624,6 +624,24 @@ applications:
   - app_name: bergamot
     canonical_app_name: Bergamot Translator
     app_description: Web extension for on-device machine translation
+    url: https://github.com/mozilla-extensions/bergamot-browser-extension
+    notification_emails:
+      - epavlov@mozilla.com
+    branch: main
+    metrics_files:
+      - src/core/ts/background-scripts/background.js/telemetry/metrics.yaml
+    ping_files:
+      - src/core/ts/background-scripts/background.js/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: bergamot
+        app_id: org.mozilla.bergamot
+
+  - app_name: firefox_translations
+    canonical_app_name: Firefox Translations
+    app_description: Web extension for on-device machine translation
     url: https://github.com/mozilla/firefox-translations
     notification_emails:
       - epavlov@mozilla.com
@@ -636,8 +654,8 @@ applications:
       - glean-js
     retention_days: 180
     channels:
-      - v1_name: bergamot
-        app_id: org.mozilla.bergamot
+      - v1_name: firefox-translations
+        app_id: firefox-translations
 
   - app_name: rally_debug
     canonical_app_name: Rally Core Add-on Debug Ingestion
