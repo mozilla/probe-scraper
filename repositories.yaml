@@ -362,6 +362,7 @@ applications:
     app_description: >-
       A fast and secure browser for standalone virtual-reality and
       augmented-reality headsets
+    deprecated: true
     notification_emails:
       - dthorn@mozilla.com
       - mdroettboom@mozilla.com
@@ -496,6 +497,7 @@ applications:
   - app_name: firefox_reality_pc
     canonical_app_name: Firefox Reality for PC-connected VR platforms
     app_description: Firefox Reality for PC-connected VR platforms
+    deprecated: true
     url: https://github.com/MozillaReality/FirefoxRealityPC
     notification_emails:
       - dmu@mozilla.com
