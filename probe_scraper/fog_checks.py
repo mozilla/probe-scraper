@@ -284,9 +284,9 @@ def file_bugs_and_get_emails_for_expiring_metrics(
             current_metrics, latest_nightly_version
         )
 
+        print(f"Found {len(expiring_metrics)} expiring metrics in {fog_repo}.")
         if len(expiring_metrics) == 0:
-            print("No expiring metrics. Nothing to do.")
-            return
+            continue
 
         metrics_addresses = set(repo_addresses[fog_repo])
         for metric in expiring_metrics.values():
