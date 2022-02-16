@@ -188,6 +188,7 @@ applications:
     metrics_files:
       - browser/components/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
