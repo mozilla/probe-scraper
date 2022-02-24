@@ -219,6 +219,11 @@ def check_for_expired_metrics(
                 addresses.update(metric["notification_emails"])
                 continue
 
+            if isinstance(metric["expires"], int):
+                # Uses expire-by-version.
+                # We don't currently handle expiration checks for these.
+                continue
+
             try:
                 expires = datetime.datetime.strptime(
                     metric["expires"], "%Y-%m-%d"
