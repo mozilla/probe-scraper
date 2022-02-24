@@ -171,7 +171,12 @@ This is an automated message sent from probe-scraper.  See https://github.com/mo
 
 
 def check_for_expired_metrics(
-    repositories, repos_metrics, commit_timestamps, emails, expire_days=14
+    repositories,
+    repos_metrics,
+    commit_timestamps,
+    emails,
+    expire_days=14,
+    dry_run: bool = True,
 ):
     """
     Checks for all expired metrics and generates e-mails, one per repository.
@@ -179,7 +184,10 @@ def check_for_expired_metrics(
     This check is only performed on Mondays, to avoid daily spamming.
     """
     # Only perform the check on Mondays.
-    if datetime.date.today().weekday() != 0:
+    if dry_run:
+        print("Dry run! Monday or not, performing Glean expiry actions")
+    elif datetime.date.today().weekday() != 0:
+        print("Not a Monday, skipping expire checks")
         return
 
     expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
