@@ -30,7 +30,6 @@ MIN_DATES = {
     "glean-js": "2020-09-21 13:35:00",
     "mozilla-vpn": "2021-05-25 00:00:00",
     "rally-markup-fb-pixel-hunt": "2021-12-04 00:00:00",
-    "firefox-translations": "2022-02-25 00:00:00",
 }
 
 # Some commits in projects might contain invalid metric files.
@@ -53,6 +52,9 @@ SKIP_COMMITS = {
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+    ],
+    "firefox-translations": [
+       "02dc27b663178746499d092a987ec08c026ee560",  # Invalid extension/model/telemetry/metrics.yaml
     ],
 }
 
