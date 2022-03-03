@@ -54,7 +54,7 @@ SKIP_COMMITS = {
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
     ],
     "firefox-translations": [
-       "02dc27b663178746499d092a987ec08c026ee560",  # Invalid extension/model/telemetry/metrics.yaml
+        "02dc27b663178746499d092a987ec08c026ee560",  # Invalid extension/model/telemetry/metrics.yaml
     ],
 }
 
