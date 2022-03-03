@@ -390,7 +390,7 @@ def load_glean_metrics(
             repositories, metrics_by_repo, emails
         )
     glean_checks.check_for_expired_metrics(
-        repositories, metrics, commit_timestamps, emails
+        repositories, metrics, commit_timestamps, emails, dry_run=dry_run
     )
 
     # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
