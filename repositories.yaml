@@ -11,6 +11,7 @@ libraries:
     notification_emails:
       - dthorn@mozilla.com
       - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/metrics.yaml
@@ -26,6 +27,7 @@ libraries:
     notification_emails:
       - dthorn@mozilla.com
       - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/android/metrics.yaml
@@ -41,6 +43,7 @@ libraries:
     notification_emails:
       - dthorn@mozilla.com
       - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
       - android-components-team@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
     metrics_files:
@@ -135,6 +138,7 @@ libraries:
     notification_emails:
       - dthorn@mozilla.com
       - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
       - brizental@mozilla.com
     url: https://github.com/mozilla/glean.js
     metrics_files:
