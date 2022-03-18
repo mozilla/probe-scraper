@@ -10,7 +10,8 @@ libraries:
     description: Modern cross-platform telemetry (core library)
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/metrics.yaml
@@ -25,7 +26,8 @@ libraries:
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/android/metrics.yaml
@@ -40,7 +42,8 @@ libraries:
       services
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
       - android-components-team@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
     metrics_files:
@@ -68,7 +71,7 @@ libraries:
     description: GeckoView metrics
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
       - android-components-team@mozilla.com
       - geckoview-team@mozilla.com
     url: https://github.com/mozilla/gecko-dev
@@ -134,7 +137,8 @@ libraries:
     description: Modern cross-platform telemetry (Javascript library)
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
       - brizental@mozilla.com
     url: https://github.com/mozilla/glean.js
     metrics_files:
@@ -229,7 +233,7 @@ applications:
     url: https://github.com/mozilla-mobile/fenix
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
     metrics_files:
       - app/metrics.yaml
     ping_files:
@@ -329,7 +333,7 @@ applications:
       Components
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
+      - aplacitelli@mozilla.com
     url: https://github.com/mozilla-mobile/reference-browser
     prototype: true
     metrics_files:
@@ -366,8 +370,6 @@ applications:
     deprecated: true
     notification_emails:
       - dthorn@mozilla.com
-      - mdroettboom@mozilla.com
-      - dmu@mozilla.com
     branch: main
     url: https://github.com/MozillaReality/FirefoxReality
     metrics_files:
@@ -389,7 +391,6 @@ applications:
     deprecated: true
     notification_emails:
       - dthorn@mozilla.com
-      - lockwise-dev@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-android
     metrics_files:
       - app/metrics.yaml
@@ -409,7 +410,6 @@ applications:
     notification_emails:
       - dthorn@mozilla.com
       - tlong@mozilla.com
-      - lockwise-dev@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-ios
     dependencies:
       - glean-core
