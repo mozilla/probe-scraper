@@ -173,6 +173,7 @@ libraries:
       - gfx/metrics.yaml
       - toolkit/components/glean/metrics.yaml
       - toolkit/components/processtools/metrics.yaml
+      - dom/media/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     tag_files:
