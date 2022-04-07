@@ -31,10 +31,57 @@ class Buildhub(object):
         query_str = [
             {"term": {"source.product": product}},
             {"term": {"target.channel": channel}},
-            {"range": {"target.version": {"gte": str(min_version)}}},
             {"term": {"target.locale": locale}},
             {"term": {"target.platform": platform}},
         ]
+
+        # See: "99" > "65" == True, "100" > "65" == False
+        # FIXME: This breaks if we get to v200
+        # If we only need versions above 99 we restrict it to versions below 200,
+        # then we're good for a bunch of versions.
+        if min_version >= 100:
+            query_str.append({"range": {"target.version": {"gte": str(min_version)}}})
+            if max_version is None:
+                # This works because the minimum we ever ask for is v30.
+                query_str.append({"range": {"target.version": {"lt": "200"}}})
+        else:
+            # If the user didn't set a max version we need to explicitly include v100..v200 here.
+            if max_version is None:
+                query_str.append(
+                    {
+                        "bool": {
+                            "should": [
+                                {
+                                    "range": {
+                                        "target.version": {"gte": str(min_version)}
+                                    }
+                                },
+                                {
+                                    "bool": {
+                                        "must": [
+                                            {
+                                                "range": {
+                                                    "target.version": {"gte": "100"}
+                                                }
+                                            },
+                                            {
+                                                "range": {
+                                                    "target.version": {"lt": "200"}
+                                                }
+                                            },
+                                        ]
+                                    }
+                                },
+                            ]
+                        }
+                    }
+                )
+            else:
+                # Otherwise we only check the min version,
+                # the max version check will be appended
+                query_str.append(
+                    {"range": {"target.version": {"gte": str(min_version)}}}
+                )
 
         if max_version is not None:
             query_str.append(
@@ -152,10 +199,9 @@ class Buildhub(object):
         }
         """
 
-        # See: "99" > "65" == True, "100" > "65" == False
-        assert (
-            min_version < 100
-        ), "Lexographical comparison of versions fails after version 100"
+        # Because "100" > "99" == False we special-case v100 to v199.
+        # v200 is far out, so we just ignore that for now.
+        assert min_version < 200, "Only versions below 200 are supported"
 
         total_hits = 0
         results = []
