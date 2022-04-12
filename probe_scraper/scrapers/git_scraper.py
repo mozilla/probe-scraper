@@ -76,6 +76,8 @@ def get_commits(repo, filename):
     log_format = '--format="%H{}%ct"'.format(sep)
     # include "--" to prevent error for filename not in current tree
     change_commits = repo.git.log(log_format, "--", filename).split("\n")
+    # filter out empty strings
+    change_commits = filter(None, change_commits)
     commits = set(enumerate(change_commits))
     if _file_in_repo_head(repo, filename):
         # include HEAD when it contains filename
