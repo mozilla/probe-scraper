@@ -845,3 +845,34 @@ applications:
     channels:
       - v1_name: glean-dictionary
         app_id: glean-dictionary
+
+  - app_name: rally_citp_search_engine_usage
+    canonical_app_name: Search Engine Usage and Result Quality
+    app_description: |
+      In a collaboration between researchers at Princeton University’s
+      Center for Information Technology Policy and Mozilla, this study
+      examines the search engine market and how individuals interact
+      with search engines. The motivation for this research is to
+      understand how users interact with and make choices about search
+      engines. Understanding the search engine marketplace will inform
+      competition policy, promoting a diverse digital ecosystem that
+      benefits users.
+    url: https://github.com/mozilla-rally/search-engine-usage-study/
+    notification_emails:
+      - than@mozilla.com
+      - jepstein@mozilla.com
+      - betling@mozilla.com
+      - rhelmer@mozilla.com
+    branch: main
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-citp-search-engine-usage
+        app_id: rally-citp-search-engine-usage
+    encryption:
+      use_jwk: true
+    skip_documentation: true
