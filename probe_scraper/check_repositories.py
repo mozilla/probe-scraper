@@ -15,9 +15,7 @@ GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
-EXPECTED_MISSING_FILES = {
-    ("bergamot", "src/core/ts/background-scripts/background.js/telemetry/metrics.yaml"),
-}
+EXPECTED_MISSING_FILES = {}
 validation_errors = []
 repos = RepositoriesParser().parse(REPOSITORIES)
 
