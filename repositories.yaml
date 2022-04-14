@@ -629,10 +629,10 @@ applications:
     canonical_app_name: Bergamot Translator
     app_description: Web extension for on-device machine translation
     deprecated: true
-    url: https://github.com/mozilla-extensions/bergamot-browser-extension
+    url: https://github.com/mozilla-extensions/firefox-translations
     notification_emails:
       - epavlov@mozilla.com
-    branch: main
+    branch: legacy
     metrics_files:
       - src/core/ts/background-scripts/background.js/telemetry/metrics.yaml
     ping_files:
