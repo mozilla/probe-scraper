@@ -2,6 +2,7 @@ import os
 import re
 from collections import defaultdict
 from pathlib import Path
+from typing import Set, Tuple
 
 import git
 import requests as reqs
@@ -15,7 +16,7 @@ GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
-EXPECTED_MISSING_FILES = {}
+EXPECTED_MISSING_FILES: Set[Tuple[str, str]] = set()
 validation_errors = []
 repos = RepositoriesParser().parse(REPOSITORIES)
 
