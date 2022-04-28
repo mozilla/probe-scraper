@@ -10,7 +10,8 @@
 version: 2
 jobs:
   build_and_test:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout
@@ -22,7 +23,7 @@ jobs:
 
   deploy:
     docker:
-      - image: google/cloud-sdk
+      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:323.0.0
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout

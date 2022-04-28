@@ -143,33 +143,40 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
 
 EXPIRED_METRICS_EMAIL_TEMPLATE = """
-The following metrics in {repo_name} will expire in the next {expire_days} days or have already expired.
+Each metric in the following list from {repo_name} will expire in the next {expire_days} days or has already expired.
 
 {expired_metrics}
 
 What to do about this:
 
-1. If the metric is no longer needed, remove it from the `metrics.yaml` [1] file.
+1. If the metric is no longer needed, remove it from its `metrics.yaml` [1] file.
 2. If the metric is still required, resubmit a data review [2] and extend its expiration date.
 
-If you have any problems, please ask for help on the #glean Slack channel. We'll give you a hand.
+If you have any problems, please ask for help on the #glean Matrix channel[3]. We'll give you a hand.
 
 What happens if you don't fix this:
 
-The metrics listed above will stop collecting data from builds built after this expiration date, and you will continue to get this e-mail as a daily reminder.
+The metrics listed above will stop collecting data from builds built after this expiration date,
+and you will continue to get this e-mail as a reminder.
 
 Your Friendly, Neighborhood Glean Team
 
-[1] One of these files:
+[1] The correct metrics.yaml is in this list:
 {metrics_yaml_url}
 [2] https://wiki.mozilla.org/Firefox/Data_Collection
+[3] https://chat.mozilla.org/#/room/#glean:mozilla.org
 
 This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
 
 
 def check_for_expired_metrics(
-    repositories, repos_metrics, commit_timestamps, emails, expire_days=14
+    repositories,
+    repos_metrics,
+    commit_timestamps,
+    emails,
+    expire_days=14,
+    dry_run: bool = True,
 ):
     """
     Checks for all expired metrics and generates e-mails, one per repository.
@@ -177,7 +184,10 @@ def check_for_expired_metrics(
     This check is only performed on Mondays, to avoid daily spamming.
     """
     # Only perform the check on Mondays.
-    if datetime.date.today().weekday() != 0:
+    if dry_run:
+        print("Dry run! Monday or not, performing Glean expiry actions")
+    elif datetime.date.today().weekday() != 0:
+        print("Not a Monday, skipping expire checks")
         return
 
     expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
@@ -202,6 +212,18 @@ def check_for_expired_metrics(
         for metric_name, metric in metrics.items():
             if metric["expires"] == "never":
                 continue
+
+            # `expires` field supports manual expiry, too.
+            if metric["expires"] == "expired":
+                expired_metrics.append(f"- {metric_name} manually expired")
+                addresses.update(metric["notification_emails"])
+                continue
+
+            if isinstance(metric["expires"], int):
+                # Uses expire-by-version.
+                # We don't currently handle expiration checks for these.
+                continue
+
             try:
                 expires = datetime.datetime.strptime(
                     metric["expires"], "%Y-%m-%d"

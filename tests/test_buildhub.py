@@ -104,15 +104,15 @@ def test_no_min_max_version_overlap():
 
 @pytest.mark.web_dependency
 def test_no_released_version():
-    channel, min_version = "release", 99
+    channel, min_version = "release", 199
     bh = Buildhub()
 
     with pytest.raises(NoDataFoundException):
         bh.get_revision_dates(channel, min_version, verbose=VERBOSE)
 
 
-def test_version_100():
-    channel, min_version = "release", 100
+def test_version_200():
+    channel, min_version = "release", 200
     bh = Buildhub()
 
     with pytest.raises(AssertionError):

@@ -9,8 +9,9 @@ libraries:
   - library_name: glean-core
     description: Modern cross-platform telemetry (core library)
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/metrics.yaml
@@ -24,8 +25,9 @@ libraries:
   - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/android/metrics.yaml
@@ -39,8 +41,9 @@ libraries:
       A generic crash reporter component that can report crashes to multiple
       services
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
       - android-components-team@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
     metrics_files:
@@ -52,7 +55,7 @@ libraries:
   - library_name: sync
     description: Sync telemetry helper functionality
     notification_emails:
-      - frank@mozilla.com
+      - dthorn@mozilla.com
       - lina@mozilla.com
       - grisha@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
@@ -67,8 +70,8 @@ libraries:
   - library_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
       - android-components-team@mozilla.com
       - geckoview-team@mozilla.com
     url: https://github.com/mozilla/gecko-dev
@@ -105,7 +108,7 @@ libraries:
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
       an Android Components based app
     notification_emails:
-      - frank@mozilla.com
+      - dthorn@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
     metrics_files:
       - components/support/migration/metrics.yaml
@@ -120,7 +123,7 @@ libraries:
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
-      - frank@mozilla.com
+      - dthorn@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
     metrics_files:
@@ -133,8 +136,9 @@ libraries:
   - library_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
+      - glean-team@mozilla.com
       - brizental@mozilla.com
     url: https://github.com/mozilla/glean.js
     metrics_files:
@@ -159,6 +163,25 @@ libraries:
         branch: main
         dependency_name: nimbus
 
+  - library_name: gecko
+    description: The browser engine developed by Mozilla
+    notification_emails:
+      - chutten@mozilla.com
+    url: https://github.com/mozilla/gecko-dev
+    metrics_files:
+      - browser/base/content/metrics.yaml
+      - gfx/metrics.yaml
+      - toolkit/components/glean/metrics.yaml
+      - toolkit/components/processtools/metrics.yaml
+      - dom/media/metrics.yaml
+    ping_files:
+      - toolkit/components/glean/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
+    variants:
+      - v1_name: gecko
+        dependency_name: gecko
+
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
   - app_name: firefox_desktop
@@ -168,12 +191,14 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
-      - toolkit/components/glean/metrics.yaml
-      - browser/base/content/metrics.yaml
-      - gfx/metrics.yaml
-    ping_files:
-      - toolkit/components/glean/pings.yaml
+      - browser/components/metrics.yaml
+      - browser/modules/metrics.yaml
+      - toolkit/components/telemetry/metrics.yaml
+      - toolkit/xre/metrics.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
+      - gecko
       - glean-core
       # does not actually depend on glean-android, including for backwards
       # compat
@@ -195,6 +220,8 @@ applications:
       - toolkit/mozapps/update/metrics.yaml
     ping_files:
       - toolkit/mozapps/update/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
       - glean-core
     channels:
@@ -206,13 +233,16 @@ applications:
     canonical_app_name: Firefox for Android
     url: https://github.com/mozilla-mobile/fenix
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
     metrics_files:
       - app/metrics.yaml
     ping_files:
       - app/pings.yaml
+    tag_files:
+      - app/tags.yaml
     dependencies:
+      - gecko
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
@@ -226,7 +256,7 @@ applications:
         app_id: org.mozilla.firefox
         app_channel: release
         additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko-beta
+          - org.mozilla.components:browser-engine-gecko
         description: >-
           Release channel of Firefox for Android.
       - v1_name: firefox-android-beta
@@ -268,7 +298,7 @@ applications:
     app_description: Firefox for iOS
     notification_emails:
       - tlong@mozilla.com
-      - frank@mozilla.com
+      - dthorn@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-ios
     metrics_files:
       - Client/metrics.yaml
@@ -279,6 +309,7 @@ applications:
       # compat
       - org.mozilla.components:service-glean
       - nimbus
+      - org.mozilla.appservices:logins
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
@@ -302,8 +333,8 @@ applications:
       A full-featured browser reference implementation using Mozilla Android
       Components
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
+      - dthorn@mozilla.com
+      - aplacitelli@mozilla.com
     url: https://github.com/mozilla-mobile/reference-browser
     prototype: true
     metrics_files:
@@ -319,8 +350,9 @@ applications:
   - app_name: firefox_fire_tv
     canonical_app_name: Firefox for Fire TV
     app_description: Firefox for Amazon's Fire TV
+    deprecated: true
     notification_emails:
-      - frank@mozilla.com
+      - dthorn@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-tv
     metrics_files:
       - app/metrics.yaml
@@ -336,10 +368,9 @@ applications:
     app_description: >-
       A fast and secure browser for standalone virtual-reality and
       augmented-reality headsets
+    deprecated: true
     notification_emails:
-      - frank@mozilla.com
-      - mdroettboom@mozilla.com
-      - dmu@mozilla.com
+      - dthorn@mozilla.com
     branch: main
     url: https://github.com/MozillaReality/FirefoxReality
     metrics_files:
@@ -358,9 +389,9 @@ applications:
     canonical_app_name: Lockwise for Android
     app_description: >-
       Firefox's Lockwise app for Android
+    deprecated: true
     notification_emails:
-      - frank@mozilla.com
-      - lockwise-dev@mozilla.com
+      - dthorn@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-android
     metrics_files:
       - app/metrics.yaml
@@ -376,10 +407,10 @@ applications:
     canonical_app_name: Lockwise for iOS
     app_description: >-
       Firefox's Lockwise app for iOS
+    deprecated: true
     notification_emails:
-      - frank@mozilla.com
+      - dthorn@mozilla.com
       - tlong@mozilla.com
-      - lockwise-dev@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-ios
     dependencies:
       - glean-core
@@ -418,6 +449,8 @@ applications:
       - application/src/burnham/config/metrics.yaml
     ping_files:
       - application/src/burnham/config/pings.yaml
+    tag_files:
+      - application/src/burnham/config/tags.yaml
     dependencies:
       - glean-core
       # does not actually depend on glean-android, including for backwards
@@ -450,6 +483,7 @@ applications:
   - app_name: firefox_echo_show
     canonical_app_name: Firefox for Echo Show
     app_description: Firefox for Amazon's Echo Show
+    deprecated: true
     url: https://github.com/mozilla-mobile/firefox-echo-show
     notification_emails:
       - tlong@mozilla.com
@@ -465,6 +499,7 @@ applications:
   - app_name: firefox_reality_pc
     canonical_app_name: Firefox Reality for PC-connected VR platforms
     app_description: Firefox Reality for PC-connected VR platforms
+    deprecated: true
     url: https://github.com/MozillaReality/FirefoxRealityPC
     notification_emails:
       - dmu@mozilla.com
@@ -502,13 +537,14 @@ applications:
     app_description: Firefox Focus on iOS. Klar is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
-      - jboek@mozilla.com
+      - sarentz@mozilla.com
       - tlong@mozilla.com
     branch: main
     metrics_files:
       - Blockzilla/metrics.yaml
     dependencies:
       - glean-core
+      - nimbus
     retention_days: 720
     channels:
       - v1_name: firefox-focus-ios
@@ -519,13 +555,14 @@ applications:
     app_description: Firefox Klar on iOS. Focus is the sibling application
     url: https://github.com/mozilla-mobile/focus-ios
     notification_emails:
-      - jboek@mozilla.com
+      - sarentz@mozilla.com
       - tlong@mozilla.com
     branch: main
     metrics_files:
       - Blockzilla/metrics.yaml
     dependencies:
       - glean-core
+      - nimbus
     retention_days: 720
     channels:
       - v1_name: firefox-klar-ios
@@ -547,10 +584,24 @@ applications:
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
+      - nimbus
     retention_days: 180
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
+        app_channel: release
+        description: >-
+          Release channel of Focus for Android.
+      - v1_name: firefox-focus-android-beta
+        app_id: org.mozilla.focus.beta
+        app_channel: beta
+        description: >-
+          Beta channel of Focus for Android.
+      - v1_name: firefox-focus-android-nightly
+        app_id: org.mozilla.focus.nightly
+        app_channel: nightly
+        description: >-
+          Nightly channel of Focus for Android.
 
   - app_name: klar_android
     canonical_app_name: Firefox Klar for Android
@@ -568,6 +619,7 @@ applications:
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
+      - nimbus
     retention_days: 180
     channels:
       - v1_name: firefox-klar-android
@@ -576,10 +628,11 @@ applications:
   - app_name: bergamot
     canonical_app_name: Bergamot Translator
     app_description: Web extension for on-device machine translation
-    url: https://github.com/mozilla-extensions/bergamot-browser-extension
+    deprecated: true
+    url: https://github.com/mozilla-extensions/firefox-translations
     notification_emails:
       - epavlov@mozilla.com
-    branch: main
+    branch: legacy
     metrics_files:
       - src/core/ts/background-scripts/background.js/telemetry/metrics.yaml
     ping_files:
@@ -590,6 +643,24 @@ applications:
     channels:
       - v1_name: bergamot
         app_id: org.mozilla.bergamot
+
+  - app_name: firefox_translations
+    canonical_app_name: Firefox Translations
+    app_description: Web extension for on-device machine translation
+    url: https://github.com/mozilla/firefox-translations
+    notification_emails:
+      - epavlov@mozilla.com
+    branch: main
+    metrics_files:
+      - extension/model/telemetry/metrics.yaml
+    ping_files:
+      - extension/model/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: firefox-translations
+        app_id: firefox-translations
 
   - app_name: rally_debug
     canonical_app_name: Rally Core Add-on Debug Ingestion
@@ -657,6 +728,7 @@ applications:
     channels:
       - v1_name: mozilla-vpn
         app_id: mozillavpn
+        app_channel: release
 
   - app_name: rally_study_zero_one
     canonical_app_name: Rally Study-01
@@ -701,4 +773,106 @@ applications:
     channels:
       - v1_name: mlhackweek-search
         app_id: mlhackweek-search
+    skip_documentation: true
+
+  - app_name: regrets_reporter
+    canonical_app_name: RegretsReporter
+    app_description: |
+      The RegretsReporter extension gives you a way to easily report bad or
+      unwanted YouTube recommended videos to control your YouTube
+      experience and power Mozilla’s research into YouTube’s recommendation
+      algorithm.
+    url: https://github.com/mozilla-extensions/regrets-reporter/
+    notification_emails:
+      - jessed@mozillafoundation.org
+      - brandi@mozillafoundation.org
+    branch: main
+    metrics_files:
+      - source/telemetry/metrics.yaml
+    ping_files:
+      - source/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 365
+    channels:
+      - v1_name: regrets-reporter-ucs
+        app_id: regrets.reporter.ucs
+
+  - app_name: rally_markup_fb_pixel_hunt
+    canonical_app_name: Rally Facebook Pixel Hunt
+    app_description: |
+      In a collaboration between journalists at the Markup and Mozilla,
+      this study seeks to map Facebook’s pixel tracking network and
+      understand the kinds of information it collects on sites across
+      the web. The Markup will use the data collected in this study
+      to create investigative journalism around the kinds of information
+      Facebook collects about you, and where.
+    url: https://github.com/mozilla-rally/facebook-pixel-hunt/
+    notification_emails:
+      - than@mozilla.com
+      - jepstein@mozilla.com
+    branch: main
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-markup-fb-pixel-hunt
+        app_id: rally-markup-fb-pixel-hunt
+    encryption:
+      use_jwk: true
+    skip_documentation: true
+
+  - app_name: glean_dictionary
+    canonical_app_name: Glean Dictionary
+    app_description: |
+       The Glean Dictionary documents the data collected
+       by Mozilla projects that use Glean.
+    url: https://github.com/mozilla/glean-dictionary
+    notification_emails:
+      - brizental@mozilla.com
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/metrics.yaml
+    ping_files:
+      - src/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    channels:
+      - v1_name: glean-dictionary
+        app_id: glean-dictionary
+
+  - app_name: rally_citp_search_engine_usage
+    canonical_app_name: Search Engine Usage and Result Quality
+    app_description: |
+      In a collaboration between researchers at Princeton University’s
+      Center for Information Technology Policy and Mozilla, this study
+      examines the search engine market and how individuals interact
+      with search engines. The motivation for this research is to
+      understand how users interact with and make choices about search
+      engines. Understanding the search engine marketplace will inform
+      competition policy, promoting a diverse digital ecosystem that
+      benefits users.
+    url: https://github.com/mozilla-rally/search-engine-usage-study/
+    notification_emails:
+      - than@mozilla.com
+      - jepstein@mozilla.com
+      - betling@mozilla.com
+      - rhelmer@mozilla.com
+    branch: main
+    metrics_files:
+      - metrics.yaml
+    ping_files:
+      - pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: rally-citp-search-engine-usage
+        app_id: rally-citp-search-engine-usage
+    encryption:
+      use_jwk: true
     skip_documentation: true

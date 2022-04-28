@@ -13,10 +13,11 @@ import sys
 import tempfile
 import traceback
 from collections import defaultdict
+from typing import Optional
 
 from dateutil.tz import tzlocal
 
-from . import glean_checks, transform_probes, transform_revisions
+from . import fog_checks, glean_checks, transform_probes, transform_revisions
 from .emailer import send_ses
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
@@ -24,6 +25,7 @@ from .parsers.metrics import GleanMetricsParser
 from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser
 from .parsers.scalars import ScalarsParser
+from .parsers.tags import GleanTagsParser
 from .scrapers import git_scraper, moz_central_scraper
 
 
@@ -48,8 +50,10 @@ PARSERS = {
 
 GLEAN_PARSER = GleanMetricsParser()
 GLEAN_PINGS_PARSER = GleanPingsParser()
+GLEAN_TAGS_PARSER = GleanTagsParser()
 GLEAN_METRICS_FILENAME = "metrics.yaml"
 GLEAN_PINGS_FILENAME = "pings.yaml"
+GLEAN_TAGS_FILENAME = "tags.yaml"
 
 
 def general_data():
@@ -121,11 +125,16 @@ def write_glean_metric_data(metrics, dependencies, out_dir):
 
         base_dir = os.path.join(out_dir, "glean", repo)
 
-        print("\nwriting output:")
-
         dump_json(general_data(), base_dir, "general")
         dump_json(metrics_data, base_dir, "metrics")
         dump_json(dependencies_data, base_dir, "dependencies")
+
+
+def write_glean_tag_data(tags, out_dir):
+    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+    for repo, tags_data in tags.items():
+        base_dir = os.path.join(out_dir, "glean", repo)
+        dump_json(tags_data, base_dir, "tags")
 
 
 def write_glean_ping_data(pings, out_dir):
@@ -274,7 +283,14 @@ def load_moz_central_probes(
     write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
 
 
-def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repos):
+def load_glean_metrics(
+    cache_dir,
+    out_dir,
+    repositories_file,
+    dry_run,
+    glean_repos,
+    bugzilla_api_key: Optional[str],
+):
     repositories = RepositoriesParser().parse(repositories_file, glean_repos)
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
         cache_dir, repositories
@@ -291,16 +307,24 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
     #   },
     #   ...
     # }
+    tags = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
+            tags_files = [p for p in paths if p.endswith(GLEAN_TAGS_FILENAME)]
             metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
             pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
 
             try:
                 config = {"allow_reserved": repo_name.startswith("glean")}
                 repo = next(r for r in repositories if r.name == repo_name).to_dict()
+
+                if tags_files:
+                    results, errs = GLEAN_TAGS_PARSER.parse(
+                        tags_files, config, repo["url"], commit_hash
+                    )
+                    tags[repo_name][commit_hash] = results
 
                 if metrics_files:
                     results, errs = GLEAN_PARSER.parse(
@@ -335,6 +359,11 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
 
     abort_after_emails = False
 
+    tags_by_repo = {repo: {} for repo in repos_metrics_data}
+    tags_by_repo.update(
+        transform_probes.transform_tags_by_hash(commit_timestamps, tags)
+    )
+
     metrics_by_repo = {repo: {} for repo in repos_metrics_data}
     metrics_by_repo.update(
         transform_probes.transform_metrics_by_hash(commit_timestamps, metrics)
@@ -361,9 +390,19 @@ def load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_rep
             repositories, metrics_by_repo, emails
         )
     glean_checks.check_for_expired_metrics(
-        repositories, metrics, commit_timestamps, emails
+        repositories, metrics, commit_timestamps, emails, dry_run=dry_run
     )
 
+    # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
+    # Also, expired metrics in FOG repos can have bugs auto-filed for them.
+    fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
+        repositories, metrics, commit_timestamps, bugzilla_api_key, dry_run
+    )
+    if fog_emails_by_repo is not None:
+        emails.update(fog_emails_by_repo)
+
+    print("\nwriting output:")
+    write_glean_tag_data(tags_by_repo, out_dir)
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_glean_ping_data(pings_by_repo, out_dir)
     write_repositories_data(repositories, out_dir)
@@ -392,10 +431,10 @@ def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
     os.mkdir(out_dir)
 
     # Sync the cache directory
-    cache_loc = f"s3://{cache_bucket}/cache/probe-scraper"
-    print("Syncing cache from {} with {}".format(cache_loc, cache_dir))
-    subprocess.check_call(["aws", "s3", "sync", cache_loc, cache_dir])
-    return cache_loc
+    cache_path = f"s3://{cache_bucket}/cache/probe-scraper"
+    print(f"Syncing cache from {cache_path} with {cache_dir}")
+    subprocess.check_call(["aws", "s3", "sync", cache_path, cache_dir])
+    return cache_path
 
 
 def sync_output_and_cache_dirs(
@@ -463,9 +502,10 @@ def sync_output_and_cache_dirs(
             )
 
         # Sync cache data
-        print("Syncing cache dir {}/ with s3://{}/".format(cache_dir, cache_path))
-        sync_cache_cmd = f"aws s3 sync {cache_dir} {cache_path}"
-        os.system(sync_cache_cmd)
+        print(f"Syncing cache dir {cache_dir}/ with {cache_path}")
+        subprocess.check_call(
+            ["aws", "s3", "sync", "--exclude=*.git/*", cache_dir, cache_path]
+        )
 
 
 def main(
@@ -482,6 +522,7 @@ def main(
     output_bucket,
     cache_bucket,
     env,
+    bugzilla_api_key: Optional[str],
 ):
 
     # Sync dirs with s3 if we are not running pytest or local dryruns
@@ -496,7 +537,14 @@ def main(
             cache_dir, out_dir, firefox_version, min_firefox_version, firefox_channel
         )
     if process_glean_metrics or process_both:
-        load_glean_metrics(cache_dir, out_dir, repositories_file, dry_run, glean_repos)
+        load_glean_metrics(
+            cache_dir,
+            out_dir,
+            repositories_file,
+            dry_run,
+            glean_repos,
+            bugzilla_api_key,
+        )
 
     # Sync results with s3 if we are not running pytest or local dryruns
     if env == "prod":
@@ -562,6 +610,13 @@ if __name__ == "__main__":
         choices=["dev", "prod"],
         default="dev",
     )
+    parser.add_argument(
+        "--bugzilla-api-key",
+        help="The bugzilla API key used to find and file bugs for FOG repos."
+        "If not provided, no bugs will be filed.",
+        type=str,
+        required=False,
+    )
 
     application = parser.add_mutually_exclusive_group()
     application.add_argument(
@@ -603,4 +658,5 @@ if __name__ == "__main__":
         args.output_bucket,
         args.cache_bucket,
         args.env,
+        args.bugzilla_api_key,
     )

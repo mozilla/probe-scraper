@@ -36,12 +36,10 @@ class Repository(object):
     A class representing a repository, read in from `repositories.yaml`
     """
 
-    default_branch = "master"
-
     def __init__(self, name, definition):
         self.name = name
         self.url = definition.get("url")
-        self.branch = definition.get("branch", Repository.default_branch)
+        self.branch = definition.get("branch", None)
         self.notification_emails = definition.get("notification_emails")
         self.app_id = definition.get("app_id")
         self.description = definition.get("description")
@@ -49,17 +47,13 @@ class Repository(object):
         self.deprecated = definition.get("deprecated", False)
         self.metrics_file_paths = definition.get("metrics_files", [])
         self.ping_file_paths = definition.get("ping_files", [])
+        self.tag_file_paths = definition.get("tag_files", [])
         self.library_names = definition.get("library_names", None)
         self.dependencies = definition.get("dependencies", [])
         self.prototype = definition.get("prototype", False)
         self.retention_days = definition.get("retention_days", None)
         self.encryption = definition.get("encryption", None)
         self.skip_documentation = definition.get("skip_documentation", False)
-
-    def get_branches(self):
-        if self.branch == Repository.default_branch:
-            return (Repository.default_branch, "main")
-        return (self.branch,)
 
     def get_metrics_file_paths(self):
         return self.metrics_file_paths
@@ -68,7 +62,7 @@ class Repository(object):
         return self.ping_file_paths
 
     def get_change_files(self):
-        return self.metrics_file_paths + self.ping_file_paths
+        return self.metrics_file_paths + self.ping_file_paths + self.tag_file_paths
 
     def get_dependencies(self):
         return self.dependencies

@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
-import shutil
 import tempfile
 import traceback
 from collections import defaultdict
@@ -30,6 +29,8 @@ MIN_DATES = {
     "firefox-desktop": "2020-07-29 00:00:00",
     "glean-js": "2020-09-21 13:35:00",
     "mozilla-vpn": "2021-05-25 00:00:00",
+    "rally-markup-fb-pixel-hunt": "2021-12-04 00:00:00",
+    "rally-citp-search-engine-usage": "2022-04-15 00:00:00",
 }
 
 # Some commits in projects might contain invalid metric files.
@@ -41,8 +42,21 @@ SKIP_COMMITS = {
     "engine-gecko-beta": [
         "9bd9d7fa6c679f35d8cbeb157ff839c63b21a2e6"  # Missing schema update from v1 to v2
     ],
+    "gecko": [
+        "43d8cf138695faae2fca0adf44c94f47fdadfca8",  # Missing gfx/metrics.yaml
+        "340c8521a54ad4d4a32dd16333676a6ff85aaec2",  # Missing toolkit/components/glean/pings.yaml
+        "4520632fe0664572c5f70688595b7721d167e2d0",  # Missing toolkit/components/glean/pings.yaml
+        "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+    ],
     "firefox-desktop": [
-        "43d8cf138695faae2fca0adf44c94f47fdadfca8"  # Missing gfx/metrics.yaml
+        "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+    ],
+    "firefox-desktop-background-update": [
+        "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+    ],
+    "firefox-translations": [
+        # Invalid extension/model/telemetry/metrics.yaml
+        "02dc27b663178746499d092a987ec08c026ee560",
     ],
 }
 
@@ -63,6 +77,8 @@ def get_commits(repo, filename):
     log_format = '--format="%H{}%ct"'.format(sep)
     # include "--" to prevent error for filename not in current tree
     change_commits = repo.git.log(log_format, "--", filename).split("\n")
+    # filter out empty strings
+    change_commits = filter(None, change_commits)
     commits = set(enumerate(change_commits))
     if _file_in_repo_head(repo, filename):
         # include HEAD when it contains filename
@@ -93,6 +109,7 @@ def retrieve_files(repo_info, cache_dir):
     results = defaultdict(list)
     timestamps = dict()
     base_path = os.path.join(cache_dir, repo_info.name)
+    repo_path = f"{base_path}.git"
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -100,44 +117,37 @@ def retrieve_files(repo_info, cache_dir):
 
     skip_commits = SKIP_COMMITS.get(repo_info.name, [])
 
-    if os.path.exists(repo_info.name):
-        shutil.rmtree(repo_info.name)
-    repo = git.Repo.clone_from(repo_info.url, repo_info.name)
+    if os.path.exists(repo_path):
+        print(f"Pulling latest commits into {repo_path}")
+        repo = git.Repo(repo_path)
+    else:
+        print(f"Cloning {repo_info.url} into {repo_path}")
+        repo = git.Repo.clone_from(repo_info.url, repo_path, bare=True)
 
-    branches = repo_info.get_branches()
-    for branch in branches:
-        try:
-            repo.git.checkout(repo_info.branch)
-            break
-        except git.exc.GitCommandError:
-            pass
+    branch = repo_info.branch or repo.active_branch
+    repo.git.fetch("origin", f"{branch}:{branch}")
+    repo.git.symbolic_ref("HEAD", f"refs/heads/{branch}")
 
-    try:
-        for rel_path in repo_info.get_change_files():
-            hashes = get_commits(repo, rel_path)
-            for _hash, (ts, index) in hashes.items():
-                if min_date and ts < min_date:
-                    continue
-                if _hash in skip_commits:
-                    continue
+    for rel_path in repo_info.get_change_files():
+        hashes = get_commits(repo, rel_path)
+        for _hash, (ts, index) in hashes.items():
+            if min_date and ts < min_date:
+                continue
+            if _hash in skip_commits:
+                continue
 
-                disk_path = os.path.join(base_path, _hash, rel_path)
-                if not os.path.exists(disk_path):
-                    contents = get_file_at_hash(repo, _hash, rel_path)
+            disk_path = os.path.join(base_path, _hash, rel_path)
+            if not os.path.exists(disk_path):
+                contents = get_file_at_hash(repo, _hash, rel_path)
 
-                    dir = os.path.split(disk_path)[0]
-                    if not os.path.exists(dir):
-                        os.makedirs(dir)
-                    with open(disk_path, "wb") as f:
-                        f.write(contents.encode("UTF-8"))
+                dir = os.path.split(disk_path)[0]
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                with open(disk_path, "wb") as f:
+                    f.write(contents.encode("UTF-8"))
 
-                results[_hash].append(disk_path)
-                timestamps[_hash] = (ts, index)
-    except Exception:
-        # without this, the error will be silently discarded
-        raise
-    finally:
-        shutil.rmtree(repo_info.name)
+            results[_hash].append(disk_path)
+            timestamps[_hash] = (ts, index)
 
     return timestamps, results
 

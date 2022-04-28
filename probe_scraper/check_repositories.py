@@ -1,17 +1,22 @@
 import os
+import re
 from collections import defaultdict
 from pathlib import Path
+from typing import Set, Tuple
 
+import git
 import requests as reqs
 from glean_parser.lint import lint_yaml_files
 
 from .parsers.repositories import RepositoriesParser
 
+GIT = git.Git()
+GIT_BRANCH_PATTERN = re.compile("ref: refs/heads/([^\t]+)\tHEAD")
 GITHUB_RAW_URL = "https://raw.githubusercontent.com"
 REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
-EXPECTED_MISSING_FILES = {("firefox-desktop", "gfx/metrics.yaml")}
+EXPECTED_MISSING_FILES: Set[Tuple[str, str]] = set()
 validation_errors = []
 repos = RepositoriesParser().parse(REPOSITORIES)
 
@@ -27,10 +32,21 @@ for repo in repos:
     for metric_file in metrics_files:
         if (repo.name, metric_file) in EXPECTED_MISSING_FILES:
             continue  # ignore missing files
+
+        branch = repo.branch
+        if branch is None:
+            match = GIT_BRANCH_PATTERN.match(
+                GIT.ls_remote("--symref", repo.url, "HEAD")
+            )
+            if match is None:
+                temp_errors += ["Failed to get default branch from git for " + repo.url]
+                continue
+            branch = match.groups()[0]
+
         temp_url = (
             repo.url.replace("https://github.com", GITHUB_RAW_URL)
             + "/"
-            + repo.branch
+            + branch
             + "/"
             + metric_file
         )

@@ -1,8 +1,8 @@
 import datetime
+import json
 from dataclasses import dataclass
 from unittest import mock
 
-import pytest
 from requests.exceptions import HTTPError
 
 from probe_scraper import probe_expiry_alert
@@ -262,24 +262,48 @@ def test_create_bug(mock_post):
         ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
         ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
     ]
-    bug_id = probe_expiry_alert.create_bug(probes, "76", "")
+    bug_id = probe_expiry_alert.create_bug(
+        probes,
+        "76",
+        probe_expiry_alert.BUG_WHITEBOARD_TAG,
+        probe_expiry_alert.BUG_SUMMARY_TEMPLATE,
+        probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE,
+        "",
+    )
 
     assert bug_id == 2
 
 
 @mock.patch("requests.post")
 def test_create_bug_try_on_needinfo_blocked(mock_post):
-    mock_response = mock.MagicMock()
-    mock_response.text = (
-        '{"error": "a <a@test.com> is not currently accepting "needinfo" requests."}'
+    error_response = mock.MagicMock()
+    error_response.text = json.dumps(
+        {"error": 'a <a@test.com> is not currently accepting "needinfo" requests.'}
     )
-    mock_response.raise_for_status.side_effect = HTTPError()
-    mock_post.return_value = mock_response
+    good_response = mock.MagicMock()
+    good_response.json = mock.MagicMock(return_value={"id": 2})
+
+    def raise_for_status():
+        mock_post.return_value = good_response
+        raise HTTPError()
+
+    mock_post.return_value = error_response
+    error_response.raise_for_status = raise_for_status
 
     probes = [ProbeDetails("p1", "prod", "comp", ["a@test.com"], 1)]
 
-    with pytest.raises(HTTPError):
-        probe_expiry_alert.create_bug(probes, "76", "", needinfo=True)
+    assert (
+        probe_expiry_alert.create_bug(
+            probes,
+            "76",
+            probe_expiry_alert.BUG_WHITEBOARD_TAG,
+            probe_expiry_alert.BUG_SUMMARY_TEMPLATE,
+            probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE,
+            "",
+            needinfo=True,
+        )
+        == 2
+    )
 
     assert mock_post.call_count == 2
 
@@ -329,7 +353,9 @@ def test_bug_description_parser(mock_get):
     mock_response.json = mock.MagicMock(return_value=search_results)
     mock_get.return_value = mock_response
 
-    probes_with_bugs = probe_expiry_alert.find_existing_bugs("76", "")
+    probes_with_bugs = probe_expiry_alert.find_existing_bugs(
+        "76", "", probe_expiry_alert.BUG_WHITEBOARD_TAG
+    )
 
     assert probes_with_bugs == {"p1": 1, "p2": 1, "p5": 3, "p6": 3}
 

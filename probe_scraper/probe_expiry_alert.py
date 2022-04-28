@@ -69,7 +69,8 @@ BUG_LINK_LIST_TEMPLATE = """The following bugs were filed for the above probes:
 {bug_links}
 """
 
-NEEDINFO_BLOCKED_TEXT = 'is not currently accepting "needinfo" requests.'
+# This text is compared to a json blob, where quotes are escaped
+NEEDINFO_BLOCKED_TEXT = 'is not currently accepting \\"needinfo\\" requests.'
 
 
 @dataclass
@@ -107,10 +108,12 @@ def get_bug_component(
     return bug["product"], bug["component"]
 
 
-def find_existing_bugs(version: str, api_key: str) -> Dict[str, int]:
+def find_existing_bugs(
+    version: str, api_key: str, whiteboard_tag: str
+) -> Dict[str, int]:
     """Find bugs filed for the version and return mappings of probe name to bug id."""
     search_query_params = {
-        "whiteboard": BUG_WHITEBOARD_TAG,
+        "whiteboard": whiteboard_tag,
         "include_fields": "description,summary,id",
     }
     response = requests.get(
@@ -174,7 +177,13 @@ def get_longest_prefix(values: List[str], tolerance: int = 0) -> str:
 
 
 def create_bug(
-    probes: List[ProbeDetails], version: str, api_key: str, needinfo: bool = True
+    probes: List[ProbeDetails],
+    version: str,
+    whiteboard_tag: str,
+    summary_template: str,
+    description_template: str,
+    api_key: str,
+    needinfo: bool = True,
 ) -> int:
     probe_names = [probe.name for probe in probes]
     probe_prefix = get_longest_prefix(probe_names, tolerance=1)
@@ -210,13 +219,13 @@ def create_bug(
     create_params = {
         "product": probes[0].product,
         "component": probes[0].component,
-        "summary": BUG_SUMMARY_TEMPLATE.format(version=version, probe=probe_prefix),
-        "description": BUG_DESCRIPTION_TEMPLATE.format(
+        "summary": summary_template.format(version=version, probe=probe_prefix),
+        "description": description_template.format(
             version=version, probes="\n".join(probe_names), notes=notes
         ),
         "version": "unspecified",
         "type": "task",
-        "whiteboard": BUG_WHITEBOARD_TAG,
+        "whiteboard": whiteboard_tag,
         "see_also": see_also_bugs,
         "flags": [
             {"name": "needinfo", "type_id": 800, "status": "?", "requestee": email}
@@ -238,7 +247,15 @@ def create_bug(
                 "Needinfo request blocked, retrying request without needinfo",
                 file=sys.stderr,
             )
-            create_bug(probes, version, api_key, needinfo=False)
+            return create_bug(
+                probes,
+                version,
+                whiteboard_tag,
+                summary_template,
+                description_template,
+                api_key,
+                needinfo=False,
+            )
         else:
             raise
     print(f"Created bug {str(create_response.json())} for {probe_prefix}")
@@ -324,6 +341,10 @@ def send_emails(
 
     email_count = 0
     for email, probe_names in probes_by_email.items():
+        # No probes found -> nothing to do
+        if not probe_names:
+            continue
+
         bug_links = {
             BUGZILLA_BUG_LINK_TEMPLATE.format(bug_id=probe_to_bug_id[probe])
             for probe in probe_names
@@ -351,7 +372,13 @@ def send_emails(
 
 
 def file_bugs(
-    probes: List[ProbeDetails], version: str, bugzilla_api_key: str, dryrun: bool = True
+    probes: List[ProbeDetails],
+    version: str,
+    bugzilla_api_key: str,
+    dryrun: bool = True,
+    whiteboard_tag: str = BUG_WHITEBOARD_TAG,
+    summary_template: str = BUG_SUMMARY_TEMPLATE,
+    description_template: str = BUG_DESCRIPTION_TEMPLATE,
 ) -> Dict[str, int]:
     """
     Search for bugs that have already been created by probe_expiry_alerts
@@ -362,7 +389,7 @@ def file_bugs(
 
     Return mapping of probe names to bug id for any newly created bugs
     """
-    existing_bugs = find_existing_bugs(version, bugzilla_api_key)
+    existing_bugs = find_existing_bugs(version, bugzilla_api_key, whiteboard_tag)
 
     new_expiring_probes = [
         probe for probe in probes if probe.name not in existing_bugs.keys()
@@ -386,7 +413,14 @@ def file_bugs(
 
     for grouping, probe_group in probes_by_component_by_email_set.items():
         if not dryrun:
-            bug_id = create_bug(probe_group, version, bugzilla_api_key)
+            bug_id = create_bug(
+                probe_group,
+                version,
+                whiteboard_tag,
+                summary_template,
+                description_template,
+                bugzilla_api_key,
+            )
             for probe in probe_group:
                 probe_to_bug_id_map[probe.name] = bug_id
 
