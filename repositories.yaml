@@ -307,6 +307,10 @@ applications:
       # https://mozilla-hub.atlassian.net/browse/SYNC-3008, until
       # the Sync component from A-S is able to send Glean metrics.
       - Sync/metrics.yaml
+    ping_files:
+      # The Sync/* files are meant to be a stop-gap measure, see
+      # https://mozilla-hub.atlassian.net/browse/SYNC-3008, until
+      # the Sync component from A-S is able to send Glean metrics.
       - Sync/pings.yaml
     branch: main
     dependencies:
