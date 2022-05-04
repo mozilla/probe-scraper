@@ -303,6 +303,11 @@ applications:
     url: https://github.com/mozilla-mobile/firefox-ios
     metrics_files:
       - Client/metrics.yaml
+      # The Sync/* files are meant to be a stop-gap measure, see
+      # https://mozilla-hub.atlassian.net/browse/SYNC-3008, until
+      # the Sync component from A-S is able to send Glean metrics.
+      - Sync/metrics.yaml
+      - Sync/pings.yaml
     branch: main
     dependencies:
       - glean-core
