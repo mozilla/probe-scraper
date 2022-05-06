@@ -295,9 +295,9 @@ components:
           encryption:
             $ref: "#/components/schemas/Encryption"
           moz_pipeline_metadata_defaults:
-            $ref: "#/components/schemas/MozPipelineMetadata"
+            $ref: "#/components/schemas/MozPipelineMetadataDefaults"
           moz_pipeline_metadata:
-            $ref: "#/components/schemas/MozPipelineMetadataOverride"
+            $ref: "#/components/schemas/MozPipelineMetadata"
           skip_documentation:
             $ref: "#/components/schemas/SkipDocumentationBool"
 
@@ -341,9 +341,9 @@ components:
           encryption:
             $ref: "#/components/schemas/Encryption"
           moz_pipeline_metadata_defaults:
-            $ref: "#/components/schemas/MozPipelineMetadata"
+            $ref: "#/components/schemas/MozPipelineMetadataDefaults"
           moz_pipeline_metadata:
-            $ref: "#/components/schemas/MozPipelineMetadataOverride"
+            $ref: "#/components/schemas/MozPipelineMetadata"
           skip_documentation:
             $ref: "#/components/schemas/SkipDocumentationBool"
 
@@ -406,9 +406,9 @@ components:
         encryption:
           $ref: "#/components/schemas/Encryption"
         moz_pipeline_metadata_defaults:
-          $ref: "#/components/schemas/MozPipelineMetadata"
+          $ref: "#/components/schemas/MozPipelineMetadataDefaults"
         moz_pipeline_metadata:
-          $ref: "#/components/schemas/MozPipelineMetadataOverride"
+          $ref: "#/components/schemas/MozPipelineMetadata"
         skip_documentation:
           $ref: "#/components/schemas/SkipDocumentationBool"
         channels:
@@ -526,9 +526,9 @@ components:
         encryption:
           $ref: "#/components/schemas/Encryption"
         moz_pipeline_metadata_defaults:
-          $ref: "#/components/schemas/MozPipelineMetadata"
+          $ref: "#/components/schemas/MozPipelineMetadataDefaults"
         moz_pipeline_metadata:
-          $ref: "#/components/schemas/MozPipelineMetadataOverride"
+          $ref: "#/components/schemas/MozPipelineMetadata"
         skip_documentation:
           $ref: "#/components/schemas/SkipDocumentationBool"
 
@@ -785,7 +785,7 @@ components:
           type: string
           description: |
             Currently not in use.  If present, the pipeline will reject new data with submission_timestamp after the
-            given date, sending it to error output.
+            given date, sending it to error output.  Example: `2025-12-31`
           pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
           example: "2025-12-31"
         delete_after_days:
@@ -814,7 +814,7 @@ components:
             pattern: "^/.*$"
             default: "/payload"
 
-    MozPipelineMetadata:
+    MozPipelineMetadataDefaults:
       type: object
       description: |
         Currently not in use.
@@ -842,34 +842,37 @@ components:
             - hours
             - days
 
-    MozPipelineMetadataOverride:
+    MozPipelineMetadata:
       type: object
       description: |
         Currently not in use.
         Allows ping level override of metadata values.
-      patternProperties:
-        ".*":
-          properties:
-            expiration_policy:
-              $ref: "#/components/schemas/ExpirationPolicy"
-            jwe_mappings:
-              $ref: "#/components/schemas/JweMappings"
-            override_attributes:
-              $ref: "#/components/schemas/OverrideAttributes"
-            submission_timestamp_granularity:
-              type: string
-              description: |
-                Currently not in use.
-                If specified, the submission_timestamp field will be truncated to the specified
-                granularity in the pipeline before being output to BigQuery; this can be used to reduce the potential for
-                using time-based attacks to correlate datasets using different client-level identifiers; see Java's
-                ChronoUnit for additional granularities that could be considered for inclusion; implemented for bug 1742172.
-              enum:
-                - millis
-                - seconds
-                - minutes
-                - hours
-                - days
+      additionalProperties:
+        type: object
+        description: Override default metadata values for the specified ping name.    Note this is the document type (kebab-case) not the BigQuery table name (snake_case). 
+        x-additionalPropertiesName: ping-name
+        additionalProperties: false
+        properties:
+          expiration_policy:
+            $ref: "#/components/schemas/ExpirationPolicy"
+          jwe_mappings:
+            $ref: "#/components/schemas/JweMappings"
+          override_attributes:
+            $ref: "#/components/schemas/OverrideAttributes"
+          submission_timestamp_granularity:
+            type: string
+            description: |
+              Currently not in use.
+              If specified, the submission_timestamp field will be truncated to the specified
+              granularity in the pipeline before being output to BigQuery; this can be used to reduce the potential for
+              using time-based attacks to correlate datasets using different client-level identifiers; see Java's
+              ChronoUnit for additional granularities that could be considered for inclusion; implemented for bug 1742172.
+            enum:
+              - millis
+              - seconds
+              - minutes
+              - hours
+              - days
     Encryption:
       type: object
       properties:
