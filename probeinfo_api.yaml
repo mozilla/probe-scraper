@@ -294,6 +294,10 @@ components:
             $ref: "#/components/schemas/RetentionDays"
           encryption:
             $ref: "#/components/schemas/Encryption"
+          moz_pipeline_metadata_defaults:
+            $ref: "#/components/schemas/MozPipelineMetadataDefaults"
+          moz_pipeline_metadata:
+            $ref: "#/components/schemas/MozPipelineMetadata"
           skip_documentation:
             $ref: "#/components/schemas/SkipDocumentationBool"
 
@@ -336,6 +340,10 @@ components:
             $ref: "#/components/schemas/RetentionDays"
           encryption:
             $ref: "#/components/schemas/Encryption"
+          moz_pipeline_metadata_defaults:
+            $ref: "#/components/schemas/MozPipelineMetadataDefaults"
+          moz_pipeline_metadata:
+            $ref: "#/components/schemas/MozPipelineMetadata"
           skip_documentation:
             $ref: "#/components/schemas/SkipDocumentationBool"
 
@@ -397,6 +405,10 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         encryption:
           $ref: "#/components/schemas/Encryption"
+        moz_pipeline_metadata_defaults:
+          $ref: "#/components/schemas/MozPipelineMetadataDefaults"
+        moz_pipeline_metadata:
+          $ref: "#/components/schemas/MozPipelineMetadata"
         skip_documentation:
           $ref: "#/components/schemas/SkipDocumentationBool"
         channels:
@@ -513,6 +525,10 @@ components:
           $ref: "#/components/schemas/RetentionDays"
         encryption:
           $ref: "#/components/schemas/Encryption"
+        moz_pipeline_metadata_defaults:
+          $ref: "#/components/schemas/MozPipelineMetadataDefaults"
+        moz_pipeline_metadata:
+          $ref: "#/components/schemas/MozPipelineMetadata"
         skip_documentation:
           $ref: "#/components/schemas/SkipDocumentationBool"
 
@@ -734,6 +750,129 @@ components:
         If not specified, retention will be unlimited.
       type: integer
 
+    OverrideAttributes:
+      type: array
+      description: |
+        Currently not in use.
+        Mappings of Pub/Sub attribute names to static values; these are applied in the Decoder
+        immediately before incorporating metadata into the payload, so can be used to overwrite values calculated in
+        the pipeline; a null value will cause the pipeline to drop the named attribute; some attribute names differ
+        from the nested metadata format in BigQuery, so for example you must use \"geo_city\" here in order to
+        manipulate the value that shows up as metadata.geo.city; implemented for bug 1742172.
+      items:
+        type: object
+        additionalProperties: false
+        properties:
+          name:
+            type: string
+            required: true
+            enum:
+              - geo_city
+              - geo_subdivision1
+              - geo_subdivision2
+              - normalized_channel
+          value:
+            type: [ string, null ]
+            required: true
+
+    ExpirationPolicy:
+      type: object
+      description: |
+        Currently not in use.  Various options controlling data lifecycle.
+      additionalProperties: false
+      properties:
+        collect_through_date:
+          type: string
+          description: |
+            Currently not in use.  If present, the pipeline will reject new data with submission_timestamp after the
+            given date, sending it to error output.  Example: `2025-12-31`
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          example: "2025-12-31"
+        delete_after_days:
+          type: integer
+          description: |
+            Currently not in use. The number of days to retain decoded ping data received for this application.
+            If not specified, retention will be unlimited.
+
+    JweMappings:
+      type: array
+      description: |
+        Currently not in use.  Mappings of encrypted JWE field paths to destinations where the value decrypted by the
+        pipeline should be placed; initial use case is Account Ecosystem Telemetry; paths must be in
+        [JSON Pointer format](https://tools.ietf.org/html/rfc6901) like '/payload/ecosystemAnonId'.
+      items:
+        type: object
+        additionalProperties: false
+        properties:
+          decrypted_field_path:
+            type: string
+            required: true
+            default: ""
+          source_field_path:
+            type: string
+            required: true
+            pattern: "^/.*$"
+            default: "/payload"
+
+    MozPipelineMetadataDefaults:
+      type: object
+      description: |
+        Currently not in use.
+        Container for per-doctype metadata that can affect how pings are processed in the pipeline.
+      additionalProperties: false
+      properties:
+        expiration_policy:
+          $ref: "#/components/schemas/ExpirationPolicy"
+        jwe_mappings:
+          $ref: "#/components/schemas/JweMappings"
+        override_attributes:
+          $ref: "#/components/schemas/OverrideAttributes"
+        submission_timestamp_granularity:
+          type: string
+          description: |
+            Currently not in use.
+            If specified, the submission_timestamp field will be truncated to the specified
+            granularity in the pipeline before being output to BigQuery; this can be used to reduce the potential for
+            using time-based attacks to correlate datasets using different client-level identifiers; see Java's
+            ChronoUnit for additional granularities that could be considered for inclusion; implemented for bug 1742172.
+          enum:
+            - millis
+            - seconds
+            - minutes
+            - hours
+            - days
+
+    MozPipelineMetadata:
+      type: object
+      description: |
+        Currently not in use.
+        Allows ping level override of metadata values.
+      additionalProperties:
+        type: object
+        description: Override default metadata values for the specified ping name.    Note this is the document type (kebab-case) not the BigQuery table name (snake_case). 
+        x-additionalPropertiesName: ping-name
+        additionalProperties: false
+        properties:
+          expiration_policy:
+            $ref: "#/components/schemas/ExpirationPolicy"
+          jwe_mappings:
+            $ref: "#/components/schemas/JweMappings"
+          override_attributes:
+            $ref: "#/components/schemas/OverrideAttributes"
+          submission_timestamp_granularity:
+            type: string
+            description: |
+              Currently not in use.
+              If specified, the submission_timestamp field will be truncated to the specified
+              granularity in the pipeline before being output to BigQuery; this can be used to reduce the potential for
+              using time-based attacks to correlate datasets using different client-level identifiers; see Java's
+              ChronoUnit for additional granularities that could be considered for inclusion; implemented for bug 1742172.
+            enum:
+              - millis
+              - seconds
+              - minutes
+              - hours
+              - days
     Encryption:
       type: object
       properties:
