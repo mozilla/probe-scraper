@@ -772,7 +772,7 @@ components:
               - geo_subdivision2
               - normalized_channel
           value:
-            type: [ string, null ]
+            type: [ string, "null" ]
             required: true
 
     ExpirationPolicy:
