@@ -595,6 +595,7 @@ applications:
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
+      - gecko
     retention_days: 180
     channels:
       - v1_name: firefox-focus-android
@@ -630,6 +631,7 @@ applications:
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
+      - gecko
     retention_days: 180
     channels:
       - v1_name: firefox-klar-android
