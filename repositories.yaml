@@ -723,19 +723,21 @@ applications:
     skip_documentation: true
 
   - app_name: rally_core
-    canonical_app_name: Rally Core Add-on
+    canonical_app_name: Rally Core Add-on and Web Platform
     app_description: |
-      The Rally Core Add-on orchestrates the installation
-      and the lifecycle of [Rally](https://rally.mozilla.org/)
+      The Rally Core Add-on and Web Platform orchestrates the
+      installation and the lifecycle of [Rally](https://rally.mozilla.org/)
       studies.
-    url: https://github.com/mozilla-rally/rally-core-addon
+    url: https://github.com/mozilla-rally/rally
     notification_emails:
       - than@mozilla.com
-    branch: master
+      - aagarwal@mozilla.com
+      - rhelmer@mozilla.com
+    branch: main
     metrics_files:
-      - metrics.yaml
+      - web-platform/glean/metrics.yaml
     ping_files:
-      - pings.yaml
+      - web-platform/glean/pings.yaml
     dependencies:
       - glean-js
     channels:
