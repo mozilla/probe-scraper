@@ -341,10 +341,13 @@ applications:
       # the Sync component from A-S is able to send Glean metrics.
       - Sync/metrics.yaml
     ping_files:
+      - Client/pings.yaml
       # The Sync/* files are meant to be a stop-gap measure, see
       # https://mozilla-hub.atlassian.net/browse/SYNC-3008, until
       # the Sync component from A-S is able to send Glean metrics.
       - Sync/pings.yaml
+    tag_files:
+      - Client/tags.yaml
     branch: main
     dependencies:
       - glean-core
@@ -353,6 +356,14 @@ applications:
       - org.mozilla.components:service-glean
       - nimbus
       - org.mozilla.appservices:logins
+    moz_pipeline_metadata:
+      topsites-impression:
+        expiration_policy:
+          delete_after_days: 30
+        override_attributes:
+          - name: "geo_city"
+            value: null
+        submission_timestamp_granularity: "seconds"
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
