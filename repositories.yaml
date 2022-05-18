@@ -191,7 +191,7 @@ applications:
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
-    metrics_files:
+    metrics_files: # When adding here, consider if you should also add to pine.
       - browser/components/metrics.yaml
       - browser/modules/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
@@ -228,6 +228,31 @@ applications:
     channels:
       - v1_name: firefox-desktop-background-update
         app_id: firefox.desktop.background.update
+
+  - app_name: pine
+    canonical_app_name: Pinebuild
+    app_description: >-
+      The pine build of mozilla-central.
+    url: https://github.com/mozilla/gecko-dev
+    notification_emails:
+      - chutten@mozilla.com
+    metrics_files:
+      - browser/components/metrics.yaml
+      - browser/modules/metrics.yaml
+      - toolkit/components/telemetry/metrics.yaml
+      - toolkit/xre/metrics.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
+    dependencies:
+      - gecko
+      - glean-core
+      # does not actually depend on glean-android, including for backwards
+      # compat
+      - org.mozilla.components:service-glean
+    channels:
+      - v1_name: pine
+        app_id: pine
+    skip_documentation: true
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
@@ -609,6 +634,7 @@ applications:
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
+      - gecko
     retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
@@ -647,6 +673,7 @@ applications:
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
+      - gecko
     retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
@@ -728,19 +755,21 @@ applications:
     skip_documentation: true
 
   - app_name: rally_core
-    canonical_app_name: Rally Core Add-on
+    canonical_app_name: Rally Core Add-on and Web Platform
     app_description: |
-      The Rally Core Add-on orchestrates the installation
-      and the lifecycle of [Rally](https://rally.mozilla.org/)
+      The Rally Core Add-on and Web Platform orchestrates the
+      installation and the lifecycle of [Rally](https://rally.mozilla.org/)
       studies.
-    url: https://github.com/mozilla-rally/rally-core-addon
+    url: https://github.com/mozilla-rally/rally
     notification_emails:
       - than@mozilla.com
-    branch: master
+      - aagarwal@mozilla.com
+      - rhelmer@mozilla.com
+    branch: main
     metrics_files:
-      - metrics.yaml
+      - web-platform/glean/metrics.yaml
     ping_files:
-      - pings.yaml
+      - web-platform/glean/pings.yaml
     dependencies:
       - glean-js
     moz_pipeline_metadata_defaults:
