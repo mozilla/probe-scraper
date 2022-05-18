@@ -6,10 +6,8 @@ import argparse
 import copy
 import datetime
 import errno
-import gzip
 import json
 import os
-import subprocess
 import sys
 import tempfile
 import traceback
@@ -28,6 +26,7 @@ from .parsers.pings import GleanPingsParser
 from .parsers.repositories import RepositoriesParser, Repository
 from .parsers.scalars import ScalarsParser
 from .parsers.tags import GleanTagsParser
+from .remote_storage import remote_storage_pull, remote_storage_push
 from .scrapers import git_scraper, moz_central_scraper
 
 
@@ -494,86 +493,32 @@ def load_glean_metrics(
 
 def setup_output_and_cache_dirs(
     output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path
-) -> str:
+):
     # Create the output directory
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Sync the cache directory
-    cache_path = f"s3://{cache_bucket}/cache/probe-scraper"
-    print(f"Syncing cache from {cache_path} with {cache_dir}")
-    subprocess.check_call(["aws", "s3", "sync", cache_path, cache_dir])
-    return cache_path
+    print(f"Syncing cache from {cache_bucket} with {cache_dir}")
+    remote_storage_pull(cache_bucket, cache_dir)
 
 
-def sync_output_and_cache_dirs(
-    output_bucket: str,
-    cache_bucket: str,
-    out_dir: Path,
-    cache_dir: Path,
-    cache_path: str,
+def push_output_and_cache_dirs(
+    output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path
 ):
-    # Check output dir and then sync with cloudfront
+    # Check output dir and then sync with remote storage
     if not os.listdir(out_dir):
         print("{} is empty".format(out_dir))
         sys.exit(1)
     else:
-        print(f"Syncing output dir {out_dir}/ with s3://{output_bucket}/")
-
-        # cloudfront is supposed to automatically gzip objects, but it won't do that
-        # if the object size is > 10 megabytes (https://webmasters.stackexchange.com/a/111734)
-        # which our files sometimes are. to work around this, we'll regzip the contents into a
-        # temporary directory, and upload that with a special content encoding
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            tmp = Path(tmpdirname)
-            for in_filename in out_dir.rglob("*"):
-                if not in_filename.is_dir():
-                    out_filename = tmp / in_filename.relative_to(out_dir)
-                    out_filename.parent.mkdir(parents=True, exist_ok=True)
-                    out_filename.write_bytes(gzip.compress(in_filename.read_bytes()))
-
-            # Synchronize the json files and index.html separately,
-            # as they have different mimetypes
-            sync_params = [
-                "--content-encoding",
-                "gzip",
-                "--cache-control",
-                "max-age=28800",
-                "--acl",
-                "public-read",
-            ]
-            subprocess.check_call(
-                [
-                    "aws",
-                    "s3",
-                    "sync",
-                    f"{tmpdirname}/",
-                    f"s3://{output_bucket}/",
-                    "--delete",
-                    "--exclude",
-                    "index.html",
-                    "--content-type",
-                    "application/json",
-                ]
-                + sync_params
-            )
-            subprocess.check_call(
-                [
-                    "aws",
-                    "s3",
-                    "cp",
-                    f"{tmpdirname}/index.html",
-                    f"s3://{output_bucket}/",
-                    "--content-type",
-                    "text/html",
-                ]
-                + sync_params
-            )
-
-        # Sync cache data
-        print(f"Syncing cache dir {cache_dir}/ with {cache_path}")
-        subprocess.check_call(
-            ["aws", "s3", "sync", "--exclude=*.git/*", cache_dir, cache_path]
+        remote_storage_push(
+            src=out_dir,
+            dst=output_bucket,
+            compress=True,
+            delete=True,
+            cache_control="max-age=28800",
+            acl="public-read",
         )
+        remote_storage_push(src=cache_dir, dst=cache_bucket, exclude=("*.git/*",))
 
 
 def main(
@@ -594,11 +539,9 @@ def main(
     glean_urls: Optional[List[str]] = None,
 ):
 
-    # Sync dirs with s3 if we are not running pytest or local dryruns
+    # Sync dirs with remote storage if we are not running pytest or local dryruns
     if env == "prod":
-        cache_path = setup_output_and_cache_dirs(
-            output_bucket, cache_bucket, out_dir, cache_dir
-        )
+        setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
 
     if not (process_moz_central_probes or process_glean_metrics):
         process_moz_central_probes = process_glean_metrics = True
@@ -621,11 +564,9 @@ def main(
             glean_urls=glean_urls,
         )
 
-    # Sync results with s3 if we are not running pytest or local dryruns
+    # Sync results if we are not running pytest or local dryruns
     if env == "prod":
-        sync_output_and_cache_dirs(
-            output_bucket, cache_bucket, out_dir, cache_dir, cache_path
-        )
+        push_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
 
 
 if __name__ == "__main__":
@@ -662,19 +603,19 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--output-bucket",
-        help="The output s3 cloudfront bucket where out-dir will be syncd.",
+        help="The output remote storage bucket where out-dir will be syncd.",
         type=str,
-        default="net-mozaws-prod-us-west-2-data-pitmo",
+        default="s3://net-mozaws-prod-us-west-2-data-pitmo/",
     )
     parser.add_argument(
         "--cache-bucket",
         help="The cache bucket for probe scraper.",
         type=str,
-        default="telemetry-airflow-cache",
+        default="s3://telemetry-airflow-cache/cache/probe-scraper",
     )
     parser.add_argument(
         "--env",
-        help="We set this to 'prod' when we need to run actual s3 syncs",
+        help="We set this to 'prod' when we need to run actual remote storage syncs",
         type=str,
         choices=["dev", "prod"],
         default="dev",
