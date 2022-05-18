@@ -277,6 +277,14 @@ applications:
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
       - nimbus
+    moz_pipeline_metadata:
+      topsites-impression:
+        expiration_policy:
+          delete_after_days: 30
+        override_attributes:
+          - name: "geo_city"
+            value: null
+        submission_timestamp_granularity: "seconds"
     channels:
       - v1_name: firefox-android-release
         app_id: org.mozilla.firefox
@@ -581,6 +589,9 @@ applications:
       - glean-core
       - nimbus
     retention_days: 720
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 720
     channels:
       - v1_name: firefox-focus-ios
         app_id: org.mozilla.ios.Focus
@@ -599,6 +610,9 @@ applications:
       - glean-core
       - nimbus
     retention_days: 720
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 720
     channels:
       - v1_name: firefox-klar-ios
         app_id: org.mozilla.ios.Klar
@@ -622,6 +636,9 @@ applications:
       - nimbus
       - gecko
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
@@ -658,6 +675,9 @@ applications:
       - nimbus
       - gecko
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
     channels:
       - v1_name: firefox-klar-android
         app_id: org.mozilla.klar
@@ -677,6 +697,9 @@ applications:
     dependencies:
       - glean-js
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
     channels:
       - v1_name: bergamot
         app_id: org.mozilla.bergamot
@@ -695,6 +718,9 @@ applications:
     dependencies:
       - glean-js
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
     channels:
       - v1_name: firefox-translations
         app_id: firefox-translations
@@ -714,6 +740,12 @@ applications:
     dependencies:
       - glean-js
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
+      jwe_mappings:
+        - source_field_path: /payload
+          decrypted_field_path: ""
     channels:
       - v1_name: rally-debug
         app_id: rally.debug
@@ -740,6 +772,10 @@ applications:
       - web-platform/glean/pings.yaml
     dependencies:
       - glean-js
+    moz_pipeline_metadata_defaults:
+      jwe_mappings:
+        - source_field_path: /payload
+          decrypted_field_path: ""
     channels:
       - v1_name: rally-core
         app_id: rally-core
@@ -764,6 +800,9 @@ applications:
     dependencies:
       - glean-js
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
     channels:
       - v1_name: mozilla-vpn
         app_id: mozillavpn
@@ -787,6 +826,10 @@ applications:
       - pings.yaml
     dependencies:
       - glean-js
+    moz_pipeline_metadata_defaults:
+      jwe_mappings:
+        - source_field_path: /payload
+          decrypted_field_path: ""
     channels:
       - v1_name: rally-study-zero-one
         app_id: rally-study-zero-one
@@ -833,6 +876,9 @@ applications:
     dependencies:
       - glean-js
     retention_days: 365
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 365
     channels:
       - v1_name: regrets-reporter-ucs
         app_id: regrets.reporter.ucs
@@ -857,6 +903,10 @@ applications:
       - pings.yaml
     dependencies:
       - glean-js
+    moz_pipeline_metadata_defaults:
+      jwe_mappings:
+        - source_field_path: /payload
+          decrypted_field_path: ""
     channels:
       - v1_name: rally-markup-fb-pixel-hunt
         app_id: rally-markup-fb-pixel-hunt
@@ -881,6 +931,9 @@ applications:
     dependencies:
       - glean-js
     retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
     channels:
       - v1_name: glean-dictionary
         app_id: glean-dictionary
@@ -909,6 +962,10 @@ applications:
       - pings.yaml
     dependencies:
       - glean-js
+    moz_pipeline_metadata_defaults:
+      jwe_mappings:
+        - source_field_path: /payload
+          decrypted_field_path: ""
     channels:
       - v1_name: rally-citp-search-engine-usage
         app_id: rally-citp-search-engine-usage
