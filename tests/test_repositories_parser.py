@@ -100,4 +100,6 @@ def test_repositories_class(parser, correct_repos_file):
         "tag_file_paths": [],
         "url": "www.github.com/fbertsch/mobile-metrics-example",
         "skip_documentation": False,
+        "moz_pipeline_metadata_defaults": {},
+        "moz_pipeline_metadata": {},
     }

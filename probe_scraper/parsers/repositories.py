@@ -54,6 +54,10 @@ class Repository(object):
         self.retention_days = definition.get("retention_days", None)
         self.encryption = definition.get("encryption", None)
         self.skip_documentation = definition.get("skip_documentation", False)
+        self.moz_pipeline_metadata_defaults = definition.get(
+            "moz_pipeline_metadata_defaults", {}
+        )
+        self.moz_pipeline_metadata = definition.get("moz_pipeline_metadata", {})
 
     def get_metrics_file_paths(self):
         return self.metrics_file_paths
