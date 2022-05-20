@@ -981,3 +981,24 @@ applications:
     encryption:
       use_jwk: true
     skip_documentation: true
+
+  - app_name: bedrock
+    canonical_app_name: www.mozilla.org
+    app_description: The Mozilla website www.mozilla.org
+    url: https://github.com/mozilla/bedrock
+    notification_emails:
+      - agibson@mozilla.com
+    branch: main
+    metrics_files:
+      - glean/metrics.yaml
+    ping_files:
+      - glean/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
+    channels:
+      - v1_name: bedrock
+        app_id: bedrock
