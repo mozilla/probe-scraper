@@ -64,6 +64,10 @@ SKIP_COMMITS = {
     "pine": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
     ],
+    "rally-core": [
+        "4df4dc23317e155bf1b605d04b466c27d78537fa",  # Missing web-platform/glean/metrics.yaml
+        "f633df7676b6ef64e496fea1b3687eff22680d49",  # Missing web-platform/glean/pings.yaml
+    ],
 }
 
 
