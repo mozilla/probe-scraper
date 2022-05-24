@@ -13,6 +13,7 @@ import tempfile
 import traceback
 from collections import defaultdict
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Dict, List, Optional
 
 from dateutil.tz import tzlocal
@@ -63,7 +64,7 @@ def general_data() -> Dict[str, str]:
     }
 
 
-def dump_json(data: Any, out_dir: Path, file_name: str):
+def dump_json(data: Any, out_dir: Path, file_name: str) -> Path:
     # Make sure that the output directory exists. This also creates
     # intermediate directories if needed.
     try:
@@ -77,21 +78,22 @@ def dump_json(data: Any, out_dir: Path, file_name: str):
             return o.isoformat()
 
     path = out_dir / file_name
-    with open(path, "w") as f:
-        print(f"  {path}")
-        json.dump(
+    print(f"  {path}")
+    path.write_text(
+        json.dumps(
             data,
-            f,
             sort_keys=True,
             indent=2,
             separators=(",", ": "),
             default=date_serializer,
         )
+    )
+    return path
 
 
 def write_moz_central_probe_data(
     probe_data: Dict[str, Any], revisions: Any, out_dir: Path
-):
+) -> List[Path]:
     # Save all our files to "out_dir/firefox/..." to mimic a REST API.
     base_dir = out_dir / "firefox"
 
@@ -105,12 +107,14 @@ def write_moz_central_probe_data(
     for channel, channel_probes in probe_data.items():
         data_dir = base_dir / channel / "main"
         dump_json(channel_probes, data_dir, "all_probes")
+    return [base_dir]
 
 
-def write_general_data(out_dir: Path):
-    dump_json(general_data(), out_dir, "general")
-    with open(out_dir / "index.html", "w") as f:
-        f.write(
+def write_general_data(out_dir: Path) -> List[Path]:
+    general_path = dump_json(general_data(), out_dir, "general")
+    index_path = out_dir / "index.html"
+    index_path.write_text(
+        dedent(
             """
             <html><head><title>Mozilla Probe Info</title></head>
             <body>This site contains metadata used by Mozilla's data collection
@@ -119,6 +123,8 @@ def write_general_data(out_dir: Path):
             </body></html>
             """
         )
+    )
+    return [general_path, index_path]
 
 
 def write_glean_metric_data(
@@ -149,12 +155,12 @@ def write_glean_ping_data(pings: Dict[str, Any], out_dir: Path):
         dump_json(pings_data, base_dir, "pings")
 
 
-def write_repositories_data(repos: List[Repository], out_dir: Path):
+def write_repositories_data(repos: List[Repository], out_dir: Path) -> List[Path]:
     json_data = [r.to_dict() for r in repos]
-    dump_json(json_data, out_dir / "glean", "repositories")
+    return [dump_json(json_data, out_dir / "glean", "repositories")]
 
 
-def write_v2_data(repos: Dict[str, Any], out_dir: Path):
+def write_v2_data(repos: Dict[str, Any], out_dir: Path) -> List[Path]:
     base_dir = out_dir / "v2" / "glean"
     dump_json(repos["app-listings"], base_dir, "app-listings")
     dump_json(
@@ -162,6 +168,7 @@ def write_v2_data(repos: Dict[str, Any], out_dir: Path):
         base_dir,
         "library-variants",
     )
+    return [base_dir]
 
 
 def parse_moz_central_probes(
@@ -287,7 +294,7 @@ def load_moz_central_probes(
     fx_version: int,
     min_fx_version: int,
     firefox_channel: str,
-):
+) -> List[Path]:
 
     if fx_version:
         min_fx_version = fx_version
@@ -334,7 +341,9 @@ def load_moz_central_probes(
     )
 
     # Serialize the probe data to disk.
-    write_moz_central_probe_data(probes_by_channel_with_dates, revision_dates, out_dir)
+    return write_moz_central_probe_data(
+        probes_by_channel_with_dates, revision_dates, out_dir
+    )
 
 
 def load_glean_metrics(
@@ -345,7 +354,10 @@ def load_glean_metrics(
     glean_repos: Optional[List[str]],
     bugzilla_api_key: Optional[str],
     glean_urls: Optional[List[str]] = None,
-):
+    glean_commit: Optional[str] = None,
+    glean_commit_branch: Optional[str] = None,
+) -> List[Path]:
+    upload_paths = []
     repositories = RepositoriesParser().parse(repositories_file)
     if glean_urls:
         repositories = [r for r in repositories if r.url in glean_urls]
@@ -353,8 +365,8 @@ def load_glean_metrics(
         repositories = [r for r in repositories if r.name in glean_repos]
     if not repositories:
         raise ValueError("No glean repos matched --glean-repo or --glean-url")
-    commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
-        cache_dir, repositories
+    commit_timestamps, repos_metrics_data, emails, upload_repos = git_scraper.scrape(
+        cache_dir, repositories, glean_commit, glean_commit_branch
     )
 
     glean_checks.check_glean_metric_structure(repos_metrics_data)
@@ -470,11 +482,20 @@ def load_glean_metrics(
     write_glean_tag_data(tags_by_repo, out_dir)
     write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
     write_glean_ping_data(pings_by_repo, out_dir)
-    write_repositories_data(repositories, out_dir)
-    write_general_data(out_dir)
+    # only upload authorized repos
+    upload_paths += [out_dir / "glean" / repo_name for repo_name in upload_repos]
+
+    repositories_data_paths = write_repositories_data(repositories, out_dir)
+    general_data_paths = write_general_data(out_dir)
 
     repos_v2 = RepositoriesParser().parse_v2(repositories_file)
-    write_v2_data(repos_v2, out_dir)
+    v2_data_paths = write_v2_data(repos_v2, out_dir)
+
+    if glean_urls is None and glean_repos is None:
+        # only upload these paths when repositories were not filtered
+        upload_paths += repositories_data_paths
+        upload_paths += general_data_paths
+        upload_paths += v2_data_paths
 
     for repo_name, email_info in list(emails.items()):
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
@@ -490,6 +511,8 @@ def load_glean_metrics(
     if abort_after_emails:
         raise ValueError("Errors processing Glean metrics")
 
+    return upload_paths
+
 
 def setup_output_and_cache_dirs(
     output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path
@@ -503,21 +526,32 @@ def setup_output_and_cache_dirs(
 
 
 def push_output_and_cache_dirs(
-    output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path
+    output_bucket: str,
+    cache_bucket: str,
+    out_dir: Path,
+    cache_dir: Path,
+    upload_paths: Optional[List[Path]] = None,
 ):
     # Check output dir and then sync with remote storage
     if not os.listdir(out_dir):
         print("{} is empty".format(out_dir))
         sys.exit(1)
     else:
-        remote_storage_push(
-            src=out_dir,
-            dst=output_bucket,
-            compress=True,
-            delete=True,
-            cache_control="max-age=28800",
-            acl="public-read",
-        )
+        for src in [out_dir] if upload_paths is None else upload_paths:
+            if src is out_dir:
+                dst = output_bucket
+            else:
+                dst = f"{output_bucket.rstrip('/')}/{src.relative_to(out_dir)}"
+                if src.is_dir():
+                    dst += "/"
+            remote_storage_push(
+                src=src,
+                dst=dst,
+                compress=True,
+                delete=src.is_dir(),
+                cache_control="max-age=28800",
+                acl="public-read",
+            )
         remote_storage_push(src=cache_dir, dst=cache_bucket, exclude=("*.git/*",))
 
 
@@ -537,16 +571,19 @@ def main(
     env: str,
     bugzilla_api_key: Optional[str],
     glean_urls: Optional[List[str]] = None,
+    glean_commit: Optional[str] = None,
+    glean_commit_branch: Optional[str] = None,
 ):
 
     # Sync dirs with remote storage if we are not running pytest or local dryruns
     if env == "prod":
         setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
 
+    upload_paths = []
     if not (process_moz_central_probes or process_glean_metrics):
         process_moz_central_probes = process_glean_metrics = True
     if process_moz_central_probes:
-        load_moz_central_probes(
+        upload_paths += load_moz_central_probes(
             cache_dir,
             out_dir,
             firefox_version,
@@ -554,7 +591,7 @@ def main(
             firefox_channel,
         )
     if process_glean_metrics:
-        load_glean_metrics(
+        upload_paths += load_glean_metrics(
             cache_dir,
             out_dir,
             repositories_file,
@@ -562,11 +599,27 @@ def main(
             glean_repos,
             bugzilla_api_key,
             glean_urls=glean_urls,
+            glean_commit=glean_commit,
+            glean_commit_branch=glean_commit_branch,
         )
 
     # Sync results if we are not running pytest or local dryruns
     if env == "prod":
-        push_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
+        out_dir_is_complete = (
+            process_moz_central_probes
+            and process_glean_metrics
+            and glean_urls is None
+            and glean_repos is None
+            and glean_commit is None
+        )
+        push_output_and_cache_dirs(
+            output_bucket,
+            cache_bucket,
+            out_dir,
+            cache_dir,
+            # only use upload paths if out_dir is not complete
+            upload_paths=(None if out_dir_is_complete else upload_paths),
+        )
 
 
 if __name__ == "__main__":
@@ -624,6 +677,25 @@ if __name__ == "__main__":
         "--bugzilla-api-key",
         help="The bugzilla API key used to find and file bugs for FOG repos."
         " If not provided, no bugs will be filed.",
+        type=str,
+        required=False,
+    )
+    parser.add_argument(
+        "--glean-commit",
+        help="The glean commit to scrape. If unspecified, scrapes all. If specified, only upload"
+        " per repo files to --output-bucket for repos where --glean-commit-branch matches the"
+        " branch for that repo. If --glean-commit-branch is not specified or does not match the"
+        " branch for any repo, no per repo files will be uploaded. Per repo files not uploaded to"
+        " --output-bucket will still be written to --out-dir. When no branch is specified in"
+        " --repositories-file, the branch for that repo is the git default branch.",
+        type=str,
+        required=False,
+    )
+    parser.add_argument(
+        "--glean-commit-branch",
+        help="The git branch that --glean-commit is on. If specified with --glean-commit, and"
+        " matches the branch for a glean repo, verify that --glean-commit is actually on that"
+        " branch.",
         type=str,
         required=False,
     )
@@ -688,4 +760,6 @@ if __name__ == "__main__":
         args.env,
         args.bugzilla_api_key,
         glean_urls=args.glean_urls,
+        glean_commit=args.glean_commit,
+        glean_commit_branch=args.glean_commit_branch,
     )

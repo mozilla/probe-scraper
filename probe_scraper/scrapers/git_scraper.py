@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import re
 import tempfile
 import traceback
 from collections import defaultdict
@@ -12,6 +13,8 @@ from typing import Dict, List, Optional, Tuple, Union
 import git
 
 from probe_scraper.parsers.repositories import Repository
+
+GIT_HASH_PATTERN = re.compile("([A-Fa-f0-9]){40}")
 
 # WARNING!
 # Changing these dates can cause files that had metrics to
@@ -72,6 +75,10 @@ SKIP_COMMITS = {
 }
 
 
+class InvalidCommitError(ValueError):
+    pass
+
+
 def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
     # adapted from https://stackoverflow.com/a/25961128
     subtree = repo.commit(ref).tree
@@ -83,17 +90,24 @@ def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
     return str(filename) in subtree
 
 
-def get_commits(repo: git.Repo, filename: Path, ref: str) -> Dict[str, Tuple[int, int]]:
+def get_commits(
+    repo: git.Repo, filename: Path, ref: str, max_count: Optional[int] = None
+) -> Dict[str, Tuple[int, int]]:
     sep = ":"
     log_format = f"--format=%H{sep}%ct"
     # include "--" to prevent error for filename not in current tree
-    change_commits = repo.git.log(ref, log_format, "--", filename).split("\n")
+    args = [ref, log_format, "--", filename]
+    if max_count is not None:
+        args = [f"--max-count={max_count}"] + args
+    log = repo.git.log(args)
     # filter out empty strings
-    change_commits = filter(None, change_commits)
+    change_commits = filter(None, log.split("\n"))
     commits = set(enumerate(change_commits))
-    if _file_in_commit(repo, filename, ref):
-        # include HEAD when it contains filename
-        commits |= set(enumerate(repo.git.log(ref, "-n", "1", log_format).split("\n")))
+    if max_count is None and _file_in_commit(repo, filename, ref):
+        # include ref when it contains filename
+        commits |= set(
+            enumerate(repo.git.log(ref, "--max-count=1", log_format).split("\n"))
+        )
 
     # Store the index in the ref-log as well as the timestamp, so that the
     # ordering of commits will be deterministic and always in the correct
@@ -117,8 +131,11 @@ def utc_timestamp(d: datetime) -> float:
 
 
 def retrieve_files(
-    repo_info: Repository, cache_dir: Path
-) -> Tuple[Dict[str, Tuple[int, int]], Dict[str, List[Path]]]:
+    repo_info: Repository,
+    cache_dir: Path,
+    commit: Optional[str] = None,
+    commit_branch: Optional[str] = None,
+) -> Tuple[Dict[str, Tuple[int, int]], Dict[str, List[Path]], bool]:
     results = defaultdict(list)
     timestamps = dict()
     base_path = cache_dir / repo_info.name
@@ -132,7 +149,7 @@ def retrieve_files(
     skip_commits = SKIP_COMMITS.get(repo_info.name, [])
 
     if repo_path.exists():
-        print(f"Pulling latest commits into {repo_path}")
+        print(f"Pulling commits into {repo_path}")
         repo = git.Repo(repo_path)
         if set(repo.remote("origin").urls) != {repo_info.url}:
             raise Exception(
@@ -140,16 +157,49 @@ def retrieve_files(
             )
     else:
         print(f"Cloning {repo_info.url} into {repo_path}")
-        repo = git.Repo.clone_from(repo_info.url, repo_path, bare=True)
+        repo = git.Repo.clone_from(
+            repo_info.url, repo_path, bare=True, depth=1 if commit else None
+        )
 
+    repo_is_shallow = repo.git.rev_parse(is_shallow_repository=True) == "true"
     branch = repo_info.branch or repo.active_branch
-    repo.git.fetch("origin", f"{branch}:{branch}")
-    # pass ref around to avoid updating repo.active_branch, so that it
-    # can be preserved for other glean repos with the same git url
-    ref = f"refs/heads/{branch}"
+    if commit is None:
+        repo.git.fetch(
+            "origin", f"{branch}:{branch}", force=True, unshallow=repo_is_shallow
+        )
+        # pass ref around to avoid updating repo.active_branch, so that it
+        # can be preserved for other glean repos with the same git url
+        ref = f"refs/heads/{branch}"
+        upload_repo = True
+    elif GIT_HASH_PATTERN.fullmatch(commit) is None:
+        raise InvalidCommitError("must be full length git hash")
+    else:
+        repo.git.fetch(
+            "origin", commit, force=True, depth=1 if repo_is_shallow else None
+        )
+        ref = commit
+        upload_repo = str(branch) == commit_branch
+        # When commit_branch is the branch for this repo, verify that commit is on that branch.
+        if upload_repo:
+            print(f"Verifying that {commit} is in {branch}")
+            # doesn't change depth
+            repo.git.fetch("origin", f"{branch}:{branch}", force=True)
+            branch_ref = f"refs/heads/{branch}"
+            if commit != repo.commit(branch_ref).hexsha:
+                if repo_is_shallow:
+                    repo.git.fetch(
+                        "origin", f"{branch}:{branch}", force=True, unshallow=True
+                    )
+                try:
+                    # when commit != branch, check if it's in the history for branch
+                    repo.git.merge_base(commit, branch_ref, is_ancestor=True)
+                except git.GitCommandError:
+                    raise InvalidCommitError(
+                        f"Commit {commit} not found in branch {branch} of {repo_info.url}"
+                    )
 
     for rel_path in map(Path, repo_info.get_change_files()):
-        hashes = get_commits(repo, rel_path, ref)
+        hashes = get_commits(repo, rel_path, ref, max_count=1 if commit else None)
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
                 continue
@@ -166,22 +216,26 @@ def retrieve_files(
             results[_hash].append(disk_path)
             timestamps[_hash] = (ts, index)
 
-    return timestamps, results
+    return timestamps, results, upload_repo
 
 
 def scrape(
-    folder: Optional[Path] = None, repos: Optional[List[Repository]] = None
+    folder: Optional[Path] = None,
+    repos: Optional[List[Repository]] = None,
+    commit: Optional[str] = None,
+    commit_branch: Optional[str] = None,
 ) -> Tuple[
     Dict[str, Dict[str, Tuple[int, int]]],
     Dict[str, Dict[str, List[Path]]],
     Dict[str, Dict[str, List[Union[Dict[str, str], str]]]],
+    List[str],
 ]:
     """
-    Returns two data structures. The first is the commit timestamps:
+    Returns four data structures. The first is the commit timestamps:
     {
-        repo: {
-            <commit-hash>: (<commit-timestamp>, <index>)
-        }
+      <repo-name>: {
+        <commit-hash>: (<commit-timestamp>, <index>)
+      }
     }
 
     Since commits from the same PR may have the save timestamp, we also return
@@ -190,12 +244,36 @@ def scrape(
 
     The second is the probe data:
     {
-      repo: {
-        <commit-hash>: [path, ...],
-        ...
+      <repo-name>: {
+        <commit-hash>: [<path>, ...],
       },
-      ...
     }
+
+    The third is emails:
+    {
+      <repo-name>: {
+        "addresses": [<email>, ...].
+        "emails": [
+          {
+            "subject": <str>,
+            "message": <str>,
+          },
+        ]
+      },
+    }
+
+    The fourth is the names of repos that are authorized to be uploaded, based on
+    whether commit_branch matches the configured branch for that repo. When commit is
+    not None but commit_branch is None, this is empty. When commit and commit_branch are
+    both None, this includes all repos:
+    [<repo-name>, ...]
+
+    Raises InvalidCommitError when commit is not None or a 40 character hex sha.
+
+    Also raises InvalidCommitError when commit and commit_branch are both specified and
+    commit_branch matches the configured branch for a repo and commit is not part of the
+    history of commit_branch for that repo. This ensures that return values correctly
+    indicate repos where commits are authorized to be uploaded.
     """
     if folder is None:
         folder = Path(tempfile.mkdtemp())
@@ -203,6 +281,7 @@ def scrape(
     results = {}
     timestamps = {}
     emails = {}
+    upload_repos = []
 
     for repo_info in repos:
         print("Getting commits for repository " + repo_info.name)
@@ -214,10 +293,14 @@ def scrape(
         }
 
         try:
-            ts, commits = retrieve_files(repo_info, folder)
+            ts, commits, upload_repo = retrieve_files(
+                repo_info, folder, commit, commit_branch
+            )
             print("  Got {} commits".format(len(commits)))
             results[repo_info.name] = commits
             timestamps[repo_info.name] = ts
+            if upload_repo:
+                upload_repos.append(repo_info.name)
         except Exception:
             raise
             emails[repo_info.name]["emails"].append(
@@ -227,4 +310,4 @@ def scrape(
                 }
             )
 
-    return timestamps, results, emails
+    return timestamps, results, emails, upload_repos
