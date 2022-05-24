@@ -7,7 +7,7 @@ This file contains various sanity checks for Glean.
 """
 
 import datetime
-import os
+from pathlib import Path
 
 from schema import And, Optional, Schema
 
@@ -17,7 +17,7 @@ def check_glean_metric_structure(data):
         {
             str: {
                 Optional(And(str, lambda x: len(x) == 40)): [
-                    And(str, lambda x: os.path.exists(x))
+                    And(Path, lambda x: x.exists())
                 ]
             }
         }
