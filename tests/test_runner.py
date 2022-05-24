@@ -93,7 +93,7 @@ def repo_with_two_pings():
     return {
         "repo1": {
             "ping1": {"name": "ping1", "in-source": True},
-            "ping2": {"name": "ping2", "in-source": False},
+            "ping-2": {"name": "ping-2", "in-source": False},
         }
     }
 
@@ -107,7 +107,7 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
             },
             "submission_timestamp_granularity": "seconds",
         },
-        "app_id": "repo1",
+        "app_id": "repo-1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
     runner.add_pipeline_metadata(
@@ -120,6 +120,9 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2025-12-31",
@@ -141,6 +144,9 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2025-12-31",
@@ -148,10 +154,13 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
                     "submission_timestamp_granularity": "seconds",
                 },
             },
-            "ping2": {
-                "name": "ping2",
+            "ping-2": {
+                "name": "ping-2",
                 "in-source": False,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping_2_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2025-12-31",
@@ -161,6 +170,8 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
             },
         }
     }
+    assert repo_with_two_pings == result
+
 
 
 def test_add_pipeline_metadata_no_default_ping_specific(
@@ -179,7 +190,7 @@ def test_add_pipeline_metadata_no_default_ping_specific(
                 ],
             }
         },
-        "app_id": "repo1",
+        "app_id": "repo-1",
     }
 
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
@@ -193,6 +204,9 @@ def test_add_pipeline_metadata_no_default_ping_specific(
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "jwe-mappings": {
                         "decrypted_field_path": "",
                         "source_field_path": "/payload",
@@ -209,13 +223,16 @@ def test_add_pipeline_metadata_no_default_ping_specific(
     runner.add_pipeline_metadata(
         pings_by_repo=repo_with_two_pings, repositories=repository_list
     )
-    # Notice that this result only has metadata for ping1, not ping2
+    # Notice that this result only has metadata for ping1, not ping-2
     result = {
         "repo1": {
             "ping1": {
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "jwe-mappings": {
                         "decrypted_field_path": "",
                         "source_field_path": "/payload",
@@ -226,9 +243,14 @@ def test_add_pipeline_metadata_no_default_ping_specific(
                     ],
                 },
             },
-            "ping2": {
-                "name": "ping2",
+            "ping-2": {
+                "name": "ping-2",
                 "in-source": False,
+                "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping_2_v1",
+                    "bq_metadata_format": "structured",
+                }
             },
         }
     }
@@ -258,7 +280,7 @@ def test_add_pipeline_metadata_with_default_with_ping_specfic_additions(
                 ],
             }
         },
-        "app_id": "repo1",
+        "app_id": "repo-1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
     runner.add_pipeline_metadata(
@@ -271,6 +293,9 @@ def test_add_pipeline_metadata_with_default_with_ping_specfic_additions(
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2025-12-31",
@@ -286,10 +311,13 @@ def test_add_pipeline_metadata_with_default_with_ping_specfic_additions(
                     ],
                 },
             },
-            "ping2": {
-                "name": "ping2",
+            "ping-2": {
+                "name": "ping-2",
                 "in-source": False,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo_1",
+                    "bq_table": "ping_2_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2025-12-31",
@@ -320,7 +348,7 @@ def test_add_pipeline_metadata_with_default_with_ping_specific_override(
                 },
             }
         },
-        "app_id": "repo1",
+        "app_id": "repo.1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
     runner.add_pipeline_metadata(
@@ -334,6 +362,9 @@ def test_add_pipeline_metadata_with_default_with_ping_specific_override(
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo.1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 90,
                         "collect_through_date": "2025-12-31",
@@ -341,10 +372,13 @@ def test_add_pipeline_metadata_with_default_with_ping_specific_override(
                     "submission_timestamp_granularity": "seconds",
                 },
             },
-            "ping2": {
-                "name": "ping2",
+            "ping-2": {
+                "name": "ping-2",
                 "in-source": False,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo.1",
+                    "bq_table": "ping_2_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2025-12-31",
@@ -372,7 +406,7 @@ def test_add_pipeline_metadata_with_default_with_pings_override(repo_with_two_pi
                     "delete_after_days": 90,
                 },
             },
-            "ping2": {
+            "ping-2": {
                 "expiration_policy": {"collect_through_date": "2022-12-31"},
                 "jwe-mappings": {
                     "decrypted_field_path": "",
@@ -380,7 +414,7 @@ def test_add_pipeline_metadata_with_default_with_pings_override(repo_with_two_pi
                 },
             },
         },
-        "app_id": "repo1",
+        "app_id": "repo.1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
     runner.add_pipeline_metadata(
@@ -395,6 +429,9 @@ def test_add_pipeline_metadata_with_default_with_pings_override(repo_with_two_pi
                 "name": "ping1",
                 "in-source": True,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo.1",
+                    "bq_table": "ping1_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 90,
                         "collect_through_date": "2025-12-31",
@@ -402,10 +439,13 @@ def test_add_pipeline_metadata_with_default_with_pings_override(repo_with_two_pi
                     "submission_timestamp_granularity": "seconds",
                 },
             },
-            "ping2": {
-                "name": "ping2",
+            "ping-2": {
+                "name": "ping-2",
                 "in-source": False,
                 "moz_pipeline_metadata": {
+                    "bq_dataset_family": "repo.1",
+                    "bq_table": "ping_2_v1",
+                    "bq_metadata_format": "structured",
                     "expiration_policy": {
                         "delete_after_days": 180,
                         "collect_through_date": "2022-12-31",

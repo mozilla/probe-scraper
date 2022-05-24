@@ -236,10 +236,15 @@ def apply_ping_specific_metadata(metadata, ping_metadata):
 def add_pipeline_metadata(pings_by_repo, repositories):
     for repo in repositories:
         metadata_defaults = repo.moz_pipeline_metadata_defaults
+        metadata_defaults['bq_dataset_family'] = repo.app_id.replace("-", "_")
+        metadata_defaults['bq_metadata_format'] =  ("pioneer" if repo.app_id.startswith("rally") else "structured")
+        
         current_pings = pings_by_repo.get(repo.name)
         for ping_name, ping in current_pings.items():
             ping_metadata = repo.moz_pipeline_metadata.get(ping_name, {})
             pipeline_metadata = copy.deepcopy(metadata_defaults)
+            pipeline_metadata['bq_table'] = ping_name.replace("-", "_") + "_v1"
+
             apply_ping_specific_metadata(pipeline_metadata, ping_metadata)
 
             if pipeline_metadata:
