@@ -2,13 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
 import tempfile
 import traceback
 from collections import defaultdict
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
 import git
+
+from probe_scraper.parsers.repositories import Repository
 
 # WARNING!
 # Changing these dates can cause files that had metrics to
@@ -64,10 +67,10 @@ SKIP_COMMITS = {
 }
 
 
-def _file_in_repo_head(repo, filename):
+def _file_in_repo_head(repo: git.Repo, filename: Path) -> bool:
     # adapted from https://stackoverflow.com/a/25961128
     subtree = repo.head.commit.tree
-    for path_element in filename.split(os.path.sep)[:-1]:
+    for path_element in filename.parts[:-1]:
         try:
             subtree = subtree[path_element]
         except KeyError:
@@ -75,9 +78,9 @@ def _file_in_repo_head(repo, filename):
     return filename in subtree
 
 
-def get_commits(repo, filename):
+def get_commits(repo: git.Repo, filename: Path) -> Dict[str, Tuple[int, int]]:
     sep = ":"
-    log_format = '--format="%H{}%ct"'.format(sep)
+    log_format = f"--format=%H{sep}%ct"
     # include "--" to prevent error for filename not in current tree
     change_commits = repo.git.log(log_format, "--", filename).split("\n")
     # filter out empty strings
@@ -92,27 +95,29 @@ def get_commits(repo, filename):
     # order.
     result = {}
     for index, entry in commits:
-        commit, timestamp = entry.strip('"').split(sep)
+        commit, timestamp = entry.split(sep)
         result[commit] = (int(timestamp), index)
 
     return result
 
 
-def get_file_at_hash(repo, _hash, filename):
-    return repo.git.show("{hash}:{path}".format(hash=_hash, path=filename))
+def get_file_at_hash(repo: git.Repo, _hash: str, filename: Path) -> str:
+    return repo.git.show(f"{_hash}:{filename}")
 
 
-def utc_timestamp(d):
+def utc_timestamp(d: datetime) -> float:
     # See https://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp
     # for why we're calculating this UTC timestamp explicitly
     return (d - datetime(1970, 1, 1)) / timedelta(seconds=1)
 
 
-def retrieve_files(repo_info, cache_dir):
+def retrieve_files(
+    repo_info: Repository, cache_dir: Path
+) -> Tuple[Dict[str, Tuple[int, int]], Dict[str, List[Path]]]:
     results = defaultdict(list)
     timestamps = dict()
-    base_path = os.path.join(cache_dir, repo_info.name)
-    repo_path = f"{base_path}.git"
+    base_path = cache_dir / repo_info.name
+    repo_path = cache_dir / f"{repo_info.name}.git"
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -120,7 +125,7 @@ def retrieve_files(repo_info, cache_dir):
 
     skip_commits = SKIP_COMMITS.get(repo_info.name, [])
 
-    if os.path.exists(repo_path):
+    if repo_path.exists():
         print(f"Pulling latest commits into {repo_path}")
         repo = git.Repo(repo_path)
     else:
@@ -131,7 +136,7 @@ def retrieve_files(repo_info, cache_dir):
     repo.git.fetch("origin", f"{branch}:{branch}")
     repo.git.symbolic_ref("HEAD", f"refs/heads/{branch}")
 
-    for rel_path in repo_info.get_change_files():
+    for rel_path in map(Path, repo_info.get_change_files()):
         hashes = get_commits(repo, rel_path)
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
@@ -139,15 +144,12 @@ def retrieve_files(repo_info, cache_dir):
             if _hash in skip_commits:
                 continue
 
-            disk_path = os.path.join(base_path, _hash, rel_path)
-            if not os.path.exists(disk_path):
+            disk_path = base_path / _hash / rel_path
+            if not disk_path.exists():
                 contents = get_file_at_hash(repo, _hash, rel_path)
 
-                dir = os.path.split(disk_path)[0]
-                if not os.path.exists(dir):
-                    os.makedirs(dir)
-                with open(disk_path, "wb") as f:
-                    f.write(contents.encode("UTF-8"))
+                disk_path.parent.mkdir(parents=True, exist_ok=True)
+                disk_path.write_bytes(contents.encode("UTF-8"))
 
             results[_hash].append(disk_path)
             timestamps[_hash] = (ts, index)
@@ -155,7 +157,13 @@ def retrieve_files(repo_info, cache_dir):
     return timestamps, results
 
 
-def scrape(folder=None, repos=None):
+def scrape(
+    folder: Optional[Path] = None, repos: Optional[List[Repository]] = None
+) -> Tuple[
+    Dict[str, Dict[str, Tuple[int, int]]],
+    Dict[str, Dict[str, List[Path]]],
+    Dict[str, Dict[str, List[Union[Dict[str, str], str]]]],
+]:
     """
     Returns two data structures. The first is the commit timestamps:
     {
@@ -178,7 +186,7 @@ def scrape(folder=None, repos=None):
     }
     """
     if folder is None:
-        folder = tempfile.mkdtemp()
+        folder = Path(tempfile.mkdtemp())
 
     results = {}
     timestamps = {}
