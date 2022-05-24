@@ -173,7 +173,6 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
     assert repo_with_two_pings == result
 
 
-
 def test_add_pipeline_metadata_no_default_ping_specific(
     repo_with_one_ping, repo_with_two_pings
 ):
@@ -250,7 +249,7 @@ def test_add_pipeline_metadata_no_default_ping_specific(
                     "bq_dataset_family": "repo_1",
                     "bq_table": "ping_2_v1",
                     "bq_metadata_format": "structured",
-                }
+                },
             },
         }
     }
