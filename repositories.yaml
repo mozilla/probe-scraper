@@ -194,6 +194,7 @@ applications:
     metrics_files: # When adding here, consider if you should also add to pine.
       - browser/components/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
     tag_files:
@@ -239,6 +240,7 @@ applications:
     metrics_files:
       - browser/components/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
     tag_files:
@@ -341,10 +343,13 @@ applications:
       # the Sync component from A-S is able to send Glean metrics.
       - Sync/metrics.yaml
     ping_files:
+      - Client/pings.yaml
       # The Sync/* files are meant to be a stop-gap measure, see
       # https://mozilla-hub.atlassian.net/browse/SYNC-3008, until
       # the Sync component from A-S is able to send Glean metrics.
       - Sync/pings.yaml
+    tag_files:
+      - Client/tags.yaml
     branch: main
     dependencies:
       - glean-core
@@ -353,6 +358,14 @@ applications:
       - org.mozilla.components:service-glean
       - nimbus
       - org.mozilla.appservices:logins
+    moz_pipeline_metadata:
+      topsites-impression:
+        expiration_policy:
+          delete_after_days: 30
+        override_attributes:
+          - name: "geo_city"
+            value: null
+        submission_timestamp_granularity: "seconds"
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
@@ -755,21 +768,19 @@ applications:
     skip_documentation: true
 
   - app_name: rally_core
-    canonical_app_name: Rally Core Add-on and Web Platform
+    canonical_app_name: Rally Core Add-on
     app_description: |
-      The Rally Core Add-on and Web Platform orchestrates the
-      installation and the lifecycle of [Rally](https://rally.mozilla.org/)
+      The Rally Core Add-on orchestrates the installation
+      and the lifecycle of [Rally](https://rally.mozilla.org/)
       studies.
-    url: https://github.com/mozilla-rally/rally
+    url: https://github.com/mozilla-rally/rally-core-addon
     notification_emails:
       - than@mozilla.com
-      - aagarwal@mozilla.com
-      - rhelmer@mozilla.com
-    branch: main
+    branch: master
     metrics_files:
-      - web-platform/glean/metrics.yaml
+      - metrics.yaml
     ping_files:
-      - web-platform/glean/pings.yaml
+      - pings.yaml
     dependencies:
       - glean-js
     moz_pipeline_metadata_defaults:
@@ -972,3 +983,24 @@ applications:
     encryption:
       use_jwk: true
     skip_documentation: true
+
+  - app_name: bedrock
+    canonical_app_name: www.mozilla.org
+    app_description: The Mozilla website www.mozilla.org
+    url: https://github.com/mozilla/bedrock
+    notification_emails:
+      - agibson@mozilla.com
+    branch: main
+    metrics_files:
+      - glean/metrics.yaml
+    ping_files:
+      - glean/pings.yaml
+    dependencies:
+      - glean-js
+    retention_days: 180
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
+    channels:
+      - v1_name: bedrock
+        app_id: bedrock
