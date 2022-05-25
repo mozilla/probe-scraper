@@ -250,9 +250,7 @@ def add_pipeline_metadata(pings_by_repo, repositories):
             apply_ping_specific_metadata(pipeline_metadata, ping_metadata)
 
             if pipeline_metadata:
-                pings_by_repo.get(repo.name).get(ping_name)[
-                    "moz_pipeline_metadata"
-                ] = pipeline_metadata
+                ping["moz_pipeline_metadata"] = pipeline_metadata
 
 
 def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
