@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import copy
+
 import yaml
 
 from probe_scraper import model_validation
@@ -153,7 +155,8 @@ class RepositoriesParser(object):
                 listing["bq_dataset_family"] = (
                     app_id.lower().replace("-", "_").replace(".", "_")
                 )
-                listing = remove_none(listing)
+                # Need a deepcopy to ensure the dictionary values remain distinct.
+                listing = copy.deepcopy(listing)
                 model_validation.validate_as(listing, "AppListing")
                 app_listings.append(listing)
 
