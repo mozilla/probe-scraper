@@ -64,6 +64,11 @@ SKIP_COMMITS = {
     "pine": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
     ],
+    "rally-core": [
+        "4df4dc23317e155bf1b605d04b466c27d78537fa",  # Missing web-platform/glean/metrics.yaml
+        "69559324f775b79c9a39c6a95fdb3657c184ed0e",  # Bug 1769579 omit deleted onboarding ping
+        "f633df7676b6ef64e496fea1b3687eff22680d49",  # Missing web-platform/glean/pings.yaml
+    ],
 }
 
 
@@ -75,7 +80,7 @@ def _file_in_repo_head(repo: git.Repo, filename: Path) -> bool:
             subtree = subtree[path_element]
         except KeyError:
             return False  # subdirectory not in tree
-    return filename in subtree
+    return str(filename) in subtree
 
 
 def get_commits(repo: git.Repo, filename: Path) -> Dict[str, Tuple[int, int]]:
