@@ -305,8 +305,15 @@ def load_glean_metrics(
     dry_run: bool,
     glean_repos: Optional[List[str]],
     bugzilla_api_key: Optional[str],
+    glean_urls: Optional[List[str]] = None,
 ):
-    repositories = RepositoriesParser().parse(repositories_file, glean_repos)
+    repositories = RepositoriesParser().parse(repositories_file)
+    if glean_urls:
+        repositories = [r for r in repositories if r.url in glean_urls]
+    elif glean_repos:
+        repositories = [r for r in repositories if r.name in glean_repos]
+    if not repositories:
+        raise ValueError("No glean repos matched --glean-repo or --glean-url")
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
         cache_dir, repositories
     )
@@ -396,14 +403,16 @@ def load_glean_metrics(
             dependencies[dependency] = {"type": "dependency", "name": dependency}
         dependencies_by_repo[repo.name] = dependencies
 
-    if glean_repos is None or len(glean_repos) > 1:
-        # Don't check for duplicate metrics if we're only parsing
-        # one glean repository (this will almost always crash, since
-        # the libraries that most repositories depend on will not
-        # be specified)
+    try:
         abort_after_emails |= glean_checks.check_for_duplicate_metrics(
             repositories, metrics_by_repo, emails
         )
+    except glean_checks.MissingDependencyError:
+        # Ignore the check for duplicate metrics when a dependency is missing
+        # unless all repositories are being parsed
+        if glean_repos is None and glean_urls is None:
+            raise
+
     glean_checks.check_for_expired_metrics(
         repositories, metrics, commit_timestamps, emails, dry_run=dry_run
     )
@@ -540,6 +549,7 @@ def main(
     cache_bucket: str,
     env: str,
     bugzilla_api_key: Optional[str],
+    glean_urls: Optional[List[str]] = None,
 ):
 
     # Sync dirs with s3 if we are not running pytest or local dryruns
@@ -566,6 +576,7 @@ def main(
             dry_run,
             glean_repos,
             bugzilla_api_key,
+            glean_urls=glean_urls,
         )
 
     # Sync results with s3 if we are not running pytest or local dryruns
@@ -602,15 +613,6 @@ if __name__ == "__main__":
         "--dry-run", help="Whether emails should be sent.", action="store_true"
     )
     parser.add_argument(
-        "--glean-repo",
-        help="The Glean Repositories to scrape (may be specified multiple times). "
-        "If unspecified, scrapes all.",
-        type=str,
-        dest="glean_repos",
-        action="append",
-        required=False,
-    )
-    parser.add_argument(
         "--firefox-channel",
         help="The Fx channel to scrape. If unspecified, scrapes all.",
         type=str,
@@ -638,9 +640,27 @@ if __name__ == "__main__":
     parser.add_argument(
         "--bugzilla-api-key",
         help="The bugzilla API key used to find and file bugs for FOG repos."
-        "If not provided, no bugs will be filed.",
+        " If not provided, no bugs will be filed.",
         type=str,
         required=False,
+    )
+
+    glean_filter = parser.add_mutually_exclusive_group()
+    glean_filter.add_argument(
+        "--glean-repo",
+        help="The Names of Glean Repositories to scrape (may be specified multiple times)."
+        " If neither --glean-repo nor --glean-url are specified, scrapes all.",
+        type=str,
+        dest="glean_repos",
+        action="append",
+    )
+    glean_filter.add_argument(
+        "--glean-url",
+        help="The URLs of Glean Repositories to scrape (may be specified multiple times)."
+        " If neither --glean-repo nor --glean-url are specified, scrapes all.",
+        type=str,
+        dest="glean_urls",
+        action="append",
     )
 
     application = parser.add_mutually_exclusive_group()
@@ -684,4 +704,5 @@ if __name__ == "__main__":
         args.cache_bucket,
         args.env,
         args.bugzilla_api_key,
+        glean_urls=args.glean_urls,
     )

@@ -59,6 +59,10 @@ Your Friendly, Neighborhood Glean Team
 """  # noqa
 
 
+class MissingDependencyError(ValueError):
+    pass
+
+
 def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     """
     Checks for duplicate metric names across all libraries used by a particular application.
@@ -83,6 +87,10 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         metric_sources = {}
         for dependency in dependencies:
+            if dependency not in repo_by_name:
+                raise MissingDependencyError(
+                    f"{repo.name} missing dependency {dependency}"
+                )
             # skip if no metrics
             if not metrics_by_repo[dependency]:
                 continue
