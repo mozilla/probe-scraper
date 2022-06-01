@@ -66,6 +66,7 @@ SKIP_COMMITS = {
     ],
     "rally-core": [
         "4df4dc23317e155bf1b605d04b466c27d78537fa",  # Missing web-platform/glean/metrics.yaml
+        "69559324f775b79c9a39c6a95fdb3657c184ed0e",  # Bug 1769579 omit deleted onboarding ping
         "f633df7676b6ef64e496fea1b3687eff22680d49",  # Missing web-platform/glean/pings.yaml
     ],
 }
