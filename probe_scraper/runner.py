@@ -151,7 +151,7 @@ def write_glean_ping_data(pings: Dict[str, Any], out_dir: Path):
 
 def write_repositories_data(repos: List[Repository], out_dir: Path):
     json_data = [r.to_dict() for r in repos]
-    dump_json(json_data, out_dir, "repositories")
+    dump_json(json_data, out_dir / "glean", "repositories")
 
 
 def write_v2_data(repos: Dict[str, Any], out_dir: Path):
