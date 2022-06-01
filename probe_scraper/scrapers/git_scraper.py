@@ -72,9 +72,9 @@ SKIP_COMMITS = {
 }
 
 
-def _file_in_repo_head(repo: git.Repo, filename: Path) -> bool:
+def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
     # adapted from https://stackoverflow.com/a/25961128
-    subtree = repo.head.commit.tree
+    subtree = repo.commit(ref).tree
     for path_element in filename.parts[:-1]:
         try:
             subtree = subtree[path_element]
@@ -83,17 +83,17 @@ def _file_in_repo_head(repo: git.Repo, filename: Path) -> bool:
     return str(filename) in subtree
 
 
-def get_commits(repo: git.Repo, filename: Path) -> Dict[str, Tuple[int, int]]:
+def get_commits(repo: git.Repo, filename: Path, ref: str) -> Dict[str, Tuple[int, int]]:
     sep = ":"
     log_format = f"--format=%H{sep}%ct"
     # include "--" to prevent error for filename not in current tree
-    change_commits = repo.git.log(log_format, "--", filename).split("\n")
+    change_commits = repo.git.log(ref, log_format, "--", filename).split("\n")
     # filter out empty strings
     change_commits = filter(None, change_commits)
     commits = set(enumerate(change_commits))
-    if _file_in_repo_head(repo, filename):
+    if _file_in_commit(repo, filename, ref):
         # include HEAD when it contains filename
-        commits |= set(enumerate(repo.git.log("-n", "1", log_format).split("\n")))
+        commits |= set(enumerate(repo.git.log(ref, "-n", "1", log_format).split("\n")))
 
     # Store the index in the ref-log as well as the timestamp, so that the
     # ordering of commits will be deterministic and always in the correct
@@ -122,7 +122,8 @@ def retrieve_files(
     results = defaultdict(list)
     timestamps = dict()
     base_path = cache_dir / repo_info.name
-    repo_path = cache_dir / f"{repo_info.name}.git"
+    repo_name = repo_info.url.rstrip("/").split("/")[-1]
+    repo_path = cache_dir / f"{repo_name}.git"
 
     min_date = None
     if repo_info.name in MIN_DATES:
@@ -133,16 +134,22 @@ def retrieve_files(
     if repo_path.exists():
         print(f"Pulling latest commits into {repo_path}")
         repo = git.Repo(repo_path)
+        if set(repo.remote("origin").urls) != {repo_info.url}:
+            raise Exception(
+                f"invalid cache: git repo at {repo_path} is not for {repo_info.url}"
+            )
     else:
         print(f"Cloning {repo_info.url} into {repo_path}")
         repo = git.Repo.clone_from(repo_info.url, repo_path, bare=True)
 
     branch = repo_info.branch or repo.active_branch
     repo.git.fetch("origin", f"{branch}:{branch}")
-    repo.git.symbolic_ref("HEAD", f"refs/heads/{branch}")
+    # pass ref around to avoid updating repo.active_branch, so that it
+    # can be preserved for other glean repos with the same git url
+    ref = f"refs/heads/{branch}"
 
     for rel_path in map(Path, repo_info.get_change_files()):
-        hashes = get_commits(repo, rel_path)
+        hashes = get_commits(repo, rel_path, ref)
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
                 continue
