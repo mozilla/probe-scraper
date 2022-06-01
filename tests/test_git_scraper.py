@@ -5,8 +5,6 @@
 
 import datetime
 import json
-import os
-import shutil
 import time
 import unittest.mock
 from pathlib import Path
@@ -20,19 +18,10 @@ from probe_scraper.emailer import EMAIL_FILE
 from probe_scraper.transform_probes import COMMITS_KEY, HISTORY_KEY
 
 # Where the test files are located
-base_dir = "tests/resources/test_repo_files"
-
-# Where we will build the test git repo
-test_dir = ".test_git_repositories"
-
-# Where we will write the repositories file
-repositories_file = ".repositories.yaml"
+base_dir = Path("tests/resources/test_repo_files")
 
 # Number of commits in the test repository
 num_commits = 1000
-
-cache_dir = ".cache"
-out_dir = ".out"
 
 # names of the test repos
 normal_repo_name = "normal"
@@ -41,26 +30,37 @@ duplicate_repo_name = "duplicate"
 expired_repo_name = "expired"
 
 
-def rm_if_exists(*paths):
-    for path in paths:
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                os.remove(path)
-            else:
-                shutil.rmtree(path)
-
-
 @pytest.fixture(autouse=True)
 def run_before_tests():
-    rm_if_exists(EMAIL_FILE, cache_dir, out_dir)
-    os.mkdir(cache_dir)
-    os.mkdir(out_dir)
-    yield
-    rm_if_exists(cache_dir, out_dir, test_dir)
+    path = Path(EMAIL_FILE)
+    if path.exists():
+        path.unlink()
 
 
-def get_repo(repo_name, branch="master"):
-    directory = os.path.join(test_dir, repo_name)
+@pytest.fixture
+def cache_dir(tmp_path_factory) -> Path:
+    return tmp_path_factory.mktemp("cache")
+
+
+@pytest.fixture
+def out_dir(tmp_path_factory) -> Path:
+    return tmp_path_factory.mktemp("out")
+
+
+@pytest.fixture
+def test_dir(tmp_path_factory) -> Path:
+    # Where we will build the test git repo
+    return tmp_path_factory.mktemp("test_git_repositories")
+
+
+@pytest.fixture
+def repositories_file(test_dir: Path) -> Path:
+    # Where we will write the repositories file
+    return test_dir / "repositories.yaml"
+
+
+def get_repo(test_dir: Path, repo_name: str, branch: str = "master") -> Path:
+    directory = test_dir / repo_name
     repo = Repo.init(directory)
     # Ensure the default branch is using a fixed name.
     # User config could change that,
@@ -73,18 +73,16 @@ def get_repo(repo_name, branch="master"):
     # metrics in adjacent commits may not happen correctly.
     base_time = time.time()
 
-    base_path = os.path.join(base_dir, repo_name)
+    base_path = base_dir / repo_name
     for i in range(num_commits):
-        files_dir = os.path.join(base_path, str(i))
-        if not os.path.exists(files_dir):
+        files_dir = base_path / str(i)
+        if not files_dir.exists():
             break
 
-        files = os.listdir(files_dir)
-        for filename in files:
-            print("Copying file " + filename)
-            path = os.path.join(base_path, str(i), filename)
-            destination = os.path.join(directory, filename)
-            shutil.copyfile(path, destination)
+        for path in files_dir.iterdir():
+            print(f"Copying file {path.name}")
+            destination = directory / path.name
+            destination.write_bytes(path.read_bytes())
 
         repo.index.add("*")
         commit_date = datetime.datetime.fromtimestamp(base_time + i).isoformat()
@@ -94,8 +92,10 @@ def get_repo(repo_name, branch="master"):
     return directory
 
 
-def proper_repo(branch="master"):
-    location = get_repo(normal_repo_name, branch)
+def proper_repo(
+    test_dir: Path, repositories_file: Path, branch: str = "master"
+) -> Path:
+    location = get_repo(test_dir, normal_repo_name, branch)
     repositories_info = {
         "version": "2",
         "libraries": [
@@ -103,7 +103,7 @@ def proper_repo(branch="master"):
                 "library_name": "glean-core",
                 "description": "foo",
                 "notification_emails": ["frank@mozilla.com"],
-                "url": location,
+                "url": str(location),
                 "variants": [
                     {
                         "v1_name": "glean",
@@ -115,7 +115,7 @@ def proper_repo(branch="master"):
                 "library_name": "boollib",
                 "description": "foo",
                 "notification_emails": ["frank@mozilla.com"],
-                "url": location,
+                "url": str(location),
                 "variants": [
                     {
                         "v1_name": "boollib",
@@ -129,7 +129,7 @@ def proper_repo(branch="master"):
                 "app_name": "proper_repo_example",
                 "canonical_app_name": "Proper Repo Example",
                 "app_description": "foo",
-                "url": location,
+                "url": str(location),
                 "notification_emails": ["frank@mozilla.com"],
                 "metrics_files": ["metrics.yaml"],
                 "tag_files": ["tags.yaml"],
@@ -155,18 +155,18 @@ def proper_repo(branch="master"):
 
 
 @pytest.fixture
-def normal_repo():
-    return proper_repo()
+def normal_repo(test_dir: Path, repositories_file: Path):
+    return proper_repo(test_dir, repositories_file)
 
 
 @pytest.fixture
-def main_repo():
-    return proper_repo("main")
+def main_repo(test_dir: Path, repositories_file: Path):
+    return proper_repo(test_dir, repositories_file, "main")
 
 
 @pytest.fixture
-def improper_metrics_repo():
-    location = get_repo(improper_repo_name)
+def improper_metrics_repo(test_dir: Path, repositories_file: Path):
+    location = get_repo(test_dir, improper_repo_name)
     repositories_info = {
         "version": "2",
         "libraries": [],
@@ -175,7 +175,7 @@ def improper_metrics_repo():
                 "app_name": "mobile_metrics_example",
                 "canonical_app_name": "Mobile Metrics Example",
                 "app_description": "foo",
-                "url": location,
+                "url": str(location),
                 "notification_emails": ["frank@mozilla.com"],
                 "metrics_files": ["metrics.yaml"],
                 "channels": [
@@ -195,7 +195,9 @@ def improper_metrics_repo():
     return location
 
 
-def test_normal_repo(normal_repo):
+def test_normal_repo(
+    cache_dir: Path, out_dir: Path, repositories_file: Path, normal_repo: Path
+):
     runner.main(
         cache_dir,
         out_dir,
@@ -213,7 +215,7 @@ def test_normal_repo(normal_repo):
         None,
     )
 
-    path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
+    path = out_dir / "glean" / normal_repo_name / "metrics"
 
     with open(path, "r") as data:
         metrics = json.load(data)
@@ -245,14 +247,14 @@ def test_normal_repo(normal_repo):
     # There should have been no errors
     assert not Path(EMAIL_FILE).exists()
 
-    path = os.path.join(out_dir, "glean", normal_repo_name, "dependencies")
+    path = out_dir / "glean" / normal_repo_name / "dependencies"
 
     with open(path, "r") as data:
         dependencies = json.load(data)
 
     assert len(dependencies) == 2
 
-    path = os.path.join(out_dir, "v2", "glean", "app-listings")
+    path = out_dir / "v2" / "glean" / "app-listings"
 
     with open(path, "r") as data:
         applications = json.load(data)
@@ -265,7 +267,9 @@ def test_normal_repo(normal_repo):
     assert applications[0]["bq_dataset_family"] == "normal_app_name"
 
 
-def test_improper_metrics_repo(improper_metrics_repo):
+def test_improper_metrics_repo(
+    cache_dir: Path, out_dir: Path, repositories_file: Path, improper_metrics_repo: Path
+):
     runner.main(
         cache_dir,
         out_dir,
@@ -283,7 +287,7 @@ def test_improper_metrics_repo(improper_metrics_repo):
         None,
     )
 
-    path = os.path.join(out_dir, "glean", improper_repo_name, "metrics")
+    path = out_dir / "glean" / improper_repo_name / "metrics"
     with open(path, "r") as data:
         metrics = json.load(data)
 
@@ -298,16 +302,22 @@ def test_improper_metrics_repo(improper_metrics_repo):
 
 
 @pytest.fixture
-def normal_duplicate_repo():
-    return get_repo(normal_repo_name)
+def normal_duplicate_repo(test_dir: Path):
+    return get_repo(test_dir, normal_repo_name)
 
 
 @pytest.fixture
-def duplicate_repo():
-    return get_repo(duplicate_repo_name)
+def duplicate_repo(test_dir: Path):
+    return get_repo(test_dir, duplicate_repo_name)
 
 
-def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
+def test_check_for_duplicate_metrics(
+    normal_duplicate_repo: Path,
+    duplicate_repo: Path,
+    cache_dir: Path,
+    out_dir: Path,
+    repositories_file: Path,
+):
     repositories_info = {
         "version": "2",
         "libraries": [
@@ -315,7 +325,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
                 "library_name": "mylib",
                 "description": "foo",
                 "notification_emails": ["repo_alice@example.com"],
-                "url": normal_duplicate_repo,
+                "url": str(normal_duplicate_repo),
                 "metrics_files": ["metrics.yaml"],
                 "variants": [
                     {
@@ -330,7 +340,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
                 "app_name": "duplicate_metrics_example",
                 "canonical_app_name": "Duplicate Metrics Example",
                 "app_description": "foo",
-                "url": duplicate_repo,
+                "url": str(duplicate_repo),
                 "notification_emails": ["repo_bob@example.com"],
                 "metrics_files": ["metrics.yaml"],
                 "dependencies": [
@@ -348,7 +358,7 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     }
 
     with open(repositories_file, "w") as f:
-        f.write(yaml.dump(repositories_info))
+        f.write(yaml.safe_dump(repositories_info))
 
     try:
         runner.main(
@@ -381,27 +391,27 @@ def test_check_for_duplicate_metrics(normal_duplicate_repo, duplicate_repo):
     assert "'example.duration' defined more than once" in emails[0]["body"]
     assert "example.os" not in emails[0]["body"]
 
-    assert set(emails[0]["recipients"].split(",")) == set(
-        [
-            # Metrics owners
-            "alice@example.com",
-            "bob@example.com",
-            "charlie@example.com",
-            # Repo owners
-            "repo_alice@example.com",
-            "repo_bob@example.com",
-            # Everything goes here
-            "glean-team@mozilla.com",
-        ]
-    )
+    assert set(emails[0]["recipients"].split(",")) == {
+        # Metrics owners
+        "alice@example.com",
+        "bob@example.com",
+        "charlie@example.com",
+        # Repo owners
+        "repo_alice@example.com",
+        "repo_bob@example.com",
+        # Everything goes here
+        "glean-team@mozilla.com",
+    }
 
 
 @pytest.fixture
-def expired_repo():
-    return get_repo(expired_repo_name)
+def expired_repo(test_dir: Path):
+    return get_repo(test_dir, expired_repo_name)
 
 
-def test_check_for_expired_metrics(expired_repo):
+def test_check_for_expired_metrics(
+    expired_repo: Path, out_dir: Path, cache_dir: Path, repositories_file: str
+):
     repositories_info = {
         "version": "2",
         "libraries": [],
@@ -410,7 +420,7 @@ def test_check_for_expired_metrics(expired_repo):
                 "app_name": "expired_metrics_example",
                 "canonical_app_name": "Expired Metrics Example",
                 "app_description": "foo",
-                "url": expired_repo,
+                "url": str(expired_repo),
                 "notification_emails": ["repo_alice@example.com"],
                 "metrics_files": ["metrics.yaml"],
                 "channels": [
@@ -425,7 +435,7 @@ def test_check_for_expired_metrics(expired_repo):
     }
 
     with open(repositories_file, "w") as f:
-        f.write(yaml.dump(repositories_info))
+        f.write(yaml.safe_dump(repositories_info))
 
     # Mock `datetime.date.today` so it's a Monday, the only day that
     # expirations are checked.
@@ -460,19 +470,19 @@ def test_check_for_expired_metrics(expired_repo):
 
     assert "example.duration on 2019-01-01" in emails[0]["body"]
 
-    assert set(emails[0]["recipients"].split(",")) == set(
-        [
-            # Metrics owners
-            "bob@example.com",
-            # Repo owners
-            "repo_alice@example.com",
-            # Everything goes here
-            "glean-team@mozilla.com",
-        ]
-    )
+    assert set(emails[0]["recipients"].split(",")) == {
+        # Metrics owners
+        "bob@example.com",
+        # Repo owners
+        "repo_alice@example.com",
+        # Everything goes here
+        "glean-team@mozilla.com",
+    }
 
 
-def test_repo_default_main_branch(main_repo):
+def test_repo_default_main_branch(
+    cache_dir: Path, out_dir: Path, repositories_file: str, main_repo: Path
+):
     runner.main(
         cache_dir,
         out_dir,
@@ -490,7 +500,7 @@ def test_repo_default_main_branch(main_repo):
         None,
     )
 
-    path = os.path.join(out_dir, "glean", normal_repo_name, "metrics")
+    path = out_dir / "glean" / normal_repo_name / "metrics"
 
     with open(path, "r") as data:
         metrics = json.load(data)
@@ -519,7 +529,7 @@ def test_repo_default_main_branch(main_repo):
     # There should have been no errors
     assert not Path(EMAIL_FILE).exists()
 
-    path = os.path.join(out_dir, "glean", normal_repo_name, "dependencies")
+    path = out_dir / "glean" / normal_repo_name / "dependencies"
 
     with open(path, "r") as data:
         dependencies = json.load(data)
