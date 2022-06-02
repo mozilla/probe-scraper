@@ -81,16 +81,17 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
         repo_by_name[repo.name] = repo
 
     for repo in repositories:
+        for library_name in repo.dependencies:
+            if library_name not in repo_by_library_name:
+                raise MissingDependencyError(
+                    f"{repo.name} missing dependency {library_name}"
+                )
         dependencies = [repo.name] + [
             repo_by_library_name[library_name] for library_name in repo.dependencies
         ]
 
         metric_sources = {}
         for dependency in dependencies:
-            if dependency not in repo_by_name:
-                raise MissingDependencyError(
-                    f"{repo.name} missing dependency {dependency}"
-                )
             # skip if no metrics
             if not metrics_by_repo[dependency]:
                 continue

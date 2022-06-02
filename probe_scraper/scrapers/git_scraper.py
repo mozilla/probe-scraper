@@ -122,8 +122,8 @@ def retrieve_files(
     results = defaultdict(list)
     timestamps = dict()
     base_path = cache_dir / repo_info.name
-    repo_name = repo_info.url.rstrip("/").split("/")[-1]
-    repo_path = cache_dir / f"{repo_name}.git"
+    org_name, repo_name = repo_info.url.rstrip("/").split("/")[-2:]
+    repo_path = cache_dir / org_name / f"{repo_name}.git"
 
     min_date = None
     if repo_info.name in MIN_DATES:
