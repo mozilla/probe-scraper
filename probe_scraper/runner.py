@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+import copy
 import datetime
 import errno
 import gzip
@@ -221,6 +222,45 @@ def parse_moz_central_probes(
     return probes
 
 
+def apply_ping_specific_metadata(metadata, ping_metadata):
+    """apply_ping_specific_metadata recurses down into dicts nested
+    to an arbitrary depth, updating keys. The ``ping_metadata`` is merged into
+    ``metadata``.
+    :param metadata: dict onto which the merge is executed
+    :param ping_metadata: dct merged into metadata
+    :return: None
+    """
+    for k, v in ping_metadata.items():
+        if (
+            k in metadata
+            and isinstance(metadata[k], dict)
+            and isinstance(ping_metadata[k], dict)
+        ):
+            apply_ping_specific_metadata(metadata[k], ping_metadata[k])
+        else:
+            metadata[k] = ping_metadata[k]
+
+
+def add_pipeline_metadata(pings_by_repo, repositories):
+    for repo in repositories:
+        metadata_defaults = repo.moz_pipeline_metadata_defaults
+        metadata_defaults["bq_dataset_family"] = repo.app_id.replace("-", "_")
+        metadata_defaults["bq_metadata_format"] = (
+            "pioneer" if repo.app_id.startswith("rally") else "structured"
+        )
+
+        current_pings = pings_by_repo.get(repo.name)
+        for ping_name, ping in current_pings.items():
+            ping_metadata = repo.moz_pipeline_metadata.get(ping_name, {})
+            pipeline_metadata = copy.deepcopy(metadata_defaults)
+            pipeline_metadata["bq_table"] = ping_name.replace("-", "_") + "_v1"
+
+            apply_ping_specific_metadata(pipeline_metadata, ping_metadata)
+
+            if pipeline_metadata:
+                ping["moz_pipeline_metadata"] = pipeline_metadata
+
+
 def add_first_appeared_dates(
     probes_by_channel: Dict[str, Dict[str, dict]],
     first_appeared_dates: Dict[str, Dict[str, datetime.datetime]],
@@ -395,6 +435,8 @@ def load_glean_metrics(
     pings_by_repo.update(
         transform_probes.transform_pings_by_hash(commit_timestamps, pings)
     )
+
+    add_pipeline_metadata(pings_by_repo, repositories)
 
     dependencies_by_repo = {}
     for repo in repositories:

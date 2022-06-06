@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import copy
+
 import yaml
 
 from probe_scraper import model_validation
@@ -54,6 +56,10 @@ class Repository(object):
         self.retention_days = definition.get("retention_days", None)
         self.encryption = definition.get("encryption", None)
         self.skip_documentation = definition.get("skip_documentation", False)
+        self.moz_pipeline_metadata_defaults = definition.get(
+            "moz_pipeline_metadata_defaults", {}
+        )
+        self.moz_pipeline_metadata = definition.get("moz_pipeline_metadata", {})
 
     def get_metrics_file_paths(self):
         return self.metrics_file_paths
@@ -143,7 +149,8 @@ class RepositoriesParser(object):
                 listing["bq_dataset_family"] = (
                     app_id.lower().replace("-", "_").replace(".", "_")
                 )
-                listing = remove_none(listing)
+                # Need a deepcopy to ensure the dictionary values remain distinct.
+                listing = copy.deepcopy(listing)
                 model_validation.validate_as(listing, "AppListing")
                 app_listings.append(listing)
 
