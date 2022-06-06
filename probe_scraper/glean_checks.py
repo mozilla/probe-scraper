@@ -7,7 +7,7 @@ This file contains various sanity checks for Glean.
 """
 
 import datetime
-import os
+from pathlib import Path
 
 from schema import And, Optional, Schema
 
@@ -17,7 +17,7 @@ def check_glean_metric_structure(data):
         {
             str: {
                 Optional(And(str, lambda x: len(x) == 40)): [
-                    And(str, lambda x: os.path.exists(x))
+                    And(Path, lambda x: x.exists())
                 ]
             }
         }
@@ -59,6 +59,10 @@ Your Friendly, Neighborhood Glean Team
 """  # noqa
 
 
+class MissingDependencyError(ValueError):
+    pass
+
+
 def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
     """
     Checks for duplicate metric names across all libraries used by a particular application.
@@ -77,6 +81,11 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
         repo_by_name[repo.name] = repo
 
     for repo in repositories:
+        for library_name in repo.dependencies:
+            if library_name not in repo_by_library_name:
+                raise MissingDependencyError(
+                    f"{repo.name} missing dependency {library_name}"
+                )
         dependencies = [repo.name] + [
             repo_by_library_name[library_name] for library_name in repo.dependencies
         ]

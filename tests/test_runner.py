@@ -1,4 +1,3 @@
-import os
 from copy import deepcopy
 from datetime import datetime
 
@@ -74,7 +73,7 @@ def test_trailing_space(tmp_path):
     for test_case in test_cases:
         trailing_spaces = 0  # Counts no of trailing spaces
         runner.dump_json(test_case, DIR_NAME, FILE_NAME)
-        path = os.path.join(DIR_NAME, FILE_NAME)
+        path = DIR_NAME / FILE_NAME
         with open(path, "r") as file:
             for line in file.readline():
                 if line[-1] == " ":

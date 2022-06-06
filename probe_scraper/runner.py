@@ -14,7 +14,8 @@ import sys
 import tempfile
 import traceback
 from collections import defaultdict
-from typing import Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from dateutil.tz import tzlocal
 
@@ -24,7 +25,7 @@ from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
 from .parsers.pings import GleanPingsParser
-from .parsers.repositories import RepositoriesParser
+from .parsers.repositories import RepositoriesParser, Repository
 from .parsers.scalars import ScalarsParser
 from .parsers.tags import GleanTagsParser
 from .scrapers import git_scraper, moz_central_scraper
@@ -57,13 +58,13 @@ GLEAN_PINGS_FILENAME = "pings.yaml"
 GLEAN_TAGS_FILENAME = "tags.yaml"
 
 
-def general_data():
+def general_data() -> Dict[str, str]:
     return {
         "lastUpdate": datetime.datetime.now(tzlocal()).isoformat(),
     }
 
 
-def dump_json(data, out_dir, file_name):
+def dump_json(data: Any, out_dir: Path, file_name: str):
     # Make sure that the output directory exists. This also creates
     # intermediate directories if needed.
     try:
@@ -76,9 +77,9 @@ def dump_json(data, out_dir, file_name):
         if isinstance(o, datetime.datetime):
             return o.isoformat()
 
-    path = os.path.join(out_dir, file_name)
+    path = out_dir / file_name
     with open(path, "w") as f:
-        print("  " + path)
+        print(f"  {path}")
         json.dump(
             data,
             f,
@@ -89,9 +90,11 @@ def dump_json(data, out_dir, file_name):
         )
 
 
-def write_moz_central_probe_data(probe_data, revisions, out_dir):
-    # Save all our files to "outdir/firefox/..." to mimic a REST API.
-    base_dir = os.path.join(out_dir, "firefox")
+def write_moz_central_probe_data(
+    probe_data: Dict[str, Any], revisions: Any, out_dir: Path
+):
+    # Save all our files to "out_dir/firefox/..." to mimic a REST API.
+    base_dir = out_dir / "firefox"
 
     print("\nwriting output:")
     dump_json(general_data(), base_dir, "general")
@@ -101,13 +104,13 @@ def write_moz_central_probe_data(probe_data, revisions, out_dir):
     # file in this case, the probe data will contain human readable version
     # numbers along with revision numbers.
     for channel, channel_probes in probe_data.items():
-        data_dir = os.path.join(base_dir, channel, "main")
+        data_dir = base_dir / channel / "main"
         dump_json(channel_probes, data_dir, "all_probes")
 
 
-def write_general_data(out_dir):
+def write_general_data(out_dir: Path):
     dump_json(general_data(), out_dir, "general")
-    with open(os.path.join(out_dir, "index.html"), "w") as f:
+    with open(out_dir / "index.html", "w") as f:
         f.write(
             """
             <html><head><title>Mozilla Probe Info</title></head>
@@ -119,49 +122,52 @@ def write_general_data(out_dir):
         )
 
 
-def write_glean_metric_data(metrics, dependencies, out_dir):
-    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+def write_glean_metric_data(
+    metrics: Dict[str, Any], dependencies: Dict[str, Any], out_dir: Path
+):
+    # Save all our files to "out_dir/glean/<repo>/..." to mimic a REST API.
     for repo, metrics_data in metrics.items():
         dependencies_data = dependencies[repo]
 
-        base_dir = os.path.join(out_dir, "glean", repo)
+        base_dir = out_dir / "glean" / repo
 
         dump_json(general_data(), base_dir, "general")
         dump_json(metrics_data, base_dir, "metrics")
         dump_json(dependencies_data, base_dir, "dependencies")
 
 
-def write_glean_tag_data(tags, out_dir):
-    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+def write_glean_tag_data(tags: Dict[str, Any], out_dir: Path):
+    # Save all our files to "out_dir/glean/<repo>/..." to mimic a REST API.
     for repo, tags_data in tags.items():
-        base_dir = os.path.join(out_dir, "glean", repo)
+        base_dir = out_dir / "glean" / repo
         dump_json(tags_data, base_dir, "tags")
 
 
-def write_glean_ping_data(pings, out_dir):
-    # Save all our files to "outdir/glean/<repo>/..." to mimic a REST API.
+def write_glean_ping_data(pings: Dict[str, Any], out_dir: Path):
+    # Save all our files to "out_dir/glean/<repo>/..." to mimic a REST API.
     for repo, pings_data in pings.items():
-        base_dir = os.path.join(out_dir, "glean", repo)
+        base_dir = out_dir / "glean" / repo
         dump_json(pings_data, base_dir, "pings")
 
 
-def write_repositories_data(repos, out_dir):
+def write_repositories_data(repos: List[Repository], out_dir: Path):
     json_data = [r.to_dict() for r in repos]
-    dump_json(json_data, os.path.join(out_dir, "glean"), "repositories")
+    dump_json(json_data, out_dir / "glean", "repositories")
 
 
-def write_v2_data(repos, out_dir):
-    dump_json(
-        repos["app-listings"], os.path.join(out_dir, "v2", "glean"), "app-listings"
-    )
+def write_v2_data(repos: Dict[str, Any], out_dir: Path):
+    base_dir = out_dir / "v2" / "glean"
+    dump_json(repos["app-listings"], base_dir, "app-listings")
     dump_json(
         repos["library-variants"],
-        os.path.join(out_dir, "v2", "glean"),
+        base_dir,
         "library-variants",
     )
 
 
-def parse_moz_central_probes(scraped_data):
+def parse_moz_central_probes(
+    scraped_data: Dict[str, Dict[str, dict]]
+) -> Dict[str, Dict[str, dict]]:
     """
     Parse probe data from files into the form:
     channel_name: {
@@ -180,7 +186,7 @@ def parse_moz_central_probes(scraped_data):
 
     lookup_table = {}
 
-    def dedupe_probes(results):
+    def dedupe_probes(results: Dict[str, Any]) -> Dict[str, Any]:
         # Most probes have exactly the same contents across revisions, so we
         # can get significant memory savings by deduplicating them across the
         # entire history.
@@ -203,7 +209,9 @@ def parse_moz_central_probes(scraped_data):
 
         return deduped
 
-    probes = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    probes: Dict[str, Dict[str, dict]] = defaultdict(
+        lambda: defaultdict(lambda: defaultdict(int))
+    )
     for channel, revisions in scraped_data.items():
         for revision, details in revisions.items():
             for probe_type, paths in details["registries"].items():
@@ -253,9 +261,12 @@ def add_pipeline_metadata(pings_by_repo, repositories):
                 ping["moz_pipeline_metadata"] = pipeline_metadata
 
 
-def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
+def add_first_appeared_dates(
+    probes_by_channel: Dict[str, Dict[str, dict]],
+    first_appeared_dates: Dict[str, Dict[str, datetime.datetime]],
+) -> Dict[str, Dict[str, dict]]:
     for channel, probes in probes_by_channel.items():
-        for probe_id, info in probes.items():
+        for probe_id, _ in probes.items():
             if channel == "all":
                 dates = first_appeared_dates[probe_id]
             else:
@@ -272,7 +283,11 @@ def add_first_appeared_dates(probes_by_channel, first_appeared_dates):
 
 
 def load_moz_central_probes(
-    cache_dir, out_dir, fx_version, min_fx_version, firefox_channel
+    cache_dir: Path,
+    out_dir: Path,
+    fx_version: int,
+    min_fx_version: int,
+    firefox_channel: str,
 ):
 
     if fx_version:
@@ -324,14 +339,21 @@ def load_moz_central_probes(
 
 
 def load_glean_metrics(
-    cache_dir,
-    out_dir,
-    repositories_file,
-    dry_run,
-    glean_repos,
+    cache_dir: Path,
+    out_dir: Path,
+    repositories_file: Path,
+    dry_run: bool,
+    glean_repos: Optional[List[str]],
     bugzilla_api_key: Optional[str],
+    glean_urls: Optional[List[str]] = None,
 ):
-    repositories = RepositoriesParser().parse(repositories_file, glean_repos)
+    repositories = RepositoriesParser().parse(repositories_file)
+    if glean_urls:
+        repositories = [r for r in repositories if r.url in glean_urls]
+    elif glean_repos:
+        repositories = [r for r in repositories if r.name in glean_repos]
+    if not repositories:
+        raise ValueError("No glean repos matched --glean-repo or --glean-url")
     commit_timestamps, repos_metrics_data, emails = git_scraper.scrape(
         cache_dir, repositories
     )
@@ -352,9 +374,9 @@ def load_glean_metrics(
     pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for repo_name, commits in repos_metrics_data.items():
         for commit_hash, paths in commits.items():
-            tags_files = [p for p in paths if p.endswith(GLEAN_TAGS_FILENAME)]
-            metrics_files = [p for p in paths if p.endswith(GLEAN_METRICS_FILENAME)]
-            pings_files = [p for p in paths if p.endswith(GLEAN_PINGS_FILENAME)]
+            tags_files = [p for p in paths if p.name == GLEAN_TAGS_FILENAME]
+            metrics_files = [p for p in paths if p.name == GLEAN_METRICS_FILENAME]
+            pings_files = [p for p in paths if p.name == GLEAN_PINGS_FILENAME]
 
             try:
                 config = {"allow_reserved": repo_name.startswith("glean")}
@@ -380,7 +402,7 @@ def load_glean_metrics(
             except Exception:
                 files = metrics_files + pings_files
                 msg = "Improper file in {}\n{}".format(
-                    ", ".join(files), traceback.format_exc()
+                    ", ".join(map(str, files)), traceback.format_exc()
                 )
                 emails[repo_name]["emails"].append(
                     {"subject": "Probe Scraper: Improper File", "message": msg}
@@ -423,14 +445,16 @@ def load_glean_metrics(
             dependencies[dependency] = {"type": "dependency", "name": dependency}
         dependencies_by_repo[repo.name] = dependencies
 
-    if glean_repos is None or len(glean_repos) > 1:
-        # Don't check for duplicate metrics if we're only parsing
-        # one glean repository (this will almost always crash, since
-        # the libraries that most repositories depend on will not
-        # be specified)
+    try:
         abort_after_emails |= glean_checks.check_for_duplicate_metrics(
             repositories, metrics_by_repo, emails
         )
+    except glean_checks.MissingDependencyError:
+        # Ignore the check for duplicate metrics when a dependency is missing
+        # unless all repositories are being parsed
+        if glean_repos is None and glean_urls is None:
+            raise
+
     glean_checks.check_for_expired_metrics(
         repositories, metrics, commit_timestamps, emails, dry_run=dry_run
     )
@@ -468,9 +492,11 @@ def load_glean_metrics(
         raise ValueError("Errors processing Glean metrics")
 
 
-def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir):
+def setup_output_and_cache_dirs(
+    output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path
+) -> str:
     # Create the output directory
-    os.mkdir(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     # Sync the cache directory
     cache_path = f"s3://{cache_bucket}/cache/probe-scraper"
@@ -480,30 +506,30 @@ def setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
 
 
 def sync_output_and_cache_dirs(
-    output_bucket, cache_bucket, out_dir, cache_dir, cache_path
+    output_bucket: str,
+    cache_bucket: str,
+    out_dir: Path,
+    cache_dir: Path,
+    cache_path: str,
 ):
     # Check output dir and then sync with cloudfront
     if not os.listdir(out_dir):
         print("{} is empty".format(out_dir))
         sys.exit(1)
     else:
-        print("Syncing output dir {}/ with s3://{}/".format(out_dir, output_bucket))
+        print(f"Syncing output dir {out_dir}/ with s3://{output_bucket}/")
 
         # cloudfront is supposed to automatically gzip objects, but it won't do that
         # if the object size is > 10 megabytes (https://webmasters.stackexchange.com/a/111734)
         # which our files sometimes are. to work around this, we'll regzip the contents into a
         # temporary directory, and upload that with a special content encoding
         with tempfile.TemporaryDirectory() as tmpdirname:
-            for root, dirnames, filenames in os.walk(out_dir):
-                rel_root = os.path.relpath(root, start=out_dir)
-                for dirname in dirnames:
-                    os.mkdir(os.path.join(tmpdirname, rel_root, dirname))
-                for filename in filenames:
-                    in_filename = os.path.join(root, filename)
-                    out_filename = os.path.join(tmpdirname, rel_root, filename)
-                    with open(in_filename, "rb") as f1:
-                        with gzip.open(out_filename, "wb") as f2:
-                            f2.write(f1.read())
+            tmp = Path(tmpdirname)
+            for in_filename in out_dir.rglob("*"):
+                if not in_filename.is_dir():
+                    out_filename = tmp / in_filename.relative_to(out_dir)
+                    out_filename.parent.mkdir(parents=True, exist_ok=True)
+                    out_filename.write_bytes(gzip.compress(in_filename.read_bytes()))
 
             # Synchronize the json files and index.html separately,
             # as they have different mimetypes
@@ -551,20 +577,21 @@ def sync_output_and_cache_dirs(
 
 
 def main(
-    cache_dir,
-    out_dir,
-    firefox_version,
-    min_firefox_version,
-    process_moz_central_probes,
-    process_glean_metrics,
-    repositories_file,
-    dry_run,
-    glean_repos,
-    firefox_channel,
-    output_bucket,
-    cache_bucket,
-    env,
+    cache_dir: Path,
+    out_dir: Path,
+    firefox_version: int,
+    min_firefox_version: int,
+    process_moz_central_probes: bool,
+    process_glean_metrics: bool,
+    repositories_file: Path,
+    dry_run: bool,
+    glean_repos: Optional[List[str]],
+    firefox_channel: str,
+    output_bucket: str,
+    cache_bucket: str,
+    env: str,
     bugzilla_api_key: Optional[str],
+    glean_urls: Optional[List[str]] = None,
 ):
 
     # Sync dirs with s3 if we are not running pytest or local dryruns
@@ -573,12 +600,17 @@ def main(
             output_bucket, cache_bucket, out_dir, cache_dir
         )
 
-    process_both = not (process_moz_central_probes or process_glean_metrics)
-    if process_moz_central_probes or process_both:
+    if not (process_moz_central_probes or process_glean_metrics):
+        process_moz_central_probes = process_glean_metrics = True
+    if process_moz_central_probes:
         load_moz_central_probes(
-            cache_dir, out_dir, firefox_version, min_firefox_version, firefox_channel
+            cache_dir,
+            out_dir,
+            firefox_version,
+            min_firefox_version,
+            firefox_channel,
         )
-    if process_glean_metrics or process_both:
+    if process_glean_metrics:
         load_glean_metrics(
             cache_dir,
             out_dir,
@@ -586,6 +618,7 @@ def main(
             dry_run,
             glean_repos,
             bugzilla_api_key,
+            glean_urls=glean_urls,
         )
 
     # Sync results with s3 if we are not running pytest or local dryruns
@@ -600,32 +633,26 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cache-dir",
         help="Cache directory. If empty, will be filled with the probe files.",
+        type=Path,
         action="store",
         default=tempfile.mkdtemp(),
     )
     parser.add_argument(
         "--out-dir",
         help="Directory to store output files in.",
+        type=Path,
         action="store",
         default=".",
     )
     parser.add_argument(
         "--repositories-file",
         help="Repositories YAML file location.",
+        type=Path,
         action="store",
         default="repositories.yaml",
     )
     parser.add_argument(
         "--dry-run", help="Whether emails should be sent.", action="store_true"
-    )
-    parser.add_argument(
-        "--glean-repo",
-        help="The Glean Repositories to scrape (may be specified multiple times). "
-        "If unspecified, scrapes all.",
-        type=str,
-        dest="glean_repos",
-        action="append",
-        required=False,
     )
     parser.add_argument(
         "--firefox-channel",
@@ -655,9 +682,27 @@ if __name__ == "__main__":
     parser.add_argument(
         "--bugzilla-api-key",
         help="The bugzilla API key used to find and file bugs for FOG repos."
-        "If not provided, no bugs will be filed.",
+        " If not provided, no bugs will be filed.",
         type=str,
         required=False,
+    )
+
+    glean_filter = parser.add_mutually_exclusive_group()
+    glean_filter.add_argument(
+        "--glean-repo",
+        help="The Names of Glean Repositories to scrape (may be specified multiple times)."
+        " If neither --glean-repo nor --glean-url are specified, scrapes all.",
+        type=str,
+        dest="glean_repos",
+        action="append",
+    )
+    glean_filter.add_argument(
+        "--glean-url",
+        help="The URLs of Glean Repositories to scrape (may be specified multiple times)."
+        " If neither --glean-repo nor --glean-url are specified, scrapes all.",
+        type=str,
+        dest="glean_urls",
+        action="append",
     )
 
     application = parser.add_mutually_exclusive_group()
@@ -701,4 +746,5 @@ if __name__ == "__main__":
         args.cache_bucket,
         args.env,
         args.bugzilla_api_key,
+        glean_urls=args.glean_urls,
     )
