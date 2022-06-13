@@ -11,7 +11,7 @@ version: 2
 jobs:
   build_and_test:
     machine:
-      image: ubuntu-2004:202201-02
+      image: ubuntu-2204:2022.07.1
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout
@@ -21,9 +21,9 @@ jobs:
       - run: make test
       - run: make burnham-dryrun
 
-  deploy:
-    docker:
-      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:323.0.0
+  deploy_docker:
+    docker: &gcloud-image
+      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:398.0.0-alpine
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout
@@ -55,6 +55,32 @@ jobs:
               docker images
               docker push "${DOCKER_IMAGE}:${CIRCLE_TAG}"
             fi
+
+  deploy_cloud_function:
+    docker: *gcloud-image
+    steps:
+      - checkout
+      - run:
+          name: Install jq
+          command: apk add jq
+      - run:
+          name: Activate Credentials
+          command: |
+            KEY="$(echo "$GCLOUD_SERVICE_KEY_PROD_B64" | base64 -d)"
+            echo "$KEY" | gcloud --quiet auth activate-service-account --key-file=-
+            gcloud --quiet config set project "$(echo "$KEY" | jq -r .project_id)"
+      - run:
+          name: Deploy Google Cloud Function
+          command: >
+            gcloud functions deploy glean-push
+            --region=us-west1
+            --allow-unauthenticated
+            --entry-point=glean_push
+            --memory=1024
+            --runtime=python310
+            --set-env-vars=BOTO_PATH=.gce_boto,OUTPUT_BUCKET=gs://probe-scraper-prod-artifacts/
+            --trigger-http
+            --service-account=$PROD_SERVICE_ACCOUNT_INVOKER
 
   docs_build:
     docker:
@@ -110,11 +136,18 @@ workflows:
           filters:
             branches:
               only: main
-      - deploy:
+      - deploy_docker:
           requires:
             - build_and_test
           filters:
             tags:
               only: /.*/
+            branches:
+              only: main
+      - deploy_cloud_function:
+          context: probe-scraper
+          requires:
+            - build_and_test
+          filters:
             branches:
               only: main
