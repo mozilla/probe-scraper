@@ -108,17 +108,24 @@ def _get_sync_function(remote: str):
 
 
 def remote_storage_pull(src: str, dst: Path, decompress: bool = False):
+    sync = _get_sync_function(src)
+    if sync is _gcs_sync:
+        # gsutil will decompress files
+        decompress = False
+        # prevent error from gsutil when dst and src do not exist
+        dst.mkdir(parents=True, exist_ok=True)
+
     if decompress:
         with TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
-            remote_storage_pull(src, tmp_path, decompress=False)
+            sync(src, tmp_path)
             for in_file in tmp_path.rglob("*"):
                 if not in_file.is_dir():
                     out_file = dst / in_file.relative_to(tmp_path)
                     out_file.parent.mkdir(parents=True, exist_ok=True)
                     out_file.write_bytes(gzip.decompress(in_file.read_bytes()))
     else:
-        _get_sync_function(src)(src, dst)
+        sync(src, dst)
 
 
 def remote_storage_push(src: Path, dst: str, compress: bool = False, **kwargs):

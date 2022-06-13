@@ -615,7 +615,7 @@ def main(
     glean_commit: Optional[str] = None,
     glean_commit_branch: Optional[str] = None,
     update: bool = False,
-):
+) -> List[Path]:
 
     # Sync dirs with remote storage if we are not running pytest or local dryruns
     if env == "prod":
@@ -668,6 +668,7 @@ def main(
             upload_paths=(None if out_dir_is_complete else upload_paths),
             update=update,
         )
+    return upload_paths
 
 
 if __name__ == "__main__":
