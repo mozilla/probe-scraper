@@ -5,6 +5,7 @@
 import copy
 from collections import defaultdict
 from datetime import datetime
+from typing import Optional
 
 DATES_KEY = "dates"
 COMMITS_KEY = "git-commits"
@@ -372,7 +373,9 @@ def update_or_add_item(
     return repo_items
 
 
-def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
+def transform_by_hash(
+    commit_timestamps, data, equal_fn, type_ctor, update_result: Optional[dict] = None
+):
     """
     :param commit_timestamps - of the form
       <repo_name>: {
@@ -418,9 +421,9 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
     def timestamp_sorter(entry):
         return (entry[0], -entry[1])
 
-    all_items = {}
+    result = {} if update_result is None else update_result
     for repo_name, commits in data.items():
-        repo_items = {}
+        repo_items = result.get(repo_name, {})
 
         # iterate through commits, sorted by timestamp of the commit
         sorted_commits = sorted(
@@ -439,19 +442,29 @@ def transform_by_hash(commit_timestamps, data, equal_fn, type_ctor):
                     type_ctor,
                 )
 
-        all_items[repo_name] = repo_items
-    return all_items
+        result[repo_name] = repo_items
+    return result
 
 
-def transform_tags_by_hash(commit_timestamps, tag_data):
-    return transform_by_hash(commit_timestamps, tag_data, tags_equal, tag_constructor)
-
-
-def transform_metrics_by_hash(commit_timestamps, metric_data):
+def transform_tags_by_hash(
+    commit_timestamps, tag_data, update_result: Optional[dict] = None
+):
     return transform_by_hash(
-        commit_timestamps, metric_data, metrics_equal, metric_constructor
+        commit_timestamps, tag_data, tags_equal, tag_constructor, update_result
     )
 
 
-def transform_pings_by_hash(commit_timestamps, ping_data):
-    return transform_by_hash(commit_timestamps, ping_data, ping_equal, ping_constructor)
+def transform_metrics_by_hash(
+    commit_timestamps, metric_data, update_result: Optional[dict] = None
+):
+    return transform_by_hash(
+        commit_timestamps, metric_data, metrics_equal, metric_constructor, update_result
+    )
+
+
+def transform_pings_by_hash(
+    commit_timestamps, ping_data, update_result: Optional[dict] = None
+):
+    return transform_by_hash(
+        commit_timestamps, ping_data, ping_equal, ping_constructor, update_result
+    )

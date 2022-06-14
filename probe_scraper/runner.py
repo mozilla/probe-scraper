@@ -91,6 +91,14 @@ def dump_json(data: Any, out_dir: Path, file_name: str) -> Path:
     return path
 
 
+def load_json(out_dir: Path, file_name: str, default: Any = None) -> Any:
+    try:
+        text = (out_dir / file_name).read_text()
+    except FileNotFoundError:
+        return default
+    return json.loads(text)
+
+
 def write_moz_central_probe_data(
     probe_data: Dict[str, Any], revisions: Any, out_dir: Path
 ) -> List[Path]:
@@ -294,7 +302,10 @@ def load_moz_central_probes(
     fx_version: int,
     min_fx_version: int,
     firefox_channel: str,
+    update: bool = False,
 ) -> List[Path]:
+    if update:
+        raise NotImplementedError("Updates are not supported for moz central probes")
 
     if fx_version:
         min_fx_version = fx_version
@@ -356,7 +367,11 @@ def load_glean_metrics(
     glean_urls: Optional[List[str]] = None,
     glean_commit: Optional[str] = None,
     glean_commit_branch: Optional[str] = None,
+    update: bool = False,
+    output_bucket: Optional[str] = None,
 ) -> List[Path]:
+    emails = {}
+    abort_after_emails = False
     upload_paths = []
     repositories = RepositoriesParser().parse(repositories_file)
     if glean_urls:
@@ -365,137 +380,159 @@ def load_glean_metrics(
         repositories = [r for r in repositories if r.name in glean_repos]
     if not repositories:
         raise ValueError("No glean repos matched --glean-repo or --glean-url")
-    commit_timestamps, repos_metrics_data, emails, upload_repos = git_scraper.scrape(
-        cache_dir, repositories, glean_commit, glean_commit_branch
-    )
 
-    glean_checks.check_glean_metric_structure(repos_metrics_data)
+    if glean_urls or glean_repos or not update:
+        (
+            commit_timestamps,
+            repos_metrics_data,
+            emails,
+            upload_repos,
+        ) = git_scraper.scrape(
+            cache_dir, repositories, glean_commit, glean_commit_branch
+        )
 
-    # Parse metric data from files into the form:
-    # <repo_name>:  {
-    #   <commit-hash>:  {
-    #     <metric-name>: {
-    #       ...
-    #     },
-    #   },
-    #   ...
-    # }
-    tags = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for repo_name, commits in repos_metrics_data.items():
-        for commit_hash, paths in commits.items():
-            tags_files = [p for p in paths if p.name == GLEAN_TAGS_FILENAME]
-            metrics_files = [p for p in paths if p.name == GLEAN_METRICS_FILENAME]
-            pings_files = [p for p in paths if p.name == GLEAN_PINGS_FILENAME]
+        glean_checks.check_glean_metric_structure(repos_metrics_data)
 
-            try:
-                config = {"allow_reserved": repo_name.startswith("glean")}
-                repo = next(r for r in repositories if r.name == repo_name).to_dict()
+        # Parse metric data from files into the form:
+        # <repo_name>:  {
+        #   <commit-hash>:  {
+        #     <metric-name>: {
+        #       ...
+        #     },
+        #   },
+        #   ...
+        # }
+        tags = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        for repo_name, commits in repos_metrics_data.items():
+            for commit_hash, paths in commits.items():
+                tags_files = [p for p in paths if p.name == GLEAN_TAGS_FILENAME]
+                metrics_files = [p for p in paths if p.name == GLEAN_METRICS_FILENAME]
+                pings_files = [p for p in paths if p.name == GLEAN_PINGS_FILENAME]
 
-                if tags_files:
-                    results, errs = GLEAN_TAGS_PARSER.parse(
-                        tags_files, config, repo["url"], commit_hash
-                    )
-                    tags[repo_name][commit_hash] = results
+                try:
+                    config = {"allow_reserved": repo_name.startswith("glean")}
+                    repo = next(
+                        r for r in repositories if r.name == repo_name
+                    ).to_dict()
 
-                if metrics_files:
-                    results, errs = GLEAN_PARSER.parse(
-                        metrics_files, config, repo["url"], commit_hash
-                    )
-                    metrics[repo_name][commit_hash] = results
+                    if tags_files:
+                        results, errs = GLEAN_TAGS_PARSER.parse(
+                            tags_files, config, repo["url"], commit_hash
+                        )
+                        tags[repo_name][commit_hash] = results
 
-                if pings_files:
-                    results, errs = GLEAN_PINGS_PARSER.parse(
-                        pings_files, config, repo["url"], commit_hash
-                    )
-                    pings[repo_name][commit_hash] = results
-            except Exception:
-                files = metrics_files + pings_files
-                msg = "Improper file in {}\n{}".format(
-                    ", ".join(map(str, files)), traceback.format_exc()
-                )
-                emails[repo_name]["emails"].append(
-                    {"subject": "Probe Scraper: Improper File", "message": msg}
-                )
-            else:
-                if errs:
-                    msg = ("Error in processing commit {}\n" "Errors: [{}]").format(
-                        commit_hash, ".".join(errs)
+                    if metrics_files:
+                        results, errs = GLEAN_PARSER.parse(
+                            metrics_files, config, repo["url"], commit_hash
+                        )
+                        metrics[repo_name][commit_hash] = results
+
+                    if pings_files:
+                        results, errs = GLEAN_PINGS_PARSER.parse(
+                            pings_files, config, repo["url"], commit_hash
+                        )
+                        pings[repo_name][commit_hash] = results
+                except Exception:
+                    files = metrics_files + pings_files
+                    msg = "Improper file in {}\n{}".format(
+                        ", ".join(map(str, files)), traceback.format_exc()
                     )
                     emails[repo_name]["emails"].append(
-                        {
-                            "subject": "Probe Scraper: Error on parsing metric or ping files",
-                            "message": msg,
-                        }
+                        {"subject": "Probe Scraper: Improper File", "message": msg}
                     )
+                else:
+                    if errs:
+                        msg = ("Error in processing commit {}\n" "Errors: [{}]").format(
+                            commit_hash, ".".join(errs)
+                        )
+                        emails[repo_name]["emails"].append(
+                            {
+                                "subject": "Probe Scraper: Error on parsing metric or ping files",
+                                "message": msg,
+                            }
+                        )
 
-    abort_after_emails = False
+        tags_by_repo = {}
+        metrics_by_repo = {}
+        pings_by_repo = {}
+        for repo in repos_metrics_data:
+            if update:
+                repo_dir = out_dir / "glean" / repo
+                remote_storage_pull(
+                    f"{output_bucket.rstrip('/')}/glean/{repo}/",
+                    repo_dir,
+                    decompress=True,
+                )
+                tags_by_repo[repo] = load_json(repo_dir, "tags", default={})
+                metrics_by_repo[repo] = load_json(repo_dir, "metrics", default={})
+                pings_by_repo[repo] = load_json(repo_dir, "pings", default={})
+            else:
+                tags_by_repo[repo] = {}
+                metrics_by_repo[repo] = {}
+                pings_by_repo[repo] = {}
 
-    tags_by_repo = {repo: {} for repo in repos_metrics_data}
-    tags_by_repo.update(
-        transform_probes.transform_tags_by_hash(commit_timestamps, tags)
-    )
-
-    metrics_by_repo = {repo: {} for repo in repos_metrics_data}
-    metrics_by_repo.update(
-        transform_probes.transform_metrics_by_hash(commit_timestamps, metrics)
-    )
-
-    pings_by_repo = {repo: {} for repo in repos_metrics_data}
-    pings_by_repo.update(
-        transform_probes.transform_pings_by_hash(commit_timestamps, pings)
-    )
-
-    add_pipeline_metadata(pings_by_repo, repositories)
-
-    dependencies_by_repo = {}
-    for repo in repositories:
-        dependencies = {}
-        for dependency in repo.dependencies:
-            dependencies[dependency] = {"type": "dependency", "name": dependency}
-        dependencies_by_repo[repo.name] = dependencies
-
-    try:
-        abort_after_emails |= glean_checks.check_for_duplicate_metrics(
-            repositories, metrics_by_repo, emails
+        transform_probes.transform_tags_by_hash(
+            commit_timestamps, tags, update_result=tags_by_repo
         )
-    except glean_checks.MissingDependencyError:
-        # Ignore the check for duplicate metrics when a dependency is missing
-        # unless all repositories are being parsed
-        if glean_repos is None and glean_urls is None:
-            raise
+        transform_probes.transform_metrics_by_hash(
+            commit_timestamps, metrics, update_result=metrics_by_repo
+        )
+        transform_probes.transform_pings_by_hash(
+            commit_timestamps, pings, update_result=pings_by_repo
+        )
 
-    glean_checks.check_for_expired_metrics(
-        repositories, metrics, commit_timestamps, emails, dry_run=dry_run
-    )
+        add_pipeline_metadata(pings_by_repo, repositories)
 
-    # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
-    # Also, expired metrics in FOG repos can have bugs auto-filed for them.
-    fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
-        repositories, metrics, commit_timestamps, bugzilla_api_key, dry_run
-    )
-    if fog_emails_by_repo is not None:
-        emails.update(fog_emails_by_repo)
+        dependencies_by_repo = {}
+        for repo in repositories:
+            dependencies = {}
+            for dependency in repo.dependencies:
+                dependencies[dependency] = {"type": "dependency", "name": dependency}
+            dependencies_by_repo[repo.name] = dependencies
 
-    print("\nwriting output:")
-    write_glean_tag_data(tags_by_repo, out_dir)
-    write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
-    write_glean_ping_data(pings_by_repo, out_dir)
-    # only upload authorized repos
-    upload_paths += [out_dir / "glean" / repo_name for repo_name in upload_repos]
+        try:
+            abort_after_emails |= glean_checks.check_for_duplicate_metrics(
+                repositories, metrics_by_repo, emails
+            )
+        except glean_checks.MissingDependencyError:
+            # Ignore the check for duplicate metrics when a dependency is missing
+            # unless all repositories are being parsed
+            if glean_repos is None and glean_urls is None:
+                raise
 
-    repositories_data_paths = write_repositories_data(repositories, out_dir)
-    general_data_paths = write_general_data(out_dir)
+        glean_checks.check_for_expired_metrics(
+            repositories, metrics, commit_timestamps, emails, dry_run=dry_run
+        )
 
-    repos_v2 = RepositoriesParser().parse_v2(repositories_file)
-    v2_data_paths = write_v2_data(repos_v2, out_dir)
+        # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
+        # Also, expired metrics in FOG repos can have bugs auto-filed for them.
+        fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
+            repositories, metrics, commit_timestamps, bugzilla_api_key, dry_run
+        )
+        if fog_emails_by_repo is not None:
+            emails.update(fog_emails_by_repo)
 
-    if glean_urls is None and glean_repos is None:
-        # only upload these paths when repositories were not filtered
-        upload_paths += repositories_data_paths
-        upload_paths += general_data_paths
-        upload_paths += v2_data_paths
+        print("\nwriting output:")
+        write_glean_tag_data(tags_by_repo, out_dir)
+        write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
+        write_glean_ping_data(pings_by_repo, out_dir)
+        # only upload authorized repos
+        upload_paths += [out_dir / "glean" / repo_name for repo_name in upload_repos]
+
+    if not (glean_urls or glean_repos) or not update:
+        repositories_data_paths = write_repositories_data(repositories, out_dir)
+        general_data_paths = write_general_data(out_dir)
+
+        repos_v2 = RepositoriesParser().parse_v2(repositories_file)
+        v2_data_paths = write_v2_data(repos_v2, out_dir)
+
+        if not (glean_urls or glean_repos):
+            # only upload these paths when repositories were not filtered
+            upload_paths += repositories_data_paths
+            upload_paths += general_data_paths
+            upload_paths += v2_data_paths
 
     for repo_name, email_info in list(emails.items()):
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
@@ -515,14 +552,16 @@ def load_glean_metrics(
 
 
 def setup_output_and_cache_dirs(
-    output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path
+    output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path, update: bool
 ):
     # Create the output directory
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Sync the cache directory
-    print(f"Syncing cache from {cache_bucket} with {cache_dir}")
-    remote_storage_pull(cache_bucket, cache_dir)
+    # Updates are expected not to benefit from what is stored in cache_bucket.
+    if not update:
+        # Sync the cache directory
+        print(f"Syncing cache from {cache_bucket} with {cache_dir}")
+        remote_storage_pull(cache_bucket, cache_dir)
 
 
 def push_output_and_cache_dirs(
@@ -531,6 +570,7 @@ def push_output_and_cache_dirs(
     out_dir: Path,
     cache_dir: Path,
     upload_paths: Optional[List[Path]] = None,
+    update: bool = False,
 ):
     # Check output dir and then sync with remote storage
     if not os.listdir(out_dir):
@@ -552,7 +592,8 @@ def push_output_and_cache_dirs(
                 cache_control="max-age=28800",
                 acl="public-read",
             )
-        remote_storage_push(src=cache_dir, dst=cache_bucket, exclude=("*.git/*",))
+        if not update:
+            remote_storage_push(src=cache_dir, dst=cache_bucket, exclude=("*.git/*",))
 
 
 def main(
@@ -573,11 +614,14 @@ def main(
     glean_urls: Optional[List[str]] = None,
     glean_commit: Optional[str] = None,
     glean_commit_branch: Optional[str] = None,
+    update: bool = False,
 ):
 
     # Sync dirs with remote storage if we are not running pytest or local dryruns
     if env == "prod":
-        setup_output_and_cache_dirs(output_bucket, cache_bucket, out_dir, cache_dir)
+        setup_output_and_cache_dirs(
+            output_bucket, cache_bucket, out_dir, cache_dir, update
+        )
 
     upload_paths = []
     if not (process_moz_central_probes or process_glean_metrics):
@@ -589,6 +633,7 @@ def main(
             firefox_version,
             min_firefox_version,
             firefox_channel,
+            update=update,
         )
     if process_glean_metrics:
         upload_paths += load_glean_metrics(
@@ -601,6 +646,8 @@ def main(
             glean_urls=glean_urls,
             glean_commit=glean_commit,
             glean_commit_branch=glean_commit_branch,
+            update=update,
+            output_bucket=output_bucket,
         )
 
     # Sync results if we are not running pytest or local dryruns
@@ -619,6 +666,7 @@ def main(
             cache_dir,
             # only use upload paths if out_dir is not complete
             upload_paths=(None if out_dir_is_complete else upload_paths),
+            update=update,
         )
 
 
@@ -699,6 +747,15 @@ if __name__ == "__main__":
         type=str,
         required=False,
     )
+    parser.add_argument(
+        "--update",
+        help="If specified without --glean-repo or --glean-url, scrape nothing and don't write any"
+        " per glean repo files to --out-dir. If specified with --glean-repo or --glean-url, merge"
+        " results with previous results from --output-bucket, and only write per glean repo files"
+        " to --out-dir. Not implemented for --moz-central.",
+        action="store_true",
+        required=False,
+    )
 
     glean_filter = parser.add_mutually_exclusive_group()
     glean_filter.add_argument(
@@ -762,4 +819,5 @@ if __name__ == "__main__":
         glean_urls=args.glean_urls,
         glean_commit=args.glean_commit,
         glean_commit_branch=args.glean_commit_branch,
+        update=args.update,
     )
