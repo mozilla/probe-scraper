@@ -1,0 +1,25 @@
+name: Glean probe-scraper
+
+on:
+  workflow_call:
+
+jobs:
+  probe-scraper:
+    name: Glean probe-scraper
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Validate Glean metrics via probe-scraper, and if appropriate publish changes
+        # when ubuntu-22.04 is available, this should be changed to use
+        # --fail-with-body instead of bash to evaluate the status code
+        # TODO use prod function URL
+        run: |-
+          STATUS_CODE="$(curl https://us-central1-relud1.cloudfunctions.net/glean-push --data '{
+            "url": "${{github.server_url}}/${{github.repository}}",
+            "commit":"${{github.sha}}",
+            "branch":"${{github.ref_name}}"
+          }' --silent --output /dev/stderr --write-out "%{http_code}")"
+          if ! test "$STATUS_CODE" = 200; then
+            echo "The requested URL returned error: $STATUS_CODE"
+            exit 1
+          fi
+
