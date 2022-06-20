@@ -196,6 +196,7 @@ applications:
       - browser/components/newtab/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/extensions/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
@@ -246,6 +247,7 @@ applications:
       - browser/components/newtab/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/extensions/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
