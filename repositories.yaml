@@ -193,10 +193,15 @@ applications:
       - chutten@mozilla.com
     metrics_files: # When adding here, consider if you should also add to pine.
       - browser/components/metrics.yaml
+      - browser/components/newtab/metrics.yaml
+      - browser/components/search/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/extensions/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
+    ping_files:
+      - browser/components/newtab/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
@@ -239,10 +244,15 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - browser/components/metrics.yaml
+      - browser/components/newtab/metrics.yaml
+      - browser/components/search/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/extensions/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
+    ping_files:
+      - browser/components/newtab/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:

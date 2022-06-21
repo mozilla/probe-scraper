@@ -35,6 +35,7 @@ MIN_DATES = {
     "firefox-desktop": "2020-07-29 00:00:00",
     "glean-js": "2020-09-21 13:35:00",
     "mozilla-vpn": "2021-05-25 00:00:00",
+    "mozilla-vpn-android": "2021-05-25 00:00:00",
     "rally-markup-fb-pixel-hunt": "2021-12-04 00:00:00",
     "rally-citp-search-engine-usage": "2022-04-15 00:00:00",
 }
@@ -56,6 +57,7 @@ SKIP_COMMITS = {
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+        "3e81d4efd88a83e89da56b690f39ca2a78623810",  # No browser/components/newtab/metrics.yaml
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -66,6 +68,7 @@ SKIP_COMMITS = {
     ],
     "pine": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+        "3e81d4efd88a83e89da56b690f39ca2a78623810",  # No browser/components/newtab/metrics.yaml
     ],
     "rally-core": [
         "4df4dc23317e155bf1b605d04b466c27d78537fa",  # Missing web-platform/glean/metrics.yaml
