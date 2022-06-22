@@ -611,7 +611,6 @@ applications:
     dependencies:
       - glean-core
       - nimbus
-    retention_days: 720
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 720
@@ -632,7 +631,6 @@ applications:
     dependencies:
       - glean-core
       - nimbus
-    retention_days: 720
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 720
@@ -658,7 +656,6 @@ applications:
       - org.mozilla.components:lib-crash
       - nimbus
       - gecko
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -697,7 +694,6 @@ applications:
       - org.mozilla.components:lib-crash
       - nimbus
       - gecko
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -719,7 +715,6 @@ applications:
       - src/core/ts/background-scripts/background.js/telemetry/pings.yaml
     dependencies:
       - glean-js
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -740,7 +735,6 @@ applications:
       - extension/model/telemetry/pings.yaml
     dependencies:
       - glean-js
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -762,7 +756,6 @@ applications:
       - pings.yaml
     dependencies:
       - glean-js
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -773,8 +766,6 @@ applications:
       - v1_name: rally-debug
         app_id: rally.debug
         deprecated: true
-    encryption:
-      use_jwk: true
     skip_documentation: true
 
   - app_name: rally_core
@@ -802,8 +793,6 @@ applications:
     channels:
       - v1_name: rally-core
         app_id: rally-core
-    encryption:
-      use_jwk: true
     skip_documentation: true
 
   - app_name: mozilla_vpn
@@ -822,7 +811,6 @@ applications:
       - glean/pings.yaml
     dependencies:
       - glean-js
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -848,7 +836,6 @@ applications:
       - glean/pings.yaml
     dependencies:
       - glean-core
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -882,8 +869,6 @@ applications:
     channels:
       - v1_name: rally-study-zero-one
         app_id: rally-study-zero-one
-    encryption:
-      use_jwk: true
     skip_documentation: true
 
   - app_name: mlhackweek_search
@@ -924,7 +909,6 @@ applications:
       - source/telemetry/pings.yaml
     dependencies:
       - glean-js
-    retention_days: 365
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 365
@@ -959,8 +943,6 @@ applications:
     channels:
       - v1_name: rally-markup-fb-pixel-hunt
         app_id: rally-markup-fb-pixel-hunt
-    encryption:
-      use_jwk: true
     skip_documentation: true
 
   - app_name: glean_dictionary
@@ -979,7 +961,6 @@ applications:
       - src/telemetry/pings.yaml
     dependencies:
       - glean-js
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -1018,8 +999,6 @@ applications:
     channels:
       - v1_name: rally-citp-search-engine-usage
         app_id: rally-citp-search-engine-usage
-    encryption:
-      use_jwk: true
     skip_documentation: true
 
   - app_name: bedrock
@@ -1035,7 +1014,6 @@ applications:
       - glean/pings.yaml
     dependencies:
       - glean-js
-    retention_days: 180
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
