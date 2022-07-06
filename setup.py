@@ -19,6 +19,6 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     url="https://github.com/mozilla/probe-scraper/",
-    packages=["probe_scraper"],
+    packages=["probe_scraper","awscli","beautifulsoup4","GitPython","boto3","Flask","glean_parser","google-cloud-storage","gsutil","Jinja2","jsonschema","python-dateutil","PyYAML","requests","requests_cache","requests_file","schema","urllib3","Werkzeug","yamllint"],
     license="MPL 2.0",
 )
