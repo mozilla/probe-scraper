@@ -1020,3 +1020,31 @@ applications:
     channels:
       - v1_name: bedrock
         app_id: bedrock
+
+  - app_name: rally_attention_stream
+    canonical_app_name: Rally Attention Stream
+    app_description: |
+      The Attention Stream is an ongoing, cross-browser data collection
+      to understand the state of the internet in 2022 and beyond.
+    url: https://github.com/mozilla-rally/rally/
+    notification_emails:
+      - than@mozilla.com
+      - betling@mozilla.com
+      - rhelmer@mozilla.com
+      - jmoradi@mozilla.com
+      - aagarwal@mozilla.com
+    branch: main
+    metrics_files:
+      - extensions/attention-stream/metrics.yaml
+    ping_files:
+      - extensions/attention-stream/pings.yaml
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      jwe_mappings:
+        - source_field_path: /payload
+          decrypted_field_path: ""
+    channels:
+      - v1_name: rally-attention-stream
+        app_id: rally-attention-stream
+    skip_documentation: true
