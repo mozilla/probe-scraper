@@ -1026,7 +1026,7 @@ applications:
     app_description: |
       The Attention Stream is an ongoing, cross-browser data collection
       to understand the state of the internet in 2022 and beyond.
-    url: https://github.com/mozilla-rally/rally/
+    url: https://github.com/mozilla-rally/rally
     notification_emails:
       - than@mozilla.com
       - betling@mozilla.com
