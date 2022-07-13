@@ -75,6 +75,9 @@ SKIP_COMMITS = {
         "69559324f775b79c9a39c6a95fdb3657c184ed0e",  # Bug 1769579 omit deleted onboarding ping
         "f633df7676b6ef64e496fea1b3687eff22680d49",  # Missing web-platform/glean/pings.yaml
     ],
+    "rally-attention-stream": [
+        "9fd0b2aeb82ca37f817dcda51bd2f34b6925b487",  # `bugs`/`data_reviews` is not of type `string`
+    ],
 }
 
 
