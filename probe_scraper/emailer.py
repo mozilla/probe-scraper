@@ -5,14 +5,17 @@
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 
 import boto3
 import yaml
 
-EMAIL_FILE = "emails.txt"
+EMAIL_FILE = Path("emails.txt")
 
 
-def send_ses(fromaddr, subject, body, recipients, filename="", dryrun=True):
+def send_ses(
+    fromaddr, subject, body, recipients, filename="", dryrun=True, email_file=None
+):
     """Send an email via the Amazon SES service. Can specify a single or list of
        recipients.
 
@@ -36,7 +39,10 @@ def send_ses(fromaddr, subject, body, recipients, filename="", dryrun=True):
         {"from": fromaddr, "to": subject, "body": body, "recipients": recipients}
     ]
 
-    with open(EMAIL_FILE, "a") as f:
+    if email_file is None:
+        email_file = EMAIL_FILE
+
+    with open(email_file, "a") as f:
         f.write(yaml.dump(email_data, default_flow_style=False))
 
     if dryrun:
