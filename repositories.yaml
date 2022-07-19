@@ -940,6 +940,8 @@ applications:
       jwe_mappings:
         - source_field_path: /payload
           decrypted_field_path: ""
+      expiration_policy:
+        collect_through_date: "2022-07-13"
     channels:
       - v1_name: rally-markup-fb-pixel-hunt
         app_id: rally-markup-fb-pixel-hunt
