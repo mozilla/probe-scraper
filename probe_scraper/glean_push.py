@@ -38,6 +38,7 @@ def main(request: Request) -> Response:
         tmp = Path(tmpdirname)
         out_dir = tmp / "output"
         cache_dir = tmp / "cache"
+        email_file = tmp / "emails.txt"
         out_dir.mkdir()
         cache_dir.mkdir()
         updated_paths = runner.main(
@@ -48,7 +49,7 @@ def main(request: Request) -> Response:
             process_moz_central_probes=False,
             process_glean_metrics=True,
             repositories_file="repositories.yaml",
-            dry_run=False,
+            dry_run=True,
             glean_repos=None,
             firefox_channel=None,
             output_bucket=output_bucket,
@@ -59,11 +60,17 @@ def main(request: Request) -> Response:
             glean_commit=commit,
             glean_commit_branch=branch,
             update=True,
+            email_file=email_file,
         )
         if updated_paths:
             updates = ", ".join(str(p.relative_to(out_dir)) for p in updated_paths)
-            return Response(f"update published for {updates}\n", 200)
-        return Response("update is valid, but not published\n", 200)
+            message = f"update published for {updates}\n"
+        else:
+            message = "update is valid, but not published\n"
+        emails = email_file.read_text()
+        if emails:
+            message += f"additional messages: {emails}\n"
+        return Response(message, 200)
 
 
 if __name__ == "__main__":

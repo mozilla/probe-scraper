@@ -369,6 +369,7 @@ def load_glean_metrics(
     glean_commit_branch: Optional[str] = None,
     update: bool = False,
     output_bucket: Optional[str] = None,
+    email_file: Optional[Path] = None,
 ) -> List[Path]:
     emails = {}
     abort_after_emails = False
@@ -543,6 +544,7 @@ def load_glean_metrics(
                 email["message"],
                 addresses,
                 dryrun=dry_run,
+                email_file=email_file,
             )
 
     if abort_after_emails:
@@ -615,6 +617,7 @@ def main(
     glean_commit: Optional[str] = None,
     glean_commit_branch: Optional[str] = None,
     update: bool = False,
+    email_file: Optional[Path] = None,
 ) -> List[Path]:
 
     # Sync dirs with remote storage if we are not running pytest or local dryruns
@@ -648,6 +651,7 @@ def main(
             glean_commit_branch=glean_commit_branch,
             update=update,
             output_bucket=output_bucket,
+            email_file=email_file,
         )
 
     # Sync results if we are not running pytest or local dryruns
