@@ -175,6 +175,7 @@ libraries:
       - toolkit/components/processtools/metrics.yaml
       - dom/media/metrics.yaml
       - dom/metrics.yaml
+      - netwerk/protocol/http/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     tag_files:

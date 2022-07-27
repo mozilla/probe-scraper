@@ -54,6 +54,9 @@ SKIP_COMMITS = {
         "340c8521a54ad4d4a32dd16333676a6ff85aaec2",  # Missing toolkit/components/glean/pings.yaml
         "4520632fe0664572c5f70688595b7721d167e2d0",  # Missing toolkit/components/glean/pings.yaml
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+        "2c475db0ffe5df6010ded8ccb9784b0645d92ebb",  # Missing netwerk/protocol/http/metrics.yaml
+        "b6dbdfec41221b0a80cc211f85abbb01e33f8692",  # Missing netwerk/protocol/http/metrics.yaml
+        "da2b7986d0b26f26cd1ac2d8c5b78b70009a24b6",  # Missing netwerk/protocol/http/metrics.yaml
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
