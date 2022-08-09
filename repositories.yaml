@@ -899,7 +899,7 @@ applications:
       unwanted YouTube recommended videos to control your YouTube
       experience and power Mozilla’s research into YouTube’s recommendation
       algorithm.
-    url: https://github.com/mozilla-extensions/regrets-reporter/
+    url: https://github.com/mozilla-extensions/regrets-reporter
     notification_emails:
       - jessed@mozillafoundation.org
       - brandi@mozillafoundation.org
@@ -926,7 +926,7 @@ applications:
       the web. The Markup will use the data collected in this study
       to create investigative journalism around the kinds of information
       Facebook collects about you, and where.
-    url: https://github.com/mozilla-rally/facebook-pixel-hunt/
+    url: https://github.com/mozilla-rally/facebook-pixel-hunt
     notification_emails:
       - than@mozilla.com
       - jepstein@mozilla.com
@@ -982,7 +982,7 @@ applications:
       engines. Understanding the search engine marketplace will inform
       competition policy, promoting a diverse digital ecosystem that
       benefits users.
-    url: https://github.com/mozilla-rally/search-engine-usage-study/
+    url: https://github.com/mozilla-rally/search-engine-usage-study
     notification_emails:
       - than@mozilla.com
       - jepstein@mozilla.com
