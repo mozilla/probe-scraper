@@ -70,7 +70,7 @@ def main(request: Request) -> Response:
         try:
             emails = email_file.read_text()
         except FileNotFoundError:
-            pass
+            pass  # no emails means no warnings or expiring metrics, which is good
         else:
             message += f"additional messages: {emails}\n"
         return Response(message, 200)
