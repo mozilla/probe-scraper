@@ -67,8 +67,11 @@ def main(request: Request) -> Response:
             message = f"update published for {updates}\n"
         else:
             message = "update is valid, but not published\n"
-        emails = email_file.read_text()
-        if emails:
+        try:
+            emails = email_file.read_text()
+        except FileNotFoundError:
+            pass  # no emails means no warnings or expiring metrics, which is good
+        else:
             message += f"additional messages: {emails}\n"
         return Response(message, 200)
 
