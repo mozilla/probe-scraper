@@ -202,7 +202,7 @@ applications:
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
-+     - toolkit/components/pdfjs/metrics.yaml
+      - toolkit/components/pdfjs/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
     tag_files:
