@@ -83,6 +83,9 @@ SKIP_COMMITS = {
     "rally-attention-stream": [
         "9fd0b2aeb82ca37f817dcda51bd2f34b6925b487",  # `bugs`/`data_reviews` is not of type `string`
     ],
+    "support-migration": [
+        "2e05b2b7d775ea726e035a7a7f16d889d63fc09a",  # No components/support/migration/metrics.yaml
+    ],
 }
 
 

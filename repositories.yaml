@@ -117,6 +117,7 @@ libraries:
     variants:
       - v1_name: support-migration
         dependency_name: org.mozilla.components:support-migration
+        deprecated: true
 
   - library_name: android-places
     description: >-
