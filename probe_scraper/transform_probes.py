@@ -252,17 +252,15 @@ def get_minimum_date(probe_data, revision_data, revision_dates):
     return min_dates
 
 
-def pretty_ts(ts):
-    return datetime.utcfromtimestamp(ts).isoformat(" ")
-
-
 def make_item_defn(definition, commit, commit_timestamps):
+    commit_dt = datetime.utcfromtimestamp(commit_timestamps[commit][0])
+    commit_pretty_ts = commit_dt.isoformat(" ")
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
         definition[COMMITS_KEY] = {"first": commit, "last": commit}
         definition[DATES_KEY] = {
-            "first": pretty_ts(commit_timestamps[commit][0]),
-            "last": pretty_ts(commit_timestamps[commit][0]),
+            "first": commit_pretty_ts,
+            "last": commit_pretty_ts,
         }
         definition[REFLOG_KEY] = {
             "first": commit_timestamps[commit][1],
@@ -270,9 +268,15 @@ def make_item_defn(definition, commit, commit_timestamps):
         }
     else:
         # we've seen this definition, update the `last` commit
-        definition[COMMITS_KEY]["last"] = commit
-        definition[DATES_KEY]["last"] = pretty_ts(commit_timestamps[commit][0])
-        definition[REFLOG_KEY]["last"] = commit_timestamps[commit][1]
+        last_dt = datetime.fromisoformat(definition[DATES_KEY]["last"])
+        last_reflog = definition[REFLOG_KEY]["last"]
+        commit_reflog = commit_timestamps[commit][1]
+        if last_dt < commit_dt or (
+            last_dt == commit_dt and last_reflog < commit_reflog
+        ):
+            definition[COMMITS_KEY]["last"] = commit
+            definition[DATES_KEY]["last"] = commit_pretty_ts
+            definition[REFLOG_KEY]["last"] = commit_timestamps[commit][1]
 
     return definition
 
@@ -309,7 +313,7 @@ def metrics_equal(def1, def2):
 
 def ping_equal(def1, def2):
     # Test all keys except the ones the probe-scraper adds
-    ignored_keys = set([DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY])
+    ignored_keys = {DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY, "source_url"}
     all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
 
     return all((def1.get(l) == def2.get(l) for l in all_keys))
@@ -344,17 +348,16 @@ def update_or_add_item(
     # If we've seen this item before, check previous definitions
     if item in repo_items:
         prev_defns = repo_items[item][HISTORY_KEY]
-        max_defn_i = max(
-            range(len(prev_defns)),
-            key=lambda i: datetime.fromisoformat(prev_defns[i][DATES_KEY]["last"]),
-        )
-        max_defn = prev_defns[max_defn_i]
 
-        # If equal to previous commit, update date and commit on existing definition
-        if equal_fn(definition, max_defn):
-            new_defn = make_item_defn(max_defn, commit_hash, commit_timestamps)
-            repo_items[item][HISTORY_KEY][max_defn_i] = new_defn
-
+        for i, prev_defn in sorted(
+            enumerate(prev_defns),
+            key=lambda e: datetime.fromisoformat(e[1][DATES_KEY]["last"]),
+        ):
+            # If equal to a previous commit, update date and commit on existing definition
+            if equal_fn(definition, prev_defn):
+                new_defn = make_item_defn(prev_defn, commit_hash, commit_timestamps)
+                repo_items[item][HISTORY_KEY][i] = new_defn
+                break
         # Otherwise, prepend changed definition for existing item
         else:
             new_defn = make_item_defn(definition, commit_hash, commit_timestamps)
