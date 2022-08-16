@@ -418,23 +418,27 @@ def load_glean_metrics(
                         r for r in repositories if r.name == repo_name
                     ).to_dict()
 
+                    errs = []
                     if tags_files:
-                        results, errs = GLEAN_TAGS_PARSER.parse(
+                        results, tag_errs = GLEAN_TAGS_PARSER.parse(
                             tags_files, config, repo["url"], commit_hash
                         )
                         tags[repo_name][commit_hash] = results
+                        errs += tag_errs
 
                     if metrics_files:
-                        results, errs = GLEAN_PARSER.parse(
+                        results, metric_errs = GLEAN_PARSER.parse(
                             metrics_files, config, repo["url"], commit_hash
                         )
                         metrics[repo_name][commit_hash] = results
+                        errs += metric_errs
 
                     if pings_files:
-                        results, errs = GLEAN_PINGS_PARSER.parse(
+                        results, ping_errs = GLEAN_PINGS_PARSER.parse(
                             pings_files, config, repo["url"], commit_hash
                         )
                         pings[repo_name][commit_hash] = results
+                        errs += ping_errs
                 except Exception:
                     files = metrics_files + pings_files
                     msg = "Improper file in {}\n{}".format(
