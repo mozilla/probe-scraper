@@ -465,11 +465,12 @@ def load_glean_metrics(
         for repo in repos_metrics_data:
             if update:
                 repo_dir = out_dir / "glean" / repo
-                remote_storage_pull(
-                    f"{output_bucket.rstrip('/')}/glean/{repo}/",
-                    repo_dir,
-                    decompress=True,
-                )
+                if output_bucket:
+                    remote_storage_pull(
+                        f"{output_bucket.rstrip('/')}/glean/{repo}/",
+                        repo_dir,
+                        decompress=True,
+                    )
                 tags_by_repo[repo] = load_json(repo_dir, "tags", default={})
                 metrics_by_repo[repo] = load_json(repo_dir, "metrics", default={})
                 pings_by_repo[repo] = load_json(repo_dir, "pings", default={})
