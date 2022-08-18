@@ -105,19 +105,19 @@ def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
 
 
 def get_commits(
-    repo: git.Repo, filename: Path, ref: str, max_count: Optional[int] = None
+    repo: git.Repo, filename: Path, ref: str, only_ref: bool = False
 ) -> Dict[str, Tuple[int, int]]:
     sep = ":"
     log_format = f"--format=%H{sep}%ct"
-    # include "--" to prevent error for filename not in current tree
-    args = [ref, log_format, "--", filename]
-    if max_count is not None:
-        args = [f"--max-count={max_count}"] + args
-    log = repo.git.log(args)
-    # filter out empty strings
-    change_commits = filter(None, log.split("\n"))
-    commits = set(enumerate(change_commits))
-    if max_count is None and _file_in_commit(repo, filename, ref):
+    commits = set()
+    if not only_ref:
+        # include "--" to prevent error for filename not in current tree
+        args = [ref, log_format, "--", filename]
+        log = repo.git.log(args)
+        # filter out empty strings
+        change_commits = filter(None, log.split("\n"))
+        commits |= set(enumerate(change_commits))
+    if only_ref or _file_in_commit(repo, filename, ref):
         # include ref when it contains filename
         commits |= set(
             enumerate(repo.git.log(ref, "--max-count=1", log_format).split("\n"))
@@ -213,7 +213,7 @@ def retrieve_files(
                     )
 
     for rel_path in map(Path, repo_info.get_change_files()):
-        hashes = get_commits(repo, rel_path, ref, max_count=1 if commit else None)
+        hashes = get_commits(repo, rel_path, ref, only_ref=commit is not None)
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
                 continue
