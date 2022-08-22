@@ -206,6 +206,7 @@ applications:
       - toolkit/components/pdfjs/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
+      - toolkit/components/telemetry/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
@@ -257,6 +258,7 @@ applications:
       - toolkit/xre/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
+      - toolkit/components/telemetry/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
