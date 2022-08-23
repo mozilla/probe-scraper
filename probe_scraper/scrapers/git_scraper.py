@@ -6,7 +6,7 @@ import re
 import tempfile
 import traceback
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -109,22 +109,23 @@ def get_commits(
     ref: str,
     only_ref: bool = False,
     deprecated: bool = False,
+    before: Optional[float] = None,
 ) -> Dict[str, Tuple[int, int]]:
     sep = ":"
-    log_format = f"--format=%H{sep}%ct"
+    log_format = f"%H{sep}%ct"
     commits = set()
     if not only_ref:
         # include "--" to prevent error for filename not in current tree
-        args = [ref, log_format, "--", filename]
-        log = repo.git.log(args)
+        log = repo.git.log(ref, "--", filename, before=before, format=log_format)
         # filter out empty strings
         change_commits = filter(None, log.split("\n"))
         commits |= set(enumerate(change_commits))
     if (only_ref and not deprecated) or _file_in_commit(repo, filename, ref):
         # include ref when it contains filename
-        commits |= set(
-            enumerate(repo.git.log(ref, "--max-count=1", log_format).split("\n"))
-        )
+        log = repo.git.log(ref, before=before, format=log_format, max_count=1)
+        # filter out empty strings
+        change_commits = filter(None, log.split("\n"))
+        commits |= set(enumerate(change_commits))
 
     # Store the index in the ref-log as well as the timestamp, so that the
     # ordering of commits will be deterministic and always in the correct
@@ -152,6 +153,7 @@ def retrieve_files(
     cache_dir: Path,
     commit: Optional[str] = None,
     commit_branch: Optional[str] = None,
+    limit_date: Optional[date] = None,
 ) -> Tuple[Dict[str, Tuple[int, int]], Dict[str, List[Path]], bool]:
     results = defaultdict(list)
     timestamps = dict()
@@ -168,22 +170,55 @@ def retrieve_files(
     if repo_path.exists():
         print(f"Pulling commits into {repo_path}")
         repo = git.Repo(repo_path)
-        if set(repo.remote("origin").urls) != {repo_info.url}:
+        actual_urls = set(repo.remote("origin").urls)
+        if actual_urls != {repo_info.url}:
             raise Exception(
-                f"invalid cache: git repo at {repo_path} is not for {repo_info.url}"
+                f"invalid cache: git repo at {repo_path} should be for "
+                f"{repo_info.url} but got {actual_urls}"
             )
     else:
         print(f"Cloning {repo_info.url} into {repo_path}")
         repo = git.Repo.clone_from(
-            repo_info.url, repo_path, bare=True, depth=1 if commit else None
+            repo_info.url,
+            repo_path,
+            bare=True,
+            depth=1 if commit or limit_date else None,
         )
 
+    limit_end = None
     repo_is_shallow = repo.git.rev_parse(is_shallow_repository=True) == "true"
     branch = repo_info.branch or repo.active_branch
     if commit is None:
-        repo.git.fetch(
-            "origin", f"{branch}:{branch}", force=True, unshallow=repo_is_shallow
-        )
+        if limit_date is not None:
+            limit_start = datetime.combine(limit_date, time.min)
+            try:
+                repo.git.fetch(
+                    "origin",
+                    f"{branch}:{branch}",
+                    force=True,
+                    shallow_since=utc_timestamp(limit_start),
+                )
+            except git.GitCommandError as e:
+                if any(
+                    log in e.stderr
+                    for log in (
+                        # github error
+                        "\n  stderr: 'fatal: error processing shallow info: 4'",
+                        # local git dir error
+                        "\n  stderr: 'fatal: no commits selected for shallow requests\n",
+                    )
+                ):
+                    # no commits, don't upload
+                    return {}, {}, False
+                raise
+            limit_end = utc_timestamp(limit_start + timedelta(days=1))
+        else:
+            repo.git.fetch(
+                "origin",
+                f"{branch}:{branch}",
+                force=True,
+                unshallow=repo_is_shallow,
+            )
         # pass ref around to avoid updating repo.active_branch, so that it
         # can be preserved for other glean repos with the same git url
         ref = f"refs/heads/{branch}"
@@ -224,6 +259,7 @@ def retrieve_files(
             ref,
             only_ref=commit is not None,
             deprecated=repo_info.deprecated,
+            before=limit_end,
         )
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
@@ -256,6 +292,7 @@ def scrape(
     repos: Optional[List[Repository]] = None,
     commit: Optional[str] = None,
     commit_branch: Optional[str] = None,
+    limit_date: Optional[date] = None,
 ) -> Tuple[
     Dict[str, Dict[str, Tuple[int, int]]],
     Dict[str, Dict[str, List[Path]]],
@@ -326,7 +363,11 @@ def scrape(
 
         try:
             ts, commits, upload_repo = retrieve_files(
-                repo_info, folder, commit, commit_branch
+                repo_info,
+                folder,
+                commit,
+                commit_branch,
+                limit_date,
             )
             print("  Got {} commits".format(len(commits)))
             results[repo_info.name] = commits
