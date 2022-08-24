@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import git
 
+from probe_scraper.exc import ProbeScraperInvalidRequest
 from probe_scraper.parsers.repositories import Repository
 
 GIT_HASH_PATTERN = re.compile("([A-Fa-f0-9]){40}")
@@ -105,7 +106,11 @@ def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
 
 
 def get_commits(
-    repo: git.Repo, filename: Path, ref: str, only_ref: bool = False
+    repo: git.Repo,
+    filename: Path,
+    ref: str,
+    only_ref: bool = False,
+    deprecated: bool = False,
 ) -> Dict[str, Tuple[int, int]]:
     sep = ":"
     log_format = f"--format=%H{sep}%ct"
@@ -117,7 +122,7 @@ def get_commits(
         # filter out empty strings
         change_commits = filter(None, log.split("\n"))
         commits |= set(enumerate(change_commits))
-    if only_ref or _file_in_commit(repo, filename, ref):
+    if (only_ref and not deprecated) or _file_in_commit(repo, filename, ref):
         # include ref when it contains filename
         commits |= set(
             enumerate(repo.git.log(ref, "--max-count=1", log_format).split("\n"))
@@ -213,7 +218,13 @@ def retrieve_files(
                     )
 
     for rel_path in map(Path, repo_info.get_change_files()):
-        hashes = get_commits(repo, rel_path, ref, only_ref=commit is not None)
+        hashes = get_commits(
+            repo,
+            rel_path,
+            ref,
+            only_ref=commit is not None,
+            deprecated=repo_info.deprecated,
+        )
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
                 continue
@@ -222,7 +233,14 @@ def retrieve_files(
 
             disk_path = base_path / _hash / rel_path
             if not disk_path.exists():
-                contents = get_file_at_hash(repo, _hash, rel_path)
+                try:
+                    contents = get_file_at_hash(repo, _hash, rel_path)
+                except git.GitCommandError as e:
+                    if "does not exist" in str(e):
+                        raise ProbeScraperInvalidRequest(
+                            f"{rel_path} not found in commit {_hash} for {repo_info.app_id}"
+                        )
+                    raise
 
                 disk_path.parent.mkdir(parents=True, exist_ok=True)
                 disk_path.write_bytes(contents.encode("UTF-8"))
