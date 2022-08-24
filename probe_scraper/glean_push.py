@@ -9,6 +9,7 @@ from unittest.mock import Mock
 from flask import Request, Response
 
 from . import runner
+from .exc import ProbeScraperInvalidRequest
 
 
 def main(request: Request) -> Response:
@@ -41,27 +42,30 @@ def main(request: Request) -> Response:
         email_file = tmp / "emails.txt"
         out_dir.mkdir()
         cache_dir.mkdir()
-        updated_paths = runner.main(
-            cache_dir=cache_dir,
-            out_dir=out_dir,
-            firefox_version=None,
-            min_firefox_version=None,
-            process_moz_central_probes=False,
-            process_glean_metrics=True,
-            repositories_file="repositories.yaml",
-            dry_run=True,
-            glean_repos=None,
-            firefox_channel=None,
-            output_bucket=output_bucket,
-            cache_bucket=None,
-            env="prod",
-            bugzilla_api_key=None,
-            glean_urls=[url],
-            glean_commit=commit,
-            glean_commit_branch=branch,
-            update=True,
-            email_file=email_file,
-        )
+        try:
+            updated_paths = runner.main(
+                cache_dir=cache_dir,
+                out_dir=out_dir,
+                firefox_version=None,
+                min_firefox_version=None,
+                process_moz_central_probes=False,
+                process_glean_metrics=True,
+                repositories_file="repositories.yaml",
+                dry_run=True,
+                glean_repos=None,
+                firefox_channel=None,
+                output_bucket=output_bucket,
+                cache_bucket=None,
+                env="prod",
+                bugzilla_api_key=None,
+                glean_urls=[url],
+                glean_commit=commit,
+                glean_commit_branch=branch,
+                update=True,
+                email_file=email_file,
+            )
+        except ProbeScraperInvalidRequest as e:
+            return Response(f"Error: {e}\n", 400)
         if updated_paths:
             updates = ", ".join(str(p.relative_to(out_dir)) for p in updated_paths)
             message = f"update published for {updates}\n"
