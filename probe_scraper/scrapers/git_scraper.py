@@ -92,10 +92,6 @@ SKIP_COMMITS = {
 }
 
 
-class InvalidCommitError(ValueError):
-    pass
-
-
 def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
     # adapted from https://stackoverflow.com/a/25961128
     subtree = repo.commit(ref).tree
@@ -193,7 +189,9 @@ def retrieve_files(
         ref = f"refs/heads/{branch}"
         upload_repo = True
     elif GIT_HASH_PATTERN.fullmatch(commit) is None:
-        raise InvalidCommitError("must be full length git hash")
+        raise ProbeScraperInvalidRequest(
+            f"commit must be full length git hash, but got {commit!r}"
+        )
     else:
         repo.git.fetch(
             "origin", commit, force=True, depth=1 if repo_is_shallow else None
@@ -215,7 +213,7 @@ def retrieve_files(
                     # when commit != branch, check if it's in the history for branch
                     repo.git.merge_base(commit, branch_ref, is_ancestor=True)
                 except git.GitCommandError:
-                    raise InvalidCommitError(
+                    raise ProbeScraperInvalidRequest(
                         f"Commit {commit} not found in branch {branch} of {repo_info.url}"
                     )
 

@@ -20,6 +20,7 @@ from dateutil.tz import tzlocal
 
 from . import fog_checks, glean_checks, transform_probes, transform_revisions
 from .emailer import send_ses
+from .exc import ProbeScraperInvalidRequest
 from .parsers.events import EventsParser
 from .parsers.histograms import HistogramsParser
 from .parsers.metrics import GleanMetricsParser
@@ -380,7 +381,9 @@ def load_glean_metrics(
     elif glean_repos:
         repositories = [r for r in repositories if r.name in glean_repos]
     if not repositories:
-        raise ValueError("No glean repos matched --glean-repo or --glean-url")
+        raise ProbeScraperInvalidRequest(
+            "No glean repos matched --glean-repo or --glean-url"
+        )
 
     if glean_urls or glean_repos or not update:
         (
