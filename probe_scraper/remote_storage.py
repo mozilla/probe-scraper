@@ -1,13 +1,31 @@
 import fnmatch
 import gzip
+import subprocess
 from pathlib import Path
-from subprocess import check_call
 from tempfile import TemporaryDirectory
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
+
+from .exc import ProbeScraperServerError
 
 TEXT_HTML = "text/html"
 APPLICATION_JSON = "application/json"
 INDEX_HTML = "index.html"
+
+
+def _call(args: List[str]):
+    process = subprocess.run(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if process.returncode == 0:
+        print(process.stdout, end="")
+    else:
+        raise ProbeScraperServerError(
+            f"Command {args!r} returned non-zero exit status {process.returncode}: "
+            + process.stdout
+        )
 
 
 def _s3_sync(
@@ -27,8 +45,8 @@ def _s3_sync(
     else:
         s3_cmd = "sync"
 
-    check_call(
-        ["aws", "s3", s3_cmd, str(src), str(dst)]
+    _call(
+        ["aws", "s3", s3_cmd, "--only-show-errors", str(src), str(dst)]
         + (["--delete"] if delete else [])
         + [
             arg
@@ -74,8 +92,8 @@ def _gcs_sync(
     else:
         gsutil_cmd = ["rsync", "-r"]
 
-    check_call(
-        ["gsutil", "-m"]
+    _call(
+        ["gsutil", "-q", "-m"]
         # -h flags are global and must appear before the rsync/cp command
         + [
             arg

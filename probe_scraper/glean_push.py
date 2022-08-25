@@ -9,7 +9,7 @@ from unittest.mock import Mock
 from flask import Request, Response
 
 from . import runner
-from .exc import ProbeScraperInvalidRequest
+from .exc import ProbeScraperError
 
 
 def main(request: Request) -> Response:
@@ -64,8 +64,8 @@ def main(request: Request) -> Response:
                 update=True,
                 email_file=email_file,
             )
-        except ProbeScraperInvalidRequest as e:
-            return Response(f"Error: {e}\n", 400)
+        except ProbeScraperError as e:
+            return Response(f"Error: {e.message}\n", e.status_code)
         if updated_paths:
             updates = ", ".join(str(p.relative_to(out_dir)) for p in updated_paths)
             message = f"update published for {updates}\n"
