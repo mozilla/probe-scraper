@@ -2,8 +2,8 @@ class ProbeScraperError(Exception):
     """Exception type for returning errors in push mode."""
 
     def __init__(self, message, status_code):
-        self.status_code = status_code
         self.message = message
+        self.status_code = status_code
 
 
 class ProbeScraperInvalidRequest(ProbeScraperError):
