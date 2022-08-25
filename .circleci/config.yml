@@ -81,6 +81,7 @@ jobs:
             --set-env-vars=BOTO_PATH=.gce_boto,OUTPUT_BUCKET=gs://probe-scraper-prod-artifacts/
             --trigger-http
             --service-account=$PROD_SERVICE_ACCOUNT_INVOKER
+            --timeout=540s
 
   docs_build:
     docker:
