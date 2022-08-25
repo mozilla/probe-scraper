@@ -977,6 +977,32 @@ applications:
       - v1_name: glean-dictionary
         app_id: glean-dictionary
 
+  - app_name: mdn_yari
+    canonical_app_name: Mozilla Developer Network
+    app_description: |
+      MDN Web Docs is an open-source, collaborative project documenting Web
+      platform technologies, including CSS, HTML, JavaScript, and Web APIs.
+      MDN also provides an extensive set of learning resources for beginning
+      developers and students.
+    url: https://github.com/mdn/yari
+    notification_emails:
+      - gsleigh@mozilla.com
+      - tlong@mozilla.com
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files:
+      - client/src/telemetry/metrics.yaml
+    ping_files:
+      - client/src/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
+    channels:
+      - v1_name: mdn-yari
+        app_id: mdn-yari
+
   - app_name: rally_citp_search_engine_usage
     canonical_app_name: Search Engine Usage and Result Quality
     app_description: |
