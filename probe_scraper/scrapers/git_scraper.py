@@ -64,6 +64,7 @@ SKIP_COMMITS = {
         "3e81d4efd88a83e89da56b690f39ca2a78623810",  # No browser/components/newtab/metrics.yaml
         "d556b247aaec64b3ab6a033d40f2022f1213101e",  # No toolkit/components/nimbus/metrics.yaml
         "d1d0b69871e3d38ead989d73f30563a501a448b6",  # No toolkit/components/nimbus/metrics.yaml
+        "642be079c4465445ab42b55d18e0a4d644c19c36",  # No toolkit/components/telemetry/pings.yaml
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -75,6 +76,7 @@ SKIP_COMMITS = {
     "pine": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
         "3e81d4efd88a83e89da56b690f39ca2a78623810",  # No browser/components/newtab/metrics.yaml
+        "642be079c4465445ab42b55d18e0a4d644c19c36",  # No toolkit/components/telemetry/pings.yaml
     ],
     "rally-core": [
         "4df4dc23317e155bf1b605d04b466c27d78537fa",  # Missing web-platform/glean/metrics.yaml
