@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import git
 
+from probe_scraper.exc import ProbeScraperInvalidRequest
 from probe_scraper.parsers.repositories import Repository
 
 GIT_HASH_PATTERN = re.compile("([A-Fa-f0-9]){40}")
@@ -63,6 +64,7 @@ SKIP_COMMITS = {
         "3e81d4efd88a83e89da56b690f39ca2a78623810",  # No browser/components/newtab/metrics.yaml
         "d556b247aaec64b3ab6a033d40f2022f1213101e",  # No toolkit/components/nimbus/metrics.yaml
         "d1d0b69871e3d38ead989d73f30563a501a448b6",  # No toolkit/components/nimbus/metrics.yaml
+        "642be079c4465445ab42b55d18e0a4d644c19c36",  # No toolkit/components/telemetry/pings.yaml
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -74,6 +76,7 @@ SKIP_COMMITS = {
     "pine": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
         "3e81d4efd88a83e89da56b690f39ca2a78623810",  # No browser/components/newtab/metrics.yaml
+        "642be079c4465445ab42b55d18e0a4d644c19c36",  # No toolkit/components/telemetry/pings.yaml
     ],
     "rally-core": [
         "4df4dc23317e155bf1b605d04b466c27d78537fa",  # Missing web-platform/glean/metrics.yaml
@@ -105,7 +108,11 @@ def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
 
 
 def get_commits(
-    repo: git.Repo, filename: Path, ref: str, only_ref: bool = False
+    repo: git.Repo,
+    filename: Path,
+    ref: str,
+    only_ref: bool = False,
+    deprecated: bool = False,
 ) -> Dict[str, Tuple[int, int]]:
     sep = ":"
     log_format = f"--format=%H{sep}%ct"
@@ -117,7 +124,7 @@ def get_commits(
         # filter out empty strings
         change_commits = filter(None, log.split("\n"))
         commits |= set(enumerate(change_commits))
-    if only_ref or _file_in_commit(repo, filename, ref):
+    if (only_ref and not deprecated) or _file_in_commit(repo, filename, ref):
         # include ref when it contains filename
         commits |= set(
             enumerate(repo.git.log(ref, "--max-count=1", log_format).split("\n"))
@@ -213,7 +220,13 @@ def retrieve_files(
                     )
 
     for rel_path in map(Path, repo_info.get_change_files()):
-        hashes = get_commits(repo, rel_path, ref, only_ref=commit is not None)
+        hashes = get_commits(
+            repo,
+            rel_path,
+            ref,
+            only_ref=commit is not None,
+            deprecated=repo_info.deprecated,
+        )
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:
                 continue
@@ -222,7 +235,14 @@ def retrieve_files(
 
             disk_path = base_path / _hash / rel_path
             if not disk_path.exists():
-                contents = get_file_at_hash(repo, _hash, rel_path)
+                try:
+                    contents = get_file_at_hash(repo, _hash, rel_path)
+                except git.GitCommandError as e:
+                    if "does not exist" in str(e):
+                        raise ProbeScraperInvalidRequest(
+                            f"{rel_path} not found in commit {_hash} for {repo_info.app_id}"
+                        )
+                    raise
 
                 disk_path.parent.mkdir(parents=True, exist_ok=True)
                 disk_path.write_bytes(contents.encode("UTF-8"))

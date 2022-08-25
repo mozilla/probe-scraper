@@ -495,7 +495,7 @@ applications:
     canonical_app_name: mozregression
     app_description: Regression range finder for Mozilla nightly builds
     notification_emails:
-      - wlachance@mozilla.com
+      - zeid@mozilla.com
     url: https://github.com/mozilla/mozregression
     metrics_files:
       - mozregression/metrics.yaml
