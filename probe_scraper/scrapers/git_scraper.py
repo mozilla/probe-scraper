@@ -109,20 +109,19 @@ def get_commits(
     ref: str,
     only_ref: bool = False,
     deprecated: bool = False,
-    before: Optional[float] = None,
 ) -> Dict[str, Tuple[int, int]]:
     sep = ":"
     log_format = f"%H{sep}%ct"
     commits = set()
     if not only_ref:
         # include "--" to prevent error for filename not in current tree
-        log = repo.git.log(ref, "--", filename, before=before, format=log_format)
+        log = repo.git.log(ref, "--", filename, format=log_format)
         # filter out empty strings
         change_commits = filter(None, log.split("\n"))
         commits |= set(enumerate(change_commits))
     if (only_ref and not deprecated) or _file_in_commit(repo, filename, ref):
         # include ref when it contains filename
-        log = repo.git.log(ref, before=before, format=log_format, max_count=1)
+        log = repo.git.log(ref, format=log_format, max_count=1)
         # filter out empty strings
         change_commits = filter(None, log.split("\n"))
         commits |= set(enumerate(change_commits))
@@ -185,18 +184,17 @@ def retrieve_files(
             depth=1 if commit or limit_date else None,
         )
 
-    limit_end = None
     repo_is_shallow = repo.git.rev_parse(is_shallow_repository=True) == "true"
     branch = repo_info.branch or repo.active_branch
     if commit is None:
         if limit_date is not None:
-            limit_start = datetime.combine(limit_date, time.min)
+            shallow_since = utc_timestamp(datetime.combine(limit_date, time.min))
             try:
                 repo.git.fetch(
                     "origin",
                     f"{branch}:{branch}",
                     force=True,
-                    shallow_since=utc_timestamp(limit_start),
+                    shallow_since=shallow_since,
                 )
             except git.GitCommandError as e:
                 if any(
@@ -211,7 +209,6 @@ def retrieve_files(
                     # no commits, don't upload
                     return {}, {}, False
                 raise
-            limit_end = utc_timestamp(limit_start + timedelta(days=1))
         else:
             repo.git.fetch(
                 "origin",
@@ -259,7 +256,6 @@ def retrieve_files(
             ref,
             only_ref=commit is not None,
             deprecated=repo_info.deprecated,
-            before=limit_end,
         )
         for _hash, (ts, index) in hashes.items():
             if min_date and ts < min_date:

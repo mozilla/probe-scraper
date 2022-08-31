@@ -769,7 +769,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--glean-limit-date",
-        help="UTC date to limit commit timestamp when scraping Glean repos.",
+        help="UTC date to limit commit timestamp when scraping Glean repos. All "
+        "commits on or after this date are scraped. This behavior is to account for "
+        "nightly runs that don't occur on weekends, in which case this flag must be "
+        "set to the date for friday when it is run on monday morning.",
         type=datetime.date.fromisoformat,
         required=False,
     )

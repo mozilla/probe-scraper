@@ -5,7 +5,7 @@
 
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -63,7 +63,7 @@ def generate_repo(
 
 def test_single_commit(test_dir: Path):
     today_date = datetime.utcnow().date()
-    today_datetime = datetime(*today_date.timetuple()[:3])
+    today_datetime = datetime.combine(today_date, time.min)
     repo_path = generate_repo(
         test_dir,
         "normal",
@@ -147,7 +147,7 @@ def test_single_commit(test_dir: Path):
 
 def test_add_commit(test_dir: Path):
     today_date = datetime.utcnow().date()
-    today_datetime = datetime(*today_date.timetuple()[:3])
+    today_datetime = datetime.combine(today_date, time.min)
     repo_path = generate_repo(
         test_dir,
         "normal",
