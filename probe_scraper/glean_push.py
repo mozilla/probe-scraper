@@ -50,7 +50,7 @@ def main(request: Request) -> Response:
                 min_firefox_version=None,
                 process_moz_central_probes=False,
                 process_glean_metrics=True,
-                repositories_file="repositories.yaml",
+                repositories_file=Path("repositories.yaml"),
                 dry_run=True,
                 glean_repos=None,
                 firefox_channel=None,

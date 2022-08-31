@@ -371,6 +371,7 @@ def load_glean_metrics(
     update: bool = False,
     output_bucket: Optional[str] = None,
     email_file: Optional[Path] = None,
+    glean_limit_date: Optional[datetime.date] = None,
 ) -> List[Path]:
     emails = {}
     abort_after_emails = False
@@ -385,14 +386,18 @@ def load_glean_metrics(
             "No glean repos matched --glean-repo or --glean-url"
         )
 
-    if glean_urls or glean_repos or not update:
+    if glean_urls or glean_repos or glean_limit_date or not update:
         (
             commit_timestamps,
             repos_metrics_data,
             emails,
             upload_repos,
         ) = git_scraper.scrape(
-            cache_dir, repositories, glean_commit, glean_commit_branch
+            cache_dir,
+            repositories,
+            glean_commit,
+            glean_commit_branch,
+            glean_limit_date,
         )
 
         glean_checks.check_glean_metric_structure(repos_metrics_data)
@@ -626,6 +631,7 @@ def main(
     glean_commit_branch: Optional[str] = None,
     update: bool = False,
     email_file: Optional[Path] = None,
+    glean_limit_date: Optional[datetime.date] = None,
 ) -> List[Path]:
 
     # Sync dirs with remote storage if we are not running pytest or local dryruns
@@ -660,6 +666,7 @@ def main(
             update=update,
             output_bucket=output_bucket,
             email_file=email_file,
+            glean_limit_date=glean_limit_date,
         )
 
     # Sync results if we are not running pytest or local dryruns
@@ -761,6 +768,15 @@ if __name__ == "__main__":
         required=False,
     )
     parser.add_argument(
+        "--glean-limit-date",
+        help="UTC date to limit commit timestamp when scraping Glean repos. All "
+        "commits on or after this date are scraped. This behavior is to account for "
+        "nightly runs that don't occur on weekends, in which case this flag must be "
+        "set to the date for friday when it is run on monday morning.",
+        type=datetime.date.fromisoformat,
+        required=False,
+    )
+    parser.add_argument(
         "--update",
         help="If specified without --glean-repo or --glean-url, scrape nothing and don't write any"
         " per glean repo files to --out-dir. If specified with --glean-repo or --glean-url, merge"
@@ -833,4 +849,5 @@ if __name__ == "__main__":
         glean_commit=args.glean_commit,
         glean_commit_branch=args.glean_commit_branch,
         update=args.update,
+        glean_limit_date=args.glean_limit_date,
     )
