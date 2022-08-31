@@ -769,7 +769,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--glean-limit-date",
-        help="UTC date to limit commit timestamp when scraping glean repos.",
+        help="UTC date to limit commit timestamp when scraping Glean repos.",
         type=datetime.date.fromisoformat,
         required=False,
     )

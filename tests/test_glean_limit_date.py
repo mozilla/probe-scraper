@@ -98,7 +98,7 @@ def test_single_commit(test_dir: Path):
     repositories_file = test_dir / "repositories.yaml"
     repositories_file.write_text(yaml.dump(repositories_info))
 
-    # generate expected output without date limit
+    # generate output with date limit
     actual_kwargs = dict(
         cache_dir=test_dir / "cache",
         out_dir=test_dir / "actual",
