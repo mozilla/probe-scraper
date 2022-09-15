@@ -256,13 +256,18 @@ def apply_ping_specific_metadata(metadata, ping_metadata):
             metadata[k] = ping_metadata[k]
 
 
-def add_pipeline_metadata(pings_by_repo, repositories):
+def add_pipeline_metadata_defaults(repositories):
     for repo in repositories:
         metadata_defaults = repo.moz_pipeline_metadata_defaults
         metadata_defaults["bq_dataset_family"] = repo.app_id.replace("-", "_")
         metadata_defaults["bq_metadata_format"] = (
             "pioneer" if repo.app_id.startswith("rally") else "structured"
         )
+
+
+def add_pipeline_metadata(pings_by_repo, repositories):
+    for repo in repositories:
+        metadata_defaults = repo.moz_pipeline_metadata_defaults
 
         current_pings = pings_by_repo.get(repo.name)
         for ping_name, ping in current_pings.items():
@@ -377,6 +382,7 @@ def load_glean_metrics(
     abort_after_emails = False
     upload_paths = []
     repositories = RepositoriesParser().parse(repositories_file)
+    add_pipeline_metadata_defaults(repositories)
     if glean_urls:
         repositories = [r for r in repositories if r.url in glean_urls]
     elif glean_repos:
