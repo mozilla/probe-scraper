@@ -109,6 +109,7 @@ def test_add_pipeline_metadata_with_default(repo_with_one_ping, repo_with_two_pi
         "app_id": "repo-1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
+    runner.add_pipeline_metadata_defaults(repositories=repository_list)
     runner.add_pipeline_metadata(
         pings_by_repo=repo_with_one_ping, repositories=repository_list
     )
@@ -192,6 +193,7 @@ def test_add_pipeline_metadata_no_default_ping_specific(
     }
 
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
+    runner.add_pipeline_metadata_defaults(repositories=repository_list)
     runner.add_pipeline_metadata(
         pings_by_repo=repo_with_one_ping, repositories=repository_list
     )
@@ -281,6 +283,7 @@ def test_add_pipeline_metadata_with_default_with_ping_specfic_additions(
         "app_id": "repo-1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
+    runner.add_pipeline_metadata_defaults(repositories=repository_list)
     runner.add_pipeline_metadata(
         pings_by_repo=repo_with_two_pings, repositories=repository_list
     )
@@ -349,6 +352,7 @@ def test_add_pipeline_metadata_with_default_with_ping_specific_override(
         "app_id": "repo.1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
+    runner.add_pipeline_metadata_defaults(repositories=repository_list)
     runner.add_pipeline_metadata(
         pings_by_repo=repo_with_two_pings, repositories=repository_list
     )
@@ -415,6 +419,7 @@ def test_add_pipeline_metadata_with_default_with_pings_override(repo_with_two_pi
         "app_id": "repo.1",
     }
     repository_list = [repositories.Repository(name="repo1", definition=repo_config)]
+    runner.add_pipeline_metadata_defaults(repositories=repository_list)
     runner.add_pipeline_metadata(
         pings_by_repo=repo_with_two_pings, repositories=repository_list
     )
