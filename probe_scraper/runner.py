@@ -567,21 +567,25 @@ def load_glean_metrics(
 
 
 def setup_output_and_cache_dirs(
-    output_bucket: str, cache_bucket: str, out_dir: Path, cache_dir: Path, update: bool
+    output_bucket: Optional[str],
+    cache_bucket: Optional[str],
+    out_dir: Path,
+    cache_dir: Path,
+    update: bool,
 ):
     # Create the output directory
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Updates are expected not to benefit from what is stored in cache_bucket.
-    if not update:
+    if cache_bucket and not update:
         # Sync the cache directory
         print(f"Syncing cache from {cache_bucket} with {cache_dir}")
         remote_storage_pull(cache_bucket, cache_dir)
 
 
 def push_output_and_cache_dirs(
-    output_bucket: str,
-    cache_bucket: str,
+    output_bucket: Optional[str],
+    cache_bucket: Optional[str],
     out_dir: Path,
     cache_dir: Path,
     upload_paths: Optional[List[Path]] = None,
@@ -592,22 +596,23 @@ def push_output_and_cache_dirs(
         print("{} is empty".format(out_dir))
         sys.exit(1)
     else:
-        for src in [out_dir] if upload_paths is None else upload_paths:
-            if src is out_dir:
-                dst = output_bucket
-            else:
-                dst = f"{output_bucket.rstrip('/')}/{src.relative_to(out_dir)}"
-                if src.is_dir():
-                    dst += "/"
-            remote_storage_push(
-                src=src,
-                dst=dst,
-                compress=True,
-                delete=src.is_dir(),
-                cache_control="max-age=28800",
-                acl="public-read",
-            )
-        if not update:
+        if output_bucket:
+            for src in [out_dir] if upload_paths is None else upload_paths:
+                if src is out_dir:
+                    dst = output_bucket
+                else:
+                    dst = f"{output_bucket.rstrip('/')}/{src.relative_to(out_dir)}"
+                    if src.is_dir():
+                        dst += "/"
+                remote_storage_push(
+                    src=src,
+                    dst=dst,
+                    compress=True,
+                    delete=src.is_dir(),
+                    cache_control="max-age=28800",
+                    acl="public-read",
+                )
+        if cache_bucket and not update:
             remote_storage_push(src=cache_dir, dst=cache_bucket, exclude=("*.git/*",))
 
 
@@ -622,8 +627,8 @@ def main(
     dry_run: bool,
     glean_repos: Optional[List[str]],
     firefox_channel: str,
-    output_bucket: str,
-    cache_bucket: str,
+    output_bucket: Optional[str],
+    cache_bucket: Optional[str],
     env: str,
     bugzilla_api_key: Optional[str],
     glean_urls: Optional[List[str]] = None,
@@ -726,13 +731,11 @@ if __name__ == "__main__":
         "--output-bucket",
         help="The output remote storage bucket where out-dir will be syncd.",
         type=str,
-        default="s3://net-mozaws-prod-us-west-2-data-pitmo/",
     )
     parser.add_argument(
         "--cache-bucket",
         help="The cache bucket for probe scraper.",
         type=str,
-        default="s3://telemetry-airflow-cache/cache/probe-scraper",
     )
     parser.add_argument(
         "--env",
