@@ -85,6 +85,7 @@ SKIP_COMMITS = {
     ],
     "rally-attention-stream": [
         "9fd0b2aeb82ca37f817dcda51bd2f34b6925b487",  # `bugs`/`data_reviews` is not of type `string`
+        "a3dacb30e198c5c19159678c6617064cf4ae1d77",  # Bug 1783960 omit deleted meta-pixel ping
     ],
     "support-migration": [
         "2e05b2b7d775ea726e035a7a7f16d889d63fc09a",  # No components/support/migration/metrics.yaml
