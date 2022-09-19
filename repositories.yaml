@@ -1083,3 +1083,26 @@ applications:
       - v1_name: rally-attention-stream
         app_id: rally-attention-stream
     skip_documentation: true
+
+  - app_name: viu_politica
+    canonical_app_name: Viu Politica
+    app_description: |
+      This is a "spin-off" of the Mozilla YouTube RegretsReporter extension.
+      It is an opt-in browser extension where users can anonymously tag videos
+      related to the 2022 Brazilian Elections.
+    url: https://github.com/evoluchico/viu-politica
+    notification_emails:
+      - chico@mozillafoundation.org
+    branch: main
+    metrics_files:
+      - source/telemetry/metrics.yaml
+    ping_files:
+      - source/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 365
+    channels:
+      - v1_name: viu-politica
+        app_id: viu.politica
