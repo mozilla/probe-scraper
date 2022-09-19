@@ -1093,6 +1093,7 @@ applications:
     url: https://github.com/evoluchico/viu-politica
     notification_emails:
       - chico@mozillafoundation.org
+      - ranadheer@mozillafoundation.org
     branch: main
     metrics_files:
       - source/telemetry/metrics.yaml
