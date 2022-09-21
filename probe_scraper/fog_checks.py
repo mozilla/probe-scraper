@@ -11,11 +11,13 @@ its own expiry checks. Sending its own emails. Filing its own bugs.
 
 import datetime
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple, TypedDict
+from pathlib import Path
+from typing import Dict, List, Optional, Set, TypedDict
 
 from probe_scraper import probe_expiry_alert
 
 from .parsers.repositories import Repository
+from .scrapers.git_scraper import Commit
 
 EXPIRED_METRICS_EMAIL_TEMPLATE = """
 Each metric in the following list will soon expire in Firefox {version}.
@@ -104,19 +106,15 @@ This bug was auto-filed by [probe-scraper](https://github.com/mozilla/probe-scra
 
 def get_current_metrics(
     metrics_by_sha: Dict[str, Dict[str, Dict]],
-    commit_timestamps: Dict[str, Tuple[int, int]],
+    commits: Dict[Commit, List[Path]],
 ) -> Dict[str, Dict]:
     """
     We were given a whole history of these metrics.
     But expiry only cares about the current state.
     Return the current state of metrics.
     """
-
-    # commit_timestamps is {SHA: (timestamp, index)}
-    timestamps = list(commit_timestamps.items())
-    # Sort latest first
-    timestamps.sort(key=lambda ts: (-ts[1][0], ts[1][1]))
-    last_commit_hash = timestamps[0][0]
+    sorted_commits = sorted(commits, key=lambda commit: commit.sort_key())
+    last_commit_hash = sorted_commits[-1].hash
 
     return metrics_by_sha[last_commit_hash]
 
@@ -241,7 +239,7 @@ def file_bugs(
 def file_bugs_and_get_emails_for_expiring_metrics(
     repositories: List[Repository],
     metrics: Dict[str, Dict[str, Dict[str, Dict]]],
-    commit_timestamps: Dict[str, Dict[str, Tuple[int, int]]],
+    commits_by_repo: Dict[str, Dict[Commit, List[Path]]],
     bugzilla_api_key: Optional[str],
     dry_run: bool = True,
 ) -> Optional[Dict[str, EmailInfo]]:
@@ -277,7 +275,7 @@ def file_bugs_and_get_emails_for_expiring_metrics(
         if fog_repo not in metrics:
             continue
         current_metrics: Dict[str, Dict] = get_current_metrics(
-            metrics[fog_repo], commit_timestamps[fog_repo]
+            metrics[fog_repo], commits_by_repo[fog_repo]
         )
         latest_nightly_version: str = probe_expiry_alert.get_latest_nightly_version()
         expiring_metrics: Dict[str, Dict] = get_expiring_metrics(

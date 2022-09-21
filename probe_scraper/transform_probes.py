@@ -4,8 +4,10 @@
 
 import copy
 from collections import defaultdict
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
+from typing import Any, Callable, Dict, Optional
+
+from .scrapers.git_scraper import Commit
 
 DATES_KEY = "dates"
 COMMITS_KEY = "git-commits"
@@ -252,31 +254,28 @@ def get_minimum_date(probe_data, revision_data, revision_dates):
     return min_dates
 
 
-def make_item_defn(definition, commit, commit_timestamps):
-    commit_dt = datetime.utcfromtimestamp(commit_timestamps[commit][0])
-    commit_pretty_ts = commit_dt.isoformat(" ")
+def make_item_defn(definition, commit: Commit):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
-        definition[COMMITS_KEY] = {"first": commit, "last": commit}
+        definition[COMMITS_KEY] = {"first": commit.hash, "last": commit.hash}
         definition[DATES_KEY] = {
-            "first": commit_pretty_ts,
-            "last": commit_pretty_ts,
+            "first": commit.pretty_timestamp,
+            "last": commit.pretty_timestamp,
         }
         definition[REFLOG_KEY] = {
-            "first": commit_timestamps[commit][1],
-            "last": commit_timestamps[commit][1],
+            "first": commit.reflog_index,
+            "last": commit.reflog_index,
         }
     else:
         # we've seen this definition, update the `last` commit
         last_dt = datetime.fromisoformat(definition[DATES_KEY]["last"])
+        last_timestamp = last_dt.replace(tzinfo=timezone.utc).timestamp()
         last_reflog = definition[REFLOG_KEY]["last"]
-        commit_reflog = commit_timestamps[commit][1]
-        if last_dt < commit_dt or (
-            last_dt == commit_dt and last_reflog < commit_reflog
-        ):
-            definition[COMMITS_KEY]["last"] = commit
-            definition[DATES_KEY]["last"] = commit_pretty_ts
-            definition[REFLOG_KEY]["last"] = commit_timestamps[commit][1]
+        # use negative last_reflog to match commit.sort_key()
+        if (last_timestamp, -last_reflog) < commit.sort_key():
+            definition[COMMITS_KEY]["last"] = commit.hash
+            definition[DATES_KEY]["last"] = commit.pretty_timestamp
+            definition[REFLOG_KEY]["last"] = commit.reflog_index
 
     return definition
 
@@ -337,13 +336,12 @@ def ping_constructor(defn, ping):
 
 
 def update_or_add_item(
-    repo_items,
-    commit_hash,
-    item,
-    definition,
-    commit_timestamps,
-    equal_fn,
-    type_ctor,
+    repo_items: Dict[str, dict],
+    commit: Commit,
+    item: str,
+    definition: dict,
+    equal_fn: Callable[[Any, Any], bool],
+    type_ctor: Callable[[dict, str], dict],
 ):
     # If we've seen this item before, check previous definitions
     if item in repo_items:
@@ -355,40 +353,32 @@ def update_or_add_item(
         ):
             # If equal to a previous commit, update date and commit on existing definition
             if equal_fn(definition, prev_defn):
-                new_defn = make_item_defn(prev_defn, commit_hash, commit_timestamps)
+                new_defn = make_item_defn(prev_defn, commit)
                 repo_items[item][HISTORY_KEY][i] = new_defn
                 break
         # Otherwise, prepend changed definition for existing item
         else:
-            new_defn = make_item_defn(definition, commit_hash, commit_timestamps)
+            new_defn = make_item_defn(definition, commit)
             repo_items[item][HISTORY_KEY] = prev_defns + [new_defn]
 
     # We haven't seen this item before, add it
     else:
-        defn = make_item_defn(definition, commit_hash, commit_timestamps)
+        defn = make_item_defn(definition, commit)
         repo_items[item] = type_ctor(defn, item)
-
-    if commit_timestamps[commit_hash][1] == 0:
-        # if this commit is the first one, we consider this object to be present
-        # "in-source" (aka in the source code and not removed)
-        repo_items[item][IN_SOURCE_KEY] = True
 
     return repo_items
 
 
 def transform_by_hash(
-    commit_timestamps, data, equal_fn, type_ctor, update_result: Optional[dict] = None
+    data: Dict[str, Dict[Commit, Dict[str, dict]]],
+    equal_fn: Callable[[Any, Any], bool],
+    type_ctor: Callable[[dict, str], dict],
+    update_result: Optional[dict] = None,
 ):
     """
-    :param commit_timestamps - of the form
-      <repo_name>: {
-        <commit-hash>: (<commit-timestamp>, <commit-index>),
-        ...
-      }
-
     :param data - of the form
       <repo_name>: {
-        <commit-hash>: {
+        <Commit>: {
           <item-name>: {
             ...
           },
@@ -419,55 +409,54 @@ def transform_by_hash(
         }
     """
 
-    # We need to sort by timestamp in ascending order, but reflog index in
-    # descending order.
-    def timestamp_sorter(entry):
-        return (entry[0], -entry[1])
-
     result = {} if update_result is None else update_result
     for repo_name, commits in data.items():
         repo_items = result.get(repo_name, {})
 
-        # iterate through commits, sorted by timestamp of the commit
+        # iterate through commits, sorted by Commit.sort_key()
         sorted_commits = sorted(
             iter(commits.items()),
-            key=lambda x_y: timestamp_sorter(commit_timestamps[repo_name][x_y[0]]),
+            key=lambda x_y: x_y[0].sort_key(),
         )
-        for commit_hash, items in sorted_commits:
+        for commit, items in sorted_commits:
             for item, definition in items.items():
                 repo_items = update_or_add_item(
                     repo_items,
-                    commit_hash,
+                    commit,
                     item,
                     definition,
-                    commit_timestamps[repo_name],
                     equal_fn,
                     type_ctor,
                 )
+
+            if commit.is_head:
+                # if this commit is the first one, we use it to mark whether items are
+                # "in-source" (aka in the source code and not removed)
+                for item in repo_items:
+                    repo_items[item][IN_SOURCE_KEY] = item in items
 
         result[repo_name] = repo_items
     return result
 
 
 def transform_tags_by_hash(
-    commit_timestamps, tag_data, update_result: Optional[dict] = None
+    tag_data: Dict[str, Dict[Commit, Dict[str, dict]]],
+    update_result: Optional[dict] = None,
 ):
-    return transform_by_hash(
-        commit_timestamps, tag_data, tags_equal, tag_constructor, update_result
-    )
+    return transform_by_hash(tag_data, tags_equal, tag_constructor, update_result)
 
 
 def transform_metrics_by_hash(
-    commit_timestamps, metric_data, update_result: Optional[dict] = None
+    metric_data: Dict[str, Dict[Commit, Dict[str, dict]]],
+    update_result: Optional[dict] = None,
 ):
     return transform_by_hash(
-        commit_timestamps, metric_data, metrics_equal, metric_constructor, update_result
+        metric_data, metrics_equal, metric_constructor, update_result
     )
 
 
 def transform_pings_by_hash(
-    commit_timestamps, ping_data, update_result: Optional[dict] = None
+    ping_data: Dict[str, Dict[Commit, Dict[str, dict]]],
+    update_result: Optional[dict] = None,
 ):
-    return transform_by_hash(
-        commit_timestamps, ping_data, ping_equal, ping_constructor, update_result
-    )
+    return transform_by_hash(ping_data, ping_equal, ping_constructor, update_result)
