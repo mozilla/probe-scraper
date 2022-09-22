@@ -2,6 +2,7 @@ import pprint
 from datetime import datetime
 
 import probe_scraper.transform_probes as transform
+from probe_scraper.scrapers.git_scraper import Commit
 
 # incoming probe_data is of the form:
 #   node_id -> {
@@ -56,7 +57,7 @@ REPOS = {"test-repo-0", "test-repo-1"}
 def _fake_in_metrics_data(in_source):
     return {
         repo: {
-            str(i): {
+            Commit(hash=str(i), timestamp=-i, reflog_index=i, is_head=i == 0): {
                 "example.duration": {
                     "type": "timespan",
                     "description": "  The duration of the last foreground session.",
@@ -118,7 +119,7 @@ OUT_METRICS_DATA_NOT_IN_SOURCE = {repo: _fake_metric_repo_data(False) for repo i
 
 IN_PING_DATA = {
     repo: {
-        str(i): {
+        Commit(hash=str(i), timestamp=-i, reflog_index=i, is_head=i == 0): {
             "metrics": {
                 "description": "Metrics ping",
                 "bugs": ["https://bugzilla.mozilla.org/1512938"],
@@ -523,31 +524,21 @@ def test_transform_by_revision_date():
 
 
 def test_transform_metrics_by_hash():
-    timestamps = {repo: {str(i): (-i, i) for i in range(4)} for repo in REPOS}
-
-    result = transform.transform_metrics_by_hash(timestamps, IN_METRICS_DATA)
+    result = transform.transform_metrics_by_hash(IN_METRICS_DATA)
     expected = OUT_METRICS_DATA
 
     print_and_test(expected, result)
 
 
 def test_transform_metrics_by_hash_not_in_source():
-    # like the above test, but add some timestamps corresponding to some revisions
-    # that are not in the source code, indicating that there is expiry
-    timestamps = {repo: {str(i): (-i, i) for i in range(5)} for repo in REPOS}
-
-    result = transform.transform_metrics_by_hash(
-        timestamps, IN_METRICS_DATA_NOT_IN_SOURCE
-    )
+    result = transform.transform_metrics_by_hash(IN_METRICS_DATA_NOT_IN_SOURCE)
     expected = OUT_METRICS_DATA_NOT_IN_SOURCE
 
     print_and_test(expected, result)
 
 
 def test_transform_pings_by_hash():
-    timestamps = {repo: {str(i): (-i, i) for i in range(4)} for repo in REPOS}
-
-    result = transform.transform_pings_by_hash(timestamps, IN_PING_DATA)
+    result = transform.transform_pings_by_hash(IN_PING_DATA)
     expected = OUT_PING_DATA
 
     print_and_test(expected, result)
@@ -570,7 +561,9 @@ def test_sort_ordering():
     # See https://github.com/mozilla/probe-scraper/issues/108
     probes = {
         "test-repo-0": {
-            "0": {
+            Commit(
+                hash="0", timestamp=2 * 60 * 60 * 24, reflog_index=0, is_head=True
+            ): {
                 "example.duration": {
                     "type": "timespan",
                     "description": "  The duration of the last foreground session.",
@@ -583,7 +576,7 @@ def test_sort_ordering():
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 },
             },
-            "1": {
+            Commit(hash="1", timestamp=60 * 60 * 24, reflog_index=1, is_head=False): {
                 "example.duration": {
                     "type": "timespan",
                     "description": "  The duration of the last foreground session.",
@@ -596,7 +589,7 @@ def test_sort_ordering():
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 }
             },
-            "2": {
+            Commit(hash="2", timestamp=60 * 60 * 24, reflog_index=2, is_head=False): {
                 "example.duration": {
                     "type": "timespan",
                     "description": "  The duration of the last foreground session.",
@@ -609,7 +602,7 @@ def test_sort_ordering():
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 },
             },
-            "3": {
+            Commit(hash="3", timestamp=0, reflog_index=3, is_head=False): {
                 "example.duration": {
                     "type": "timespan",
                     "description": "  The duration of the last foreground session.",
@@ -622,15 +615,6 @@ def test_sort_ordering():
                     "notification_emails": ["telemetry-client-dev@mozilla.com"],
                 },
             },
-        }
-    }
-
-    timestamps = {
-        "test-repo-0": {
-            "0": (2 * 60 * 60 * 24, 0),
-            "1": (60 * 60 * 24, 1),
-            "2": (60 * 60 * 24, 2),
-            "3": (0, 3),
         }
     }
 
@@ -697,7 +681,7 @@ def test_sort_ordering():
         }
     }
 
-    assert transform.transform_metrics_by_hash(timestamps, probes) == expected_out
+    assert transform.transform_metrics_by_hash(probes) == expected_out
 
 
 def test_transform_shared_object():

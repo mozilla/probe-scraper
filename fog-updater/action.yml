@@ -1,0 +1,5 @@
+name: 'fog-updater'
+description: "Update repositories.yaml with FOG's metric files"
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

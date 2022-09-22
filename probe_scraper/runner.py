@@ -393,12 +393,7 @@ def load_glean_metrics(
         )
 
     if glean_urls or glean_repos or glean_limit_date or not update:
-        (
-            commit_timestamps,
-            repos_metrics_data,
-            emails,
-            upload_repos,
-        ) = git_scraper.scrape(
+        commits_by_repo, emails, upload_repos = git_scraper.scrape(
             cache_dir,
             repositories,
             glean_commit,
@@ -406,7 +401,7 @@ def load_glean_metrics(
             glean_limit_date,
         )
 
-        glean_checks.check_glean_metric_structure(repos_metrics_data)
+        glean_checks.check_glean_metric_structure(commits_by_repo)
 
         # Parse metric data from files into the form:
         # <repo_name>:  {
@@ -417,11 +412,11 @@ def load_glean_metrics(
         #   },
         #   ...
         # }
-        tags = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        metrics = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        pings = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        for repo_name, commits in repos_metrics_data.items():
-            for commit_hash, paths in commits.items():
+        tags = defaultdict(dict)
+        metrics = defaultdict(dict)
+        pings = defaultdict(dict)
+        for repo_name, commits in commits_by_repo.items():
+            for commit, paths in commits.items():
                 tags_files = [p for p in paths if p.name == GLEAN_TAGS_FILENAME]
                 metrics_files = [p for p in paths if p.name == GLEAN_METRICS_FILENAME]
                 pings_files = [p for p in paths if p.name == GLEAN_PINGS_FILENAME]
@@ -435,23 +430,23 @@ def load_glean_metrics(
                     errs = []
                     if tags_files:
                         results, tag_errs = GLEAN_TAGS_PARSER.parse(
-                            tags_files, config, repo["url"], commit_hash
+                            tags_files, config, repo["url"], commit.hash
                         )
-                        tags[repo_name][commit_hash] = results
+                        tags[repo_name][commit] = results
                         errs += tag_errs
 
                     if metrics_files:
                         results, metric_errs = GLEAN_PARSER.parse(
-                            metrics_files, config, repo["url"], commit_hash
+                            metrics_files, config, repo["url"], commit.hash
                         )
-                        metrics[repo_name][commit_hash] = results
+                        metrics[repo_name][commit] = results
                         errs += metric_errs
 
                     if pings_files:
                         results, ping_errs = GLEAN_PINGS_PARSER.parse(
-                            pings_files, config, repo["url"], commit_hash
+                            pings_files, config, repo["url"], commit.hash
                         )
-                        pings[repo_name][commit_hash] = results
+                        pings[repo_name][commit] = results
                         errs += ping_errs
                 except Exception:
                     files = metrics_files + pings_files
@@ -464,7 +459,7 @@ def load_glean_metrics(
                 else:
                     if errs:
                         msg = ("Error in processing commit {}\n" "Errors: [{}]").format(
-                            commit_hash, ".".join(errs)
+                            commit.hash, ".".join(errs)
                         )
                         emails[repo_name]["emails"].append(
                             {
@@ -476,7 +471,7 @@ def load_glean_metrics(
         tags_by_repo = {}
         metrics_by_repo = {}
         pings_by_repo = {}
-        for repo in repos_metrics_data:
+        for repo in commits_by_repo:
             if update:
                 repo_dir = out_dir / "glean" / repo
                 if output_bucket:
@@ -493,15 +488,11 @@ def load_glean_metrics(
                 metrics_by_repo[repo] = {}
                 pings_by_repo[repo] = {}
 
-        transform_probes.transform_tags_by_hash(
-            commit_timestamps, tags, update_result=tags_by_repo
-        )
+        transform_probes.transform_tags_by_hash(tags, update_result=tags_by_repo)
         transform_probes.transform_metrics_by_hash(
-            commit_timestamps, metrics, update_result=metrics_by_repo
+            metrics, update_result=metrics_by_repo
         )
-        transform_probes.transform_pings_by_hash(
-            commit_timestamps, pings, update_result=pings_by_repo
-        )
+        transform_probes.transform_pings_by_hash(pings, update_result=pings_by_repo)
 
         add_pipeline_metadata(pings_by_repo, repositories)
 
@@ -523,13 +514,13 @@ def load_glean_metrics(
                 raise
 
         glean_checks.check_for_expired_metrics(
-            repositories, metrics, commit_timestamps, emails, dry_run=dry_run
+            repositories, metrics, commits_by_repo, emails, dry_run=dry_run
         )
 
         # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
         # Also, expired metrics in FOG repos can have bugs auto-filed for them.
         fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
-            repositories, metrics, commit_timestamps, bugzilla_api_key, dry_run
+            repositories, metrics, commits_by_repo, bugzilla_api_key, dry_run
         )
         if fog_emails_by_repo is not None:
             emails.update(fog_emails_by_repo)

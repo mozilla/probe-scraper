@@ -6,9 +6,11 @@ import re
 import tempfile
 import traceback
 from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
+from functools import cached_property
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import git
 
@@ -104,13 +106,34 @@ def _file_in_commit(repo: git.Repo, filename: Path, ref: str) -> bool:
     return str(filename) in subtree
 
 
+@dataclass(eq=True, frozen=True)
+class Commit:
+    hash: str
+    # only compare hash when checking if commits are equal
+    timestamp: int = field(compare=False)
+    # Since commits from the same PR may have the same timestamp, we also record
+    # an index representing its position in the git log so the correct ordering
+    # of commits can be preserved.
+    reflog_index: int = field(compare=False)
+    is_head: bool = field(compare=False)
+
+    def sort_key(self) -> Tuple[int, int]:
+        # git log returns newest commits first, so use negative reflog_index
+        return self.timestamp, -self.reflog_index
+
+    @cached_property
+    def pretty_timestamp(self):
+        return datetime.utcfromtimestamp(self.timestamp).isoformat(" ")
+
+
 def get_commits(
     repo: git.Repo,
     filename: Path,
     ref: str,
     only_ref: bool = False,
     deprecated: bool = False,
-) -> Dict[str, Tuple[int, int]]:
+    branch_head_hash: Optional[str] = None,
+) -> Iterable[Commit]:
     sep = ":"
     log_format = f"%H{sep}%ct"
     commits = set()
@@ -130,12 +153,14 @@ def get_commits(
     # Store the index in the ref-log as well as the timestamp, so that the
     # ordering of commits will be deterministic and always in the correct
     # order.
-    result = {}
-    for index, entry in commits:
-        commit, timestamp = entry.split(sep)
-        result[commit] = (int(timestamp), index)
-
-    return result
+    for reflog_index, entry in commits:
+        hash_, timestamp = entry.split(sep)
+        yield Commit(
+            hash=hash_,
+            timestamp=int(timestamp),
+            reflog_index=reflog_index,
+            is_head=hash_ == branch_head_hash,
+        )
 
 
 def get_file_at_hash(repo: git.Repo, _hash: str, filename: Path) -> str:
@@ -151,12 +176,11 @@ def utc_timestamp(d: datetime) -> float:
 def retrieve_files(
     repo_info: Repository,
     cache_dir: Path,
-    commit: Optional[str] = None,
-    commit_branch: Optional[str] = None,
+    glean_commit: Optional[str] = None,
+    glean_commit_branch: Optional[str] = None,
     limit_date: Optional[date] = None,
-) -> Tuple[Dict[str, Tuple[int, int]], Dict[str, List[Path]], bool]:
-    results = defaultdict(list)
-    timestamps = dict()
+) -> Tuple[Dict[Commit, List[Path]], bool]:
+    commits = defaultdict(list)
     base_path = cache_dir / repo_info.name
     org_name, repo_name = repo_info.url.rstrip("/").split("/")[-2:]
     repo_path = cache_dir / org_name / f"{repo_name}.git"
@@ -182,12 +206,12 @@ def retrieve_files(
             repo_info.url,
             repo_path,
             bare=True,
-            depth=1 if commit or limit_date else None,
+            depth=1 if glean_commit or limit_date else None,
         )
 
     repo_is_shallow = repo.git.rev_parse(is_shallow_repository=True) == "true"
     branch = repo_info.branch or repo.active_branch
-    if commit is None:
+    if glean_commit is None:
         if limit_date is not None:
             shallow_since = utc_timestamp(datetime.combine(limit_date, time.min))
             try:
@@ -208,7 +232,7 @@ def retrieve_files(
                     )
                 ):
                     # no commits, don't upload
-                    return {}, {}, False
+                    return {}, False
                 raise
         else:
             repo.git.fetch(
@@ -220,102 +244,93 @@ def retrieve_files(
         # pass ref around to avoid updating repo.active_branch, so that it
         # can be preserved for other glean repos with the same git url
         ref = f"refs/heads/{branch}"
+        branch_head_hash = repo.commit(ref).hexsha
         upload_repo = True
-    elif GIT_HASH_PATTERN.fullmatch(commit) is None:
+    elif GIT_HASH_PATTERN.fullmatch(glean_commit) is None:
         raise ProbeScraperInvalidRequest(
-            f"commit must be full length git hash, but got {commit!r}"
+            f"commit must be full length git hash, but got {glean_commit!r}"
         )
     else:
         repo.git.fetch(
-            "origin", commit, force=True, depth=1 if repo_is_shallow else None
+            "origin", glean_commit, force=True, depth=1 if repo_is_shallow else None
         )
-        ref = commit
-        upload_repo = str(branch) == commit_branch
-        # When commit_branch is the branch for this repo, verify that commit is on that branch.
+        ref = glean_commit
+        upload_repo = str(branch) == glean_commit_branch
+        # When commit_branch is the branch for this repo, verify that commit_hash is on that branch
         if upload_repo:
-            print(f"Verifying that {commit} is in {branch}")
+            print(f"Verifying that {glean_commit} is in {branch}")
             # doesn't change depth
             repo.git.fetch("origin", f"{branch}:{branch}", force=True)
             branch_ref = f"refs/heads/{branch}"
-            if commit != repo.commit(branch_ref).hexsha:
+            branch_head_hash = repo.commit(branch_ref).hexsha
+            if glean_commit != branch_head_hash:
                 if repo_is_shallow:
                     repo.git.fetch(
                         "origin", f"{branch}:{branch}", force=True, unshallow=True
                     )
                 try:
                     # when commit != branch, check if it's in the history for branch
-                    repo.git.merge_base(commit, branch_ref, is_ancestor=True)
+                    repo.git.merge_base(glean_commit, branch_ref, is_ancestor=True)
                 except git.GitCommandError:
                     raise ProbeScraperInvalidRequest(
-                        f"Commit {commit} not found in branch {branch} of {repo_info.url}"
+                        f"Commit {glean_commit} not found in branch {branch} of {repo_info.url}"
                     )
+        else:
+            branch_head_hash = None
 
     for rel_path in map(Path, repo_info.get_change_files()):
-        hashes = get_commits(
+        for commit in get_commits(
             repo,
             rel_path,
             ref,
-            only_ref=commit is not None,
+            only_ref=glean_commit is not None,
             deprecated=repo_info.deprecated,
-        )
-        for _hash, (ts, index) in hashes.items():
-            if min_date and ts < min_date:
+            branch_head_hash=branch_head_hash,
+        ):
+            if min_date and commit.timestamp < min_date:
                 continue
-            if _hash in skip_commits:
+            if commit.hash in skip_commits:
                 continue
 
-            disk_path = base_path / _hash / rel_path
-            if not disk_path.exists():
+            probe_file = base_path / commit.hash / rel_path
+            if not probe_file.exists():
                 try:
-                    contents = get_file_at_hash(repo, _hash, rel_path)
+                    contents = get_file_at_hash(repo, commit.hash, rel_path)
                 except git.GitCommandError as e:
                     if "does not exist" in str(e):
                         raise ProbeScraperInvalidRequest(
-                            f"{rel_path} not found in commit {_hash} for {repo_info.app_id}"
+                            f"{rel_path} not found in commit {commit.hash} for {repo_info.app_id}"
                         )
                     raise
 
-                disk_path.parent.mkdir(parents=True, exist_ok=True)
-                disk_path.write_bytes(contents.encode("UTF-8"))
+                probe_file.parent.mkdir(parents=True, exist_ok=True)
+                probe_file.write_bytes(contents.encode("UTF-8"))
 
-            results[_hash].append(disk_path)
-            timestamps[_hash] = (ts, index)
+            commits[commit].append(probe_file)
 
-    return timestamps, results, upload_repo
+    return commits, upload_repo
 
 
 def scrape(
     folder: Optional[Path] = None,
     repos: Optional[List[Repository]] = None,
-    commit: Optional[str] = None,
-    commit_branch: Optional[str] = None,
+    glean_commit: Optional[str] = None,
+    glean_commit_branch: Optional[str] = None,
     limit_date: Optional[date] = None,
 ) -> Tuple[
-    Dict[str, Dict[str, Tuple[int, int]]],
-    Dict[str, Dict[str, List[Path]]],
+    Dict[str, Dict[Commit, List[Path]]],
     Dict[str, Dict[str, List[Union[Dict[str, str], str]]]],
     List[str],
 ]:
     """
-    Returns four data structures. The first is the commit timestamps:
+    Returns three data structures. The first is commits_by_repo:
     {
       <repo-name>: {
-        <commit-hash>: (<commit-timestamp>, <index>)
+        <Commit>: [<path>, ...]
       }
     }
 
-    Since commits from the same PR may have the save timestamp, we also return
-    an index representing its position in the git log so the correct ordering
-    of commits can be preserved.
-
-    The second is the probe data:
-    {
-      <repo-name>: {
-        <commit-hash>: [<path>, ...],
-      },
-    }
-
-    The third is emails:
+    The second is emails:
     {
       <repo-name>: {
         "addresses": [<email>, ...].
@@ -328,7 +343,7 @@ def scrape(
       },
     }
 
-    The fourth is the names of repos that are authorized to be uploaded, based on
+    The third is the names of repos that are authorized to be uploaded, based on
     whether commit_branch matches the configured branch for that repo. When commit is
     not None but commit_branch is None, this is empty. When commit and commit_branch are
     both None, this includes all repos:
@@ -344,31 +359,29 @@ def scrape(
     if folder is None:
         folder = Path(tempfile.mkdtemp())
 
-    results = {}
-    timestamps = {}
+    commits_by_repo = {}
     emails = {}
     upload_repos = []
 
     for repo_info in repos:
         print("Getting commits for repository " + repo_info.name)
 
-        results[repo_info.name] = {}
+        commits_by_repo[repo_info.name] = {}
         emails[repo_info.name] = {
             "addresses": repo_info.notification_emails,
             "emails": [],
         }
 
         try:
-            ts, commits, upload_repo = retrieve_files(
+            commits, upload_repo = retrieve_files(
                 repo_info,
                 folder,
-                commit,
-                commit_branch,
+                glean_commit,
+                glean_commit_branch,
                 limit_date,
             )
             print("  Got {} commits".format(len(commits)))
-            results[repo_info.name] = commits
-            timestamps[repo_info.name] = ts
+            commits_by_repo[repo_info.name] = commits
             if upload_repo:
                 upload_repos.append(repo_info.name)
         except Exception:
@@ -380,4 +393,4 @@ def scrape(
                 }
             )
 
-    return timestamps, results, emails, upload_repos
+    return commits_by_repo, emails, upload_repos
