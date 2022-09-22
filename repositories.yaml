@@ -1090,7 +1090,7 @@ applications:
       This is a "spin-off" of the Mozilla YouTube RegretsReporter extension.
       It is an opt-in browser extension where users can anonymously tag videos
       related to the 2022 Brazilian Elections.
-    url: https://github.com/evoluchico/viu-politica
+    url: https://github.com/mozilla/viu-politica
     notification_emails:
       - chico@mozillafoundation.org
       - ranadheer@mozillafoundation.org
