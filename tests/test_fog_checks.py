@@ -1,10 +1,12 @@
 from datetime import datetime
-from typing import Dict, List, Tuple
+from pathlib import Path
+from typing import Dict, List
 
 import pytest
 
 from probe_scraper import fog_checks
 from probe_scraper.parsers.repositories import Repository
+from probe_scraper.scrapers.git_scraper import Commit
 
 FAKE_METRIC = {
     "expires": "never",
@@ -42,12 +44,12 @@ def fake_metrics_by_sha(fake_metrics) -> Dict[str, Dict[str, Dict]]:
 
 
 @pytest.fixture
-def fake_commit_timestamps() -> Dict[str, Tuple[int, int]]:
+def fake_commits() -> Dict[Commit, List[Path]]:
     # `decafcaf` should remain the most recent SHA.
     now = datetime.now().timestamp()
     return {
-        "decafcaf": (now, 1),
-        "deadcode": (now, 0),
+        Commit(hash="decafcaf", timestamp=now, reflog_index=1, is_head=False): [],
+        Commit(hash="deadcode", timestamp=now, reflog_index=0, is_head=True): [],
     }
 
 
@@ -78,16 +80,14 @@ def fake_repos() -> List[Repository]:
 
 
 @pytest.fixture
-def fake_commit_timestamps_by_repo(
-    fake_repos, fake_commit_timestamps
-) -> Dict[str, Dict[str, Tuple[int, int]]]:
-    return {repo.name: fake_commit_timestamps for repo in fake_repos}
+def fake_commits_by_repo(
+    fake_repos, fake_commits
+) -> Dict[str, Dict[Commit, List[Path]]]:
+    return {repo.name: fake_commits for repo in fake_repos}
 
 
-def test_get_current_metrics(fake_metrics_by_sha, fake_commit_timestamps):
-    current_metrics = fog_checks.get_current_metrics(
-        fake_metrics_by_sha, fake_commit_timestamps
-    )
+def test_get_current_metrics(fake_metrics_by_sha, fake_commits):
+    current_metrics = fog_checks.get_current_metrics(fake_metrics_by_sha, fake_commits)
     assert "newer.category.name.metric_name" in current_metrics
 
 
@@ -124,12 +124,12 @@ def test_fbagefem_does_nothing_with_no_fog_repos(
 
 @pytest.mark.web_dependency  # fbagefem gets the latest nightly version from product-info
 def test_fbagefem_returns_emails_for_expiring_metrics(
-    fake_metrics_by_repo_by_sha, fake_repos, fake_commit_timestamps_by_repo
+    fake_metrics_by_repo_by_sha, fake_repos, fake_commits_by_repo
 ):
     expiry_emails = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
         fake_repos,
         fake_metrics_by_repo_by_sha,
-        fake_commit_timestamps_by_repo,
+        fake_commits_by_repo,
         None,
         True,
     )

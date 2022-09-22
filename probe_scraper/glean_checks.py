@@ -11,12 +11,14 @@ from pathlib import Path
 
 from schema import And, Optional, Schema
 
+from .scrapers.git_scraper import Commit
+
 
 def check_glean_metric_structure(data):
     schema = Schema(
         {
             str: {
-                Optional(And(str, lambda x: len(x) == 40)): [
+                Optional(And(Commit, lambda x: len(x.hash) == 40)): [
                     And(Path, lambda x: x.exists())
                 ]
             }
@@ -182,7 +184,7 @@ This is an automated message sent from probe-scraper.  See https://github.com/mo
 def check_for_expired_metrics(
     repositories,
     repos_metrics,
-    commit_timestamps,
+    commits_by_repo,
     emails,
     expire_days=14,
     dry_run: bool = True,
@@ -209,10 +211,10 @@ def check_for_expired_metrics(
 
     for repo_name, commits in repos_metrics.items():
         repo = repo_by_name[repo_name]
-        timestamps = list(commit_timestamps[repo_name].items())
-        timestamps.sort(key=lambda x: (-x[1][0], x[1][1]))
-        last_commit_hash = timestamps[0][0]
-        metrics = commits[last_commit_hash]
+        timestamps = list(commits_by_repo[repo_name])
+        timestamps.sort(key=lambda x: x.sort_key())
+        last_commit = timestamps[-1]
+        metrics = commits[last_commit]
 
         addresses = set()
         addresses.update(repo.notification_emails)
