@@ -43,10 +43,10 @@ def fake_metrics_by_commit(
 ) -> Dict[str, Dict[str, Dict]]:
     return {
         Commit(
-            hash="decafcaf",
+            hash="deadcode",
             timestamp=fake_commit_timestamp,
-            reflog_index=1,
-            is_head=False,
+            reflog_index=0,
+            is_head=True,
         ): {
             **fake_metrics,
             "newer.category.name.metric_name": FAKE_METRIC,
