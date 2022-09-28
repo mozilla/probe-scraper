@@ -171,13 +171,13 @@ libraries:
     url: https://github.com/mozilla/gecko-dev
     metrics_files:
       - browser/base/content/metrics.yaml
-      - gfx/metrics.yaml
-      - toolkit/components/glean/metrics.yaml
-      - toolkit/components/processtools/metrics.yaml
       - dom/media/metrics.yaml
       - dom/metrics.yaml
+      - gfx/metrics.yaml
       - netwerk/metrics.yaml
       - netwerk/protocol/http/metrics.yaml
+      - toolkit/components/glean/metrics.yaml
+      - toolkit/components/processtools/metrics.yaml
     ping_files:
       - toolkit/components/glean/pings.yaml
     tag_files:
@@ -200,11 +200,11 @@ applications:
       - browser/components/search/metrics.yaml
       - browser/modules/metrics.yaml
       - toolkit/components/extensions/metrics.yaml
+      - toolkit/components/nimbus/metrics.yaml
+      - toolkit/components/pdfjs/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/xre/metrics.yaml
-      - toolkit/components/nimbus/metrics.yaml
-      - toolkit/components/pdfjs/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
       - toolkit/components/telemetry/pings.yaml
