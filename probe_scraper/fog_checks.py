@@ -105,7 +105,7 @@ This bug was auto-filed by [probe-scraper](https://github.com/mozilla/probe-scra
 
 
 def get_current_metrics(
-    metrics_by_sha: Dict[str, Dict[str, Dict]],
+    metrics: Dict[Commit, Dict[str, Dict]],
     commits: Dict[Commit, List[Path]],
 ) -> Dict[str, Dict]:
     """
@@ -114,9 +114,9 @@ def get_current_metrics(
     Return the current state of metrics.
     """
     sorted_commits = sorted(commits, key=lambda commit: commit.sort_key())
-    last_commit_hash = sorted_commits[-1].hash
+    last_commit = sorted_commits[-1]
 
-    return metrics_by_sha[last_commit_hash]
+    return metrics[last_commit]
 
 
 def get_expiring_metrics(
@@ -238,7 +238,7 @@ def file_bugs(
 
 def file_bugs_and_get_emails_for_expiring_metrics(
     repositories: List[Repository],
-    metrics: Dict[str, Dict[str, Dict[str, Dict]]],
+    metrics: Dict[str, Dict[Commit, Dict[str, Dict]]],
     commits_by_repo: Dict[str, Dict[Commit, List[Path]]],
     bugzilla_api_key: Optional[str],
     dry_run: bool = True,
