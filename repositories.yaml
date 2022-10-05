@@ -44,10 +44,10 @@ libraries:
       - dthorn@mozilla.com
       - aplacitelli@mozilla.com
       - glean-team@mozilla.com
-      - android-components-team@mozilla.com
-    url: https://github.com/mozilla-mobile/android-components
+      - android-probes@mozilla.com
+    url: https://github.com/mozilla-mobile/firefox-android
     metrics_files:
-      - components/lib/crash/metrics.yaml
+      - android-components/components/lib/crash/metrics.yaml
     variants:
       - v1_name: lib-crash
         dependency_name: org.mozilla.components:lib-crash
@@ -56,13 +56,12 @@ libraries:
     description: Sync telemetry helper functionality
     notification_emails:
       - dthorn@mozilla.com
-      - lina@mozilla.com
-      - grisha@mozilla.com
-    url: https://github.com/mozilla-mobile/android-components
+      - android-probes@mozilla.com
+    url: https://github.com/mozilla-mobile/firefox-android
     metrics_files:
-      - components/support/sync-telemetry/metrics.yaml
+      - android-components/components/support/sync-telemetry/metrics.yaml
     ping_files:
-      - components/support/sync-telemetry/pings.yaml
+      - android-components/components/support/sync-telemetry/pings.yaml
     variants:
       - v1_name: sync
         dependency_name: org.mozilla.components:support-sync-telemetry
