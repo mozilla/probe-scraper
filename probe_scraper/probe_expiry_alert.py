@@ -71,6 +71,7 @@ BUG_LINK_LIST_TEMPLATE = """The following bugs were filed for the above probes:
 
 # This text is compared to a json blob, where quotes are escaped
 NEEDINFO_BLOCKED_TEXT = 'is not currently accepting \\"needinfo\\" requests.'
+NEEDINFO_USER_INACTIVE = "You can't ask Not active!"
 
 
 @dataclass
@@ -242,9 +243,12 @@ def create_bug(
     except requests.exceptions.HTTPError:
         print(f"Failed to create bugs with arguments: {create_params}", file=sys.stderr)
         print(f"Error response: {create_response.text}", file=sys.stderr)
-        if needinfo and NEEDINFO_BLOCKED_TEXT in create_response.text:
+        if needinfo and (
+            NEEDINFO_BLOCKED_TEXT in create_response.text
+            or NEEDINFO_USER_INACTIVE in create_response.text
+        ):
             print(
-                "Needinfo request blocked, retrying request without needinfo",
+                "Needinfo request blocked or for inactive users, retrying request without needinfo",
                 file=sys.stderr,
             )
             return create_bug(

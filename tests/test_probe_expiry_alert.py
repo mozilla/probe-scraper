@@ -317,6 +317,51 @@ def test_create_bug_try_on_needinfo_blocked(mock_post):
     assert len(call_args_2["cc"]) == 1
 
 
+@mock.patch("requests.post")
+def test_create_bug_try_on_requestee_inactive(mock_post):
+    error_response = mock.MagicMock()
+    error_response.text = json.dumps(
+        {
+            "error": "You can't ask Not active! Use a@test.com instead! <inactive@test.com> because that account is disabled."  # noqa
+        }
+    )
+    good_response = mock.MagicMock()
+    good_response.json = mock.MagicMock(return_value={"id": 2})
+
+    def raise_for_status():
+        mock_post.return_value = good_response
+        raise HTTPError()
+
+    mock_post.return_value = error_response
+    error_response.raise_for_status = raise_for_status
+
+    probes = [ProbeDetails("p1", "prod", "comp", ["a@test.com"], 1)]
+
+    assert (
+        probe_expiry_alert.create_bug(
+            probes,
+            "76",
+            probe_expiry_alert.BUG_WHITEBOARD_TAG,
+            probe_expiry_alert.BUG_SUMMARY_TEMPLATE,
+            probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE,
+            "",
+            needinfo=True,
+        )
+        == 2
+    )
+
+    assert mock_post.call_count == 2
+
+    call_args_1 = mock_post.call_args_list[0][1]["json"]
+    call_args_2 = mock_post.call_args_list[1][1]["json"]
+
+    assert len(call_args_1["flags"]) == 1
+    assert len(call_args_1["cc"]) == 0
+
+    assert len(call_args_2["flags"]) == 0
+    assert len(call_args_2["cc"]) == 1
+
+
 @mock.patch("requests.get")
 def test_bug_description_parser(mock_get):
     """
