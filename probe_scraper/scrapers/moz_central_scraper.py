@@ -52,6 +52,22 @@ CHANNELS = {
     },
 }
 
+SKIP_REVISIONS = {
+    "942c201b1ac7a46a449f1fb80da7b050ec0ea120",
+    "1807a36ff99f01abca1c37442fb5b344465bfbdf",
+    "30bdee9799a07b8770719aa868416174ff0c54f5",
+    "9fb70b4ae59336b805a1651e7c57c6385cca0717",
+    "81578db6bf8939678d490b69f0daf4b675027e3a",
+    "b8567457ece9593ddb00344130597698145bdc5c",
+    "c4bdea458a08b975ffd70faed4a2f6fbe1e563bc",
+    "d420f9190e2f35e314aa67ee346650f86451792c",
+    "a680e8cd9618f4afbbb148ad464824cd6ce558d9",
+    "5cbd3d92a78c54b324b6009a25d196adaa8a669b",
+    "75c1403f58f79d1abd43d33fdd1beb36db9367c6",
+    "cafaf813b0a938a197a488e629883770b2d33393",
+    "cbbf6a7e34a363b39107b60dddac2aa713eaa8b5",
+}
+
 MIN_FIREFOX_VERSION = 30
 ERROR_CACHE_FILENAME = "probe_scraper_errors_cache.json"
 ARTIFICIAL_TAG = "artificial"
@@ -187,9 +203,13 @@ def scrape_channel_revisions(
 
         print("\nRetreiving Buildhub results for channel " + channel)
 
-        revision_dates = bh.get_revision_dates(
-            channel, min_fx_version, max_version=max_fx_version
-        )
+        revision_dates = [
+            rd
+            for rd in bh.get_revision_dates(
+                channel, min_fx_version, max_version=max_fx_version
+            )
+            if rd["revision"] not in SKIP_REVISIONS
+        ]
         num_revisions = len(revision_dates)
 
         print("  " + str(num_revisions) + " revisions found")
