@@ -233,7 +233,6 @@ def create_bug(
             for email in probes[0].emails
             if needinfo
         ],
-        "cc": [email for email in probes[0].emails if not needinfo],
     }
     create_response = requests.post(
         BUGZILLA_BUG_URL, json=create_params, headers=bugzilla_request_header(api_key)

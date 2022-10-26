@@ -311,10 +311,8 @@ def test_create_bug_try_on_needinfo_blocked(mock_post):
     call_args_2 = mock_post.call_args_list[1][1]["json"]
 
     assert len(call_args_1["flags"]) == 1
-    assert len(call_args_1["cc"]) == 0
 
     assert len(call_args_2["flags"]) == 0
-    assert len(call_args_2["cc"]) == 1
 
 
 @mock.patch("requests.post")
@@ -356,10 +354,8 @@ def test_create_bug_try_on_requestee_inactive(mock_post):
     call_args_2 = mock_post.call_args_list[1][1]["json"]
 
     assert len(call_args_1["flags"]) == 1
-    assert len(call_args_1["cc"]) == 0
 
     assert len(call_args_2["flags"]) == 0
-    assert len(call_args_2["cc"]) == 1
 
 
 @mock.patch("requests.get")
