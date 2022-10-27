@@ -377,6 +377,8 @@ def load_glean_metrics(
     output_bucket: Optional[str] = None,
     email_file: Optional[Path] = None,
     glean_limit_date: Optional[datetime.date] = None,
+    check_expiry: bool = False,
+    check_fog_expiry: bool = False,
 ) -> List[Path]:
     emails = {}
     abort_after_emails = False
@@ -392,7 +394,30 @@ def load_glean_metrics(
             "No glean repos matched --glean-repo or --glean-url"
         )
 
-    if glean_urls or glean_repos or glean_limit_date or not update:
+    scrape_commits = glean_urls or glean_repos or glean_limit_date or not update
+
+    if check_expiry or check_fog_expiry or scrape_commits:
+        tags_by_repo = {}
+        metrics_by_repo = {}
+        pings_by_repo = {}
+        for repo in repositories:
+            if update:
+                repo_dir = out_dir / "glean" / repo.name
+                if output_bucket:
+                    remote_storage_pull(
+                        f"{output_bucket.rstrip('/')}/glean/{repo.name}/",
+                        repo_dir,
+                        decompress=True,
+                    )
+                tags_by_repo[repo.name] = load_json(repo_dir, "tags", default={})
+                metrics_by_repo[repo.name] = load_json(repo_dir, "metrics", default={})
+                pings_by_repo[repo.name] = load_json(repo_dir, "pings", default={})
+            else:
+                tags_by_repo[repo.name] = {}
+                metrics_by_repo[repo.name] = {}
+                pings_by_repo[repo.name] = {}
+
+    if scrape_commits:
         commits_by_repo, emails, upload_repos = git_scraper.scrape(
             cache_dir,
             repositories,
@@ -468,26 +493,6 @@ def load_glean_metrics(
                             }
                         )
 
-        tags_by_repo = {}
-        metrics_by_repo = {}
-        pings_by_repo = {}
-        for repo in commits_by_repo:
-            if update:
-                repo_dir = out_dir / "glean" / repo
-                if output_bucket:
-                    remote_storage_pull(
-                        f"{output_bucket.rstrip('/')}/glean/{repo}/",
-                        repo_dir,
-                        decompress=True,
-                    )
-                tags_by_repo[repo] = load_json(repo_dir, "tags", default={})
-                metrics_by_repo[repo] = load_json(repo_dir, "metrics", default={})
-                pings_by_repo[repo] = load_json(repo_dir, "pings", default={})
-            else:
-                tags_by_repo[repo] = {}
-                metrics_by_repo[repo] = {}
-                pings_by_repo[repo] = {}
-
         transform_probes.transform_tags_by_hash(tags, update_result=tags_by_repo)
         transform_probes.transform_metrics_by_hash(
             metrics, update_result=metrics_by_repo
@@ -513,18 +518,6 @@ def load_glean_metrics(
             if glean_repos is None and glean_urls is None:
                 raise
 
-        glean_checks.check_for_expired_metrics(
-            repositories, metrics, commits_by_repo, emails, dry_run=dry_run
-        )
-
-        # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
-        # Also, expired metrics in FOG repos can have bugs auto-filed for them.
-        fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
-            repositories, metrics, commits_by_repo, bugzilla_api_key, dry_run
-        )
-        if fog_emails_by_repo is not None:
-            emails.update(fog_emails_by_repo)
-
         print("\nwriting output:")
         write_glean_tag_data(tags_by_repo, out_dir)
         write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
@@ -545,7 +538,19 @@ def load_glean_metrics(
             upload_paths += general_data_paths
             upload_paths += v2_data_paths
 
-    for repo_name, email_info in list(emails.items()):
+    if check_expiry:
+        glean_checks.check_for_expired_metrics(repositories, metrics_by_repo, emails)
+
+    if check_fog_expiry:
+        # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
+        # Also, expired metrics in FOG repos can have bugs auto-filed for them.
+        fog_emails_by_repo = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
+            repositories, metrics_by_repo, bugzilla_api_key, dry_run
+        )
+        if fog_emails_by_repo is not None:
+            emails.update(fog_emails_by_repo)
+
+    for email_info in emails.values():
         addresses = email_info["addresses"] + [DEFAULT_TO_EMAIL]
         for email in email_info["emails"]:
             send_ses(
@@ -634,6 +639,8 @@ def main(
     update: bool = False,
     email_file: Optional[Path] = None,
     glean_limit_date: Optional[datetime.date] = None,
+    check_expiry: bool = False,
+    check_fog_expiry: bool = False,
 ) -> List[Path]:
 
     # Sync dirs with remote storage if we are not running pytest or local dryruns
@@ -669,6 +676,8 @@ def main(
             output_bucket=output_bucket,
             email_file=email_file,
             glean_limit_date=glean_limit_date,
+            check_expiry=check_expiry,
+            check_fog_expiry=check_fog_expiry,
         )
 
     # Sync results if we are not running pytest or local dryruns
@@ -716,7 +725,20 @@ if __name__ == "__main__":
         default="repositories.yaml",
     )
     parser.add_argument(
-        "--dry-run", help="Whether emails should be sent.", action="store_true"
+        "--check-expiry",
+        help="Send non-FOG expiry emails. Only scheduled on Mondays, to avoid daily spamming.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--check-fog-expiry",
+        help="Send FOG expiry emails. Only scheduled on Wednesdays, to avoid daily spamming and"
+        " merge days, which are Monday or Tuesday.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--dry-run",
+        help="Write emails to a file instead of sending via SES, and don't file bugs.",
+        action="store_true",
     )
     parser.add_argument(
         "--firefox-channel",
@@ -850,4 +872,6 @@ if __name__ == "__main__":
         glean_commit_branch=args.glean_commit_branch,
         update=args.update,
         glean_limit_date=args.glean_limit_date,
+        check_expiry=args.check_expiry,
+        check_fog_expiry=args.check_fog_expiry,
     )

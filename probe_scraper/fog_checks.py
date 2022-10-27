@@ -9,15 +9,13 @@ FOG is Glean, yes, but is sufficiently different that it benefits from doing
 its own expiry checks. Sending its own emails. Filing its own bugs.
 """
 
-import datetime
 from collections import defaultdict
-from pathlib import Path
-from typing import Dict, List, Optional, Set, TypedDict
+from typing import Any, Dict, List, Optional, Set, TypedDict
 
 from probe_scraper import probe_expiry_alert
 
+from .glean_checks import get_current_metrics_by_repo
 from .parsers.repositories import Repository
-from .scrapers.git_scraper import Commit
 
 EXPIRED_METRICS_EMAIL_TEMPLATE = """
 Each metric in the following list will soon expire in Firefox {version}.
@@ -102,21 +100,6 @@ Your Friendly Neighbourhood Glean Team
 ---
 This bug was auto-filed by [probe-scraper](https://github.com/mozilla/probe-scraper).
 """  # noqa
-
-
-def get_current_metrics(
-    metrics: Dict[Commit, Dict[str, Dict]],
-    commits: Dict[Commit, List[Path]],
-) -> Dict[str, Dict]:
-    """
-    We were given a whole history of these metrics.
-    But expiry only cares about the current state.
-    Return the current state of metrics.
-    """
-    sorted_commits = sorted(commits, key=lambda commit: commit.sort_key())
-    last_commit = sorted_commits[-1]
-
-    return metrics[last_commit]
 
 
 def get_expiring_metrics(
@@ -238,8 +221,7 @@ def file_bugs(
 
 def file_bugs_and_get_emails_for_expiring_metrics(
     repositories: List[Repository],
-    metrics: Dict[str, Dict[Commit, Dict[str, Dict]]],
-    commits_by_repo: Dict[str, Dict[Commit, List[Path]]],
+    metrics_by_repo: Dict[str, Dict[str, Dict[str, Any]]],
     bugzilla_api_key: Optional[str],
     dry_run: bool = True,
 ) -> Optional[Dict[str, EmailInfo]]:
@@ -251,15 +233,7 @@ def file_bugs_and_get_emails_for_expiring_metrics(
      * Return a list of emails to send. At most one per FOG repo.
     """
 
-    # Merge days are Monday or Tuesday, so don't do version-based checks until at least Wednesday.
-    # Unless we're dry-running, in which case run anyway.
-    if dry_run:
-        print("Dry run! Wednesday or not, performing FOG expiry actions")
-    elif datetime.date.today().weekday() != 2:
-        print("Not Wednesday. Not performing FOG expiry actions.")
-        return None
-
-    if len(FOG_REPOS & {repo_name for repo_name, _ in metrics.items()}) == 0:
+    if len(FOG_REPOS & metrics_by_repo.keys()) == 0:
         print("No FOG-using repositories. Nothing to do.")
         return None
 
@@ -270,13 +244,13 @@ def file_bugs_and_get_emails_for_expiring_metrics(
         if repo.name in FOG_REPOS
     }
 
+    current_metrics_by_repo = get_current_metrics_by_repo(metrics_by_repo)
+
     emails = {}
     for fog_repo in FOG_REPOS:
-        if fog_repo not in metrics:
+        if fog_repo not in metrics_by_repo:
             continue
-        current_metrics: Dict[str, Dict] = get_current_metrics(
-            metrics[fog_repo], commits_by_repo[fog_repo]
-        )
+        current_metrics: Dict[str, Dict] = current_metrics_by_repo[fog_repo]
         latest_nightly_version: str = probe_expiry_alert.get_latest_nightly_version()
         expiring_metrics: Dict[str, Dict] = get_expiring_metrics(
             current_metrics, latest_nightly_version

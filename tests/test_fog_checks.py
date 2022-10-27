@@ -4,11 +4,12 @@ from typing import Dict, List
 
 import pytest
 
-from probe_scraper import fog_checks
+from probe_scraper import fog_checks, transform_probes
 from probe_scraper.parsers.repositories import Repository
 from probe_scraper.scrapers.git_scraper import Commit
 
 FAKE_METRIC = {
+    "type": "string",
     "expires": "never",
     "notification_emails": ["bar@foo.com"],
     "bugs": ["https://bugzilla.mozilla.org/show_bug.cgi?id=1701769"],
@@ -82,19 +83,24 @@ def fake_commits(fake_commit_timestamp) -> Dict[Commit, List[Path]]:
 @pytest.fixture
 def fake_metrics_by_repo_by_commit(
     fake_metrics_by_commit, fake_repos
-) -> Dict[str, Dict[str, Dict[str, Dict]]]:
-    def suffix(metrics_by_commit, suffix):
-        return {
-            commit: {
-                metric_name + suffix: metric for metric_name, metric in metrics.items()
-            }
-            for commit, metrics in metrics_by_commit.items()
-        }
-
+) -> Dict[str, Dict[Commit, Dict[str, Dict]]]:
     return {
-        repo.name: suffix(fake_metrics_by_commit, "_" + repo.name)
+        repo.name: {
+            commit: {
+                f"{metric_name}_{repo.name}": metric
+                for metric_name, metric in metrics.items()
+            }
+            for commit, metrics in fake_metrics_by_commit.items()
+        }
         for repo in fake_repos
     }
+
+
+@pytest.fixture
+def fake_metrics_by_repo(
+    fake_metrics_by_repo_by_commit,
+) -> Dict[str, Dict[str, Dict[str, Dict]]]:
+    return transform_probes.transform_metrics_by_hash(fake_metrics_by_repo_by_commit)
 
 
 @pytest.fixture
@@ -113,11 +119,14 @@ def fake_commits_by_repo(
     return {repo.name: fake_commits for repo in fake_repos}
 
 
-def test_get_current_metrics(fake_metrics_by_commit, fake_commits):
-    current_metrics = fog_checks.get_current_metrics(
-        fake_metrics_by_commit, fake_commits
+def test_get_current_metrics(fake_metrics_by_repo):
+    current_metrics_by_repo = fog_checks.get_current_metrics_by_repo(
+        fake_metrics_by_repo
     )
-    assert "newer.category.name.metric_name" in current_metrics
+    assert (
+        "newer.category.name.metric_name_glean-core"
+        in current_metrics_by_repo["glean-core"]
+    )
 
 
 def test_get_expiring_metrics(fake_metrics, fake_latest_nightly_version):
@@ -136,29 +145,24 @@ def test_get_expiring_metrics(fake_metrics, fake_latest_nightly_version):
     assert "category.name.metric_name" not in expiring_metrics
 
 
-def test_fbagefem_does_nothing_with_no_fog_repos(
-    fake_metrics_by_repo_by_commit, fake_repos
-):
+def test_fbagefem_does_nothing_with_no_fog_repos(fake_metrics_by_repo, fake_repos):
     fake_repos = [repo for repo in fake_repos if repo.name not in fog_checks.FOG_REPOS]
-    fake_metrics_by_repo_by_commit = {
+    fake_metrics_by_repo = {
         repo_name: metrics
-        for repo_name, metrics in fake_metrics_by_repo_by_commit.items()
+        for repo_name, metrics in fake_metrics_by_repo.items()
         if repo_name not in fog_checks.FOG_REPOS
     }
     expiry_emails = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
-        fake_repos, fake_metrics_by_repo_by_commit, None, None, True
+        fake_repos, fake_metrics_by_repo, None, True
     )
     assert expiry_emails is None
 
 
 @pytest.mark.web_dependency  # fbagefem gets the latest nightly version from product-info
-def test_fbagefem_returns_emails_for_expiring_metrics(
-    fake_metrics_by_repo_by_commit, fake_repos, fake_commits_by_repo
-):
+def test_fbagefem_returns_emails_for_expiring_metrics(fake_metrics_by_repo, fake_repos):
     expiry_emails = fog_checks.file_bugs_and_get_emails_for_expiring_metrics(
         fake_repos,
-        fake_metrics_by_repo_by_commit,
-        fake_commits_by_repo,
+        fake_metrics_by_repo,
         None,
         True,
     )
