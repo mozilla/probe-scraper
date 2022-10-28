@@ -67,6 +67,8 @@ SKIP_COMMITS = {
         "d556b247aaec64b3ab6a033d40f2022f1213101e",  # No toolkit/components/nimbus/metrics.yaml
         "d1d0b69871e3d38ead989d73f30563a501a448b6",  # No toolkit/components/nimbus/metrics.yaml
         "642be079c4465445ab42b55d18e0a4d644c19c36",  # No toolkit/components/telemetry/pings.yaml
+        # Missing toolkit/components/telemetry/dap/metrics.yaml
+        "c5c002f81f08a73e04868e0c2bf0eb113f200b03",
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
