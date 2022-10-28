@@ -8,10 +8,35 @@ This file contains various sanity checks for Glean.
 
 import datetime
 from pathlib import Path
+from typing import Any, Dict
 
 from schema import And, Optional, Schema
 
 from .scrapers.git_scraper import Commit
+
+
+def _metric_sort_key(metric: Dict[str, Any]):
+    return (
+        datetime.datetime.fromisoformat(metric["dates"]["last"]),
+        -metric["reflog-index"]["last"],
+    )
+
+
+def get_current_metrics_by_repo(
+    metrics_by_repo: Dict[str, Dict[str, Dict[str, Any]]],
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """
+    We have a whole history of these metrics, but expiry only cares about the current state.
+    Return the current state of metrics.
+    """
+    return {
+        repo_name: {
+            metric_name: sorted(metric["history"], key=_metric_sort_key)[-1]
+            for metric_name, metric in metrics.items()
+            if metric["in-source"]
+        }
+        for repo_name, metrics in metrics_by_repo.items()
+    }
 
 
 def check_glean_metric_structure(data):
@@ -183,41 +208,24 @@ This is an automated message sent from probe-scraper.  See https://github.com/mo
 
 def check_for_expired_metrics(
     repositories,
-    repos_metrics,
-    commits_by_repo,
+    metrics_by_repo,
     emails,
     expire_days=14,
-    dry_run: bool = True,
 ):
     """
     Checks for all expired metrics and generates e-mails, one per repository.
-
-    This check is only performed on Mondays, to avoid daily spamming.
     """
-    # Only perform the check on Mondays.
-    if dry_run:
-        print("Dry run! Monday or not, performing Glean expiry actions")
-    elif datetime.date.today().weekday() != 0:
-        print("Not a Monday, skipping expire checks")
-        return
 
     expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
         days=expire_days
     )
 
-    repo_by_name = {}
+    current_metrics_by_repo = get_current_metrics_by_repo(metrics_by_repo)
+
     for repo in repositories:
-        repo_by_name[repo.name] = repo
+        metrics = current_metrics_by_repo[repo.name]
 
-    for repo_name, commits in repos_metrics.items():
-        repo = repo_by_name[repo_name]
-        timestamps = list(commits_by_repo[repo_name])
-        timestamps.sort(key=lambda x: x.sort_key())
-        last_commit = timestamps[-1]
-        metrics = commits[last_commit]
-
-        addresses = set()
-        addresses.update(repo.notification_emails)
+        addresses = set(repo.notification_emails)
 
         expired_metrics = []
         for metric_name, metric in metrics.items():
@@ -255,12 +263,12 @@ def check_for_expired_metrics(
             f"{repo.url}/tree/HEAD/{file}" for file in repo.metrics_file_paths
         )
 
-        emails[f"expired_metrics_{repo_name}"] = {
+        emails[f"expired_metrics_{repo.name}"] = {
             "emails": [
                 {
-                    "subject": f"Glean: Expired metrics in {repo_name}",
+                    "subject": f"Glean: Expired metrics in {repo.name}",
                     "message": EXPIRED_METRICS_EMAIL_TEMPLATE.format(
-                        repo_name=repo_name,
+                        repo_name=repo.name,
                         expire_days=expire_days,
                         expired_metrics="\n".join(expired_metrics),
                         metrics_yaml_url=metrics_yaml_url,

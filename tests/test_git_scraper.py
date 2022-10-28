@@ -6,7 +6,6 @@
 import datetime
 import json
 import time
-import unittest.mock
 from pathlib import Path
 
 import pytest
@@ -437,30 +436,23 @@ def test_check_for_expired_metrics(
     with open(repositories_file, "w") as f:
         f.write(yaml.safe_dump(repositories_info))
 
-    # Mock `datetime.date.today` so it's a Monday, the only day that
-    # expirations are checked.
-    class MockDate(datetime.date):
-        @classmethod
-        def today(cls):
-            return datetime.date(2019, 10, 14)
-
-    with unittest.mock.patch("probe_scraper.glean_checks.datetime.date", new=MockDate):
-        runner.main(
-            cache_dir,
-            out_dir,
-            None,
-            None,
-            False,
-            True,
-            repositories_file,
-            True,
-            None,
-            None,
-            None,
-            None,
-            "dev",
-            None,
-        )
+    runner.main(
+        cache_dir,
+        out_dir,
+        None,
+        None,
+        False,
+        True,
+        repositories_file,
+        True,
+        None,
+        None,
+        None,
+        None,
+        "dev",
+        None,
+        check_expiry=True,
+    )
 
     with open(EMAIL_FILE, "r") as email_file:
         emails = yaml.load(email_file, Loader=yaml.FullLoader)
