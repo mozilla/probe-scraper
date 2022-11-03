@@ -16,6 +16,7 @@ NAME_KEY = "name"
 TYPE_KEY = "type"
 REFLOG_KEY = "reflog-index"
 IN_SOURCE_KEY = "in-source"
+SOURCE_URL_KEY = "source_url"
 
 
 def is_test_probe(probe_type, name):
@@ -254,7 +255,7 @@ def get_minimum_date(probe_data, revision_data, revision_dates):
     return min_dates
 
 
-def make_item_defn(definition, commit: Commit):
+def make_item_defn(definition, commit: Commit, new_source_url: Optional[str] = None):
     if COMMITS_KEY not in definition:
         # This is the first time we've seen this definition
         definition[COMMITS_KEY] = {"first": commit.hash, "last": commit.hash}
@@ -267,15 +268,18 @@ def make_item_defn(definition, commit: Commit):
             "last": commit.reflog_index,
         }
     else:
-        # we've seen this definition, update the `last` commit
+        # we've seen this definition, update the `last` commit and source url
         last_dt = datetime.fromisoformat(definition[DATES_KEY]["last"])
         last_timestamp = last_dt.replace(tzinfo=timezone.utc).timestamp()
         last_reflog = definition[REFLOG_KEY]["last"]
         # use negative last_reflog to match commit.sort_key()
-        if (last_timestamp, -last_reflog) < commit.sort_key():
+        if commit.is_head or (last_timestamp, -last_reflog) < commit.sort_key():
             definition[COMMITS_KEY]["last"] = commit.hash
             definition[DATES_KEY]["last"] = commit.pretty_timestamp
             definition[REFLOG_KEY]["last"] = commit.reflog_index
+            # only update source url when the last commit changed
+            if new_source_url:
+                definition[SOURCE_URL_KEY] = new_source_url
 
     return definition
 
@@ -312,7 +316,7 @@ def metrics_equal(def1, def2):
 
 def ping_equal(def1, def2):
     # Test all keys except the ones the probe-scraper adds
-    ignored_keys = {DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY, "source_url"}
+    ignored_keys = {DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY, SOURCE_URL_KEY}
     all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
 
     return all((def1.get(l) == def2.get(l) for l in all_keys))
@@ -353,7 +357,9 @@ def update_or_add_item(
         ):
             # If equal to a previous commit, update date and commit on existing definition
             if equal_fn(definition, prev_defn):
-                new_defn = make_item_defn(prev_defn, commit)
+                new_defn = make_item_defn(
+                    prev_defn, commit, definition.get(SOURCE_URL_KEY)
+                )
                 repo_items[item][HISTORY_KEY][i] = new_defn
                 break
         # Otherwise, prepend changed definition for existing item
