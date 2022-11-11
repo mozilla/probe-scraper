@@ -304,6 +304,9 @@ applications:
           - name: "geo_city"
             value: null
         submission_timestamp_granularity: "seconds"
+      spoc:
+        expiration_policy:
+          delete_after_days: 180
     channels:
       - v1_name: firefox-android-release
         app_id: org.mozilla.firefox
