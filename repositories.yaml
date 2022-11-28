@@ -654,15 +654,15 @@ applications:
   - app_name: focus_android
     canonical_app_name: Firefox Focus for Android
     app_description: Firefox Focus on Android. Klar is the sibling application
-    url: https://github.com/mozilla-mobile/focus-android
+    url: https://github.com/mozilla-mobile/firefox-android
     notification_emails:
       - jalmeida@mozilla.com
       - tlong@mozilla.com
     branch: main
     metrics_files:
-      - app/metrics.yaml
+      - focus-android/app/metrics.yaml
     ping_files:
-      - app/pings.yaml
+      - focus-android/app/pings.yaml
     dependencies:
       - glean-core
       - org.mozilla.components:service-glean
@@ -692,15 +692,15 @@ applications:
   - app_name: klar_android
     canonical_app_name: Firefox Klar for Android
     app_description: Firefox Klar on Android. Focus is the sibling application
-    url: https://github.com/mozilla-mobile/focus-android
+    url: https://github.com/mozilla-mobile/firefox-android
     notification_emails:
       - jalmeida@mozilla.com
       - tlong@mozilla.com
     branch: main
     metrics_files:
-      - app/metrics.yaml
+      - focus-android/app/metrics.yaml
     ping_files:
-      - app/pings.yaml
+      - focus-android/app/pings.yaml
     dependencies:
       - glean-core
       - org.mozilla.components:service-glean
