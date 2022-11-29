@@ -913,7 +913,7 @@ applications:
     url: https://github.com/mozilla-extensions/regrets-reporter
     notification_emails:
       - jessed@mozillafoundation.org
-      - brandi@mozillafoundation.org
+      - rebeccar@mozillafoundation.org
     branch: main
     metrics_files:
       - source/telemetry/metrics.yaml
@@ -923,7 +923,7 @@ applications:
       - glean-js
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 365
+        delete_after_days: 730
     channels:
       - v1_name: regrets-reporter-ucs
         app_id: regrets.reporter.ucs
