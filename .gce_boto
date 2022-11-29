@@ -1,2 +1,5 @@
 [GoogleCompute]
 service_account = default
+
+[GSUtil]
+state_dir = /tmp/gsutil
