@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Auto-update to next glean-parser major version
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    versioning-strategy: lockfile-only
+    reviewers:
+      - "mozilla/glean"
+    versioning-strategy: increase-if-necessary
+    allow:
+      - dependency-name: "glean-parser"
