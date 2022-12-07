@@ -1,6 +1,6 @@
 awscli==1.20.15
 beautifulsoup4==4.8.2
-GitPython==3.0.8
+GitPython==3.1.29
 boto3==1.18.15
 Flask==2.1.1
 glean-parser~=6.3
