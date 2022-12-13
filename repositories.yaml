@@ -772,6 +772,7 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
+        collect_through_date: "2023-03-27"
       jwe_mappings:
         - source_field_path: /payload
           decrypted_field_path: ""
@@ -803,6 +804,8 @@ applications:
       jwe_mappings:
         - source_field_path: /payload
           decrypted_field_path: ""
+      expiration_policy:
+        collect_through_date: "2023-03-27"
     channels:
       - v1_name: rally-core
         app_id: rally-core
@@ -879,6 +882,8 @@ applications:
       jwe_mappings:
         - source_field_path: /payload
           decrypted_field_path: ""
+      expiration_policy:
+        collect_through_date: "2022-12-31"
     channels:
       - v1_name: rally-study-zero-one
         app_id: rally-study-zero-one
@@ -1037,6 +1042,8 @@ applications:
       jwe_mappings:
         - source_field_path: /payload
           decrypted_field_path: ""
+      expiration_policy:
+        collect_through_date: "2023-03-27"
     channels:
       - v1_name: rally-citp-search-engine-usage
         app_id: rally-citp-search-engine-usage
@@ -1085,6 +1092,8 @@ applications:
       jwe_mappings:
         - source_field_path: /payload
           decrypted_field_path: ""
+      expiration_policy:
+        collect_through_date: "2023-03-27"
     channels:
       - v1_name: rally-attention-stream
         app_id: rally-attention-stream
