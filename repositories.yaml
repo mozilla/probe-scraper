@@ -223,6 +223,10 @@ applications:
     channels:
       - v1_name: firefox-desktop
         app_id: firefox.desktop
+    moz_pipeline_metadata:
+      pageload:
+        expiration_policy:
+          delete_after_days: 120
 
   - app_name: firefox_desktop_background_update
     canonical_app_name: Firefox for Desktop Background Update Task
