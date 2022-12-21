@@ -12,6 +12,8 @@ from typing import Any, Dict
 
 from schema import And, Optional, Schema
 
+from probe_scraper import probe_expiry_alert
+
 from .scrapers.git_scraper import Commit
 
 
@@ -227,6 +229,16 @@ def check_for_expired_metrics(
 
         addresses = set(repo.notification_emails)
 
+        target_version = None
+        if repo.name == "fenix":
+            try:
+                target_version = (
+                    int(probe_expiry_alert.get_latest_nightly_version()) + 1
+                )
+            except ValueError:
+                # Can't parse the version as an int. Welp.
+                pass
+
         expired_metrics = []
         for metric_name, metric in metrics.items():
             if metric["expires"] == "never":
@@ -240,7 +252,10 @@ def check_for_expired_metrics(
 
             if isinstance(metric["expires"], int):
                 # Uses expire-by-version.
-                # We don't currently handle expiration checks for these.
+                if target_version is not None:
+                    if metric["expires"] == target_version:
+                        expired_metrics.append(f" - {metric_name} in {target_version}")
+                        addresses.update(metric["notification_emails"])
                 continue
 
             try:
