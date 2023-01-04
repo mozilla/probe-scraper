@@ -1124,3 +1124,21 @@ applications:
     channels:
       - v1_name: viu-politica
         app_id: viu.politica
+
+  - app_name: treeherder
+    canonical_app_name: Treeherder
+    app_description: |
+      Internal Developer dashboard for CI results
+    url: https://github.com/mozilla/treeherder
+    notification_emails:
+      - jmaher@mozilla.com
+    branch: master
+    metrics_files:
+      - ui/glean/metrics.yaml
+    ping_files:
+      - ui/glean/pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: treeherder
+        app_id: treeherder
