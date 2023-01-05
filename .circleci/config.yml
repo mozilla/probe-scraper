@@ -1,12 +1,3 @@
-# These environment variables must be set in CircleCI UI
-#
-# GCLOUD_SERVICE_KEY - key for pushing images to gcr
-# GOOGLE_PROJECT_ID - moz-fx-data-airflow-prod-88e0
-# GOOGLE_COMPUTE_ZONE - us-west1-b
-#
-
----
-
 version: 2
 jobs:
   build_and_test:
@@ -138,6 +129,7 @@ workflows:
             branches:
               only: main
       - deploy_docker:
+          context: data-eng-airflow-gcr
           requires:
             - build_and_test
           filters:
