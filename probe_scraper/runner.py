@@ -136,32 +136,14 @@ def write_general_data(out_dir: Path) -> List[Path]:
     return [general_path, index_path]
 
 
-def write_glean_metric_data(
-    metrics: Dict[str, Any], dependencies: Dict[str, Any], out_dir: Path
-):
+def write_glean_data_by_repo(
+    data_by_repo: Dict[str, Any], out_dir: Path, file_name: str
+) -> List[Path]:
     # Save all our files to "out_dir/glean/<repo>/..." to mimic a REST API.
-    for repo, metrics_data in metrics.items():
-        dependencies_data = dependencies[repo]
-
-        base_dir = out_dir / "glean" / repo
-
-        dump_json(general_data(), base_dir, "general")
-        dump_json(metrics_data, base_dir, "metrics")
-        dump_json(dependencies_data, base_dir, "dependencies")
-
-
-def write_glean_tag_data(tags: Dict[str, Any], out_dir: Path):
-    # Save all our files to "out_dir/glean/<repo>/..." to mimic a REST API.
-    for repo, tags_data in tags.items():
-        base_dir = out_dir / "glean" / repo
-        dump_json(tags_data, base_dir, "tags")
-
-
-def write_glean_ping_data(pings: Dict[str, Any], out_dir: Path):
-    # Save all our files to "out_dir/glean/<repo>/..." to mimic a REST API.
-    for repo, pings_data in pings.items():
-        base_dir = out_dir / "glean" / repo
-        dump_json(pings_data, base_dir, "pings")
+    return [
+        dump_json(data, out_dir / "glean" / repo, file_name)
+        for repo, data in data_by_repo.items()
+    ]
 
 
 def write_repositories_data(repos: List[Repository], out_dir: Path) -> List[Path]:
@@ -394,28 +376,29 @@ def load_glean_metrics(
             "No glean repos matched --glean-repo or --glean-url"
         )
 
-    scrape_commits = glean_urls or glean_repos or glean_limit_date or not update
+    filter_repos = glean_urls or glean_repos
+    scrape_commits = filter_repos or glean_limit_date or not update
+    generate_metadata = not filter_repos or not update
 
-    if check_expiry or check_fog_expiry or scrape_commits:
-        tags_by_repo = {}
-        metrics_by_repo = {}
-        pings_by_repo = {}
-        for repo in repositories:
-            if update:
-                repo_dir = out_dir / "glean" / repo.name
-                if output_bucket:
-                    remote_storage_pull(
-                        f"{output_bucket.rstrip('/')}/glean/{repo.name}/",
-                        repo_dir,
-                        decompress=True,
-                    )
-                tags_by_repo[repo.name] = load_json(repo_dir, "tags", default={})
-                metrics_by_repo[repo.name] = load_json(repo_dir, "metrics", default={})
-                pings_by_repo[repo.name] = load_json(repo_dir, "pings", default={})
-            else:
-                tags_by_repo[repo.name] = {}
-                metrics_by_repo[repo.name] = {}
-                pings_by_repo[repo.name] = {}
+    tags_by_repo = {}
+    metrics_by_repo = {}
+    pings_by_repo = {}
+    for repo in repositories:
+        if update:
+            repo_dir = out_dir / "glean" / repo.name
+            if output_bucket:
+                remote_storage_pull(
+                    f"{output_bucket.rstrip('/')}/glean/{repo.name}/",
+                    repo_dir,
+                    decompress=True,
+                )
+            tags_by_repo[repo.name] = load_json(repo_dir, "tags", default={})
+            metrics_by_repo[repo.name] = load_json(repo_dir, "metrics", default={})
+            pings_by_repo[repo.name] = load_json(repo_dir, "pings", default={})
+        else:
+            tags_by_repo[repo.name] = {}
+            metrics_by_repo[repo.name] = {}
+            pings_by_repo[repo.name] = {}
 
     if scrape_commits:
         commits_by_repo, emails, upload_repos = git_scraper.scrape(
@@ -499,15 +482,6 @@ def load_glean_metrics(
         )
         transform_probes.transform_pings_by_hash(pings, update_result=pings_by_repo)
 
-        add_pipeline_metadata(pings_by_repo, repositories)
-
-        dependencies_by_repo = {}
-        for repo in repositories:
-            dependencies = {}
-            for dependency in repo.dependencies:
-                dependencies[dependency] = {"type": "dependency", "name": dependency}
-            dependencies_by_repo[repo.name] = dependencies
-
         try:
             abort_after_emails |= glean_checks.check_for_duplicate_metrics(
                 repositories, metrics_by_repo, emails
@@ -518,21 +492,56 @@ def load_glean_metrics(
             if glean_repos is None and glean_urls is None:
                 raise
 
+    # currently always true, but left in for clarity
+    if scrape_commits or generate_metadata:
         print("\nwriting output:")
-        write_glean_tag_data(tags_by_repo, out_dir)
-        write_glean_metric_data(metrics_by_repo, dependencies_by_repo, out_dir)
-        write_glean_ping_data(pings_by_repo, out_dir)
-        # only upload authorized repos
-        upload_paths += [out_dir / "glean" / repo_name for repo_name in upload_repos]
 
-    if not (glean_urls or glean_repos) or not update:
+        # write metadata by repo to ensure changes in repositories.yaml are published
+        # nightly, instead of just when a repo's commits are next scraped (maybe never)
+        dependencies_by_repo = {
+            repo.name: {
+                dependency: {"type": "dependency", "name": dependency}
+                for dependency in repo.dependencies
+            }
+            for repo in repositories
+        }
+        metadata_by_repo_paths = write_glean_data_by_repo(
+            dependencies_by_repo, out_dir, "dependencies"
+        )
+
+        general_by_repo = {repo.name: general_data() for repo in repositories}
+        metadata_by_repo_paths += write_glean_data_by_repo(
+            general_by_repo, out_dir, "general"
+        )
+
+        # pings contain both commits and metadata
+        add_pipeline_metadata(pings_by_repo, repositories)
+        metadata_by_repo_paths += write_glean_data_by_repo(
+            pings_by_repo, out_dir, "pings"
+        )
+
+        if scrape_commits:
+            # tags and metrics don't contain metadata from repositories.yaml,
+            # so these files are only updated when scraping commits.
+            write_glean_data_by_repo(tags_by_repo, out_dir, "tags")
+            write_glean_data_by_repo(metrics_by_repo, out_dir, "metrics")
+
+            # only include files for authorized repos
+            upload_paths += [
+                out_dir / "glean" / repo_name for repo_name in upload_repos
+            ]
+        else:
+            # only include metadata files
+            upload_paths += metadata_by_repo_paths
+
+    if generate_metadata:
         repositories_data_paths = write_repositories_data(repositories, out_dir)
         general_data_paths = write_general_data(out_dir)
 
         repos_v2 = RepositoriesParser().parse_v2(repositories_file)
         v2_data_paths = write_v2_data(repos_v2, out_dir)
 
-        if not (glean_urls or glean_repos):
+        if not filter_repos:
             # only upload these paths when repositories were not filtered
             upload_paths += repositories_data_paths
             upload_paths += general_data_paths
