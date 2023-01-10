@@ -240,6 +240,7 @@ applications:
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
+      - gecko
       - glean-core
     channels:
       - v1_name: firefox-desktop-background-update
