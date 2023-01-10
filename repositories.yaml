@@ -834,40 +834,20 @@ applications:
       - glean/metrics.yaml
     ping_files:
       - glean/pings.yaml
-    dependencies:
-      - glean-js
+    dependencies: []  # Empty. Dependencies are set per channel.
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
     channels:
       - v1_name: mozilla-vpn
         app_id: mozillavpn
-        app_channel: release
-
-  - app_name: mozilla_vpn_android
-    canonical_app_name: Mozilla VPN (Android)
-    app_description: |
-      Mozilla VPN is a VPN client application. The first
-      Mozilla premium service.
-    url: https://github.com/mozilla-mobile/mozilla-vpn-client
-    notification_emails:
-      - vpn@mozilla.com
-      - amarchesini@mozilla.com
-      - brizental@mozilla.com
-    branch: main
-    metrics_files:
-      - glean/metrics.yaml
-    ping_files:
-      - glean/pings.yaml
-    dependencies:
-      - glean-core
-    moz_pipeline_metadata_defaults:
-      expiration_policy:
-        delete_after_days: 180
-    channels:
+        additional_dependencies:
+          - glean.js
       - v1_name: mozilla-vpn-android
         app_id: org.mozilla.firefox.vpn
-        app_channel: release
+        additional_dependencies:
+          - glean-core
+          - org.mozilla.components:service-glean
 
   - app_name: rally_study_zero_one
     canonical_app_name: Rally Study-01
