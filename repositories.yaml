@@ -102,22 +102,6 @@ libraries:
         branch: main
         dependency_name: org.mozilla.appservices:logins
 
-  - library_name: support-migration
-    description: >-
-      Helper code to migrate from a Fennec-based (Firefox for Android) app to
-      an Android Components based app
-    notification_emails:
-      - dthorn@mozilla.com
-    url: https://github.com/mozilla-mobile/android-components
-    metrics_files:
-      - components/support/migration/metrics.yaml
-    ping_files:
-      - components/support/migration/pings.yaml
-    variants:
-      - v1_name: support-migration
-        dependency_name: org.mozilla.components:support-migration
-        deprecated: true
-
   - library_name: android-places
     description: >-
       A collection of Android libraries to build browsers or browser-like
@@ -287,16 +271,16 @@ applications:
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
     canonical_app_name: Firefox for Android
-    url: https://github.com/mozilla-mobile/fenix
+    url: https://github.com/mozilla-mobile/firefox-android
     notification_emails:
       - dthorn@mozilla.com
       - aplacitelli@mozilla.com
     metrics_files:
-      - app/metrics.yaml
+      - fenix/app/metrics.yaml
     ping_files:
-      - app/pings.yaml
+      - fenix/app/pings.yaml
     tag_files:
-      - app/tags.yaml
+      - fenix/app/tags.yaml
     dependencies:
       - gecko
       - glean-core
