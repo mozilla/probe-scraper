@@ -1133,3 +1133,27 @@ applications:
     channels:
       - v1_name: treeherder
         app_id: treeherder
+
+  - app_name: firefox_desktop_background_tasks
+    canonical_app_name: Firefox Desktop background tasks
+    app_description: |
+      Background tasks of Firefox Desktop.
+      Currently used by `BackgroundTask_removeDirectory`.
+    url: https://github.com/mozilla/gecko-dev
+    notification_emails:
+      - necko@mozilla.com
+      - krosylight@mozilla.com
+      - vgosu@mozilla.com
+    branch: master
+    metrics_files:
+      - toolkit/components/backgroundtasks/metrics.yaml
+    ping_files:
+      - toolkit/components/backgroundtasks/pings.yaml
+    dependencies:
+      - glean-core
+    channels:
+      - v1_name: firefox-desktop-background-tasks
+        app_id: firefox.desktop.background.tasks
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 180
