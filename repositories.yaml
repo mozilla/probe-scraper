@@ -829,6 +829,7 @@ applications:
     notification_emails:
       - vpn@mozilla.com
       - amarchesini@mozilla.com
+      - brizental@mozilla.com
     branch: main
     metrics_files:
       - glean/metrics.yaml
@@ -841,10 +842,13 @@ applications:
     channels:
       - v1_name: mozilla-vpn
         app_id: mozillavpn
+        app_channel: release
         additional_dependencies:
           - glean.js
       - v1_name: mozilla-vpn-android
         app_id: org.mozilla.firefox.vpn
+        app_channel: release
+        description: Mozilla VPN (Android)
         additional_dependencies:
           - glean-core
           - org.mozilla.components:service-glean
