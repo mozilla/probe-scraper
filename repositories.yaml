@@ -288,7 +288,6 @@ applications:
       - org.mozilla.components:lib-crash
       - org.mozilla.components:support-sync-telemetry
       - org.mozilla.appservices:logins
-      - org.mozilla.components:support-migration
       - org.mozilla.components:places
       - nimbus
     moz_pipeline_metadata:
