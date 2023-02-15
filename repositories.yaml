@@ -102,6 +102,22 @@ libraries:
         branch: main
         dependency_name: org.mozilla.appservices:logins
 
+  - library_name: support-migration
+    description: >-
+      Helper code to migrate from a Fennec-based (Firefox for Android) app to
+      an Android Components based app
+    notification_emails:
+      - dthorn@mozilla.com
+    url: https://github.com/mozilla-mobile/android-components
+    metrics_files:
+      - components/support/migration/metrics.yaml
+    ping_files:
+      - components/support/migration/pings.yaml
+    variants:
+      - v1_name: support-migration
+        dependency_name: org.mozilla.components:support-migration
+        deprecated: true
+
   - library_name: android-places
     description: >-
       A collection of Android libraries to build browsers or browser-like
@@ -288,6 +304,7 @@ applications:
       - org.mozilla.components:lib-crash
       - org.mozilla.components:support-sync-telemetry
       - org.mozilla.appservices:logins
+      - org.mozilla.components:support-migration
       - org.mozilla.components:places
       - nimbus
     moz_pipeline_metadata:
