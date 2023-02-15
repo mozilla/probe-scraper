@@ -101,7 +101,7 @@ libraries:
       - v1_name: logins-store
         branch: main
         dependency_name: org.mozilla.appservices:logins
-  
+
   - library_name: support-migration
     description: >-
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
