@@ -845,12 +845,15 @@ applications:
         app_channel: release
         additional_dependencies:
           - glean-js
+          # It also uses the Rust SDK.
+          - glean-core
       - v1_name: mozilla-vpn-android
         app_id: org.mozilla.firefox.vpn
         app_channel: release
         description: Mozilla VPN (Android)
         additional_dependencies:
           - glean-core
+          # Extra dependency to have `android_sdk_version` recorded.
           - org.mozilla.components:service-glean
 
   - app_name: rally_study_zero_one
