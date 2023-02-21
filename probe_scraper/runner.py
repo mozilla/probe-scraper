@@ -363,9 +363,9 @@ def load_glean_metrics(
     check_fog_expiry: bool = False,
 ) -> List[Path]:
     emails = {}
-    abort_after_emails = False
+    found_duplicate_metrics = False
     upload_paths = []
-    repositories = RepositoriesParser().parse(repositories_file)
+    all_repos = repositories = RepositoriesParser().parse(repositories_file)
     add_pipeline_metadata_defaults(repositories)
     if glean_urls:
         repositories = [r for r in repositories if r.url in glean_urls]
@@ -383,15 +383,16 @@ def load_glean_metrics(
     tags_by_repo = {}
     metrics_by_repo = {}
     pings_by_repo = {}
-    for repo in repositories:
+    if update and output_bucket:
+        remote_storage_pull(
+            f"{output_bucket.rstrip('/')}/glean/",
+            out_dir / "glean",
+            decompress=True,
+        )
+    # init cache for all repos to ensure deps are available for duplicate metric checks
+    for repo in all_repos:
         if update:
             repo_dir = out_dir / "glean" / repo.name
-            if output_bucket:
-                remote_storage_pull(
-                    f"{output_bucket.rstrip('/')}/glean/{repo.name}/",
-                    repo_dir,
-                    decompress=True,
-                )
             tags_by_repo[repo.name] = load_json(repo_dir, "tags", default={})
             metrics_by_repo[repo.name] = load_json(repo_dir, "metrics", default={})
             pings_by_repo[repo.name] = load_json(repo_dir, "pings", default={})
@@ -482,15 +483,10 @@ def load_glean_metrics(
         )
         transform_probes.transform_pings_by_hash(pings, update_result=pings_by_repo)
 
-        try:
-            abort_after_emails |= glean_checks.check_for_duplicate_metrics(
-                repositories, metrics_by_repo, emails
-            )
-        except glean_checks.MissingDependencyError:
-            # Ignore the check for duplicate metrics when a dependency is missing
-            # unless all repositories are being parsed
-            if glean_repos is None and glean_urls is None:
-                raise
+        # must be checked for all repos to ensure dependencies are available
+        found_duplicate_metrics |= glean_checks.check_for_duplicate_metrics(
+            all_repos, metrics_by_repo, emails
+        )
 
     # currently always true, but left in for clarity
     if scrape_commits or generate_metadata:
@@ -571,8 +567,8 @@ def load_glean_metrics(
                 email_file=email_file,
             )
 
-    if abort_after_emails:
-        raise ValueError("Errors processing Glean metrics")
+    if found_duplicate_metrics:
+        raise ValueError("Found duplicate Glean metrics, check email for details")
 
     return upload_paths
 
