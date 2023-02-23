@@ -59,6 +59,12 @@ GLEAN_PINGS_FILENAME = "pings.yaml"
 GLEAN_TAGS_FILENAME = "tags.yaml"
 
 
+def date_or_none(value: str):
+    if value.lower() in ("", "none"):
+        return None
+    return datetime.date.fromisoformat(value)
+
+
 def general_data() -> Dict[str, str]:
     return {
         "lastUpdate": datetime.datetime.now(tzlocal()).isoformat(),
@@ -800,7 +806,7 @@ if __name__ == "__main__":
         "commits on or after this date are scraped. This behavior is to account for "
         "nightly runs that don't occur on weekends, in which case this flag must be "
         "set to the date for friday when it is run on monday morning.",
-        type=datetime.date.fromisoformat,
+        type=date_or_none,
         required=False,
     )
     parser.add_argument(
@@ -809,7 +815,7 @@ if __name__ == "__main__":
         " per glean repo files to --out-dir. If specified with --glean-repo or --glean-url, merge"
         " results with previous results from --output-bucket, and only write per glean repo files"
         " to --out-dir. Not implemented for --moz-central.",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
         required=False,
     )
 
