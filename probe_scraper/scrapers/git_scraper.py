@@ -60,6 +60,10 @@ SKIP_COMMITS = {
         "2c475db0ffe5df6010ded8ccb9784b0645d92ebb",  # Missing netwerk/protocol/http/metrics.yaml
         "b6dbdfec41221b0a80cc211f85abbb01e33f8692",  # Missing netwerk/protocol/http/metrics.yaml
         "da2b7986d0b26f26cd1ac2d8c5b78b70009a24b6",  # Missing netwerk/protocol/http/metrics.yaml
+        "74a43f86ea999ec985d77eb6c3c7f766b570dd9d",  # Missing dom/media/webrtc/metrics.yaml
+        # Missing toolkit/components/pdfjs/metrics.yaml
+        "d1d0b69871e3d38ead989d73f30563a501a448b6",
+        "66d41da90f85d19fef2d5249c8f3058433ec4bd5",  # Missing dom/pings.yaml
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -72,6 +76,10 @@ SKIP_COMMITS = {
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+    ],
+    "firefox-desktop-background-tasks": [
+        # Missing toolkit/components/backgroundtasks/metrics.yaml
+        "0caa2f1940d744d1154f47c242bc5c119cf453f8",
     ],
     "firefox-translations": [
         # Invalid extension/model/telemetry/metrics.yaml
