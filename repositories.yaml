@@ -181,6 +181,7 @@ libraries:
       - toolkit/components/glean/metrics.yaml
       - toolkit/components/pdfjs/metrics.yaml
       - toolkit/components/processtools/metrics.yaml
+      - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
       - toolkit/components/crashes/pings.yaml
@@ -199,7 +200,7 @@ applications:
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
-    metrics_files: # When adding here, consider if you should also add to pine.
+    metrics_files:
       - browser/components/metrics.yaml
       - browser/components/newtab/metrics.yaml
       - browser/components/search/metrics.yaml
