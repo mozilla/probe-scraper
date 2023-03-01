@@ -991,7 +991,7 @@ applications:
       developers and students.
     url: https://github.com/mdn/yari
     notification_emails:
-      - gsleigh@mozilla.com
+      - caugner@mozilla.com
       - tlong@mozilla.com
       - glean-team@mozilla.com
     branch: main
