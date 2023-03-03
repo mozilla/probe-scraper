@@ -17,8 +17,7 @@ REPOSITORIES = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "repositories.yaml"
 )
 EXPECTED_MISSING_FILES: Set[Tuple[str, str]] = {
-    ("support-migration", "components/support/migration/metrics.yaml"),
-    ("gecko", "ipc/ipdl/metrics.yaml"),
+    ("support-migration", "components/support/migration/metrics.yaml")
 }
 validation_errors = []
 repos = RepositoriesParser().parse(REPOSITORIES)
