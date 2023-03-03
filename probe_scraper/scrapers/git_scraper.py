@@ -65,6 +65,11 @@ SKIP_COMMITS = {
         "d1d0b69871e3d38ead989d73f30563a501a448b6",
         "66d41da90f85d19fef2d5249c8f3058433ec4bd5",  # Missing dom/pings.yaml
         "1e64234ac7f7303d5942deb6d90dd85cd4eb6e12",  # Missing xpcom/metrics.yaml
+        "cf06f2778f48c7f92d908dae73d48268db454e72",  # Missing ipc/ipdl/metrics.yaml
+        "bb188d821a6b3d27951ed05526ec7010d3ec0c52",  # Missing ipc/ipdl/metrics.yaml
+        "0e55b6d34c8fac3144f10f9aa450e33e4b55d520",  # Missing ipc/ipdl/metrics.yaml
+        "0b1543e85d13c30a13c57e959ce9815a3f0fa1d3",  # Missing ipc/ipdl/metrics.yaml
+        "9bc20993bc6960762ed281201e9cff437a88ca6c",  # Missing ipc/ipdl/metrics.yaml
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
