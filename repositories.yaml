@@ -244,10 +244,8 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - toolkit/mozapps/update/metrics.yaml
-      - toolkit/components/crashes/metrics.yaml
     ping_files:
       - toolkit/mozapps/update/pings.yaml
-      - toolkit/components/crashes/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
