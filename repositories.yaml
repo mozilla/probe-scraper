@@ -243,11 +243,11 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
-      - toolkit/mozapps/update/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
+      - toolkit/mozapps/update/metrics.yaml
     ping_files:
-      - toolkit/mozapps/update/pings.yaml
       - toolkit/components/crashes/pings.yaml
+      - toolkit/mozapps/update/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
