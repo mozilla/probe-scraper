@@ -48,6 +48,8 @@ libraries:
     url: https://github.com/mozilla-mobile/firefox-android
     metrics_files:
       - android-components/components/lib/crash/metrics.yaml
+    ping_files:
+      - android-components/components/lib/crash/pings.yaml
     variants:
       - v1_name: lib-crash
         dependency_name: org.mozilla.components:lib-crash
