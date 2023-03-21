@@ -214,6 +214,7 @@ applications:
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/modules/metrics.yaml
       - toolkit/xre/metrics.yaml
+      - widget/cocoa/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
       - toolkit/components/crashes/pings.yaml
