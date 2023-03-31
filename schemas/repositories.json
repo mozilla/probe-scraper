@@ -38,14 +38,14 @@
         "type": "array",
         "items": {
           "type": "string",
-          "pattern": "metrics\\.yaml$"
+          "pattern": ".+\\.yaml$"
         }
       },
       "ping_files": {
         "type": "array",
         "items": {
           "type": "string",
-          "pattern": "pings\\.yaml$"
+          "pattern": ".+\\.yaml$"
         }
       },
       "dependencies": {
