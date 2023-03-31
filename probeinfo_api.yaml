@@ -636,7 +636,7 @@ components:
       default: []
       items:
         type: string
-        pattern: tags\.yaml$
+        pattern: .+\.yaml$
         example: app/tags.yaml
 
     MetricsFiles:
@@ -645,7 +645,7 @@ components:
       default: []
       items:
         type: string
-        pattern: metrics\.yaml$
+        pattern: .+\.yaml$
         example: app/metrics.yaml
 
     PingFiles:
@@ -654,7 +654,7 @@ components:
       default: []
       items:
         type: string
-        pattern: pings\.yaml$
+        pattern: .+\.yaml$
         example: app/pings.yaml
 
     RepoBranch:
