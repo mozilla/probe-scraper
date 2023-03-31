@@ -9,7 +9,6 @@ import yaml
 from probe_scraper import model_validation
 
 REPOSITORIES_FILENAME = "repositories.yaml"
-REPOSITORIES_SCHEMA = "schemas/repositories.json"
 
 
 def remove_none(obj):
