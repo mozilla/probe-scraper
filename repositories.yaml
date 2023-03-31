@@ -840,9 +840,14 @@ applications:
       - brizental@mozilla.com
     branch: main
     metrics_files:
-      - glean/metrics.yaml
+      - src/shared/telemetry/metrics.yaml
+      - src/shared/telemetry/metrics_deprecated.yaml
+      - src/apps/vpn/telemetry/metrics.yaml
+      - src/apps/vpn/telemetry/metrics_deprecated.yaml
     ping_files:
-      - glean/pings.yaml
+      - src/shared/telemetry/pings.yaml
+      - src/shared/telemetry/pings_deprecated.yaml
+      - src/apps/vpn/telemetry/pings.yaml
     dependencies: []  # Empty. Dependencies are set per channel.
     moz_pipeline_metadata_defaults:
       expiration_policy:
