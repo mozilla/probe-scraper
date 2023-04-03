@@ -108,6 +108,9 @@ SKIP_COMMITS = {
     "support-migration": [
         "2e05b2b7d775ea726e035a7a7f16d889d63fc09a",  # No components/support/migration/metrics.yaml
     ],
+    "viu-politica": [
+        "e41967f92f40dd36729939cf67bcf680352ec1a4",  # Removed all data collection
+    ],
 }
 
 
