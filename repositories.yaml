@@ -1129,6 +1129,7 @@ applications:
     channels:
       - v1_name: viu-politica
         app_id: viu.politica
+        deprecated: true
 
   - app_name: treeherder
     canonical_app_name: Treeherder
