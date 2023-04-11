@@ -48,6 +48,8 @@ libraries:
     url: https://github.com/mozilla-mobile/firefox-android
     metrics_files:
       - android-components/components/lib/crash/metrics.yaml
+    ping_files:
+      - android-components/components/lib/crash/pings.yaml
     variants:
       - v1_name: lib-crash
         dependency_name: org.mozilla.components:lib-crash
@@ -174,16 +176,16 @@ libraries:
       - dom/media/webrtc/metrics.yaml
       - dom/metrics.yaml
       - gfx/metrics.yaml
+      - mobile/android/actors/metrics.yaml
       - netwerk/metrics.yaml
       - netwerk/protocol/http/metrics.yaml
       - toolkit/components/cookiebanners/metrics.yaml
-      - toolkit/components/crashes/metrics.yaml
       - toolkit/components/glean/metrics.yaml
       - toolkit/components/pdfjs/metrics.yaml
       - toolkit/components/processtools/metrics.yaml
+      - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
-      - toolkit/components/crashes/pings.yaml
       - toolkit/components/glean/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
@@ -199,21 +201,26 @@ applications:
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - chutten@mozilla.com
-    metrics_files: # When adding here, consider if you should also add to pine.
+    metrics_files:
       - browser/components/metrics.yaml
       - browser/components/newtab/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/components/urlbar/metrics.yaml
       - browser/modules/metrics.yaml
+      - toolkit/components/crashes/metrics.yaml
       - toolkit/components/extensions/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/dap/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
+      - toolkit/modules/metrics.yaml
       - toolkit/xre/metrics.yaml
+      - widget/cocoa/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
+      - toolkit/components/crashes/pings.yaml
       - toolkit/components/telemetry/pings.yaml
+      - toolkit/modules/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
@@ -240,8 +247,10 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
+      - toolkit/components/crashes/metrics.yaml
       - toolkit/mozapps/update/metrics.yaml
     ping_files:
+      - toolkit/components/crashes/pings.yaml
       - toolkit/mozapps/update/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
@@ -832,9 +841,14 @@ applications:
       - brizental@mozilla.com
     branch: main
     metrics_files:
-      - glean/metrics.yaml
+      - src/shared/telemetry/metrics.yaml
+      - src/shared/telemetry/metrics_deprecated.yaml
+      - src/apps/vpn/telemetry/metrics.yaml
+      - src/apps/vpn/telemetry/metrics_deprecated.yaml
     ping_files:
-      - glean/pings.yaml
+      - src/shared/telemetry/pings.yaml
+      - src/shared/telemetry/pings_deprecated.yaml
+      - src/apps/vpn/telemetry/pings.yaml
     dependencies: []  # Empty. Dependencies are set per channel.
     moz_pipeline_metadata_defaults:
       expiration_policy:
@@ -993,7 +1007,7 @@ applications:
       developers and students.
     url: https://github.com/mdn/yari
     notification_emails:
-      - gsleigh@mozilla.com
+      - caugner@mozilla.com
       - tlong@mozilla.com
       - glean-team@mozilla.com
     branch: main
@@ -1118,6 +1132,7 @@ applications:
     channels:
       - v1_name: viu-politica
         app_id: viu.politica
+        deprecated: true
 
   - app_name: treeherder
     canonical_app_name: Treeherder

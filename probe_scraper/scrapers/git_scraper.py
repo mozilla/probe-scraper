@@ -60,6 +60,16 @@ SKIP_COMMITS = {
         "2c475db0ffe5df6010ded8ccb9784b0645d92ebb",  # Missing netwerk/protocol/http/metrics.yaml
         "b6dbdfec41221b0a80cc211f85abbb01e33f8692",  # Missing netwerk/protocol/http/metrics.yaml
         "da2b7986d0b26f26cd1ac2d8c5b78b70009a24b6",  # Missing netwerk/protocol/http/metrics.yaml
+        "74a43f86ea999ec985d77eb6c3c7f766b570dd9d",  # Missing dom/media/webrtc/metrics.yaml
+        # Missing toolkit/components/pdfjs/metrics.yaml
+        "d1d0b69871e3d38ead989d73f30563a501a448b6",
+        "66d41da90f85d19fef2d5249c8f3058433ec4bd5",  # Missing dom/pings.yaml
+        "1e64234ac7f7303d5942deb6d90dd85cd4eb6e12",  # Missing xpcom/metrics.yaml
+        "cf06f2778f48c7f92d908dae73d48268db454e72",  # Missing ipc/ipdl/metrics.yaml
+        "bb188d821a6b3d27951ed05526ec7010d3ec0c52",  # Missing ipc/ipdl/metrics.yaml
+        "0e55b6d34c8fac3144f10f9aa450e33e4b55d520",  # Missing ipc/ipdl/metrics.yaml
+        "0b1543e85d13c30a13c57e959ce9815a3f0fa1d3",  # Missing ipc/ipdl/metrics.yaml
+        "9bc20993bc6960762ed281201e9cff437a88ca6c",  # Missing ipc/ipdl/metrics.yaml
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -72,6 +82,10 @@ SKIP_COMMITS = {
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+    ],
+    "firefox-desktop-background-tasks": [
+        # Missing toolkit/components/backgroundtasks/metrics.yaml
+        "0caa2f1940d744d1154f47c242bc5c119cf453f8",
     ],
     "firefox-translations": [
         # Invalid extension/model/telemetry/metrics.yaml
@@ -93,6 +107,9 @@ SKIP_COMMITS = {
     ],
     "support-migration": [
         "2e05b2b7d775ea726e035a7a7f16d889d63fc09a",  # No components/support/migration/metrics.yaml
+    ],
+    "viu-politica": [
+        "e41967f92f40dd36729939cf67bcf680352ec1a4",  # Removed all data collection
     ],
 }
 
