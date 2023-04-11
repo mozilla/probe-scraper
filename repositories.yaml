@@ -866,6 +866,12 @@ applications:
         additional_dependencies:
           - glean-core
           - org.mozilla.components:service-glean
+      - v1_name: mozilla-vpn-ios
+        app_id: org.mozilla.ios.FirefoxVPN
+        app_channel: release
+        description: Mozilla VPN (iOS)
+        additional_dependencies:
+          - glean-core
 
   - app_name: rally_study_zero_one
     canonical_app_name: Rally Study-01
