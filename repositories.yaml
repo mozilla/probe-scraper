@@ -688,7 +688,7 @@ applications:
       - gecko
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 180
+        delete_after_days: 760
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
@@ -726,7 +726,7 @@ applications:
       - gecko
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 180
+        delete_after_days: 760
     channels:
       - v1_name: firefox-klar-android
         app_id: org.mozilla.klar
