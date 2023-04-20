@@ -178,6 +178,8 @@ def file_bugs(
             product, component = probe_expiry_alert.get_bug_component(
                 biggest_bug_number, bugzilla_api_key
             )
+        else:
+            product, component = None, None
         if product is None and component is None:
             product = probe_expiry_alert.BUG_DEFAULT_PRODUCT
             component = probe_expiry_alert.BUG_DEFAULT_COMPONENT
