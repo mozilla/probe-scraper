@@ -1177,3 +1177,46 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
+
+  - app_name: accounts_frontend
+    canonical_app_name: Firefox Accounts Frontend
+    app_description: |
+      Firefox accounts is Mozilla's authentication solution
+      for account-based end-user services and features.
+    url: https://github.com/mozilla/fxa
+    notification_emails:
+      - fxa-staff@mozilla.com
+      - akomarzewski@mozilla.com
+    branch: main
+    metrics_files:
+      - packages/fxa-shared/metrics/glean/fxa-ui-metrics.yaml
+    ping_files:
+      - packages/fxa-shared/metrics/glean/fxa-ui-pings.yaml
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: accounts-frontend
+        app_id: accounts.frontend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
+
+  - app_name: accounts_backend
+    canonical_app_name: Firefox Accounts Backend
+    app_description: |
+      Firefox accounts is Mozilla's authentication solution
+      for account-based end-user services and features.
+    url: https://github.com/mozilla/fxa
+    notification_emails:
+      - fxa-staff@mozilla.com
+      - akomarzewski@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies: []
+    channels:
+      - v1_name: accounts-backend
+        app_id: accounts.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
