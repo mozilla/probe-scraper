@@ -76,7 +76,7 @@ BUG_SUMMARY_TEMPLATE = "Remove or update metrics expiring in Firefox {version}: 
 # IF YOU MODIFY THIS WITHOUT CARE WE WILL FILE DUPLICATE BUGS.
 # Please be kind to your Sheriffs and only modify with care.
 BUG_DESCRIPTION_TEMPLATE = """
-The following metrics will expire in the next Firefox Nightly release: version {version}[1].
+The following metrics will expire in the next Firefox Nightly release: [version {version}](1).
 
 ```
 {probes}
@@ -86,7 +86,7 @@ The following metrics will expire in the next Firefox Nightly release: version {
 
 What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their `metrics.yaml` definition file.
-2. If one, some, or all of the metrics are still required, please submit a Data Collection Review [2] and patch to extend their expiry. There is a shorter form for data collection renewal [3].
+2. If one, some, or all of the metrics are still required, please submit a [Data Collection Review](2) and patch to extend their expiry. There is a [shorter form](3) for data collection renewal.
 
 If you have any problems, please ask for help on the [#glean Matrix room](https://chat.mozilla.org/#/room/#glean:mozilla.org) or the #data-help Slack channel.
 We'll give you a hand.
@@ -95,7 +95,7 @@ Your Friendly Neighbourhood Glean Team
 
 [1]: https://wiki.mozilla.org/Release_Management/Calendar
 [2]: https://wiki.mozilla.org/Firefox/Data_Collection
-[3]: https://github.com/mozilla/data-review/blob/master/renewal_request.md
+[3]: https://github.com/mozilla/data-review/blob/main/renewal_request.md
 
 ---
 This bug was auto-filed by [probe-scraper](https://github.com/mozilla/probe-scraper).
