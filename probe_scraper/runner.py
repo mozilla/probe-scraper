@@ -54,9 +54,6 @@ PARSERS = {
 GLEAN_PARSER = GleanMetricsParser()
 GLEAN_PINGS_PARSER = GleanPingsParser()
 GLEAN_TAGS_PARSER = GleanTagsParser()
-GLEAN_METRICS_FILENAME = "metrics.yaml"
-GLEAN_PINGS_FILENAME = "pings.yaml"
-GLEAN_TAGS_FILENAME = "tags.yaml"
 
 
 def date_or_none(value: str):
@@ -431,10 +428,24 @@ def load_glean_metrics(
         metrics = defaultdict(dict)
         pings = defaultdict(dict)
         for repo_name, commits in commits_by_repo.items():
+            this_repo = next(r for r in all_repos if r.name == repo_name)
+
             for commit, paths in commits.items():
-                tags_files = [p for p in paths if p.name == GLEAN_TAGS_FILENAME]
-                metrics_files = [p for p in paths if p.name == GLEAN_METRICS_FILENAME]
-                pings_files = [p for p in paths if p.name == GLEAN_PINGS_FILENAME]
+                tags_files = [
+                    p
+                    for p in paths
+                    if any(str(p).endswith(fp) for fp in this_repo.tag_file_paths)
+                ]
+                metrics_files = [
+                    p
+                    for p in paths
+                    if any(str(p).endswith(fp) for fp in this_repo.metrics_file_paths)
+                ]
+                pings_files = [
+                    p
+                    for p in paths
+                    if any(str(p).endswith(fp) for fp in this_repo.ping_file_paths)
+                ]
 
                 try:
                     config = {"allow_reserved": repo_name.startswith("glean")}
