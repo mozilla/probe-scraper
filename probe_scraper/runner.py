@@ -535,7 +535,7 @@ def load_glean_metrics(
 
         if scrape_commits:
             # tags and metrics don't contain metadata from repositories.yaml,
-            # so these files are only updated when scraping commits.
+            # so these files are mostly only updated when scraping commits
             write_glean_data_by_repo(tags_by_repo, out_dir, "tags")
             write_glean_data_by_repo(metrics_by_repo, out_dir, "metrics")
 
@@ -544,8 +544,29 @@ def load_glean_metrics(
                 out_dir / "glean" / repo_name for repo_name in upload_repos
             ]
         else:
-            # only include metadata files
+            # include metadata files
             upload_paths += metadata_by_repo_paths
+            # tags and metrics don't contain metadata from repositories.yaml, but
+            # downstream tools require them to exist if they are in metadata, so
+            # write only the files which still contain their default empty values
+            upload_paths += write_glean_data_by_repo(
+                {
+                    repo_name: tags
+                    for repo_name, tags in tags_by_repo.items()
+                    if tags == {}
+                },
+                out_dir,
+                "tags",
+            )
+            upload_paths += write_glean_data_by_repo(
+                {
+                    repo_name: metrics
+                    for repo_name, metrics in metrics_by_repo.items()
+                    if metrics == {}
+                },
+                out_dir,
+                "metrics",
+            )
 
     if generate_metadata:
         repositories_data_paths = write_repositories_data(repositories, out_dir)
