@@ -57,17 +57,15 @@ libraries:
   - library_name: sync
     description: Sync telemetry helper functionality
     notification_emails:
-      - dthorn@mozilla.com
-      - android-probes@mozilla.com
-    url: https://github.com/mozilla-mobile/firefox-android
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
     metrics_files:
-      - android-components/components/support/sync-telemetry/metrics.yaml
+      - components/sync_manager/metrics.yaml
     ping_files:
-      - android-components/components/support/sync-telemetry/pings.yaml
+      - components/sync_manager/pings.yaml
     variants:
       - v1_name: sync
-        dependency_name: org.mozilla.components:support-sync-telemetry
-
+        dependency_name: org.mozilla.appservices:syncmanager
   - library_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
@@ -313,7 +311,7 @@ applications:
       - glean-core
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
-      - org.mozilla.components:support-sync-telemetry
+      - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:logins
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
@@ -479,7 +477,7 @@ applications:
     dependencies:
       - glean-core
       - org.mozilla.components:service-glean
-      - org.mozilla.components:support-sync-telemetry
+      - org.mozilla.appservices:syncmanager
     channels:
       - v1_name: firefox-reality
         app_id: org.mozilla.vrbrowser
@@ -497,7 +495,7 @@ applications:
     dependencies:
       - glean-core
       - org.mozilla.components:service-glean
-      - org.mozilla.components:support-sync-telemetry
+      - org.mozilla.appservices:syncmanager
     channels:
       - v1_name: lockwise-android
         app_id: mozilla.lockbox
