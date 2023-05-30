@@ -1197,7 +1197,6 @@ applications:
     channels:
       - v1_name: accounts-frontend
         app_id: accounts.frontend
-    skip_documentation: true
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
