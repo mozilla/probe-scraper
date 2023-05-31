@@ -857,7 +857,7 @@ applications:
         app_id: mozillavpn
         app_channel: release
         additional_dependencies:
-          - glean-js
+          - glean-core
       - v1_name: mozilla-vpn-android
         app_id: org.mozilla.firefox.vpn
         app_channel: release
