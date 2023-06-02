@@ -182,6 +182,7 @@ libraries:
       - toolkit/components/glean/metrics.yaml
       - toolkit/components/pdfjs/metrics.yaml
       - toolkit/components/processtools/metrics.yaml
+      - toolkit/mozapps/extensions/metrics.yaml
       - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
