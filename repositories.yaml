@@ -1236,3 +1236,24 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+
+  - app_name: pocket_cirrus
+    canonical_app_name: Pocket's Nimbus Cirrus Server
+    app_description: |
+      TODO
+    url: https://github.com/Pocket/TODO
+    notification_emails:
+      - todo@pocket.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - nimbus
+      - nimbus-cirrus
+    channels:
+      - v1_name: pocket-cirrus
+        app_id: pocket.cirrus
+    skip_documentation: true
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
