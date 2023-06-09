@@ -162,6 +162,22 @@ libraries:
         branch: main
         dependency_name: nimbus
 
+  - library_name: nimbus-cirrus
+    description: >
+      The Nimbus Cirrus Web server implementation,
+      uses Nimbus under the hood
+    notification_emails:
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/experimenter
+    metrics_files:
+      - cirrus/server/telemetry/metrics.yaml
+    ping_files:
+      - cirrus/server/telemetry/pings.yaml
+    variants:
+      - v1_name: nimbus-cirrus
+        branch: main
+        dependency_name: nimbus-cirrus
+
   - library_name: gecko
     description: The browser engine developed by Mozilla
     notification_emails:
