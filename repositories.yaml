@@ -239,6 +239,20 @@ applications:
       pageload:
         expiration_policy:
           delete_after_days: 120
+      top-sites:
+        expiration_policy:
+          delete_after_days: 30
+        override_attributes:
+          - name: "geo_city"
+            value: null
+        submission_timestamp_granularity: "seconds"
+      quick-suggest:
+        expiration_policy:
+          delete_after_days: 30
+        override_attributes:
+          - name: "geo_city"
+            value: null
+        submission_timestamp_granularity: "seconds"
 
   - app_name: firefox_desktop_background_update
     canonical_app_name: Firefox for Desktop Background Update Task
