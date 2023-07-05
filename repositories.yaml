@@ -854,13 +854,13 @@ applications:
     metrics_files:
       - src/shared/telemetry/metrics.yaml
       - src/shared/telemetry/metrics_deprecated.yaml
-      - src/apps/vpn/telemetry/metrics.yaml
-      - src/apps/vpn/telemetry/metrics_deprecated.yaml
+      - src/telemetry/metrics.yaml
+      - src/telemetry/metrics_deprecated.yaml
     ping_files:
       - src/shared/telemetry/pings.yaml
       - src/shared/telemetry/pings_deprecated.yaml
-      - src/apps/vpn/telemetry/pings.yaml
-    dependencies: []  # Empty. Dependencies are set per channel.
+      - src/telemetry/pings.yaml
+    dependencies: [] # Empty. Dependencies are set per channel.
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -992,8 +992,8 @@ applications:
   - app_name: glean_dictionary
     canonical_app_name: Glean Dictionary
     app_description: |
-       The Glean Dictionary documents the data collected
-       by Mozilla projects that use Glean.
+      The Glean Dictionary documents the data collected
+      by Mozilla projects that use Glean.
     url: https://github.com/mozilla/glean-dictionary
     notification_emails:
       - brizental@mozilla.com
