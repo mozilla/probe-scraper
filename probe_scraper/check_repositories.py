@@ -25,6 +25,11 @@ repos = RepositoriesParser().parse(REPOSITORIES)
 
 app_id_channels = defaultdict(lambda: defaultdict(lambda: 0))
 
+repo_by_library_name = {}
+for repo in repos:
+    for library_name in repo.library_names or []:
+        repo_by_library_name[library_name] = repo.name
+
 for repo in repos:
     metrics_files = repo.get_metrics_file_paths()
     temp_errors = []
@@ -65,6 +70,9 @@ for repo in repos:
             )
             os.remove("yaml-lint-errors.txt")
             os.remove("temp-metrics.yaml")
+    for library_name in repo.dependencies:
+        if library_name not in repo_by_library_name:
+            temp_errors.append(f"Dependency not found: {library_name}")
     if temp_errors and not repo.prototype:
         validation_errors.append({"repo": repo.name, "errors": temp_errors})
 
