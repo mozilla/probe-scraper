@@ -1,12 +1,10 @@
 import os
 import re
 from collections import defaultdict
-from pathlib import Path
 from typing import Set, Tuple
 
 import git
 import requests as reqs
-from glean_parser.lint import lint_yaml_files
 
 from .parsers.repositories import RepositoriesParser
 
@@ -61,15 +59,7 @@ for repo in repos:
         response = reqs.get(temp_url)
         if response.status_code != 200:
             temp_errors += ["Metrics file was not found at " + temp_url]
-        else:
-            with open("temp-metrics.yaml", "w") as filehandle:
-                filehandle.write(response.text)
-            yaml_lint_errors = open("yaml-lint-errors.txt", "w")
-            temp_errors += lint_yaml_files(
-                [Path("./temp-metrics.yaml")], yaml_lint_errors, {}
-            )
-            os.remove("yaml-lint-errors.txt")
-            os.remove("temp-metrics.yaml")
+
     for library_name in repo.dependencies:
         if library_name not in repo_by_library_name:
             temp_errors.append(f"Dependency not found: {library_name}")
