@@ -1223,13 +1223,14 @@ applications:
       - fxa-staff@mozilla.com
       - akomarzewski@mozilla.com
     branch: main
-    metrics_files: []
-    ping_files: []
+    metrics_files:
+      - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
+    ping_files:
+      - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
     dependencies: []
     channels:
       - v1_name: accounts-backend
         app_id: accounts.backend
-    skip_documentation: true
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
