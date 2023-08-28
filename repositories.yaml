@@ -1253,3 +1253,27 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+
+  - app_name: monitor_cirrus
+    canonical_app_name: "Firefox Monitor (Cirrus)"
+    app_description: >
+      Firefox Monitor arms you with tools
+      to keep your personal information safe.
+    url: https://github.com/mozilla/blurts-server
+    notification_emails:
+      - chumphreys@mozilla.com
+      - project-nimbus@mozilla.com
+      - jozhou@mozilla.com
+      - rhelmer@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - glean-core
+      - nimbus-cirrus
+    channels:
+      - v1_name: monitor-cirrus
+        app_id: monitor.cirrus
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
