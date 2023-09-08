@@ -871,13 +871,8 @@ applications:
       - brizental@mozilla.com
     branch: main
     metrics_files:
-      - src/shared/telemetry/metrics.yaml
-      - src/shared/telemetry/metrics_deprecated.yaml
       - src/telemetry/metrics.yaml
-      - src/telemetry/metrics_deprecated.yaml
     ping_files:
-      - src/shared/telemetry/pings.yaml
-      - src/shared/telemetry/pings_deprecated.yaml
       - src/telemetry/pings.yaml
     dependencies: [] # Empty. Dependencies are set per channel.
     moz_pipeline_metadata_defaults:
