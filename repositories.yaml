@@ -1096,8 +1096,6 @@ applications:
     branch: main
     metrics_files:
       - glean/metrics.yaml
-    ping_files:
-      - glean/pings.yaml
     dependencies:
       - glean-js
     moz_pipeline_metadata_defaults:
