@@ -1272,3 +1272,23 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+
+  - app_name: debug_ping_view
+    canonical_app_name: "Glean Debug Ping Viewer"
+    app_description: >
+      Web application for viewing Glean debug pings in real-time.
+    url: https://github.com/mozilla/debug-ping-view
+    notification_emails:
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files:
+      - src/glean/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: debug-ping-view
+        app_id: debug-ping-view
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 365
