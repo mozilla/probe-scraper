@@ -1290,3 +1290,24 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 365
+
+  - app_name: monitor_frontend
+    canonical_app_name: "Firefox Monitor (Frontend)"
+    app_description: >
+      Firefox Monitor arms you with tools
+      to keep your personal information safe.
+    url: https://github.com/mozilla/blurts-server
+    notification_emails:
+      - rhelmer@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: monitor-frontend
+        app_id: monitor.frontend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
