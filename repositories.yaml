@@ -870,6 +870,7 @@ applications:
       - vpn@mozilla.com
       - amarchesini@mozilla.com
       - brizental@mozilla.com
+      - mcleinman@mozilla.com
     branch: main
     metrics_files:
       - src/telemetry/metrics.yaml
@@ -896,6 +897,14 @@ applications:
         app_id: org.mozilla.ios.FirefoxVPN
         app_channel: release
         description: Mozilla VPN (iOS)
+        additional_dependencies:
+          - glean-core
+      - v1_name: mozilla-vpn-ios-network-ext
+        app_id: org.mozilla.ios.FirefoxVPN.network-extension
+        app_channel: release
+        description: |
+          Mozilla VPN is a VPN client application. This is for
+          the iOS network extension, which runs the VPN logic.
         additional_dependencies:
           - glean-core
 
