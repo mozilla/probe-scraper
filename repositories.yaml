@@ -226,6 +226,7 @@ applications:
       - browser/components/migration/metrics.yaml
       - browser/components/newtab/metrics.yaml
       - browser/components/preferences/metrics.yaml
+      - browser/components/privatebrowsing/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/components/shopping/metrics.yaml
       - browser/components/urlbar/metrics.yaml
@@ -869,6 +870,7 @@ applications:
       - vpn@mozilla.com
       - amarchesini@mozilla.com
       - brizental@mozilla.com
+      - mcleinman@mozilla.com
     branch: main
     metrics_files:
       - src/telemetry/metrics.yaml
@@ -895,6 +897,14 @@ applications:
         app_id: org.mozilla.ios.FirefoxVPN
         app_channel: release
         description: Mozilla VPN (iOS)
+        additional_dependencies:
+          - glean-core
+      - v1_name: mozilla-vpn-ios-network-ext
+        app_id: org.mozilla.ios.FirefoxVPN.network-extension
+        app_channel: release
+        description: |
+          Mozilla VPN is a VPN client application. This is for
+          the iOS network extension, which runs the VPN logic.
         additional_dependencies:
           - glean-core
 
@@ -1096,8 +1106,6 @@ applications:
     branch: main
     metrics_files:
       - glean/metrics.yaml
-    ping_files:
-      - glean/pings.yaml
     dependencies:
       - glean-js
     moz_pipeline_metadata_defaults:
@@ -1292,3 +1300,24 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 365
+
+  - app_name: monitor_frontend
+    canonical_app_name: "Firefox Monitor (Frontend)"
+    app_description: >
+      Firefox Monitor arms you with tools
+      to keep your personal information safe.
+    url: https://github.com/mozilla/blurts-server
+    notification_emails:
+      - rhelmer@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: monitor-frontend
+        app_id: monitor.frontend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
