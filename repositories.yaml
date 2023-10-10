@@ -1210,7 +1210,7 @@ applications:
         app_id: firefox.desktop.background.tasks
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 180
+        delete_after_days: 400
 
   - app_name: accounts_frontend
     canonical_app_name: Firefox Accounts Frontend
