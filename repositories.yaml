@@ -1020,7 +1020,7 @@ applications:
       by Mozilla projects that use Glean.
     url: https://github.com/mozilla/glean-dictionary
     notification_emails:
-      - brizental@mozilla.com
+      - aplacitelli@mozilla.com
       - glean-team@mozilla.com
     branch: main
     metrics_files:
@@ -1031,7 +1031,7 @@ applications:
       - glean-js
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 180
+        delete_after_days: 400
     channels:
       - v1_name: glean-dictionary
         app_id: glean-dictionary
@@ -1299,7 +1299,7 @@ applications:
         app_id: debug-ping-view
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 365
+        delete_after_days: 400
 
   - app_name: monitor_frontend
     canonical_app_name: "Firefox Monitor (Frontend)"
