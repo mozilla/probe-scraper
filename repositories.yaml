@@ -300,6 +300,29 @@ applications:
       - v1_name: firefox-desktop-background-update
         app_id: firefox.desktop.background.update
 
+  - app_name: firefox_desktop_background_defaultagent
+    canonical_app_name: Firefox Desktop Default Agent Task
+    app_description: >-
+      The Firefox Default Agent background task is a scheduled
+      task which monitors system defaults and provides
+      interventions to revert changes in response to known
+      deceptive patterns.
+    url: https://github.com/mozilla/gecko-dev
+    notification_emails:
+      - nrishel@mozilla.com
+      - install-update@mozilla.com
+    metrics_files:
+      - toolkit/mozapps/defaultagent/metrics.yaml
+    ping_files:
+      - toolkit/mozapps/defaultagent/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
+    dependencies:
+      - glean-core
+    channels:
+      - v1_name: firefox-desktop-background-defaultagent
+        app_id: firefox.desktop.background.defaultagent
+
   - app_name: pine
     canonical_app_name: Pinebuild
     app_description: >-
