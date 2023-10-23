@@ -21,6 +21,20 @@ An [OpenAPI reference](https://mozilla.github.io/probe-scraper/) to this API is 
 A web tool to explore the Firefox-related data is available at [probes.telemetry.mozilla.org](https://probes.telemetry.mozilla.org/). A project to develop a similar view for Glean-based data
 is under development in the [Glean Dictionary](https://github.com/mozilla/glean-dictionary).
 
+## Deprecation
+
+Deprecation is an important step in an application lifecycle. Because of the backwards-compatible nature of our pipeline, we do not
+remove Glean apps or variants from the `repositories.yaml` file - instead, we mark them as deprecated.
+
+### Marking an App Variant as deprecated
+
+When an app variant is marked as deprecated (see this [example from Fenix](https://github.com/mozilla/probe-scraper/blob/213055f967b4903933667002ec376cd69cdf5a77/repositories.yaml#L415-L431)), the following happens:
+- It shows as `[Deprecated]` in the Glean Dictionary, in the `Access` section (see e.g. [Fenix's client_id metric](https://dictionary.telemetry.mozilla.org/apps/fenix/metrics/client_id)).
+
+### Marking an App as deprecated
+
+When an app is marked as deprecated (see this [example of Firefox for Fire TV](https://github.com/mozilla/probe-scraper/blob/213055f967b4903933667002ec376cd69cdf5a77/repositories.yaml#L501-L504)), the following happens:
+- It no longer shows by default in the Glean Dictionary. (Deprecated apps can be viewed by clicking the `Show deprecated applications` checkbox)
 
 ## Adding a New Glean Repository
 
