@@ -164,6 +164,8 @@ def main(argv, repo, author, debug=False, dry_run=False):
     firefox_desktop_pings = sorted(data["firefox_desktop_pings"])
     background_update_metrics = sorted(data["background_update_metrics"])
     background_update_pings = sorted(data["background_update_pings"])
+    background_tasks_metrics = sorted(data["background_tasks_metrics"])
+    background_tasks_pings = sorted(data["background_tasks_pings"])
 
     data = [
         # Name, metrics/pings, library?, files
@@ -173,6 +175,8 @@ def main(argv, repo, author, debug=False, dry_run=False):
         ["firefox_desktop", "pings", False, firefox_desktop_pings],
         ["firefox_desktop_background_update", "metrics", False, background_update_metrics],
         ["firefox_desktop_background_update", "pings", False, background_update_pings],
+        ["firefox_desktop_background_tasks", "metrics", False, background_tasks_metrics],
+        ["firefox_desktop_background_tasks", "pings", False, background_tasks_pings],
     ]
 
     print(f"{ts()} Updating repositories.yaml")
