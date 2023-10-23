@@ -353,6 +353,7 @@ applications:
       - v1_name: pine
         app_id: pine
     skip_documentation: true
+    deprecated: true
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
@@ -592,6 +593,9 @@ applications:
   - app_name: burnham
     canonical_app_name: Burnham
     app_description: Automated end-to-end testing for Mozilla's Glean telemetry
+    # See
+    # https://github.com/mozilla/burnham/commit/6501fbfbb3612e63425bbf69aad11b0e67362b66
+    deprecated: true
     notification_emails:
       - rpierzina@mozilla.com
     url: https://github.com/mozilla/burnham
@@ -830,6 +834,9 @@ applications:
   - app_name: rally_debug
     canonical_app_name: Rally Core Add-on Debug Ingestion
     app_description: Rally Core Add-on debug ingestion
+    # See
+    # https://github.com/mozilla-rally/rally-core-addon/commit/1e2996f8488d4cb1027bc62ff57ad1843caa5f59
+    deprecated: true
     prototype: true
     url: https://github.com/mozilla-rally/rally-core-addon
     notification_emails:
@@ -860,6 +867,9 @@ applications:
       The Rally Core Add-on and Web Platform orchestrates the
       installation and the lifecycle of [Rally](https://rally.mozilla.org/)
       studies.
+    # See
+    # https://github.com/mozilla-rally/rally/commit/7e4f04536d849c39d15becb283f0b5013a0d928b
+    deprecated: true
     url: https://github.com/mozilla-rally/rally
     notification_emails:
       - than@mozilla.com
@@ -899,7 +909,7 @@ applications:
       - src/telemetry/metrics.yaml
     ping_files:
       - src/telemetry/pings.yaml
-    dependencies: [] # Empty. Dependencies are set per channel.
+    dependencies: []  # Empty. Dependencies are set per channel.
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
@@ -938,6 +948,7 @@ applications:
       use and how long they use them, for the Rally
       platform. It is implemented as a cross-browser
       WebExtension.
+    deprecated: true
     url: https://github.com/mozilla-rally/rally-study-01
     notification_emails:
       - than@mozilla.com
@@ -965,6 +976,7 @@ applications:
     app_description: |
       This application collects search terms and results to build a data set
       for a Data Org Hack Week.
+    deprecated: true
     url: https://github.com/mozilla/mlhackweek2021
     notification_emails:
       - gleonard@mozilla.com
@@ -1014,6 +1026,7 @@ applications:
       the web. The Markup will use the data collected in this study
       to create investigative journalism around the kinds of information
       Facebook collects about you, and where.
+    deprecated: true
     url: https://github.com/mozilla-rally/facebook-pixel-hunt
     notification_emails:
       - than@mozilla.com
@@ -1096,6 +1109,7 @@ applications:
       engines. Understanding the search engine marketplace will inform
       competition policy, promoting a diverse digital ecosystem that
       benefits users.
+    deprecated: true
     url: https://github.com/mozilla-rally/search-engine-usage-study
     notification_emails:
       - than@mozilla.com
@@ -1143,6 +1157,7 @@ applications:
     app_description: |
       The Attention Stream is an ongoing, cross-browser data collection
       to understand the state of the internet in 2022 and beyond.
+    deprecated: true
     url: https://github.com/mozilla-rally/rally
     notification_emails:
       - than@mozilla.com
