@@ -1236,9 +1236,14 @@ applications:
       - vgosu@mozilla.com
     branch: master
     metrics_files:
+      - browser/components/metrics.yaml
       - toolkit/components/backgroundtasks/metrics.yaml
+      - toolkit/components/crashes/metrics.yaml
+      - toolkit/mozapps/defaultagent/metrics.yaml
     ping_files:
       - toolkit/components/backgroundtasks/pings.yaml
+      - toolkit/components/crashes/pings.yaml
+      - toolkit/mozapps/defaultagent/pings.yaml
     dependencies:
       - glean-core
     channels:
