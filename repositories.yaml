@@ -416,7 +416,6 @@ applications:
       - v1_name: fenix-nightly
         app_id: org.mozilla.fenix.nightly
         app_channel: nightly
-        deprecated: true
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-nightly
         description: >-
@@ -424,7 +423,6 @@ applications:
       - v1_name: firefox-android-nightly
         app_id: org.mozilla.fennec.aurora
         app_channel: nightly
-        deprecated: true
         additional_dependencies:
           - org.mozilla.components:browser-engine-gecko-beta
         description: >-
