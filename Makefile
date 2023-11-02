@@ -48,11 +48,13 @@ check-repos:
 test: build
 	docker-compose run app pytest tests/ --run-web-tests
 
-# For this test, we scrape glean-deprecated so we can also test the dependency resolution logic
-# (burnham depends on glean-deprecated) which we use to validate against duplicate metrics
-# and failed in mozilla/probe-scraper#283
+# For this test, we scrape glean-core and burnham.
+# Even though burnham is deprecated, it should still be valid to be scraped
+# See also mozilla/probe-scraper#283.
+# We set a limit date due to more strict parsing.
+# glean-core's metrics.yaml prior to 2023-10-20 cannot be parsed with a modern glean-parser.
 burnham-dryrun:
-	docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --dry-run
+	docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --glean-limit-date 2023-10-20 --dry-run
 
 build:
 	docker-compose build
