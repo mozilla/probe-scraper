@@ -391,6 +391,7 @@ applications:
       - org.mozilla.components:lib-crash
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:logins
+      - org.mozilla.components:support-migration
       - org.mozilla.components:places
       - org.mozilla.appservices:fxaclient
       - nimbus
