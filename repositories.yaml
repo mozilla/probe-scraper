@@ -1381,3 +1381,23 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+
+  - app_name: moso_mastodon_backend
+    canonical_app_name: Mozilla.Social Mastodon Backend
+    app_description: |
+      Mastodon instance for Mozilla.Social
+    url: https://github.com/MozillaSocial/mastodon
+    notification_emails:
+      - breyes@mozilla.com
+    branch: main
+    metrics_files:
+      - .glean/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-core
+    channels:
+      - v1_name: moso-mastodon-backend
+        app_id: moso.mastodon.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
