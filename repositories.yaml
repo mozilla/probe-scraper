@@ -1393,8 +1393,7 @@ applications:
     metrics_files:
       - .glean/metrics.yaml
     ping_files: []
-    dependencies:
-      - glean-core
+    dependencies: []
     channels:
       - v1_name: moso-mastodon-backend
         app_id: moso.mastodon.backend
