@@ -799,6 +799,11 @@ components:
       properties:
         expiration_policy:
           $ref: "#/components/schemas/ExpirationPolicy"
+        geoip_skip_entries:
+          type: integer
+          description: |
+            If specified, pipeline will skip a number of IP address entries from X-Forwarded-For header before GeoIP
+            decoding. Intended for use with proxies that add their own IP addresses to the header.
         jwe_mappings:
           $ref: "#/components/schemas/JweMappings"
         override_attributes:
@@ -829,6 +834,11 @@ components:
         properties:
           expiration_policy:
             $ref: "#/components/schemas/ExpirationPolicy"
+          geoip_skip_entries:
+            type: integer
+            description: |
+              If specified, pipeline will skip a number of IP address entries from X-Forwarded-For header before GeoIP
+              decoding. Intended for use with proxies that add their own IP addresses to the header.
           jwe_mappings:
             $ref: "#/components/schemas/JweMappings"
           override_attributes:
