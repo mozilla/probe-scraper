@@ -111,6 +111,9 @@ SKIP_COMMITS = {
     "viu-politica": [
         "e41967f92f40dd36729939cf67bcf680352ec1a4",  # Removed all data collection
     ],
+    "moso-mastodon-backend": [
+        "cd5c69456d88b7023366fd50806855086a039dba",  # No .glean/metrics.yaml
+    ],
 }
 
 
