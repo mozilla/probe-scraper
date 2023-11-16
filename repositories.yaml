@@ -217,6 +217,7 @@ libraries:
       - toolkit/components/resistfingerprinting/metrics.yaml
       - toolkit/components/translations/metrics.yaml
       - toolkit/mozapps/extensions/metrics.yaml
+      - toolkit/mozapps/handling/metrics.yaml
       - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
@@ -242,6 +243,7 @@ applications:
       - browser/components/pocket/metrics.yaml
       - browser/components/preferences/metrics.yaml
       - browser/components/privatebrowsing/metrics.yaml
+      - browser/components/protocolhandler/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/components/shopping/metrics.yaml
       - browser/components/urlbar/metrics.yaml
