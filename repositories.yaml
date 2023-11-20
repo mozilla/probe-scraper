@@ -713,7 +713,7 @@ applications:
       - tlong@mozilla.com
     branch: main
     metrics_files:
-      - Blockzilla/metrics.yaml
+      - focus-ios/Blockzilla/metrics.yaml
     dependencies:
       - glean-core
       - nimbus
@@ -733,7 +733,7 @@ applications:
       - tlong@mozilla.com
     branch: main
     metrics_files:
-      - Blockzilla/metrics.yaml
+      - focus-ios/Blockzilla/metrics.yaml
     dependencies:
       - glean-core
       - nimbus
