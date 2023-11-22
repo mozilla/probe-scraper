@@ -1407,3 +1407,23 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: moso_mastodon_web
+    canonical_app_name: Mozilla Social Web App
+    app_description: Web client for Mozilla Social
+    url: https://github.com/MozillaSocial/elk
+    notification_emails:
+      - kdemtchouk@mozilla.com
+      - klong@mozilla.com
+    branch: main
+    metrics_files:
+      - telemetry/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: moso-mastodon-web
+        app_id: moso-mastodon-web
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 1110 # 37 months
