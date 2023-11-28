@@ -429,6 +429,23 @@ def test_check_for_expired_metrics(
                         "app_channel": "release",
                     }
                 ],
+            },
+            {
+                "app_name": "expired_metrics_example_deprecated",
+                "canonical_app_name": "Expired Metrics Example Deprecated",
+                "deprecated": True,
+                "app_description": "foo",
+                "deprecated": True,
+                "url": str(expired_repo),
+                "notification_emails": ["repo_alice@example.com"],
+                "metrics_files": ["metrics.yaml"],
+                "channels": [
+                    {
+                        "v1_name": expired_repo_name + "-deprecated",
+                        "app_id": "expired-app-name-deprecated",
+                        "app_channel": "release",
+                    }
+                ],
             }
         ],
     }
@@ -459,6 +476,10 @@ def test_check_for_expired_metrics(
 
     # should send 1 email
     assert len(emails) == 1
+
+    # should send it for expired, but not the deprecated one
+    assert "Glean: Expired metrics in expired" == emails[0]['to']
+    assert "Glean: Expired metrics in expired-deprecated" != emails[0]['to']
 
     assert "example.duration on 2019-01-01" in emails[0]["body"]
 
