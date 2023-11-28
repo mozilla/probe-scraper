@@ -36,7 +36,7 @@ def send_ses(
         recipients = ",".join(recipients)
 
     email_data = [
-        {"from": fromaddr, "to": subject, "body": body, "recipients": recipients}
+        {"from": fromaddr, "to": recipients, "subject": subject, "body": body}
     ]
 
     if email_file is None:

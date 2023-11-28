@@ -390,7 +390,7 @@ def test_check_for_duplicate_metrics(
     assert "'example.duration' defined more than once" in emails[0]["body"]
     assert "example.os" not in emails[0]["body"]
 
-    assert set(emails[0]["recipients"].split(",")) == {
+    assert set(emails[0]["to"].split(",")) == {
         # Metrics owners
         "alice@example.com",
         "bob@example.com",
@@ -446,7 +446,7 @@ def test_check_for_expired_metrics(
                         "app_channel": "release",
                     }
                 ],
-            }
+            },
         ],
     }
 
@@ -478,12 +478,12 @@ def test_check_for_expired_metrics(
     assert len(emails) == 1
 
     # should send it for expired, but not the deprecated one
-    assert "Glean: Expired metrics in expired" == emails[0]['to']
-    assert "Glean: Expired metrics in expired-deprecated" != emails[0]['to']
+    assert "Glean: Expired metrics in expired" == emails[0]["subject"]
+    assert "Glean: Expired metrics in expired-deprecated" != emails[0]["subject"]
 
     assert "example.duration on 2019-01-01" in emails[0]["body"]
 
-    assert set(emails[0]["recipients"].split(",")) == {
+    assert set(emails[0]["to"].split(",")) == {
         # Metrics owners
         "bob@example.com",
         # Repo owners
