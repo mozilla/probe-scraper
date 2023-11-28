@@ -229,6 +229,10 @@ def check_for_expired_metrics(
 
         addresses = set(repo.notification_emails)
 
+        # Do not send expiry for deprecated repositories
+        if repo.deprecated:
+            continue
+
         target_version = None
         if repo.name == "fenix":
             try:
