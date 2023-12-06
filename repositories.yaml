@@ -973,9 +973,9 @@ applications:
       - brizental@mozilla.com
     branch: master
     metrics_files:
-      - experimenter/cirrus/server/telemetry/metrics.yaml
+      - cirrus/server/telemetry/metrics.yaml
     ping_files:
-      - experimenter/cirrus/server/telemetry/pings.yaml
+      - cirrus/server/telemetry/pings.yaml
     dependencies:
       - glean-core
     moz_pipeline_metadata_defaults:
