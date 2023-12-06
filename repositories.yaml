@@ -982,7 +982,7 @@ applications:
       expiration_policy:
         delete_after_days: 180
     channels:
-      - v1_name: mozillavpn_cirrus
+      - v1_name: mozillavpn-cirrus
         app_id: mozillavpn_cirrus
 
   - app_name: rally_study_zero_one
