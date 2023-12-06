@@ -965,7 +965,7 @@ applications:
           - glean-core
 
   - app_name: mozillavpn_cirrus
-    canonical_app_name: Mozilla VPN Cirrus Sidecar (?)
+    canonical_app_name: Mozilla VPN Cirrus Sidecar
     app_description: |
       The sidecar Cirrus container for the Mozilla VPN server
     url: https://github.com/mozilla/experimenter
