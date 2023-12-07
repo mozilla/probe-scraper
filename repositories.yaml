@@ -971,7 +971,7 @@ applications:
     url: https://github.com/mozilla/experimenter
     notification_emails:
       - brizental@mozilla.com
-    branch: master
+    branch: main
     metrics_files:
       - cirrus/server/telemetry/metrics.yaml
     ping_files:
