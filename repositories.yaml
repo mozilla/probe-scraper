@@ -834,6 +834,7 @@ applications:
   - app_name: firefox_translations
     canonical_app_name: Firefox Translations
     app_description: Web extension for on-device machine translation
+    deprecated: true
     url: https://github.com/mozilla/firefox-translations
     notification_emails:
       - epavlov@mozilla.com
