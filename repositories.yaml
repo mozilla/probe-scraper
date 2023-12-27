@@ -1414,9 +1414,9 @@ applications:
         delete_after_days: 760
 
   - app_name: moso_mastodon_backend
-    canonical_app_name: Mozilla.Social Mastodon Backend
+    canonical_app_name: Mozilla Social Mastodon Backend
     app_description: |
-      Mastodon instance for Mozilla.Social
+      Mastodon instance for Mozilla Social
     url: https://github.com/MozillaSocial/mastodon
     notification_emails:
       - breyes@mozilla.com
@@ -1430,7 +1430,7 @@ applications:
         app_id: moso.mastodon.backend
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 400
+        delete_after_days: 1110 # 37 months
 
   - app_name: moso_mastodon_web
     canonical_app_name: Mozilla Social Web App
