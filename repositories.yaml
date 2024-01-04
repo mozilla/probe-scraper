@@ -965,7 +965,7 @@ applications:
         additional_dependencies:
           - glean-core
 
-  - app_name: mozillavpn_cirrus
+  - app_name: mozillavpn_backend_cirrus
     canonical_app_name: Mozilla VPN Cirrus Sidecar
     app_description: |
       The sidecar Cirrus container for the Mozilla VPN server
@@ -983,8 +983,8 @@ applications:
       expiration_policy:
         delete_after_days: 180
     channels:
-      - v1_name: mozillavpn-cirrus
-        app_id: mozillavpn_cirrus
+      - v1_name: mozillavpn-backend-cirrus
+        app_id: mozillavpn_backend_cirrus
 
   - app_name: rally_study_zero_one
     canonical_app_name: Rally Study-01
