@@ -114,6 +114,9 @@ SKIP_COMMITS = {
     "moso-mastodon-backend": [
         "cd5c69456d88b7023366fd50806855086a039dba",  # No .glean/metrics.yaml
     ],
+    "tiktokreporter-android": [
+        "96bf78fbde4dc1eddd8fc7de175d6c58fe82e23e",  # Improperly named metric
+    ],
 }
 
 

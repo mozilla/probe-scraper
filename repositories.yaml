@@ -1430,7 +1430,7 @@ applications:
         app_id: moso.mastodon.backend
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1110 # 37 months
+        delete_after_days: 1110  # 37 months
 
   - app_name: moso_mastodon_web
     canonical_app_name: Mozilla Social Web App
@@ -1450,4 +1450,48 @@ applications:
         app_id: moso-mastodon-web
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1110 # 37 months
+        delete_after_days: 1110  # 37 months
+
+  - app_name: tiktokreporter_ios
+    canonical_app_name: TikTok Reporter (iOS)
+    app_description: |
+      An app for iOS to enable Mozilla Foundation research into TikTok
+    url: https://github.com/MozillaFoundation/tiktok-reporter-app-ios
+    notification_emails:
+      - jessed@mozillafoundation.org
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - "TikTok Reporter/metrics.yaml"
+    ping_files:
+      - "TikTok Reporter/pings.yaml"
+    dependencies:
+      - glean-core
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    channels:
+      - v1_name: tiktokreporter-ios
+        app_id: org.mozilla.ios.TikTok-Reporter
+
+  - app_name: tiktokreporter_android
+    canonical_app_name: TikTok Reporter (Android)
+    app_description: |
+      An app for Android to enable Mozilla Foundation research into TikTok
+    url: https://github.com/MozillaFoundation/tiktok-reporter-app-android
+    notification_emails:
+      - jessed@mozillafoundation.org
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - "app/metrics.yaml"
+    ping_files:
+      - "app/pings.yaml"
+    dependencies:
+      - glean-core
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    channels:
+      - v1_name: tiktokreporter-android
+        app_id: org.mozilla.tiktokreporter
