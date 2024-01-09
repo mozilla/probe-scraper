@@ -70,6 +70,16 @@ SKIP_COMMITS = {
         "0e55b6d34c8fac3144f10f9aa450e33e4b55d520",  # Missing ipc/ipdl/metrics.yaml
         "0b1543e85d13c30a13c57e959ce9815a3f0fa1d3",  # Missing ipc/ipdl/metrics.yaml
         "9bc20993bc6960762ed281201e9cff437a88ca6c",  # Missing ipc/ipdl/metrics.yaml
+        "3f6ba0d4adbdf9d3e81b7047ff4c21384abbd234",  # Missing dom/base/use_counter_metrics.yaml
+        "1a7724cfd6b3cce2c599e323afb14f31430e5acd",  # Missing dom/base/use_counter_metrics.yaml
+        "b16c6e1f04e563c916fb43b62661fdc0d354a925",  # Missing security/manager/ssl/metrics.yaml
+        "02731904bba2c2f4e1c043e45a492bb21b33a930",  # Missing security/manager/ssl/metrics.yaml
+        # Missing toolkit/components/reportbrokensite/metrics.yaml
+        "42acdc9cd5ae89222bdceeeaed7bacac755be48f",
+        # Missing toolkit/components/reportbrokensite/metrics.yaml
+        "c76093316c58ae74a21e854b8035c91d0c75df6e",
+        # Missing toolkit/components/translations/metrics.yaml
+        "b80d1b362960cef8ee389ed54cdc41702ca832d9",
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
