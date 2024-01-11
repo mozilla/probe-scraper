@@ -260,6 +260,7 @@ applications:
       - toolkit/modules/metrics.yaml
       - toolkit/xre/metrics.yaml
       - widget/cocoa/metrics.yaml
+      - widget/windows/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
       - browser/components/pocket/pings.yaml
