@@ -367,6 +367,10 @@ def update_or_add_item(
             new_defn = make_item_defn(definition, commit)
             repo_items[item][HISTORY_KEY] = prev_defns + [new_defn]
 
+        # In rare cases the type can change.
+        # We always pick the latest one.
+        repo_items[item]["type"] = definition["type"]
+
     # We haven't seen this item before, add it
     else:
         defn = make_item_defn(definition, commit)
