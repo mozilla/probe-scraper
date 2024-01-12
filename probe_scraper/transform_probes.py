@@ -369,8 +369,8 @@ def update_or_add_item(
 
         # In rare cases the type can change.
         # We always pick the latest one.
-        repo_items[item]["type"] = definition["type"]
-
+        if TYPE_KEY in definition:
+            repo_items[item][TYPE_KEY] = definition[TYPE_KEY]
     # We haven't seen this item before, add it
     else:
         defn = make_item_defn(definition, commit)
