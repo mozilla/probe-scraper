@@ -138,7 +138,11 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
                     metric_sources.setdefault(metric_name, []).append(dependency)
 
         duplicate_sources = dict(
-            (k, v) for (k, v) in metric_sources.items() if len(v) > 1
+            # Exempt cases when one of the sources is Geckoview Streaming to
+            # avoid false positive duplication accross app channels.
+            (k, v)
+            for (k, v) in metric_sources.items()
+            if len(v) > 1 and "engine-gecko" not in v
         )
 
         if not len(duplicate_sources):
