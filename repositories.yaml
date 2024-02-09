@@ -1467,8 +1467,9 @@ applications:
     dependencies:
       - glean-core
     channels:
-      - v1_name: moso-mastodon-android # TODO: confirm this
-        app_id: moso-mastodon-android # TODO: confirm this
+      - v1_name: moso-mastodon-android-nightly
+        app_id: org.mozilla.social.nightly
+        app_channel: nightly
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1110  # 37 months
