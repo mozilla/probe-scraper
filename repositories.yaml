@@ -1453,6 +1453,26 @@ applications:
       expiration_policy:
         delete_after_days: 1110  # 37 months
 
+  - app_name: moso_mastodon_android
+    canonical_app_name: Mozilla Social Android App
+    app_description: Android client for Mozilla Social
+    url: https://github.com/MozillaSocial/mozilla-social-android
+    notification_emails:
+      - kdemtchouk@mozilla.com
+      - klong@mozilla.com
+    branch: main
+    metrics_files:
+      - core/analytics/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-core
+    channels:
+      - v1_name: moso-mastodon-android # TODO: confirm this
+        app_id: moso-mastodon-android # TODO: confirm this
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 1110  # 37 months
+
   - app_name: tiktokreporter_ios
     canonical_app_name: TikTok Reporter (iOS)
     app_description: |
