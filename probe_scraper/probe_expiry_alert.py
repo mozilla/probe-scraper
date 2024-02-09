@@ -128,14 +128,14 @@ def find_existing_bugs(
 
     probes_with_bugs = {}
     for bug in found_bugs:
-        if (
-            re.search(r"release: \[?version (\d+)", bug["description"]).group(1)
-            != version
-        ):
+        version_re = re.search(r"release: \[?version (\d+)", bug["description"])
+        probes_re = re.search(r"```(.*)```", bug["description"], re.DOTALL)
+
+        # if version or a list of probes is not found in the description then the bug is skipped
+        if version_re is None or probes_re is None or version_re.group(1) != version:
             continue
-        probes_in_bug = (
-            re.search(r"```(.*)```", bug["description"], re.DOTALL).group(1).split()
-        )
+
+        probes_in_bug = probes_re.group(1).split()
         for probe_name in probes_in_bug:
             probes_with_bugs[probe_name] = bug["id"]
 
