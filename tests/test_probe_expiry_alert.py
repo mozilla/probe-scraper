@@ -362,7 +362,7 @@ def test_create_bug_try_on_requestee_inactive(mock_post):
 def test_bug_description_parser(mock_get):
     """
     Checking if current expiring probes have already had bugs filed uses regex on the bug
-    description.  So if the bug description changes such that the regex fails, this test
+    description.  So if the bug description template changes such that the regex fails, this test
     should fail.
     """
     search_results = {
@@ -399,6 +399,44 @@ def test_bug_description_parser(mock_get):
     )
 
     assert probes_with_bugs == {"p1": 1, "p2": 1, "p5": 3, "p6": 3}
+
+
+@mock.patch("requests.get")
+def test_bug_description_invalid(mock_get):
+    """
+    If a bug has the probe expiry whiteboard tag but the Firefox version or
+    probes can't be parsed, it should be ignored.
+    """
+    search_results = {
+        "bugs": [
+            {
+                "summary": "",
+                "id": 1,
+                "description": "release: ver 123",
+            },
+            {
+                "summary": "",
+                "id": 2,
+                "description": "```\nprobe\n```",
+            },
+            {
+                "summary": "",
+                "id": 3,
+                "description": probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE.format(
+                    version="76", probes="\np5 p6\n", notes=""
+                ),
+            },
+        ]
+    }
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value=search_results)
+    mock_get.return_value = mock_response
+
+    probes_with_bugs = probe_expiry_alert.find_existing_bugs(
+        "76", "", probe_expiry_alert.BUG_WHITEBOARD_TAG
+    )
+
+    assert probes_with_bugs == {"p5": 3, "p6": 3}
 
 
 def test_get_longest_prefix():
