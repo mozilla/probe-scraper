@@ -74,8 +74,7 @@ libraries:
       - android-components-team@mozilla.com
       - geckoview-team@mozilla.com
     url: https://github.com/mozilla/gecko-dev
-    metrics_files:
-      - toolkit/components/telemetry/geckoview/streaming/metrics.yaml
+    metrics_files: []
     variants:
       - v1_name: engine-gecko
         branch: release
