@@ -16,6 +16,14 @@ from probe_scraper import probe_expiry_alert
 
 from .scrapers.git_scraper import Commit
 
+# Ugly hack to skip certain metrics which we know aren't duplicated,
+# but show up duplicated due to them being moved from one
+# to the other application/library.
+SKIP_METRICS = {
+    "gecko.version": ["gecko", "pine", "firefox-desktop"],
+    "gecko.build_id": ["gecko", "pine", "firefox-desktop"],
+}
+
 
 def _metric_sort_key(metric: Dict[str, Any]):
     return (
@@ -142,6 +150,12 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
             # Exempt cases when one of the sources is Geckoview Streaming to
             # avoid false positive duplication accross app channels.
             v = [dep for dep in v if "engine-gecko" not in dep]
+
+            if k in SKIP_METRICS.keys():
+                potential_deps = SKIP_METRICS[k]
+                if any([dep for dep in potential_deps if dep in v]):
+                    continue
+
             if len(v) > 1:
                 duplicate_sources[k] = v
 
