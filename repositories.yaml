@@ -1462,6 +1462,7 @@ applications:
   - app_name: moso_mastodon_android
     canonical_app_name: Mozilla Social Android App
     app_description: Android client for Mozilla Social
+    deprecated: true
     url: https://github.com/MozillaSocial/mozilla-social-android
     notification_emails:
       - kdemtchouk@mozilla.com
