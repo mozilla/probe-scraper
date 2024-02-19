@@ -366,7 +366,6 @@ applications:
       - browser/modules/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
-      - toolkit/xre/metrics.yaml
     ping_files:
       - browser/components/newtab/pings.yaml
       - toolkit/components/telemetry/pings.yaml
