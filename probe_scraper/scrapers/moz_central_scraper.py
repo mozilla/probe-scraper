@@ -118,7 +118,7 @@ def download_files(channel, node, temp_dir, error_cache, version, tree=None):
         results[ptype].append(disk_path)
 
     all_files = [(k, x) for k, l in list(REGISTRY_FILES.items()) for x in l]
-    for (ptype, rel_path) in all_files:
+    for ptype, rel_path in all_files:
         disk_path = os.path.join(node_path, rel_path)
         if os.path.exists(disk_path):
             add_result(ptype, disk_path)

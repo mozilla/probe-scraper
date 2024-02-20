@@ -141,12 +141,12 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
                     for metric in metrics_by_repo[dependency].values()
                 ]
             )
-            for (metric_name, metric) in metrics_by_repo[dependency].items():
+            for metric_name, metric in metrics_by_repo[dependency].items():
                 if metric["history"][-1]["dates"]["last"] == last_timestamp:
                     metric_sources.setdefault(metric_name, []).append(dependency)
 
         duplicate_sources = {}
-        for (k, v) in metric_sources.items():
+        for k, v in metric_sources.items():
             # Exempt cases when one of the sources is Geckoview Streaming to
             # avoid false positive duplication accross app channels.
             v = [dep for dep in v if "engine-gecko" not in dep]

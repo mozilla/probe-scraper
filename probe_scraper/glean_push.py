@@ -1,4 +1,5 @@
 """Google Cloud Function for scraping glean probes from a single commit."""
+
 import argparse
 import json
 import os
