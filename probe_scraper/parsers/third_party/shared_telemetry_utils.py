@@ -123,7 +123,7 @@ class StringTable:
             return ", ".join(map(toCChar, string))
 
         f.write("const char %s[] = {\n" % name)
-        for (string, offset) in entries:
+        for string, offset in entries:
             if "*/" in string:
                 raise ValueError(
                     "String in string table contains unexpected sequence '*/': %s"

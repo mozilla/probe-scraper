@@ -672,7 +672,7 @@ def from_files(filenames):
         if not isinstance(histograms, OrderedDict):
             raise BaseException("histogram parser didn't provide an OrderedDict")
 
-        for (name, definition) in histograms.items():
+        for name, definition in histograms.items():
             if name in all_histograms:
                 raise DefinitionException("duplicate histogram name %s" % name)
             all_histograms[name] = definition
@@ -699,5 +699,5 @@ def from_files(filenames):
             msg = "The following entries are orphaned and should be removed from histogram-whitelists.json: %s"
             raise BaseException(msg % (", ".join(sorted(orphaned))))
 
-    for (name, definition) in all_histograms.items():
+    for name, definition in all_histograms.items():
         yield Histogram(name, definition, strict_type_checks=False)

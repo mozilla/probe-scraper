@@ -49,7 +49,8 @@ class TypeChecker:
         - atomic values, e.g.: TypeChecker(int)
         - list values, e.g.: TypeChecker(list, basestring)
         - dict values, e.g.: TypeChecker(dict, basestring, int)
-        - atomic values that can have different types, e.g.: TypeChecker(OneOf, int, date)"""
+        - atomic values that can have different types, e.g.: TypeChecker(OneOf, int, date)
+        """
         self._kind = kind
         self._args = args
 
