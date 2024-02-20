@@ -37,7 +37,7 @@ format:
 	python3 -m isort --profile black probe_scraper tests ./*.py
 
 lint: build
-	docker-compose run app flake8 --max-line-length 100 .
+	docker-compose run app flake8 .
 	docker-compose run app yamllint repositories.yaml .circleci
 	docker-compose run app python -m black --check probe_scraper tests ./*.py
 	docker-compose run app python -m isort --profile black --check-only probe_scraper tests ./*.py
