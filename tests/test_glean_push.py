@@ -126,4 +126,4 @@ def test_missing_metrics_file(test_dir: Path, repositories_file: Path):
     with pushd(repositories_file.parent):
         response = glean_push.main(request)
     assert response.status_code == 200
-    assert response.data.decode() == f"update is valid, but not published\n"
+    assert response.data.decode() == "update is valid, but not published\n"
