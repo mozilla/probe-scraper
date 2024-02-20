@@ -291,8 +291,8 @@ def tags_equal(def1, def2):
 def metrics_equal(def1, def2):
     return all(
         (
-            def1.get(l) == def2.get(l)
-            for l in {
+            def1.get(label) == def2.get(label)
+            for label in {
                 "bugs",
                 "data_reviews",
                 "data_sensitivity",
@@ -319,7 +319,7 @@ def ping_equal(def1, def2):
     ignored_keys = {DATES_KEY, COMMITS_KEY, HISTORY_KEY, REFLOG_KEY, SOURCE_URL_KEY}
     all_keys = set(def1.keys()).union(def2.keys()).difference(ignored_keys)
 
-    return all((def1.get(l) == def2.get(l) for l in all_keys))
+    return all((def1.get(label) == def2.get(label) for label in all_keys))
 
 
 def tag_constructor(defn, tag):
