@@ -2,4 +2,4 @@
 # See http://pep8.readthedocs.io/en/latest/intro.html#configuration
 max-line-length = 100
 filename = *.py, +.lint
-exclude = probe_scraper/parsers/third_party/* .venv
+exclude = probe_scraper/parsers/third_party/* venv
