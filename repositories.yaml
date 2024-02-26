@@ -1501,6 +1501,16 @@ applications:
     channels:
       - v1_name: tiktokreporter-ios
         app_id: org.mozilla.ios.TikTok-Reporter
+        app_channel: release
+        description: |
+          This is the base iOS TikTok reporter application
+      - v1_name: tiktokreporter-ios-share-extension
+        app_id: org.mozilla.ios.TikTok-Reporter.TikTok-ReporterShare
+        app_channel: release
+        description: |
+          This is the share extension that works with the base iOS
+          TikTok reporter. Due to how Apple sets bundle identifiers,
+          this ends up having a different identifier.
 
   - app_name: tiktokreporter_android
     canonical_app_name: TikTok Reporter (Android)
