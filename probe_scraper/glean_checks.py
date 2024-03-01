@@ -49,6 +49,33 @@ def get_current_metrics_by_repo(
     }
 
 
+def _ping_sort_key(ping: Dict[str, Any]):
+    return (
+        datetime.datetime.fromisoformat(ping["dates"]["first"]),
+        -ping["reflog-index"]["first"],
+    )
+
+
+def get_initial_pings_by_repo(
+    pings_by_repo: Dict[str, Dict[str, Dict[str, Any]]],
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """Return the first version of each ping recorded by probe scraper."""
+    return {
+        repo_name: {
+            ping_name: {
+                "delete_after_days": (
+                    ping["moz_pipeline_metadata"]
+                    .get("expiration_policy", {})
+                    .get("delete_after_days")),
+                **sorted(ping["history"], key=_metric_sort_key)[0],
+            }
+            for ping_name, ping in metrics.items()
+            if ping["in-source"]
+        }
+        for repo_name, metrics in pings_by_repo.items()
+    }
+
+
 def check_glean_metric_structure(data):
     schema = Schema(
         {
@@ -314,3 +341,64 @@ def check_for_expired_metrics(
             ],
             "addresses": list(addresses),
         }
+
+# TODO
+EXPIRING_PING_TEMPLATE = """
+Each metric in the following list from {repo_name} will expire in the next {expire_days} days or has already expired.
+
+{expired_metrics}
+
+What to do about this:
+
+1. If the metric is no longer needed, remove it from its `metrics.yaml` [1] file.
+2. If the metric is still required, resubmit a data review [2] and extend its expiration date.
+
+If you have any problems, please ask for help on the #glean Matrix channel[3]. We'll give you a hand.
+
+What happens if you don't fix this:
+
+The metrics listed above will stop collecting data from builds built after this expiration date,
+and you will continue to get this e-mail as a reminder.
+1
+Your Friendly, Neighborhood Glean Team
+
+[1] The correct metrics.yaml is in this list:
+{metrics_yaml_url}
+[2] https://wiki.mozilla.org/Firefox/Data_Collection
+[3] https://chat.mozilla.org/#/room/#glean:mozilla.org
+
+This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
+"""  # noqa
+
+
+def check_for_expiring_pings(
+        repositories,
+        pings_by_repo,
+        emails,
+        expire_days=14,
+):
+    """
+    Check for custom pings that are approaching the retention limit based on expiration
+    policy and generate one email per repository.
+    """
+    expiration_cutoff = datetime.datetime.utcnow().date() + datetime.timedelta(
+        days=expire_days
+    )
+    # TODO: ignore deprecated
+    # TODO: handle non-custom pings
+    # TODO: handle app-level (not just per-ping) expiration policy
+    # TODO: Should notify per-app instead of per-channel
+
+    initial_pings_by_repo = get_initial_pings_by_repo(pings_by_repo)
+
+    for repo in repositories:
+        for ping_name, ping_info in initial_pings_by_repo[repo.name].items():
+            start_date = ping_info["dates"]["first"]
+            if ping_info["delete_after_days"] is not None:
+                retention_limit = int(ping_info["delete_after_days"])
+
+                print(
+                    repo.name, ping_name, start_date, retention_limit,
+                    datetime.datetime.fromisoformat(start_date).date() > (datetime.datetime.utcnow().date() - datetime.timedelta(days=retention_limit))
+                )
+

@@ -468,7 +468,7 @@ def test_check_for_expired_metrics(
         None,
         "dev",
         None,
-        check_expiry=True,
+        check_metric_expiry=True,
     )
 
     with open(EMAIL_FILE, "r") as email_file:

@@ -362,7 +362,8 @@ def load_glean_metrics(
     output_bucket: Optional[str] = None,
     email_file: Optional[Path] = None,
     glean_limit_date: Optional[datetime.date] = None,
-    check_expiry: bool = False,
+    check_metric_expiry: bool = False,
+    check_ping_expiry: bool = False,
     check_fog_expiry: bool = False,
 ) -> List[Path]:
     emails = {}
@@ -581,8 +582,11 @@ def load_glean_metrics(
             upload_paths += general_data_paths
             upload_paths += v2_data_paths
 
-    if check_expiry:
+    if check_metric_expiry:
         glean_checks.check_for_expired_metrics(repositories, metrics_by_repo, emails)
+
+    if check_ping_expiry:
+        glean_checks.check_for_expiring_pings(repositories, pings_by_repo, emails)
 
     if check_fog_expiry:
         # FOG repos (e.g. firefox-desktop, gecko) use a different expiry mechanism.
@@ -682,7 +686,8 @@ def main(
     update: bool = False,
     email_file: Optional[Path] = None,
     glean_limit_date: Optional[datetime.date] = None,
-    check_expiry: bool = False,
+    check_metric_expiry: bool = False,
+    check_ping_expiry: bool = False,
     check_fog_expiry: bool = False,
 ) -> List[Path]:
 
@@ -719,7 +724,8 @@ def main(
             output_bucket=output_bucket,
             email_file=email_file,
             glean_limit_date=glean_limit_date,
-            check_expiry=check_expiry,
+            check_metric_expiry=check_metric_expiry,
+            check_ping_expiry=check_ping_expiry,
             check_fog_expiry=check_fog_expiry,
         )
 
@@ -768,8 +774,16 @@ if __name__ == "__main__":
         default="repositories.yaml",
     )
     parser.add_argument(
+        "--check-metric-expiry",
         "--check-expiry",
-        help="Send non-FOG expiry emails. Only scheduled on Mondays, to avoid daily spamming.",
+        help="Send non-FOG expiry emails for metrics. "
+             "Only scheduled on Mondays, to avoid daily spamming.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--check-ping-expiry",
+        help="Send emails for pings with data that is close to being deleted due"
+             "to expiration policy. Only scheduled on Tuesday, to avoid daily spamming.",
         action="store_true",
     )
     parser.add_argument(
@@ -915,6 +929,7 @@ if __name__ == "__main__":
         glean_commit_branch=args.glean_commit_branch,
         update=args.update,
         glean_limit_date=args.glean_limit_date,
-        check_expiry=args.check_expiry,
+        check_metric_expiry=args.check_metric_expiry,
+        check_ping_expiry=args.check_ping_expiry,
         check_fog_expiry=args.check_fog_expiry,
     )
