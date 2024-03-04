@@ -718,7 +718,7 @@ applications:
   - app_name: focus_ios
     canonical_app_name: Firefox Focus for iOS
     app_description: Firefox Focus on iOS. Klar is the sibling application
-    url: https://github.com/mozilla-mobile/focus-ios
+    url: https://github.com/mozilla-mobile/firefox-ios
     notification_emails:
       - sarentz@mozilla.com
       - tlong@mozilla.com
@@ -738,7 +738,7 @@ applications:
   - app_name: klar_ios
     canonical_app_name: Firefox Klar for iOS
     app_description: Firefox Klar on iOS. Focus is the sibling application
-    url: https://github.com/mozilla-mobile/focus-ios
+    url: https://github.com/mozilla-mobile/firefox-ios
     notification_emails:
       - sarentz@mozilla.com
       - tlong@mozilla.com
