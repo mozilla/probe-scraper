@@ -4,7 +4,7 @@ version: 2
 jobs:
   build_and_test:
     machine:
-      image: ubuntu-2204:2022.07.1
+      image: default
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout
@@ -16,7 +16,7 @@ jobs:
 
   deploy_docker:
     docker: &gcloud-image
-      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:398.0.0-alpine
+      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:465.0.0-alpine
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout
@@ -78,23 +78,25 @@ jobs:
 
   docs_build:
     docker:
-      - image: node:15.5.1-alpine3.12
+      - image: cimg/node:lts
     steps:
       - checkout
       - run:
-          name: Install redoc-cli
+          name: Install redoc
           command: |
-            npm install -g redoc-cli
+            npm install @redocly/cli
       - run:
           name: Build docs
           command: |
-            redoc-cli bundle --options.expandResponses="200,201" --options.jsonSampleExpandLevel=2 probeinfo_api.yaml generate -o docs/index.html
+            npx @redocly/cli build-docs probeinfo_api.yaml -o docs/index.html \
+              --theme.openapi.expandResponses="200,201" \
+              --theme.openapi.jsonSampleExpandLevel=2
       - persist_to_workspace:
           root: docs
           paths: index.html
   docs_deploy:
     docker:
-      - image: node:8.10.0
+      - image: cimg/node:lts
     steps:
       - checkout
       - attach_workspace:
