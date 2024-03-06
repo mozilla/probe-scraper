@@ -9,7 +9,6 @@ libraries:
   - library_name: glean-core
     description: Modern cross-platform telemetry (core library)
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
       - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
@@ -25,7 +24,6 @@ libraries:
   - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
       - glean-team@mozilla.com
     url: https://github.com/mozilla/glean
@@ -41,7 +39,6 @@ libraries:
       A generic crash reporter component that can report crashes to multiple
       services
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
       - glean-team@mozilla.com
       - android-probes@mozilla.com
@@ -69,7 +66,6 @@ libraries:
   - library_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
       - android-components-team@mozilla.com
       - geckoview-team@mozilla.com
@@ -119,7 +115,7 @@ libraries:
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
       an Android Components based app
     notification_emails:
-      - dthorn@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla-mobile/android-components
     metrics_files:
       - components/support/migration/metrics.yaml
@@ -135,7 +131,6 @@ libraries:
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
-      - dthorn@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
     metrics_files:
@@ -148,7 +143,6 @@ libraries:
   - library_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
       - glean-team@mozilla.com
       - brizental@mozilla.com
@@ -389,7 +383,6 @@ applications:
     canonical_app_name: Firefox for Android
     url: https://github.com/mozilla-mobile/firefox-android
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
     metrics_files:
       - fenix/app/metrics.yaml
@@ -464,7 +457,6 @@ applications:
     app_description: Firefox for iOS
     notification_emails:
       - tlong@mozilla.com
-      - dthorn@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-ios
     metrics_files:
       - firefox-ios/Client/metrics.yaml
@@ -513,7 +505,6 @@ applications:
       A full-featured browser reference implementation using Mozilla Android
       Components
     notification_emails:
-      - dthorn@mozilla.com
       - aplacitelli@mozilla.com
     url: https://github.com/mozilla-mobile/reference-browser
     prototype: true
@@ -532,7 +523,7 @@ applications:
     app_description: Firefox for Amazon's Fire TV
     deprecated: true
     notification_emails:
-      - dthorn@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-tv
     metrics_files:
       - app/metrics.yaml
@@ -550,7 +541,7 @@ applications:
       augmented-reality headsets
     deprecated: true
     notification_emails:
-      - dthorn@mozilla.com
+      - glean-team@mozilla.com
     branch: main
     url: https://github.com/MozillaReality/FirefoxReality
     metrics_files:
@@ -571,7 +562,7 @@ applications:
       Firefox's Lockwise app for Android
     deprecated: true
     notification_emails:
-      - dthorn@mozilla.com
+      - glean-team@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-android
     metrics_files:
       - app/metrics.yaml
@@ -589,7 +580,6 @@ applications:
       Firefox's Lockwise app for iOS
     deprecated: true
     notification_emails:
-      - dthorn@mozilla.com
       - tlong@mozilla.com
     url: https://github.com/mozilla-lockwise/lockwise-ios
     dependencies:
