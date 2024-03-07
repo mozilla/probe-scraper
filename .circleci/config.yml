@@ -16,7 +16,7 @@ jobs:
 
   deploy_docker:
     docker: &gcloud-image
-      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:465.0.0-alpine
+      - image: gcr.io/google.com/cloudsdktool/cloud-sdk:398.0.0-alpine
     working_directory: ~/mozilla/probe-scraper
     steps:
       - checkout
