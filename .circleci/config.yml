@@ -107,7 +107,7 @@ jobs:
       - run:
           name: Install and configure dependencies
           command: |
-            npm install -g --silent gh-pages@2.0.1
+            npm install gh-pages@2.0.1
             git config user.email "ci-build@mozilla.com"
             git config user.name "ci-build"
       - add_ssh_keys:
@@ -115,7 +115,7 @@ jobs:
             - "37:cd:ad:cf:75:1f:96:9f:9b:ce:e0:6c:b4:09:26:4d"
       - run:
           name: Deploy docs to gh-pages branch
-          command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
+          command: npx gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
 
 workflows:
   version: 2
