@@ -116,3 +116,6 @@ emails.txt
 
 # A convenient place for the cache
 .scraper_cache/
+
+# JavaScript tooling
+node_modules/
