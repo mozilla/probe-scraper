@@ -29,8 +29,8 @@ apidoc:
 	# Keep in sync with doc task in .circleci/config.yml
 	docker run --rm \
 		-v ${PWD}:/local \
-		node:15.5.1-alpine3.12 \
-		sh -c "npm install -g redoc-cli; redoc-cli bundle --options.expandResponses=200,201 --options.jsonSampleExpandLevel=2 /local/probeinfo_api.yaml generate -o /local/index.html"
+		cimg/node:lts \
+		sh -c "npm install @redocly/cli; npx @redocly/cli build-docs /local/probeinfo_api.yaml -o /local/index.html --theme.openapi.expandResponses='200,201' --theme.openapi.jsonSampleExpandLevel=2"
 
 format:
 	python3 -m black probe_scraper tests ./*.py
