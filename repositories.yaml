@@ -1346,6 +1346,28 @@ applications:
       expiration_policy:
         delete_after_days: 760
 
+  - app_name: accounts_cirrus
+    canonical_app_name: "Mozilla Accounts (Cirrus)"
+    app_description: >
+      Mozilla accounts is Mozilla's authentication solution
+      for account-based end-user services and features.
+    url: https://github.com/mozilla/fxa
+    notification_emails:
+      - fxa-staff@mozilla.com
+      - project-nimbus@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - glean-core
+      - nimbus-cirrus
+    channels:
+      - v1_name: accounts-cirrus
+        app_id: accounts.cirrus
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
+
   - app_name: monitor_cirrus
     canonical_app_name: "Firefox Monitor (Cirrus)"
     app_description: >
