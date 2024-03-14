@@ -968,16 +968,15 @@ applications:
     canonical_app_name: Mozilla VPN Cirrus Sidecar
     app_description: |
       The sidecar Cirrus container for the Mozilla VPN server
-    url: https://github.com/mozilla/experimenter
+    url: https://github.com/mozilla-services/guardian-website
     notification_emails:
       - brizental@mozilla.com
     branch: main
-    metrics_files:
-      - cirrus/server/telemetry/metrics.yaml
-    ping_files:
-      - cirrus/server/telemetry/pings.yaml
+    metrics_files: []
+    ping_files: []
     dependencies:
       - glean-core
+      - nimbus-cirrus
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
