@@ -241,6 +241,7 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
+      - browser/components/backup/metrics.yaml
       - browser/components/metrics.yaml
       - browser/components/migration/metrics.yaml
       - browser/components/newtab/metrics.yaml
