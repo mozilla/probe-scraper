@@ -1444,6 +1444,7 @@ applications:
     channels:
       - v1_name: moso-mastodon-web
         app_id: moso-mastodon-web
+        deprecated: true
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1110  # 37 months
