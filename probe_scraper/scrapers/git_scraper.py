@@ -399,6 +399,14 @@ def scrape(
     upload_repos = []
 
     for repo_info in repos:
+        print("Getting commits for repository " + repo_info.name)
+
+        commits_by_repo[repo_info.name] = {}
+        emails[repo_info.name] = {
+            "addresses": repo_info.notification_emails,
+            "emails": [],
+        }
+
         if not (
             repo_info.metrics_file_paths
             or repo_info.ping_file_paths
@@ -409,14 +417,6 @@ def scrape(
                 " because it has no metrics/ping/tag files."
             )
             continue
-
-        print("Getting commits for repository " + repo_info.name)
-
-        commits_by_repo[repo_info.name] = {}
-        emails[repo_info.name] = {
-            "addresses": repo_info.notification_emails,
-            "emails": [],
-        }
 
         try:
             commits, upload_repo = retrieve_files(
