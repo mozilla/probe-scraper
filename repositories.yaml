@@ -1466,6 +1466,7 @@ applications:
       - v1_name: moso-mastodon-android-nightly
         app_id: org.mozilla.social.nightly
         app_channel: nightly
+        deprecated: true
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1110  # 37 months
