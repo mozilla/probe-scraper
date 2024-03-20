@@ -407,6 +407,17 @@ def scrape(
             "emails": [],
         }
 
+        if not (
+            repo_info.metrics_file_paths
+            or repo_info.ping_file_paths
+            or repo_info.tag_file_paths
+        ):
+            print(
+                f"Skipping commits for repository {repo_info.name}"
+                " because it has no metrics/ping/tag files."
+            )
+            continue
+
         try:
             commits, upload_repo = retrieve_files(
                 repo_info,

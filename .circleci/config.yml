@@ -69,7 +69,7 @@ jobs:
             --region=us-west1
             --allow-unauthenticated
             --entry-point=glean_push
-            --memory=1024
+            --memory=2048
             --runtime=python310
             --set-env-vars=BOTO_PATH=.gce_boto,OUTPUT_BUCKET=gs://probe-scraper-prod-artifacts/
             --trigger-http
