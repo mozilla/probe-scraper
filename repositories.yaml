@@ -21,6 +21,19 @@ libraries:
         branch: main
         dependency_name: glean-core
 
+  - library_name: glean-server
+    description: Modern cross-platform telemetry (server usage)
+    notification_emails:
+      - glean-team@mozilla.com
+    url: https://github.com/mozilla/glean_parser
+    metrics_files: []
+    ping_files:
+      - server-side-pings.yaml
+    variants:
+      - v1_name: glean-server
+        branch: main
+        dependency_name: glean-server
+
   - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
@@ -1355,7 +1368,8 @@ applications:
       - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
     ping_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-server
     channels:
       - v1_name: accounts-backend
         app_id: accounts.backend
@@ -1461,7 +1475,8 @@ applications:
     metrics_files:
       - .glean/metrics.yaml
     ping_files: []
-    dependencies: []
+    dependencies:
+      - glean-server
     channels:
       - v1_name: moso-mastodon-backend
         app_id: moso.mastodon.backend
