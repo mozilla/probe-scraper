@@ -185,6 +185,19 @@ libraries:
         branch: main
         dependency_name: nimbus-cirrus
 
+  - library_name: service-nimbus
+    description: >
+      The Nimbus Android-Component used by Fenix and Focus
+    notification_emails:
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla-mobile/firefox-android
+    metrics_files:
+      - android-components/components/service/nimbus/metrics.yaml
+    variants:
+      - v1_name: service-nimbus
+        branch: main
+        dependency_name: org.mozilla.components:service-nimbus
+
   - library_name: gecko
     description: The browser engine developed by Mozilla
     notification_emails:
@@ -406,6 +419,7 @@ applications:
       - org.mozilla.components:places
       - org.mozilla.appservices:fxaclient
       - nimbus
+      - org.mozilla.components:service-nimbus
     moz_pipeline_metadata:
       topsites-impression:
         expiration_policy:
@@ -767,6 +781,7 @@ applications:
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
+      - org.mozilla.components:service-nimbus
       - gecko
     moz_pipeline_metadata_defaults:
       expiration_policy:
@@ -804,6 +819,7 @@ applications:
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
+      - org.mozilla.components:service-nimbus
       - gecko
     moz_pipeline_metadata_defaults:
       expiration_policy:
