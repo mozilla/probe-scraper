@@ -1549,3 +1549,23 @@ applications:
     channels:
       - v1_name: tiktokreporter-android
         app_id: org.mozilla.tiktokreporter
+
+  - app_name: relay_backend
+    canonical_app_name: Firefox Accounts Backend
+    app_description: |
+      Firefox accounts is Mozilla's authentication solution
+      for account-based end-user services and features.
+    url: https://github.com/mozilla/fx-private-relay
+    notification_emails:
+      - jwhitlock@mozilla.com
+    branch: main
+    metrics_files:
+      - telemetry/glean/relay-server-metrics.yaml
+    ping_files: []
+    dependencies: []
+    channels:
+      - v1_name: relay-backend
+        app_id: relay.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
