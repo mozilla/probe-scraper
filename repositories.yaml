@@ -1138,7 +1138,7 @@ applications:
       - glean-js
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 400
+        delete_after_days: 1130
     channels:
       - v1_name: mdn-yari
         app_id: mdn-yari
