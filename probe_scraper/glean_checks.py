@@ -139,19 +139,6 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
 
         duplicate_sources = {}
         for k, v in metric_sources.items():
-            # Exempt cases when one of the sources is Geckoview Streaming to
-            # avoid false positive duplication accross app channels.
-            # Temporarily exempt cases when one of the sources is server compat library
-            # to avoid raising alarm for metrics defined in fxa's custom ping.
-            v = [
-                dep
-                for dep in v
-                if (
-                    "engine-gecko" not in dep
-                    and "glean-server-metrics-compat" not in dep
-                )
-            ]
-
             if len(v) > 1:
                 duplicate_sources[k] = v
 
