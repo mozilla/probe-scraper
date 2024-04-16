@@ -348,6 +348,8 @@ applications:
       task which monitors system defaults and provides
       interventions to revert changes in response to known
       deceptive patterns.
+
+      Also known as Windows Default Browser Agent (WDBA).
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
       - nrishel@mozilla.com
