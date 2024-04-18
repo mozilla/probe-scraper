@@ -1553,8 +1553,10 @@ applications:
   - app_name: relay_backend
     canonical_app_name: Firefox Relay Backend
     app_description: |
-      Firefox accounts is Mozilla's authentication solution
-      for account-based end-user services and features.
+      Relay provides email and phone masks to protect users from hackers and
+      trackers. The Relay backend server provides an API for Firefox, the Relay
+      add-on, and the Relay website. It also processes Mozilla account updates,
+      emails, phone calls, and text messages.
     url: https://github.com/mozilla/fx-private-relay
     notification_emails:
       - jwhitlock@mozilla.com
