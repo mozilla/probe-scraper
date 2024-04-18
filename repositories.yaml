@@ -1551,7 +1551,7 @@ applications:
         app_id: org.mozilla.tiktokreporter
 
   - app_name: relay_backend
-    canonical_app_name: Firefox Accounts Backend
+    canonical_app_name: Firefox Relay Backend
     app_description: |
       Firefox accounts is Mozilla's authentication solution
       for account-based end-user services and features.
