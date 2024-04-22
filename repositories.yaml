@@ -1568,3 +1568,25 @@ applications:
     channels:
       - v1_name: tiktokreporter-android
         app_id: org.mozilla.tiktokreporter
+
+  - app_name: firefox_bridge
+    canonical_app_name: Firefox Bridge
+    app_description: |
+      This is a chromium & firefox extension that allows the user to easily swap
+      between browsers on their device.
+    url: https://github.com/mozilla-extensions/firefox-bridge
+    notification_emails:
+      - ahabibi@mozilla.com
+    branch: main
+    metrics_files:
+      - "./metrics.yaml"
+    ping_files:
+      - "./pings.yaml"
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    channels:
+      - v1_name: firefox-bridge
+        app_id: org.mozilla.firefox-bridge
