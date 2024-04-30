@@ -15,7 +15,7 @@ DEFAULT_ORGANIZATION = "mozilla"
 DEFAULT_AUTHOR_NAME = "data-updater"
 DEFAULT_AUTHOR_EMAIL = "telemetry-alerts@mozilla.com"
 USAGE = "usage: fog-update"
-REVIEWERS = ["@mozilla/glean"]
+REVIEWERS = ["glean"]
 INDEX_URL = "https://raw.githubusercontent.com/mozilla/gecko-dev/master/toolkit/components/glean/metrics_index.py"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
