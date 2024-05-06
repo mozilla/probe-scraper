@@ -1389,7 +1389,6 @@ applications:
     branch: main
     metrics_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
-      - packages/fxa-shared/metrics/glean/glean-backend-metrics-compat.yaml
     ping_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
     dependencies:
