@@ -15,7 +15,6 @@ DEFAULT_ORGANIZATION = "mozilla"
 DEFAULT_AUTHOR_NAME = "data-updater"
 DEFAULT_AUTHOR_EMAIL = "telemetry-alerts@mozilla.com"
 USAGE = "usage: fog-update"
-REVIEWERS = ["glean"]
 INDEX_URL = "https://raw.githubusercontent.com/mozilla/gecko-dev/master/toolkit/components/glean/metrics_index.py"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
@@ -220,7 +219,7 @@ def main(argv, repo, author, debug=False, dry_run=False):
         head=pr_branch_name,
         base=release_branch_name,
     )
-    pr.create_review_request(team_reviewers=REVIEWERS)
+    pr.create_review_request()
     print(f"{ts()} Pull request at {pr.html_url}")
 
 
