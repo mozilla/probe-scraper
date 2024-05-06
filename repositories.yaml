@@ -21,6 +21,36 @@ libraries:
         branch: main
         dependency_name: glean-core
 
+  - library_name: glean-server
+    description: Modern cross-platform telemetry (server usage)
+    notification_emails:
+      - glean-team@mozilla.com
+    url: https://github.com/mozilla/glean_parser
+    metrics_files: []
+    ping_files:
+      - server_telemetry/server-side-pings.yaml
+    variants:
+      - v1_name: glean-server
+        branch: main
+        dependency_name: glean-server
+
+  - library_name: glean-server-metrics-compat
+    description: >-
+      Modern cross-platform telemetry (server usage).
+      This is a temporary library to transition existing server applications to
+      the new glean-server library. It is not intended for new applications.
+    notification_emails:
+      - glean-team@mozilla.com
+    url: https://github.com/mozilla/glean_parser
+    metrics_files:
+      - server_telemetry/sdk-metrics-compat.yaml
+    ping_files:
+      - server_telemetry/server-side-pings.yaml
+    variants:
+      - v1_name: glean-server-metrics-compat
+        branch: main
+        dependency_name: glean-server-metrics-compat
+
   - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
@@ -1360,7 +1390,8 @@ applications:
       - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
     ping_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-server-metrics-compat
     channels:
       - v1_name: accounts-backend
         app_id: accounts.backend
@@ -1466,7 +1497,8 @@ applications:
     metrics_files:
       - .glean/metrics.yaml
     ping_files: []
-    dependencies: []
+    dependencies:
+      - glean-server-metrics-compat
     channels:
       - v1_name: moso-mastodon-backend
         app_id: moso.mastodon.backend
