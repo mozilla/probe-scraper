@@ -1391,8 +1391,7 @@ applications:
       - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
     ping_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
-    dependencies:
-      - glean-server-metrics-compat
+    dependencies: []
     channels:
       - v1_name: accounts-backend
         app_id: accounts.backend
@@ -1498,8 +1497,7 @@ applications:
     metrics_files:
       - .glean/metrics.yaml
     ping_files: []
-    dependencies:
-      - glean-server-metrics-compat
+    dependencies: []
     channels:
       - v1_name: moso-mastodon-backend
         app_id: moso.mastodon.backend
