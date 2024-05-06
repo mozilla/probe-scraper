@@ -300,6 +300,7 @@ applications:
       - browser/components/urlbar/metrics.yaml
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
+      - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
       - toolkit/components/search/metrics.yaml
@@ -1189,6 +1190,7 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130
+      geoip_skip_entries: 2
     channels:
       - v1_name: mdn-yari
         app_id: mdn-yari
