@@ -5,3 +5,5 @@ repositories.yaml @chutten @akkomar @whd @mikaeld @dexterp37 @badboy @travis79
 # The exclusion list in git_scraper.py can cause similar problems (see e.g.
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1745771)
 probe_scraper/scrapers/git_scraper.py @chutten @akkomar @whd @mikaeld @dexterp37 @badboy @travis79
+
+fog_updater/* @chutten @badboy
