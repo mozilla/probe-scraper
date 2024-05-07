@@ -70,6 +70,8 @@ def send_ses(
         part.add_header("Content-Disposition", "attachment", filename=filename)
         msg.attach(part)
 
+    print(f"Sending email to {recipients} with subject '{subject}'")
+
     ses = boto3.client("ses", region_name="us-west-2")
     result = ses.send_raw_email(RawMessage={"Data": msg.as_string()})
 
