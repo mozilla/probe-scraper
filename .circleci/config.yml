@@ -63,6 +63,12 @@ jobs:
             echo "$KEY" | gcloud --quiet auth activate-service-account --key-file=-
             gcloud --quiet config set project "$(echo "$KEY" | jq -r .project_id)"
       - run:
+          name: Zip sources and upload to GCS
+          # This is a workaround for DENG-3665
+          command: |
+            zip -r probe-scraper.zip .
+            gcloud storage cp probe-scraper.zip gs://cloud-function-deploy-issue-test/probe-scraper.zip
+      - run:
           name: Deploy Google Cloud Function
           command: >
             gcloud functions deploy glean-push
@@ -75,6 +81,7 @@ jobs:
             --trigger-http
             --service-account=$PROD_SERVICE_ACCOUNT_INVOKER
             --timeout=540s
+            --source=gs://cloud-function-deploy-issue-test/probe-scraper.zip
 
   docs_build:
     docker:
