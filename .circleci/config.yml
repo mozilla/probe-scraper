@@ -63,6 +63,8 @@ jobs:
             echo "$KEY" | gcloud --quiet auth activate-service-account --key-file=-
             gcloud --quiet config set project "$(echo "$KEY" | jq -r .project_id)"
       - run:
+          # `--source=.` in the command below is a workaround for deployment issues
+          # See DENG-3665
           name: Deploy Google Cloud Function
           command: >
             gcloud functions deploy glean-push
@@ -75,6 +77,7 @@ jobs:
             --trigger-http
             --service-account=$PROD_SERVICE_ACCOUNT_INVOKER
             --timeout=540s
+            --source=.
 
   docs_build:
     docker:
