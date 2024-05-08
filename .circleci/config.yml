@@ -67,7 +67,7 @@ jobs:
           # This is a workaround for DENG-3665
           command: |
             zip -r probe-scraper.zip .
-            gcloud storage cp probe-scraper.zip gs://cloud-function-deploy-issue-test/probe-scraper.zip
+            gcloud storage cp probe-scraper.zip gs://probe-scraper-prod-function-deployment/probe-scraper.zip
       - run:
           name: Deploy Google Cloud Function
           command: >
@@ -81,7 +81,7 @@ jobs:
             --trigger-http
             --service-account=$PROD_SERVICE_ACCOUNT_INVOKER
             --timeout=540s
-            --source=gs://cloud-function-deploy-issue-test/probe-scraper.zip
+            --source=gs://probe-scraper-prod-function-deployment/probe-scraper.zip
 
   docs_build:
     docker:
