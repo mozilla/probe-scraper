@@ -41,6 +41,7 @@ MIN_DATES = {
     "mozilla-vpn-android": "2021-05-25 00:00:00",
     "rally-markup-fb-pixel-hunt": "2021-12-04 00:00:00",
     "rally-citp-search-engine-usage": "2022-04-15 00:00:00",
+    "relay-backend": "2024-05-09 00:00:00",
 }
 
 # Some commits in projects might contain invalid metric files.

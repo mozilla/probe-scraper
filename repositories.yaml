@@ -1604,3 +1604,26 @@ applications:
     channels:
       - v1_name: tiktokreporter-android
         app_id: org.mozilla.tiktokreporter
+
+  - app_name: relay_backend
+    canonical_app_name: Firefox Relay Backend
+    app_description: |
+      Relay provides email and phone masks to protect users from hackers and
+      trackers. The Relay backend server provides an API for Firefox, the Relay
+      add-on, and the Relay website. It also processes Mozilla account updates,
+      emails, phone calls, and text messages.
+    url: https://github.com/mozilla/fx-private-relay
+    notification_emails:
+      - jwhitlock@mozilla.com
+    branch: main
+    metrics_files:
+      - telemetry/glean/relay-server-metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-server
+    channels:
+      - v1_name: relay-backend
+        app_id: relay.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
