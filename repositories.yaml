@@ -1619,7 +1619,8 @@ applications:
     metrics_files:
       - telemetry/glean/relay-server-metrics.yaml
     ping_files: []
-    dependencies: []
+    dependencies:
+      - glean-server
     channels:
       - v1_name: relay-backend
         app_id: relay.backend
