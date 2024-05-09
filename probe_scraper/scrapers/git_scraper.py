@@ -127,6 +127,12 @@ SKIP_COMMITS = {
     "tiktokreporter-android": [
         "96bf78fbde4dc1eddd8fc7de175d6c58fe82e23e",  # Improperly named metric
     ],
+    "accounts-backend": [
+        "095b4e47cebaa8a2ca54d1d496814f0620dcf8b1",  # Wrong schema spec used
+    ],
+    "glean-server-metrics-compat": [
+        "6fe8a8f8a4026f389a8f697669d56673e0817a29",  # Wrong schema spec used
+    ],
 }
 
 

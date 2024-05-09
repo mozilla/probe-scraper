@@ -21,6 +21,36 @@ libraries:
         branch: main
         dependency_name: glean-core
 
+  - library_name: glean-server
+    description: Modern cross-platform telemetry (server usage)
+    notification_emails:
+      - glean-team@mozilla.com
+    url: https://github.com/mozilla/glean_parser
+    metrics_files: []
+    ping_files:
+      - server_telemetry/server-side-pings.yaml
+    variants:
+      - v1_name: glean-server
+        branch: main
+        dependency_name: glean-server
+
+  - library_name: glean-server-metrics-compat
+    description: >-
+      Modern cross-platform telemetry (server usage).
+      This is a temporary library to transition existing server applications to
+      the new glean-server library. It is not intended for new applications.
+    notification_emails:
+      - glean-team@mozilla.com
+    url: https://github.com/mozilla/glean_parser
+    metrics_files:
+      - server_telemetry/sdk-metrics-compat.yaml
+    ping_files:
+      - server_telemetry/server-side-pings.yaml
+    variants:
+      - v1_name: glean-server-metrics-compat
+        branch: main
+        dependency_name: glean-server-metrics-compat
+
   - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
@@ -223,6 +253,7 @@ libraries:
       - netwerk/protocol/http/metrics.yaml
       - security/certverifier/metrics.yaml
       - security/manager/ssl/metrics.yaml
+      - toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
       - toolkit/components/cookiebanners/metrics.yaml
       - toolkit/components/extensions/metrics.yaml
       - toolkit/components/formautofill/metrics.yaml
@@ -269,6 +300,7 @@ applications:
       - browser/components/urlbar/metrics.yaml
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
+      - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
       - toolkit/components/search/metrics.yaml
@@ -283,6 +315,7 @@ applications:
       - browser/components/pocket/pings.yaml
       - browser/components/search/pings.yaml
       - browser/components/urlbar/pings.yaml
+      - browser/modules/pings.yaml
       - toolkit/components/crashes/pings.yaml
       - toolkit/components/resistfingerprinting/pings.yaml
       - toolkit/components/telemetry/pings.yaml
@@ -1158,6 +1191,7 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130
+      geoip_skip_entries: 2
     channels:
       - v1_name: mdn-yari
         app_id: mdn-yari
@@ -1355,9 +1389,11 @@ applications:
     branch: main
     metrics_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
+      - packages/fxa-shared/metrics/glean/glean-backend-metrics-compat.yaml
     ping_files:
       - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-server-metrics-compat
     channels:
       - v1_name: accounts-backend
         app_id: accounts.backend
@@ -1463,7 +1499,8 @@ applications:
     metrics_files:
       - .glean/metrics.yaml
     ping_files: []
-    dependencies: []
+    dependencies:
+      - glean-server-metrics-compat
     channels:
       - v1_name: moso-mastodon-backend
         app_id: moso.mastodon.backend

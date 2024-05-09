@@ -448,7 +448,15 @@ def load_glean_metrics(
                 ]
 
                 try:
-                    config = {"allow_reserved": repo_name.startswith("glean")}
+                    config = {
+                        "allow_reserved": repo_name.startswith("glean")
+                        # Temporarily allow reserved metrics in accounts-backend
+                        # We need this because `accounts-events` pings was deployed to BQ
+                        # with internal Glean metrics. These metrics are now defined in
+                        # FxA repository. FxA is moving away from custom ping to `events` ping.
+                        # When this happens we'll be able to remove this special case.
+                        or repo_name == "accounts-backend"
+                    }
                     repo = next(
                         r for r in repositories if r.name == repo_name
                     ).to_dict()
