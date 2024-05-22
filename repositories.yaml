@@ -349,6 +349,9 @@ applications:
           - name: "geo_city"
             value: null
         submission_timestamp_granularity: "seconds"
+      spoc:
+        expiration_policy:
+          delete_after_days: 180
 
   - app_name: firefox_desktop_background_update
     canonical_app_name: Firefox for Desktop Background Update Task
