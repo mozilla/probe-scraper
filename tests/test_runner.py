@@ -463,3 +463,65 @@ def test_add_pipeline_metadata_with_default_with_pings_override(repo_with_two_pi
         }
     }
     assert repo_with_two_pings == result
+
+
+def test_create_pipeline_metadata_overrides(repo_with_one_ping):
+    """
+    create_pipeline_metadata_overrides should create a ping entry for pings with
+    moz_pipeline_metadata but are not defined in the app
+    """
+    repo_config = {
+        "moz_pipeline_metadata_defaults": {
+            "expiration_policy": {
+                "delete_after_days": 180,
+            },
+            "submission_timestamp_granularity": "seconds",
+        },
+        "moz_pipeline_metadata": {
+            "ping1": {
+                "expiration_policy": {
+                    "delete_after_days": 10,
+                },
+            },
+            "ping2": {
+                "expiration_policy": {
+                    "delete_after_days": 90,
+                },
+            },
+            "ping3": {
+                "expiration_policy": {
+                    "delete_after_days": 120,
+                },
+            },
+        },
+        "app_id": "repo-1",
+    }
+    repository_list = [
+        repositories.Repository(name="repo1", definition=repo_config),
+        repositories.Repository(name="repo2", definition={"app_id": "repo-2"}),
+    ]
+    runner.add_pipeline_metadata_defaults(repositories=repository_list)
+
+    second_repo = {"repo2": {}}
+    actual = runner.create_pipeline_metadata_overrides(
+        pings_by_repo=repo_with_one_ping | second_repo, repositories=repository_list
+    )
+
+    expected = {
+        "repo1": {
+            "moz_pipeline_metadata_overrides": {
+                "ping2": {
+                    "expiration_policy": {
+                        "delete_after_days": 90,
+                    },
+                },
+                "ping3": {
+                    "expiration_policy": {
+                        "delete_after_days": 120,
+                    },
+                },
+            },
+        },
+        "repo2": {},
+    }
+    assert expected == actual

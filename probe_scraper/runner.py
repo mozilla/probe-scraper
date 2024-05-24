@@ -251,6 +251,7 @@ def add_pipeline_metadata_defaults(repositories):
 
 
 def add_pipeline_metadata(pings_by_repo, repositories):
+    """Add pipeline metadata to pings, applying metadata defaults from the repo."""
     for repo in repositories:
         metadata_defaults = repo.moz_pipeline_metadata_defaults
 
@@ -264,6 +265,31 @@ def add_pipeline_metadata(pings_by_repo, repositories):
 
             if pipeline_metadata:
                 ping["moz_pipeline_metadata"] = pipeline_metadata
+
+
+def create_pipeline_metadata_overrides(pings_by_repo, repositories):
+    """Get pipeline metadata for pings that are in the repo metadata but not defined in the app.
+
+    This may be because the ping is defined in a dependency, but pipeline metadata needs to be
+    applied at the app-level.
+    """
+    metadata_overrides = {repo_name: {} for repo_name in pings_by_repo}
+
+    for repo in repositories:
+        current_pings = pings_by_repo.get(repo.name, {})
+
+        missing_pings = {
+            ping: repo.moz_pipeline_metadata[ping]
+            for ping in set(repo.moz_pipeline_metadata) - set(current_pings)
+        }
+
+        if len(missing_pings) > 0:
+            # apply_pipeline_metadata_to_pings(missing_pings, repo)
+            metadata_overrides[repo.name] = {
+                "moz_pipeline_metadata_overrides": missing_pings
+            }
+
+    return metadata_overrides
 
 
 def add_first_appeared_dates(
@@ -539,6 +565,15 @@ def load_glean_metrics(
         add_pipeline_metadata(pings_by_repo, repositories)
         metadata_by_repo_paths += write_glean_data_by_repo(
             pings_by_repo, out_dir, "pings"
+        )
+
+        # accumulate overrides per-app
+        # currently moz_pipeline_metadata is the only option so no dict merging implemented
+        metadata_overrides = create_pipeline_metadata_overrides(
+            pings_by_repo, repositories
+        )
+        metadata_by_repo_paths += write_glean_data_by_repo(
+            metadata_overrides, out_dir, "overrides"
         )
 
         if scrape_commits:
