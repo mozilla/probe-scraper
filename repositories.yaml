@@ -1427,9 +1427,9 @@ applications:
         delete_after_days: 760
 
   - app_name: monitor_cirrus
-    canonical_app_name: "Firefox Monitor (Cirrus)"
+    canonical_app_name: "Mozilla Monitor (Cirrus)"
     app_description: >
-      Firefox Monitor arms you with tools
+      Mozilla Monitor arms you with tools
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
@@ -1471,9 +1471,9 @@ applications:
         delete_after_days: 400
 
   - app_name: monitor_frontend
-    canonical_app_name: "Firefox Monitor (Frontend)"
+    canonical_app_name: "Mozilla Monitor (Frontend)"
     app_description: >
-      Firefox Monitor arms you with tools
+      Mozilla Monitor arms you with tools
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
