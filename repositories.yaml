@@ -1553,6 +1553,7 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1110  # 37 months
+    deprecated: true
 
   - app_name: tiktokreporter_ios
     canonical_app_name: TikTok Reporter (iOS)
