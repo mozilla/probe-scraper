@@ -26,9 +26,9 @@ For your convenience, we've filed bugs to track the work of removing or renewing
 What to do about this:
 
 1. If the metric is no longer needed, remove it from its `metrics.yaml` file.
-2. If the metric is still required, resubmit a data review [1] and extend its expiration.
+2. If the metric is still required, extend its expiration.
 
-If you have any problems, please ask for help on the #glean Matrix channel[2]. We'll give you a hand.
+If you have any problems, please ask for help on the #glean Matrix channel[1]. We'll give you a hand.
 
 What happens if you don't fix this:
 
@@ -41,8 +41,7 @@ You will continue to get this e-mail as a reminder to clean up.
 
 Your Friendly Neighbourhood Glean Team
 
-[1] https://wiki.mozilla.org/Firefox/Data_Collection
-[2] https://chat.mozilla.org/#/room/#glean:mozilla.org
+[1] https://chat.mozilla.org/#/room/#glean:mozilla.org
 
 This is an automated message sent from probe-scraper. See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
@@ -86,7 +85,7 @@ The following metrics will expire in the next Firefox Nightly release: [version 
 
 What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their `metrics.yaml` definition file.
-2. If one, some, or all of the metrics are still required, please submit a [Data Collection Review][2] and patch to extend their expiry. There is a [shorter form][3] for data collection renewal.
+2. If one, some, or all of the metrics are still required, please submit a patch to extend their expiry.
 
 If you have any problems, please ask for help on the [#glean Matrix room](https://chat.mozilla.org/#/room/#glean:mozilla.org) or the #data-help Slack channel.
 We'll give you a hand.
@@ -94,8 +93,6 @@ We'll give you a hand.
 Your Friendly Neighbourhood Glean Team
 
 [1]: https://wiki.mozilla.org/Release_Management/Calendar
-[2]: https://wiki.mozilla.org/Firefox/Data_Collection
-[3]: https://github.com/mozilla/data-review/blob/main/renewal_request.md
 
 ---
 This bug was auto-filed by [probe-scraper](https://github.com/mozilla/probe-scraper).
