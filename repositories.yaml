@@ -116,7 +116,7 @@ libraries:
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
-      - teshaq@mozilla.com
+      - mhammond@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
     metrics_files:
