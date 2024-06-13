@@ -1637,7 +1637,7 @@ applications:
     canonical_app_name: "Glean.js Documentation"
     app_description: >
       Glean.js user and developer documentation.
-    url: https://github.com/mozilla/glean.js/tree/main/documentation
+    url: https://github.com/mozilla/glean.js
     notification_emails:
       - glean-team@mozilla.com
     branch: main
