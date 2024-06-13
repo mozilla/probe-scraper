@@ -52,15 +52,13 @@ The following Firefox probes will expire in the next major Firefox nightly relea
 
 What to do about this:
 1. If one, some, or all of the metrics are no longer needed, please remove them from their definitions files (Histograms.json, Scalars.yaml, Events.yaml).
-2. If one, some, or all of the metrics are still required, please submit a Data Collection Review [2] and patch to extend their expiry.  There is a shorter form for data collection renewal [3].
+2. If one, some, or all of the metrics are still required, please submit a patch to extend their expiry.
 
 If you have any problems, please ask for help on the #data-help Slack channel or the #telemetry Matrix room at https://chat.mozilla.org/#/room/#telemetry:mozilla.org. We'll give you a hand.
 
 Your Friendly, Neighborhood Telemetry Team
 
 [1] https://wiki.mozilla.org/Release_Management/Calendar
-[2] https://wiki.mozilla.org/Firefox/Data_Collection
-[3] https://github.com/mozilla/data-review/blob/master/renewal_request.md
 
 This is an automated message sent from probe-scraper.  See https://github.com/mozilla/probe-scraper for details.
 """  # noqa
