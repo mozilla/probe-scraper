@@ -1632,3 +1632,22 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: gleanjs_docs
+    canonical_app_name: "Glean.js Documentation"
+    app_description: >
+      Glean.js user and developer documentation.
+    url: https://github.com/mozilla/glean.js/tree/main/documentation
+    notification_emails:
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: gleanjs-docs
+        app_id: gleanjs-docs
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
