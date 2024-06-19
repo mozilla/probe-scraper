@@ -81,6 +81,8 @@ SKIP_COMMITS = {
         "c76093316c58ae74a21e854b8035c91d0c75df6e",
         # Missing toolkit/components/translations/metrics.yaml
         "b80d1b362960cef8ee389ed54cdc41702ca832d9",
+        # Broken yaml in toolkit/components/translations/metrics.yaml, fixed in subsequent commit
+        "3ac10c73a280b1f9bba82bb08082db7bcfd5d2de",
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
