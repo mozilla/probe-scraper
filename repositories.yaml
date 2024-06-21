@@ -1653,3 +1653,23 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: ads_backend
+    canonical_app_name: Mozilla Ads Backend Service
+    app_description: |
+      Mozilla Ads Backend Service
+    url: https://github.com/mozilla-services/mars-telemetry
+    notification_emails:
+      - gleonard@mozilla.com
+    branch: main
+    metrics_files:
+      - telemetry/glean/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-server
+    channels:
+      - v1_name: ads-backend
+        app_id: ads.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
