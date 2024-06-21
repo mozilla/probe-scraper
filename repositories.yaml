@@ -271,6 +271,7 @@ libraries:
       - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
+      - toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
       - toolkit/components/glean/pings.yaml
       - toolkit/components/reportbrokensite/pings.yaml
     tag_files:
