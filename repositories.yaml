@@ -362,21 +362,36 @@ applications:
       baseline:
         expiration_policy:
           delete_after_days: 10000
+      crash:
+        expiration_policy:
+          delete_after_days: 1130
       deletion-request:
         expiration_policy:
           delete_after_days: 10000
       events:
         expiration_policy:
           delete_after_days: 10000
+      first-startup:
+        expiration_policy:
+          delete_after_days: 1130
       fog-validation:
         expiration_policy:
           delete_after_days: 10000
       metrics:
         expiration_policy:
           delete_after_days: 10000
+      new-metric-capture-emulation:
+        expiration_policy:
+          delete_after_days: 1130
+      newtab:
+        expiration_policy:
+          delete_after_days: 1130
+      pseudo-main:
+        expiration_policy:
+          delete_after_days: 1130
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1130
+        delete_after_days: 400
   - app_name: firefox_desktop_background_update
     canonical_app_name: Firefox for Desktop Background Update Task
     app_description: >-
@@ -403,7 +418,7 @@ applications:
 
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1130
+        delete_after_days: 400
     moz_pipeline_metadata:
       background-update:
         expiration_policy:
@@ -411,12 +426,18 @@ applications:
       baseline:
         expiration_policy:
           delete_after_days: 10000
+      crash:
+        expiration_policy:
+          delete_after_days: 1130
       deletion-request:
         expiration_policy:
           delete_after_days: 10000
       events:
         expiration_policy:
           delete_after_days: 10000
+      fog-validation:
+        expiration_policy:
+          delete_after_days: 1130
       metrics:
         expiration_policy:
           delete_after_days: 10000
@@ -447,7 +468,7 @@ applications:
 
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1130
+        delete_after_days: 400
   - app_name: pine
     canonical_app_name: Pinebuild
     app_description: >-
@@ -481,7 +502,32 @@ applications:
 
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1130
+        delete_after_days: 400
+    moz_pipeline_metadata:
+      baseline:
+        expiration_policy:
+          delete_after_days: 1130
+      deletion-request:
+        expiration_policy:
+          delete_after_days: 1130
+      events:
+        expiration_policy:
+          delete_after_days: 1130
+      fog-validation:
+        expiration_policy:
+          delete_after_days: 1130
+      metrics:
+        expiration_policy:
+          delete_after_days: 1130
+      new-metric-capture-emulation:
+        expiration_policy:
+          delete_after_days: 1130
+      newtab:
+        expiration_policy:
+          delete_after_days: 1130
+      pseudo-main:
+        expiration_policy:
+          delete_after_days: 1130
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
     canonical_app_name: Firefox for Android
@@ -520,12 +566,27 @@ applications:
       activation:
         expiration_policy:
           delete_after_days: 10000
+      addresses-sync:
+        expiration_policy:
+          delete_after_days: 1130
       baseline:
         expiration_policy:
           delete_after_days: 10000
       bookmarks-sync:
         expiration_policy:
           delete_after_days: 10000
+      client-deduplication:
+        expiration_policy:
+          delete_after_days: 1130
+      cookie-banner-report-site:
+        expiration_policy:
+          delete_after_days: 1130
+      crash:
+        expiration_policy:
+          delete_after_days: 1130
+      creditcards-sync:
+        expiration_policy:
+          delete_after_days: 1130
       deletion-request:
         expiration_policy:
           delete_after_days: 10000
@@ -535,6 +596,9 @@ applications:
       first-session:
         expiration_policy:
           delete_after_days: 10000
+      fog-validation:
+        expiration_policy:
+          delete_after_days: 1130
       history-sync:
         expiration_policy:
           delete_after_days: 10000
@@ -556,6 +620,9 @@ applications:
       sync:
         expiration_policy:
           delete_after_days: 10000
+      tabs-sync:
+        expiration_policy:
+          delete_after_days: 1130
     channels:
       - v1_name: firefox-android-release
         app_id: org.mozilla.firefox
@@ -598,7 +665,7 @@ applications:
 
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1130
+        delete_after_days: 400
   - app_name: firefox_ios
     canonical_app_name: Firefox for iOS
     app_description: Firefox for iOS
@@ -638,9 +705,33 @@ applications:
       events:
         expiration_policy:
           delete_after_days: 10000
+      first-session:
+        expiration_policy:
+          delete_after_days: 1130
       metrics:
         expiration_policy:
           delete_after_days: 10000
+      temp-bookmarks-sync:
+        expiration_policy:
+          delete_after_days: 1130
+      temp-clients-sync:
+        expiration_policy:
+          delete_after_days: 1130
+      temp-history-sync:
+        expiration_policy:
+          delete_after_days: 1130
+      temp-logins-sync:
+        expiration_policy:
+          delete_after_days: 1130
+      temp-rust-tabs-sync:
+        expiration_policy:
+          delete_after_days: 1130
+      temp-sync:
+        expiration_policy:
+          delete_after_days: 1130
+      temp-tabs-sync:
+        expiration_policy:
+          delete_after_days: 1130
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
@@ -660,7 +751,7 @@ applications:
 
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 1130
+        delete_after_days: 400
   - app_name: reference_browser
     canonical_app_name: Reference Browser
     app_description: >-
