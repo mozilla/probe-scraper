@@ -1497,6 +1497,27 @@ applications:
       expiration_policy:
         delete_after_days: 760
 
+  - app_name: monitor_backend
+    canonical_app_name: "Mozilla Monitor (Backend)"
+    app_description: >
+      Mozilla Monitor arms you with tools
+      to keep your personal information safe.
+    url: https://github.com/mozilla/blurts-server
+    notification_emails:
+      - rhelmer@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/backend-metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-server
+    channels:
+      - v1_name: monitor-backend
+        app_id: monitor.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
+
   - app_name: moso_mastodon_backend
     canonical_app_name: Mozilla Social Mastodon Backend
     app_description: |
