@@ -116,7 +116,7 @@ libraries:
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
-      - teshaq@mozilla.com
+      - mhammond@mozilla.com
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
     metrics_files:
@@ -243,6 +243,7 @@ libraries:
       - dom/metrics.yaml
       - dom/performance/metrics.yaml
       - dom/security/metrics.yaml
+      - dom/webauthn/metrics.yaml
       - gfx/metrics.yaml
       - image/decoders/metrics.yaml
       - js/xpconnect/metrics.yaml
@@ -270,6 +271,7 @@ libraries:
       - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
+      - toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
       - toolkit/components/glean/pings.yaml
       - toolkit/components/reportbrokensite/pings.yaml
     tag_files:
@@ -288,6 +290,7 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - browser/components/backup/metrics.yaml
+      - browser/components/genai/metrics.yaml
       - browser/components/metrics.yaml
       - browser/components/migration/metrics.yaml
       - browser/components/newtab/metrics.yaml
@@ -300,6 +303,8 @@ applications:
       - browser/components/urlbar/metrics.yaml
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
+      - dom/privateattribution/metrics.yaml
+      - services/fxaccounts/metrics.yaml
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
@@ -316,6 +321,7 @@ applications:
       - browser/components/search/pings.yaml
       - browser/components/urlbar/pings.yaml
       - browser/modules/pings.yaml
+      - services/fxaccounts/pings.yaml
       - toolkit/components/crashes/pings.yaml
       - toolkit/components/resistfingerprinting/pings.yaml
       - toolkit/components/telemetry/pings.yaml
@@ -1427,9 +1433,9 @@ applications:
         delete_after_days: 760
 
   - app_name: monitor_cirrus
-    canonical_app_name: "Firefox Monitor (Cirrus)"
+    canonical_app_name: "Mozilla Monitor (Cirrus)"
     app_description: >
-      Firefox Monitor arms you with tools
+      Mozilla Monitor arms you with tools
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
@@ -1471,9 +1477,9 @@ applications:
         delete_after_days: 400
 
   - app_name: monitor_frontend
-    canonical_app_name: "Firefox Monitor (Frontend)"
+    canonical_app_name: "Mozilla Monitor (Frontend)"
     app_description: >
-      Firefox Monitor arms you with tools
+      Mozilla Monitor arms you with tools
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
@@ -1648,6 +1654,45 @@ applications:
     channels:
       - v1_name: relay-backend
         app_id: relay.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+
+  - app_name: gleanjs_docs
+    canonical_app_name: "Glean.js Documentation"
+    app_description: >
+      Glean.js user and developer documentation.
+    url: https://github.com/mozilla/glean.js
+    notification_emails:
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: gleanjs-docs
+        app_id: gleanjs-docs
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+
+  - app_name: ads_backend
+    canonical_app_name: Mozilla Ads Backend Service
+    app_description: |
+      Mozilla Ads Backend Service
+    url: https://github.com/mozilla-services/mars-telemetry
+    notification_emails:
+      - gleonard@mozilla.com
+    branch: main
+    metrics_files:
+      - telemetry/glean/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-server
+    channels:
+      - v1_name: ads-backend
+        app_id: ads.backend
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400

@@ -36,6 +36,9 @@ for repo in repos:
         app_id_channels[repo.app_id][repo.channel] += 1
 
     for metric_file in metrics_files:
+        if repo.deprecated:
+            continue  # ignore missing files for deprecated apps
+
         if (repo.name, metric_file) in EXPECTED_MISSING_FILES:
             continue  # ignore missing files
 
