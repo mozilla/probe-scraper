@@ -340,7 +340,7 @@ applications:
     moz_pipeline_metadata:
       pageload:
         expiration_policy:
-          delete_after_days: 120
+          delete_after_days: 10000
       top-sites:
         expiration_policy:
           delete_after_days: 30
