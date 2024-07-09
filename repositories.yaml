@@ -338,6 +338,9 @@ applications:
       - v1_name: firefox-desktop
         app_id: firefox.desktop
     moz_pipeline_metadata:
+      fx-accounts:
+        expiration_policy:
+          delete_after_days: 30
       pageload:
         expiration_policy:
           delete_after_days: 10000
