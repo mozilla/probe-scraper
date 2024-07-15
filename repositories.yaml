@@ -919,68 +919,6 @@ applications:
       - v1_name: firefox-translations
         app_id: firefox-translations
 
-  - app_name: rally_debug
-    canonical_app_name: Rally Core Add-on Debug Ingestion
-    app_description: Rally Core Add-on debug ingestion
-    # See
-    # https://github.com/mozilla-rally/rally-core-addon/commit/1e2996f8488d4cb1027bc62ff57ad1843caa5f59
-    deprecated: true
-    prototype: true
-    url: https://github.com/mozilla-rally/rally-core-addon
-    notification_emails:
-      - than@mozilla.com
-    branch: master
-    metrics_files:
-      - metrics.yaml
-    ping_files:
-      - pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      expiration_policy:
-        delete_after_days: 180
-        collect_through_date: "2023-03-27"
-      jwe_mappings:
-        - source_field_path: /payload
-          decrypted_field_path: ""
-    channels:
-      - v1_name: rally-debug
-        app_id: rally.debug
-        deprecated: true
-    skip_documentation: true
-
-  - app_name: rally_core
-    canonical_app_name: Rally Core Add-on and Web Platform
-    app_description: |
-      The Rally Core Add-on and Web Platform orchestrates the
-      installation and the lifecycle of [Rally](https://rally.mozilla.org/)
-      studies.
-    # See
-    # https://github.com/mozilla-rally/rally/commit/7e4f04536d849c39d15becb283f0b5013a0d928b
-    deprecated: true
-    url: https://github.com/mozilla-rally/rally
-    notification_emails:
-      - than@mozilla.com
-      - aagarwal@mozilla.com
-      - rhelmer@mozilla.com
-    branch: main
-    metrics_files:
-      - web-platform/glean/metrics.yaml
-    ping_files:
-      - web-platform/glean/pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      jwe_mappings:
-        - source_field_path: /payload
-          decrypted_field_path: ""
-      expiration_policy:
-        collect_through_date: "2023-03-27"
-    channels:
-      - v1_name: rally-core
-        app_id: rally-core
-    skip_documentation: true
-
   - app_name: mozilla_vpn
     canonical_app_name: Mozilla VPN
     app_description: |
@@ -1052,36 +990,6 @@ applications:
       - v1_name: mozillavpn-backend-cirrus
         app_id: mozillavpn_backend_cirrus
 
-  - app_name: rally_study_zero_one
-    canonical_app_name: Rally Study-01
-    app_description: |
-      This is an exploratory study on what sites people
-      use and how long they use them, for the Rally
-      platform. It is implemented as a cross-browser
-      WebExtension.
-    deprecated: true
-    url: https://github.com/mozilla-rally/rally-study-01
-    notification_emails:
-      - than@mozilla.com
-      - hulmer@mozilla.com
-    branch: master
-    metrics_files:
-      - metrics.yaml
-    ping_files:
-      - pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      jwe_mappings:
-        - source_field_path: /payload
-          decrypted_field_path: ""
-      expiration_policy:
-        collect_through_date: "2022-12-31"
-    channels:
-      - v1_name: rally-study-zero-one
-        app_id: rally-study-zero-one
-    skip_documentation: true
-
   - app_name: mlhackweek_search
     canonical_app_name: ML Hack Week Search App
     app_description: |
@@ -1128,38 +1036,6 @@ applications:
     channels:
       - v1_name: regrets-reporter-ucs
         app_id: regrets.reporter.ucs
-
-  - app_name: rally_markup_fb_pixel_hunt
-    canonical_app_name: Rally Facebook Pixel Hunt
-    app_description: |
-      In a collaboration between journalists at the Markup and Mozilla,
-      this study seeks to map Facebook’s pixel tracking network and
-      understand the kinds of information it collects on sites across
-      the web. The Markup will use the data collected in this study
-      to create investigative journalism around the kinds of information
-      Facebook collects about you, and where.
-    deprecated: true
-    url: https://github.com/mozilla-rally/facebook-pixel-hunt
-    notification_emails:
-      - than@mozilla.com
-      - jepstein@mozilla.com
-    branch: main
-    metrics_files:
-      - metrics.yaml
-    ping_files:
-      - pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      jwe_mappings:
-        - source_field_path: /payload
-          decrypted_field_path: ""
-      expiration_policy:
-        collect_through_date: "2022-07-13"
-    channels:
-      - v1_name: rally-markup-fb-pixel-hunt
-        app_id: rally-markup-fb-pixel-hunt
-    skip_documentation: true
 
   - app_name: glean_dictionary
     canonical_app_name: Glean Dictionary
@@ -1211,42 +1087,6 @@ applications:
       - v1_name: mdn-yari
         app_id: mdn-yari
 
-  - app_name: rally_citp_search_engine_usage
-    canonical_app_name: Search Engine Usage and Result Quality
-    app_description: |
-      In a collaboration between researchers at Princeton University’s
-      Center for Information Technology Policy and Mozilla, this study
-      examines the search engine market and how individuals interact
-      with search engines. The motivation for this research is to
-      understand how users interact with and make choices about search
-      engines. Understanding the search engine marketplace will inform
-      competition policy, promoting a diverse digital ecosystem that
-      benefits users.
-    deprecated: true
-    url: https://github.com/mozilla-rally/search-engine-usage-study
-    notification_emails:
-      - than@mozilla.com
-      - jepstein@mozilla.com
-      - betling@mozilla.com
-      - rhelmer@mozilla.com
-    branch: main
-    metrics_files:
-      - metrics.yaml
-    ping_files:
-      - pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      jwe_mappings:
-        - source_field_path: /payload
-          decrypted_field_path: ""
-      expiration_policy:
-        collect_through_date: "2023-03-27"
-    channels:
-      - v1_name: rally-citp-search-engine-usage
-        app_id: rally-citp-search-engine-usage
-    skip_documentation: true
-
   - app_name: bedrock
     canonical_app_name: www.mozilla.org
     app_description: The Mozilla website www.mozilla.org
@@ -1264,37 +1104,6 @@ applications:
     channels:
       - v1_name: bedrock
         app_id: bedrock
-
-  - app_name: rally_attention_stream
-    canonical_app_name: Rally Attention Stream
-    app_description: |
-      The Attention Stream is an ongoing, cross-browser data collection
-      to understand the state of the internet in 2022 and beyond.
-    deprecated: true
-    url: https://github.com/mozilla-rally/rally
-    notification_emails:
-      - than@mozilla.com
-      - betling@mozilla.com
-      - rhelmer@mozilla.com
-      - jmoradi@mozilla.com
-      - aagarwal@mozilla.com
-    branch: main
-    metrics_files:
-      - extensions/attention-stream/metrics.yaml
-    ping_files:
-      - extensions/attention-stream/pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      jwe_mappings:
-        - source_field_path: /payload
-          decrypted_field_path: ""
-      expiration_policy:
-        collect_through_date: "2023-03-27"
-    channels:
-      - v1_name: rally-attention-stream
-        app_id: rally-attention-stream
-    skip_documentation: true
 
   - app_name: viu_politica
     canonical_app_name: Viu Politica
