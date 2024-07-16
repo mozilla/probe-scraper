@@ -236,6 +236,7 @@ libraries:
       - browser/base/content/metrics.yaml
       - docshell/base/metrics.yaml
       - dom/base/use_counter_metrics.yaml
+      - dom/geolocation/metrics.yaml
       - dom/media/eme/metrics.yaml
       - dom/media/hls/metrics.yaml
       - dom/media/metrics.yaml
@@ -308,6 +309,7 @@ applications:
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
+      - toolkit/components/places/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/shopping/metrics.yaml
       - toolkit/components/telemetry/dap/metrics.yaml
