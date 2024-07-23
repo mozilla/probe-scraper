@@ -451,6 +451,9 @@ applications:
       metrics:
         expiration_policy:
           delete_after_days: 10000
+      pageload:
+        expiration_policy:
+          delete_after_days: 10000
 
   - app_name: firefox_desktop_background_defaultagent
     canonical_app_name: Firefox Desktop Default Agent Task
@@ -542,6 +545,9 @@ applications:
       newtab:
         expiration_policy:
           delete_after_days: 1130
+      pageload:
+        expiration_policy:
+          delete_after_days: 10000
       pseudo-main:
         expiration_policy:
           delete_after_days: 1130
@@ -633,6 +639,9 @@ applications:
         expiration_policy:
           delete_after_days: 10000
       migration:
+        expiration_policy:
+          delete_after_days: 10000
+      pageload:
         expiration_policy:
           delete_after_days: 10000
       startup-timeline:
@@ -1280,6 +1289,10 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+    moz_pipeline_metadata:
+      pageload:
+        expiration_policy:
+          delete_after_days: 10000
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
@@ -1318,6 +1331,10 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+    moz_pipeline_metadata:
+      pageload:
+        expiration_policy:
+          delete_after_days: 10000
     channels:
       - v1_name: firefox-klar-android
         app_id: org.mozilla.klar
