@@ -747,6 +747,9 @@ applications:
       temp-clients-sync:
         expiration_policy:
           delete_after_days: 1130
+      temp-credit-cards-sync:
+        expiration_policy:
+          delete_after_days: 1130
       temp-history-sync:
         expiration_policy:
           delete_after_days: 1130
