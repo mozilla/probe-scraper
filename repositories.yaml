@@ -1990,3 +1990,33 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: thunderbird_desktop
+    canonical_app_name: Thunderbird
+    app_description: Thunderbird email client
+    url: https://github.com/mozilla/releases-comm-central
+    notification_emails:
+      - alessandro@thunderbird.net
+      - sancus@thunderbird.net
+    metrics_files:
+      - mail/metrics.yaml
+      - mail/components/compose/metrics.yaml
+      - mail/components/addrbook/metrics.yaml
+      - mail/components/cloudfile/metrics.yaml
+      - calendar/metrics.yaml
+    # While bug 1910995 asks to use comm/mail/pings.yaml, this
+    # file is currently empty in the repo and we won't add it
+    # to prevent failures, as probe-scraper doesn't like empty
+    # files.
+    ping_files: []
+    tag_files:
+      - mail/tags.yaml
+    dependencies:
+      - gecko
+      - glean-core
+    channels:
+      - v1_name: thunderbird-desktop
+        app_id: thunderbird.desktop
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 420
