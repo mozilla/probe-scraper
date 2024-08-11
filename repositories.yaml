@@ -304,7 +304,6 @@ applications:
       - browser/components/urlbar/metrics.yaml
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
-      - dom/privateattribution/metrics.yaml
       - services/fxaccounts/metrics.yaml
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
@@ -312,7 +311,6 @@ applications:
       - toolkit/components/places/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/shopping/metrics.yaml
-      - toolkit/components/telemetry/dap/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/modules/metrics.yaml
       - widget/cocoa/metrics.yaml
