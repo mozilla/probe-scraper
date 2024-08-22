@@ -715,7 +715,7 @@ applications:
       - org.mozilla.appservices:syncmanager
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 400
+        delete_after_days: 1130
     moz_pipeline_metadata:
       topsites-impression:
         expiration_policy:
@@ -733,36 +733,9 @@ applications:
       events:
         expiration_policy:
           delete_after_days: 10000
-      first-session:
-        expiration_policy:
-          delete_after_days: 1130
       metrics:
         expiration_policy:
           delete_after_days: 10000
-      temp-bookmarks-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-clients-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-credit-cards-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-history-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-logins-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-rust-tabs-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-sync:
-        expiration_policy:
-          delete_after_days: 1130
-      temp-tabs-sync:
-        expiration_policy:
-          delete_after_days: 1130
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
