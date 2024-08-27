@@ -12,7 +12,7 @@ from probe_scraper.emailer import send_ses
 EMAIL_SUBJECT_TEMPLATE = "Glean Pings Expiring for {app_name}"
 
 EMAIL_TEMPLATE = """
-The following BigQuery tables are set to start deleting collected data soon based on the retention policies.
+The following BigQuery tables are set to start expiring collected data soon based on their retention policies.
 
 {tables}
 
@@ -27,7 +27,7 @@ Retention policies are defined in probe-scraper [1], with options to either stop
 For more information on requesting help from the data team, see https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849444/Getting+Help+Jira+documentation
 If you have any questions, please ask on the #data-help Slack channel. We'll give you a hand.
 
-Your Friendly, Neighborhood Data Team
+Your Friendly Neighborhood Data Team
 
 [1] - https://github.com/mozilla/probe-scraper/blob/main/repositories.yaml
 
@@ -39,10 +39,10 @@ APP_GROUP_TEMPLATE = """
 {messages}
 """
 
-RETENTION_DAYS_MESSAGE_TEMPLATE = '\t- The "{table_name}" table for will start deleting data older than {retention_days} days starting on {expiry_date} ({num_weeks} weeks from now)'  # noqa
+RETENTION_DAYS_MESSAGE_TEMPLATE = '\t- The "{table_name}" table for will start expiring data older than {retention_days} days starting on {expiry_date} ({num_weeks} weeks from now)'  # noqa
 
 # emails in this list will receive alerts for all pings
-DEFAULT_EMAILS = ["bewu@mozilla.com"]
+DEFAULT_EMAILS = ["bewu@mozilla.com", "dataops+alerts@mozilla.com"]
 
 NOTIFICATION_DAYS_MAX = 25
 NOTIFICATION_DAYS_MIN = 5
