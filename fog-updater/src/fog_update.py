@@ -183,7 +183,7 @@ def main(argv, repo, author, debug=False, dry_run=False):
         new_content = _rewrite_repositories_yaml(repo, release_branch_name, data)
     except Exception as e:
         print(f"{ts()} {e}")
-        return
+        raise
 
     if dry_run:
         print(f"{ts()} Dry-run so not continuing.")
