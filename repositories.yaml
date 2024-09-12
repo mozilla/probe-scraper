@@ -253,6 +253,7 @@ libraries:
       - mobile/shared/modules/geckoview/metrics.yaml
       - netwerk/metrics.yaml
       - netwerk/protocol/http/metrics.yaml
+      - parser/html/metrics.yaml
       - security/certverifier/metrics.yaml
       - security/manager/ssl/metrics.yaml
       - toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
@@ -275,6 +276,7 @@ libraries:
       - toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
       - toolkit/components/glean/pings.yaml
       - toolkit/components/reportbrokensite/pings.yaml
+      - toolkit/components/resistfingerprinting/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     variants:
@@ -324,7 +326,6 @@ applications:
       - browser/modules/pings.yaml
       - services/fxaccounts/pings.yaml
       - toolkit/components/crashes/pings.yaml
-      - toolkit/components/resistfingerprinting/pings.yaml
       - toolkit/components/telemetry/pings.yaml
       - toolkit/modules/pings.yaml
     tag_files:
