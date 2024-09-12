@@ -93,8 +93,7 @@ def swap_file_list(content, app, files, metrics_or_pings, library=False):
             state = "files"
         elif state == "files":
             if line.strip().startswith("-"):
-                ws, _ = line.split("-")
-                indent = len(ws)
+                indent = line.find("-")
                 continue
             else:
                 for file in files:
