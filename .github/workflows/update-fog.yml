@@ -17,6 +17,7 @@ on:
     # 04:20 UTC - every morning
     # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
     - cron: '20 4 * * *'
+  workflow_dispatch:
 
 jobs:
   main:
