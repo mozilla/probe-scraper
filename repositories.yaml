@@ -428,7 +428,7 @@ applications:
     moz_pipeline_metadata:
       crash:
         expiration_policy:
-          delete_after_days: 10000
+          delete_after_days: 1130
 
   - app_name: firefox_desktop_background_update
     canonical_app_name: Firefox for Desktop Background Update Task
