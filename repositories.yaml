@@ -404,6 +404,32 @@ applications:
         expiration_policy:
           delete_after_days: 1130
 
+  - app_name: firefox_crashreporter
+    canonical_app_name: Firefox Crash Reporter
+    app_description: >-
+      The Firefox desktop crash reporter client.
+    url: https://github.com/mozilla/gecko-dev
+    notification_emails:
+      - chutten@mozilla.com
+    metrics_files:
+      - toolkit/components/crashes/metrics.yaml
+    ping_files:
+      - toolkit/components/crashes/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
+    dependencies:
+      - glean-core
+    channels:
+      - v1_name: firefox-crashreporter
+        app_id: firefox.crashreporter
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    moz_pipeline_metadata:
+      crash:
+        expiration_policy:
+          delete_after_days: 10000
+
   - app_name: firefox_desktop_background_update
     canonical_app_name: Firefox for Desktop Background Update Task
     app_description: >-
