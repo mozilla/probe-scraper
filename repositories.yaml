@@ -1994,3 +1994,38 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 420
+
+  - app_name: thunderbird_android
+    canonical_app_name: Thunderbird for Android
+    app_description: Thunderbird email client for Android
+    url: https://github.com/thunderbird/thunderbird-android
+    notification_emails:
+      - alessandro@thunderbird.net
+      - sancus@thunderbird.net
+      - cketti@thunderbird.net
+      - kewisch@thunderbird.net
+    metrics_files: []
+    ping_files: []
+    tag_files: []
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+    channels:
+      - v1_name: thunderbird-android-release
+        app_id: net.thunderbird.android
+        app_channel: release
+        description: >-
+          Release channel of Thunderbird for Android.
+      - v1_name: thunderbird-android-beta
+        app_id: net.thunderbird.android.beta
+        app_channel: beta
+        description: >-
+          Beta channel of Thunderbird for Android.
+      - v1_name: thunderbird-android-daily
+        app_id: net.thunderbird.android.daily
+        app_channel: nightly
+        description: >-
+          Daily channel of Thunderbird for Android.
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
