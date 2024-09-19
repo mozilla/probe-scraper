@@ -410,7 +410,7 @@ applications:
       The Firefox desktop crash reporter client.
     url: https://github.com/mozilla/gecko-dev
     notification_emails:
-      - chutten@mozilla.com
+      - afranchuk@mozilla.com
     metrics_files:
       - toolkit/components/crashes/metrics.yaml
     ping_files:
