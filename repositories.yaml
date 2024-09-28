@@ -278,6 +278,7 @@ libraries:
       - toolkit/components/reportbrokensite/metrics.yaml
       - toolkit/components/resistfingerprinting/metrics.yaml
       - toolkit/components/translations/metrics.yaml
+      - toolkit/content/metrics.yaml
       - toolkit/mozapps/extensions/metrics.yaml
       - toolkit/mozapps/handling/metrics.yaml
       - toolkit/xre/metrics.yaml
@@ -313,6 +314,7 @@ applications:
       - browser/components/pocket/metrics.yaml
       - browser/components/preferences/metrics.yaml
       - browser/components/privatebrowsing/metrics.yaml
+      - browser/components/protections/metrics.yaml
       - browser/components/protocolhandler/metrics.yaml
       - browser/components/screenshots/metrics.yaml
       - browser/components/search/metrics.yaml
