@@ -233,6 +233,7 @@ libraries:
       - chutten@mozilla.com
     url: https://github.com/mozilla/gecko-dev
     metrics_files:
+      - accessible/metrics.yaml
       - browser/base/content/metrics.yaml
       - devtools/client/shared/metrics.yaml
       - docshell/base/metrics.yaml
@@ -310,11 +311,13 @@ applications:
     metrics_files:
       - browser/components/backup/metrics.yaml
       - browser/components/doh/metrics.yaml
+      - browser/components/downloads/metrics.yaml
       - browser/components/firefoxview/metrics.yaml
       - browser/components/genai/metrics.yaml
       - browser/components/metrics.yaml
       - browser/components/migration/metrics.yaml
       - browser/components/newtab/metrics.yaml
+      - browser/components/places/metrics.yaml
       - browser/components/pocket/metrics.yaml
       - browser/components/preferences/metrics.yaml
       - browser/components/privatebrowsing/metrics.yaml
