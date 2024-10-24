@@ -42,7 +42,7 @@ APP_GROUP_TEMPLATE = """
 RETENTION_DAYS_MESSAGE_TEMPLATE = '\t- The "{table_name}" table for will start expiring data older than {retention_days} days starting on {expiry_date} ({num_weeks} weeks from now)'  # noqa
 
 # emails in this list will receive alerts for all pings
-DEFAULT_EMAILS = ["bewu@mozilla.com", "dataops+alerts@mozilla.com"]
+DEFAULT_EMAILS = ["telemetry-alerts@mozilla.com", "dataops+alerts@mozilla.com"]
 
 NOTIFICATION_DAYS_MAX = 25
 NOTIFICATION_DAYS_MIN = 5
