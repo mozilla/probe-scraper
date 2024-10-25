@@ -286,6 +286,7 @@ libraries:
       - toolkit/components/resistfingerprinting/metrics.yaml
       - toolkit/components/translations/metrics.yaml
       - toolkit/content/metrics.yaml
+      - toolkit/content/widgets/metrics.yaml
       - toolkit/mozapps/extensions/metrics.yaml
       - toolkit/mozapps/extensions/metrics_legacy.yaml
       - toolkit/mozapps/handling/metrics.yaml
@@ -332,6 +333,8 @@ applications:
       - browser/components/sessionstore/metrics.yaml
       - browser/components/shopping/metrics.yaml
       - browser/components/sidebar/metrics.yaml
+      - browser/components/tabbrowser/metrics.yaml
+      - browser/components/textrecognition/metrics.yaml
       - browser/components/urlbar/metrics.yaml
       - browser/extensions/search-detection/metrics.yaml
       - browser/modules/metrics.yaml
