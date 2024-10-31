@@ -13,6 +13,8 @@ EMAIL_SUBJECT_TEMPLATE = "Glean Pings Expiring for {app_name}"
 
 EMAIL_TEMPLATE = """
 The following BigQuery tables are set to start expiring collected data soon based on their retention policies.
+Note that this expiration will only delete data from the raw telemetry ("ping") tables listed below.
+Aggregated/analytics tables derived from the telemetry data, such as "clients_daily" and "clients_last_seen" tables, will not be affected and will continue to retain all historical data.
 
 {tables}
 
