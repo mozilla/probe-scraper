@@ -2108,4 +2108,3 @@ applications:
       - v1_name: moz-backstage-prod
         app_id: moz_backstage
         app_channel: production
-
