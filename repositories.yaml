@@ -2294,7 +2294,7 @@ applications:
     app_description: Mozcloud Service Catalog (Backstage)
     url: https://github.com/mozilla/mozcloud-backstage
     notification_emails:
-      wstuckey@mozilla.com
+      - wstuckey@mozilla.com
     metrics_files:
       - plugins/glean/metrics.yaml
     channels:
