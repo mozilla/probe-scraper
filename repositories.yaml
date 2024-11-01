@@ -2098,7 +2098,7 @@ applications:
     app_description: Mozilla Service Catalog (Backstage)
     url: https://github.com/mozilla-services/moz-backstage-app
     notification_emails:
-      wstuckey@mozilla.com
+      - wstuckey@mozilla.com
     metrics_files:
       - plugins/glean/metrics.yaml
     channels:
