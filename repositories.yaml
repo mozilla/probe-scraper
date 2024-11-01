@@ -2102,9 +2102,5 @@ applications:
     metrics_files:
       - plugins/glean/metrics.yaml
     channels:
-      - v1_name: moz-backstage-dev
+      - v1_name: moz-backstage
         app_id: moz_backstage
-        app_channel: development
-      - v1_name: moz-backstage-prod
-        app_id: moz_backstage
-        app_channel: production
