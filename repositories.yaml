@@ -2288,3 +2288,22 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130
+
+  - app_name: mozcloud_backstage
+    canonical_app_name: Mozcloud Service Catalog
+    app_description: Mozcloud Service Catalog (Backstage)
+    url: https://github.com/mozilla/mozcloud-backstage
+    notification_emails:
+      wstuckey@mozilla.com
+    metrics_files:
+      - plugins/glean/metrics.yaml
+    channels:
+      - v1_name: mozcloud-backstage-dev
+        app_id: moz_backstage
+        app_channel: development
+      - v1_name: mozcloud-backstage-prod
+        app_id: moz_backstage
+        app_channel: production
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
