@@ -1643,6 +1643,7 @@ applications:
     app_description: |
       Internal Developer dashboard for CI results
     url: https://github.com/mozilla/treeherder
+    deprecated: true
     notification_emails:
       - jmaher@mozilla.com
     branch: master
