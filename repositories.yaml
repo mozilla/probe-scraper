@@ -2104,3 +2104,6 @@ applications:
     channels:
       - v1_name: moz-backstage
         app_id: moz_backstage
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
