@@ -2304,3 +2304,6 @@ applications:
       - v1_name: mozcloud-backstage-prod
         app_id: moz_backstage
         app_channel: production
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
