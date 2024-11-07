@@ -2018,7 +2018,8 @@ applications:
     branch: main
     metrics_files:
       - telemetry/glean/metrics.yaml
-    ping_files: []
+    ping_files:
+      - telemetry/glean/pings.yaml
     dependencies:
       - glean-server
     channels:
