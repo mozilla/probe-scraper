@@ -6,6 +6,7 @@
 
 from github import Github, GithubException, InputGitAuthor, enable_console_debug_logging
 import datetime
+import difflib
 import io
 import os
 import requests
@@ -116,7 +117,7 @@ def get_latest_metrics_index():
     return r.text
 
 
-def _rewrite_repositories_yaml(repo, branch, data):
+def _rewrite_repositories_yaml(repo, branch, data, debug=False):
     contents = repo.get_contents("repositories.yaml", ref=branch)
     content = contents.decoded_content.decode("utf-8")
 
@@ -131,6 +132,15 @@ def _rewrite_repositories_yaml(repo, branch, data):
         raise UnmodifiedException(
             "Update to repositories.yaml resulted in no changes: maybe the file was already up to date?"  # noqa
         )
+
+    if debug:
+        diff = difflib.unified_diff(
+            content.splitlines(keepends=True),
+            new_content.splitlines(keepends=True),
+            fromfile="old/repositories.yaml",
+            tofile="new/repositories.yaml",
+        )
+        sys.stdout.writelines(diff)
 
     return new_content
 
@@ -193,7 +203,9 @@ def main(argv, repo, author, debug=False, dry_run=False):
 
     print(f"{ts()} Updating repositories.yaml")
     try:
-        new_content = _rewrite_repositories_yaml(repo, release_branch_name, data)
+        new_content = _rewrite_repositories_yaml(
+            repo, release_branch_name, data, debug=dry_run or debug
+        )
     except UnmodifiedException as e:
         print(f"{ts()} {e}")
         return
