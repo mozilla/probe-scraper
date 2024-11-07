@@ -33,6 +33,10 @@ The source code of this automation bot lives in <https://github.com/mozilla/prob
 """  # noqa
 
 
+class UnmodifiedException(Exception):
+    pass
+
+
 def ts():
     return str(datetime.datetime.now())
 
@@ -124,7 +128,7 @@ def _rewrite_repositories_yaml(repo, branch, data):
         )
 
     if content == new_content:
-        raise Exception(
+        raise UnmodifiedException(
             "Update to repositories.yaml resulted in no changes: maybe the file was already up to date?"  # noqa
         )
 
@@ -190,6 +194,9 @@ def main(argv, repo, author, debug=False, dry_run=False):
     print(f"{ts()} Updating repositories.yaml")
     try:
         new_content = _rewrite_repositories_yaml(repo, release_branch_name, data)
+    except UnmodifiedException as e:
+        print(f"{ts()} {e}")
+        return
     except Exception as e:
         print(f"{ts()} {e}")
         raise
