@@ -247,7 +247,6 @@ def main(argv, repo, author, debug=False, dry_run=False):
         head=pr_branch_name,
         base=release_branch_name,
     )
-    pr.create_review_request()
     print(f"{ts()} Pull request at {pr.html_url}")
 
 
