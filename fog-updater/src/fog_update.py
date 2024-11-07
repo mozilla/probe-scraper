@@ -171,9 +171,19 @@ def main(argv, repo, author, debug=False, dry_run=False):
         ["gecko", "pings", True, gecko_pings],
         ["firefox_desktop", "metrics", False, firefox_desktop_metrics],
         ["firefox_desktop", "pings", False, firefox_desktop_pings],
-        ["firefox_desktop_background_update", "metrics", False, background_update_metrics],
+        [
+            "firefox_desktop_background_update",
+            "metrics",
+            False,
+            background_update_metrics,
+        ],
         ["firefox_desktop_background_update", "pings", False, background_update_pings],
-        ["firefox_desktop_background_tasks", "metrics", False, background_tasks_metrics],
+        [
+            "firefox_desktop_background_tasks",
+            "metrics",
+            False,
+            background_tasks_metrics,
+        ],
         ["firefox_desktop_background_tasks", "pings", False, background_tasks_pings],
     ]
 
@@ -223,7 +233,6 @@ def main(argv, repo, author, debug=False, dry_run=False):
 
 
 if __name__ == "__main__":
-
     debug = os.getenv("DEBUG") is not None
     if debug:
         enable_console_debug_logging()
