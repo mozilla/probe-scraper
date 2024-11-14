@@ -2102,7 +2102,7 @@ applications:
     url: https://github.com/mozilla-services/syncstorage-rs
     notification_emails:
       - tlong@mozilla.com
-    branch: main
+    branch: master
     metrics_files:
       - glean/metrics.yaml
     ping_files:
