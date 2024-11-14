@@ -2094,3 +2094,18 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: mozilla_backstage
+    canonical_app_name: Mozilla Service Catalog
+    app_description: Mozilla Service Catalog (Backstage)
+    url: https://github.com/mozilla-services/moz-backstage-app
+    notification_emails:
+      - wstuckey@mozilla.com
+    metrics_files:
+      - plugins/glean/metrics.yaml
+    channels:
+      - v1_name: moz-backstage
+        app_id: moz_backstage
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
