@@ -79,11 +79,13 @@ def test_already_expired(mock_client_class):
                 {
                     "table_id": "ping_1_v1",
                     "partition_expiration_days": 30,
+                    "actual_partition_expiration_days": 30,
                     "next_deletion_date": datetime.date.fromisoformat("2023-12-22"),
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": 40,
+                    "actual_partition_expiration_days": 40,
                     "next_deletion_date": datetime.date.fromisoformat("2023-12-23"),
                 },
             ],
@@ -116,11 +118,13 @@ def test_not_expired(mock_client_class):
                 {
                     "table_id": "ping_1_v1",
                     "partition_expiration_days": 30,
+                    "actual_partition_expiration_days": 30,
                     "next_deletion_date": datetime.date.fromisoformat("2024-12-22"),
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": 40,
+                    "actual_partition_expiration_days": 40,
                     "next_deletion_date": datetime.date.fromisoformat("2025-12-22"),
                 },
             ],
@@ -153,12 +157,14 @@ def test_expired(mock_client_class):
                 {
                     "table_id": "ping_1_v1",
                     "partition_expiration_days": 30,
+                    "actual_partition_expiration_days": 30,
                     # already expired
                     "next_deletion_date": datetime.date.fromisoformat("2023-12-22"),
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": 40,
+                    "actual_partition_expiration_days": 40,
                     # expiring soon
                     "next_deletion_date": datetime.date.fromisoformat("2024-01-01"),
                 },
@@ -171,6 +177,7 @@ def test_expired(mock_client_class):
                 {
                     "table_id": "ping_3_v1",
                     "partition_expiration_days": 60,
+                    "actual_partition_expiration_days": 60,
                     # expiring soon
                     "next_deletion_date": datetime.date.fromisoformat("2024-01-02"),
                 },
@@ -243,11 +250,13 @@ def test_retention_days_not_matching(mock_client_class):
                 {
                     "table_id": "ping_1_v1",
                     "partition_expiration_days": 50,
+                    "actual_partition_expiration_days": 50,
                     "next_deletion_date": datetime.date.fromisoformat("2025-01-02"),
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": None,
+                    "actual_partition_expiration_days": None,
                     "next_deletion_date": datetime.date.fromisoformat("2025-01-02"),
                 },
             ],
