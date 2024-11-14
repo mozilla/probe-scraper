@@ -2094,3 +2094,24 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: syncstorage
+    canonical_app_name: "Sync Storage"
+    app_description: >
+      Mozilla Sync Storage Backend built with Rust.
+    url: https://github.com/mozilla-services/syncstorage-rs
+    notification_emails:
+      - tlong@mozilla.com
+    branch: main
+    metrics_files:
+      - glean/metrics.yaml
+    ping_files:
+      - glean/pings.yaml
+    dependencies:
+      - glean-server
+    channels:
+      - v1_name: syncstorage
+        app_id: syncstorage
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
