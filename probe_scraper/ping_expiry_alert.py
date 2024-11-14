@@ -1,5 +1,6 @@
 import argparse
 import re
+import sys
 from collections import defaultdict
 from datetime import date, datetime
 from typing import Any, Dict, List, Tuple
@@ -50,14 +51,30 @@ NOTIFICATION_DAYS_MAX = 25
 NOTIFICATION_DAYS_MIN = 5
 
 EXPIRATIONS_QUERY_TEMPLATE = """
+WITH actual_expiration_days AS (
+  SELECT
+    table_schema AS dataset_id,
+    table_name AS table_id,
+    CAST(REGEXP_EXTRACT(option_value, "^[0-9]+") AS INT) AS actual_partition_expiration_days,
+  FROM
+    `moz-fx-data-shared-prod.region-us.INFORMATION_SCHEMA.TABLE_OPTIONS`
+  WHERE
+    option_name = "partition_expiration_days"
+)
 SELECT
   project_id,
   dataset_id,
   ARRAY_AGG(
-    STRUCT(table_id, partition_expiration_days, next_deletion_date) ORDER BY table_id
+    STRUCT(
+        table_id, partition_expiration_days, actual_partition_expiration_days, next_deletion_date
+    ) ORDER BY table_id
   ) AS tables,
 FROM
   `moz-fx-data-shared-prod.monitoring_derived.table_partition_expirations_v1`
+FULL JOIN
+  actual_expiration_days
+USING
+  (dataset_id, table_id)
 WHERE
   run_date = "{run_date}"
   AND project_id = "{project}"
@@ -101,7 +118,7 @@ def request_get(url: str) -> Dict:
     return response.json()
 
 
-def send_emails(messages_by_email: Dict[str, Dict[str, List[str]]], dryrun: bool):
+def send_emails(messages_by_email: Dict[str, Dict[str, List[str]]], dry_run: bool):
     for email, messages_by_app in messages_by_email.items():
         combined_messages = [
             APP_GROUP_TEMPLATE.format(app_name=app, messages="\n".join(messages))
@@ -120,8 +137,19 @@ def send_emails(messages_by_email: Dict[str, Dict[str, List[str]]], dryrun: bool
             subject=email_subject,
             body=email_body,
             recipients=[email],
-            dryrun=dryrun,
+            dryrun=dry_run,
         )
+
+
+def send_error_email(message: str, run_date: date, dry_run: bool):
+    email_subject = f"Ping expiry alert errors on {run_date.isoformat()}"
+    send_ses(
+        fromaddr="telemetry-alerts@mozilla.com",
+        subject=email_subject,
+        body=message,
+        recipients=["telemetry-alerts@mozilla.com"],
+        dryrun=dry_run,
+    )
 
 
 def table_name_to_doctype(table_name: str) -> str:
@@ -150,7 +178,7 @@ def validate_retention_settings(
     )
     for table_info in dataset_info["tables"]:
         document_type = table_name_to_doctype(table_info["table_id"])
-        applied_retention_days = table_info["partition_expiration_days"]
+        applied_retention_days = table_info["actual_partition_expiration_days"]
 
         if (
             delete_after_days := pipeline_metadata.get(document_type, {})
@@ -280,11 +308,21 @@ def main():
     # Only send emails on Wednesday, dry run on other days for error checking
     dry_run = args.dry_run or args.run_date.weekday() != 2
 
-    send_emails(expiring_pings_by_email, dry_run)
-
     if len(errors) > 0:
         error_string = "\n".join([f"{ping}: {msg}" for ping, msg in errors.items()])
-        raise RuntimeError(f"Encountered {len(errors)} errors: \n{error_string}")
+        full_message = f"Encountered {len(errors)} errors: \n{error_string}"
+        send_error_email(
+            message=full_message,
+            run_date=args.run_date,
+            dry_run=args.dry_run,  # send error emails regardless of day
+        )
+    else:
+        full_message = None
+
+    send_emails(expiring_pings_by_email, dry_run)
+
+    if full_message is not None:
+        print(full_message, file=sys.stderr)
 
 
 if __name__ == "__main__":
