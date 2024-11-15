@@ -2102,6 +2102,7 @@ applications:
     url: https://github.com/mozilla-services/syncstorage-rs
     notification_emails:
       - tlong@mozilla.com
+      - sync-backend@mozilla.com
     branch: master
     metrics_files:
       - glean/metrics.yaml
