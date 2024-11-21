@@ -547,10 +547,6 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
-    moz_pipeline_metadata:
-      deletion-request:
-        expiration_policy:
-          delete_after_days: 10000
 
   - app_name: pine
     canonical_app_name: Pinebuild
@@ -591,7 +587,7 @@ applications:
           delete_after_days: 1130
       deletion-request:
         expiration_policy:
-          delete_after_days: 10000
+          delete_after_days: 1130
       events:
         expiration_policy:
           delete_after_days: 1130
@@ -1516,10 +1512,6 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130
-    moz_pipeline_metadata:
-      deletion-request:
-        expiration_policy:
-          delete_after_days: 10000
 
   - app_name: regrets_reporter
     canonical_app_name: RegretsReporter
@@ -1661,10 +1653,6 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130
-    moz_pipeline_metadata:
-      deletion-request:
-        expiration_policy:
-          delete_after_days: 10000
 
   - app_name: firefox_desktop_background_tasks
     canonical_app_name: Firefox Desktop background tasks
