@@ -1275,6 +1275,8 @@ applications:
     branch: main
     metrics_files:
       - focus-ios/Blockzilla/metrics.yaml
+    ping_files:
+      - focus-ios/Blockzilla/pings.yaml
     dependencies:
       - glean-core
       - nimbus
@@ -1295,6 +1297,8 @@ applications:
     branch: main
     metrics_files:
       - focus-ios/Blockzilla/metrics.yaml
+    ping_files:
+      - focus-ios/Blockzilla/pings.yaml
     dependencies:
       - glean-core
       - nimbus
