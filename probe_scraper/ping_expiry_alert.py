@@ -66,7 +66,10 @@ SELECT
   dataset_id,
   ARRAY_AGG(
     STRUCT(
-        table_id, partition_expiration_days, actual_partition_expiration_days, next_deletion_date
+        table_id, partition_expiration_days,
+        actual_partition_expiration_days,
+        next_deletion_date,
+        expiration_changed
     ) ORDER BY table_id
   ) AS tables,
 FROM
@@ -189,7 +192,10 @@ def validate_retention_settings(
         else:
             metadata_retention_days = default_retention_days
 
-        if metadata_retention_days != applied_retention_days:
+        if (
+            metadata_retention_days != applied_retention_days
+            and table_info["expiration_changed"] is False
+        ):
             errors.append(
                 (
                     f"{dataset_info['dataset_id']}.{table_info['table_id']}",

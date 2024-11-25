@@ -81,12 +81,14 @@ def test_already_expired(mock_client_class):
                     "partition_expiration_days": 30,
                     "actual_partition_expiration_days": 30,
                     "next_deletion_date": datetime.date.fromisoformat("2023-12-22"),
+                    "expiration_changed": False,
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": 40,
                     "actual_partition_expiration_days": 40,
                     "next_deletion_date": datetime.date.fromisoformat("2023-12-23"),
+                    "expiration_changed": False,
                 },
             ],
         },
@@ -120,12 +122,14 @@ def test_not_expired(mock_client_class):
                     "partition_expiration_days": 30,
                     "actual_partition_expiration_days": 30,
                     "next_deletion_date": datetime.date.fromisoformat("2024-12-22"),
+                    "expiration_changed": False,
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": 40,
                     "actual_partition_expiration_days": 40,
                     "next_deletion_date": datetime.date.fromisoformat("2025-12-22"),
+                    "expiration_changed": False,
                 },
             ],
         },
@@ -160,6 +164,7 @@ def test_expired(mock_client_class):
                     "actual_partition_expiration_days": 30,
                     # already expired
                     "next_deletion_date": datetime.date.fromisoformat("2023-12-22"),
+                    "expiration_changed": False,
                 },
                 {
                     "table_id": "ping_2_v1",
@@ -167,6 +172,7 @@ def test_expired(mock_client_class):
                     "actual_partition_expiration_days": 40,
                     # expiring soon
                     "next_deletion_date": datetime.date.fromisoformat("2024-01-01"),
+                    "expiration_changed": False,
                 },
             ],
         },
@@ -180,6 +186,7 @@ def test_expired(mock_client_class):
                     "actual_partition_expiration_days": 60,
                     # expiring soon
                     "next_deletion_date": datetime.date.fromisoformat("2024-01-02"),
+                    "expiration_changed": False,
                 },
             ],
         },
@@ -252,12 +259,14 @@ def test_retention_days_not_matching(mock_client_class):
                     "partition_expiration_days": 50,
                     "actual_partition_expiration_days": 50,
                     "next_deletion_date": datetime.date.fromisoformat("2025-01-02"),
+                    "expiration_changed": False,
                 },
                 {
                     "table_id": "ping_2_v1",
                     "partition_expiration_days": None,
                     "actual_partition_expiration_days": None,
                     "next_deletion_date": datetime.date.fromisoformat("2025-01-02"),
+                    "expiration_changed": False,
                 },
             ],
         }
@@ -277,3 +286,36 @@ def test_retention_days_not_matching(mock_client_class):
     assert len(errors) == 2
     assert "proj.firefox_desktop_stable.ping_1_v1" in errors
     assert "proj.firefox_desktop_stable.ping_2_v1" in errors
+
+
+@patch("probe_scraper.ping_expiry_alert.request_get", mock_request)
+@patch("google.cloud.bigquery.Client")
+def test_retention_days_not_matching_changed(mock_client_class):
+    """No errors should be returned if the retention of the table was just changed."""
+    mock_retention = [
+        {
+            "project_id": "proj",
+            "dataset_id": "firefox_desktop_stable",
+            "tables": [
+                {
+                    "table_id": "ping_1_v1",
+                    "partition_expiration_days": 70,
+                    "actual_partition_expiration_days": 50,
+                    "next_deletion_date": datetime.date.fromisoformat("2025-01-02"),
+                    "expiration_changed": True,
+                },
+            ],
+        }
+    ]
+
+    mock_client = MagicMock()
+    mock_client_class.return_value = mock_client
+    mock_client.query_and_wait.return_value = mock_retention
+
+    expiring, errors = ping_expiry_alert.get_expiring_pings(
+        run_date=datetime.date.fromisoformat("2024-01-02"),
+        project_id="proj",
+    )
+
+    assert len(expiring) == 0
+    assert len(errors) == 0
