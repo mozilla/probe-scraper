@@ -6,6 +6,7 @@
 
 from github import Github, GithubException, InputGitAuthor, enable_console_debug_logging
 import datetime
+import difflib
 import io
 import os
 import requests
@@ -31,6 +32,10 @@ For reviewers:
 
 The source code of this automation bot lives in <https://github.com/mozilla/probe-scraper/tree/main/fog-updater>.
 """  # noqa
+
+
+class UnmodifiedException(Exception):
+    pass
 
 
 def ts():
@@ -112,7 +117,7 @@ def get_latest_metrics_index():
     return r.text
 
 
-def _rewrite_repositories_yaml(repo, branch, data):
+def _rewrite_repositories_yaml(repo, branch, data, debug=False):
     contents = repo.get_contents("repositories.yaml", ref=branch)
     content = contents.decoded_content.decode("utf-8")
 
@@ -124,9 +129,18 @@ def _rewrite_repositories_yaml(repo, branch, data):
         )
 
     if content == new_content:
-        raise Exception(
+        raise UnmodifiedException(
             "Update to repositories.yaml resulted in no changes: maybe the file was already up to date?"  # noqa
         )
+
+    if debug:
+        diff = difflib.unified_diff(
+            content.splitlines(keepends=True),
+            new_content.splitlines(keepends=True),
+            fromfile="old/repositories.yaml",
+            tofile="new/repositories.yaml",
+        )
+        sys.stdout.writelines(diff)
 
     return new_content
 
@@ -171,15 +185,30 @@ def main(argv, repo, author, debug=False, dry_run=False):
         ["gecko", "pings", True, gecko_pings],
         ["firefox_desktop", "metrics", False, firefox_desktop_metrics],
         ["firefox_desktop", "pings", False, firefox_desktop_pings],
-        ["firefox_desktop_background_update", "metrics", False, background_update_metrics],
+        [
+            "firefox_desktop_background_update",
+            "metrics",
+            False,
+            background_update_metrics,
+        ],
         ["firefox_desktop_background_update", "pings", False, background_update_pings],
-        ["firefox_desktop_background_tasks", "metrics", False, background_tasks_metrics],
+        [
+            "firefox_desktop_background_tasks",
+            "metrics",
+            False,
+            background_tasks_metrics,
+        ],
         ["firefox_desktop_background_tasks", "pings", False, background_tasks_pings],
     ]
 
     print(f"{ts()} Updating repositories.yaml")
     try:
-        new_content = _rewrite_repositories_yaml(repo, release_branch_name, data)
+        new_content = _rewrite_repositories_yaml(
+            repo, release_branch_name, data, debug=dry_run or debug
+        )
+    except UnmodifiedException as e:
+        print(f"{ts()} {e}")
+        return
     except Exception as e:
         print(f"{ts()} {e}")
         raise
@@ -218,12 +247,10 @@ def main(argv, repo, author, debug=False, dry_run=False):
         head=pr_branch_name,
         base=release_branch_name,
     )
-    pr.create_review_request()
     print(f"{ts()} Pull request at {pr.html_url}")
 
 
 if __name__ == "__main__":
-
     debug = os.getenv("DEBUG") is not None
     if debug:
         enable_console_debug_logging()
