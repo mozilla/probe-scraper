@@ -1607,6 +1607,7 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
+      geoip_skip_entries: 2
     channels:
       - v1_name: bedrock
         app_id: bedrock
