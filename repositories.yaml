@@ -368,6 +368,7 @@ applications:
       - browser/modules/pings.yaml
       - services/fxaccounts/pings.yaml
       - toolkit/components/crashes/pings.yaml
+      - toolkit/components/nimbus/pings.yaml
       - toolkit/components/telemetry/pings.yaml
       - toolkit/modules/pings.yaml
     tag_files:
@@ -1607,6 +1608,7 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 180
+      geoip_skip_entries: 2
     channels:
       - v1_name: bedrock
         app_id: bedrock
@@ -1677,6 +1679,7 @@ applications:
     ping_files:
       - toolkit/components/backgroundtasks/pings.yaml
       - toolkit/components/crashes/pings.yaml
+      - toolkit/components/nimbus/pings.yaml
       - toolkit/mozapps/defaultagent/pings.yaml
     dependencies:
       - glean-core
