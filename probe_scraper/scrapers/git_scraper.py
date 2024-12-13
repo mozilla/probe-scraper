@@ -83,6 +83,26 @@ SKIP_COMMITS = {
         "b80d1b362960cef8ee389ed54cdc41702ca832d9",
         # Broken yaml in toolkit/components/translations/metrics.yaml, fixed in subsequent commit
         "3ac10c73a280b1f9bba82bb08082db7bcfd5d2de",
+        "01a75161fac9acfc5a603bc2256245e914591e5e",  # Missing dom/security/metrics.yaml
+        "cdb47e79cd499b67d5de2804cbfb70eb2ab29796",  # Missing parser/html/metrics.yaml
+        "ed40307b32b221322505a86ebd33a322c64820bb",  # Missing security/ct/metrics.yaml
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
+        "32aceda20e3960fae23b3959be179693ec825599",
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
+        "189fed694934b8cde47c83fa9fb56ae76b93092c",
+        # Missing toolkit/components/antitracking/imageinputmetadatastripper/metrics.yaml
+        "3b9744aaa5694b1c633acb0d0ea1fe8ec31c9d28",
+        # Missing toolkit/components/reader/metrics.yaml
+        "5bd2d84327d9385a4f4a0fbc4f55e4e0a0302bb2",
+        "abbfb0e92e37e68d008ba0af29dbe199651fd2f3",  # Missing toolkit/profile/metrics.yaml
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
+        "84748d4bd6523268d905b0bc78cc7773a37bbca9",
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
+        "7b49203aee2818b96242b4746fed722844619760",
+        # Missing toolkit/components/resistfingerprinting/pings.yaml
+        "de714a36bce1431b1332b52c48106fedb2d4142a",
+        # Missing toolkit/components/resistfingerprinting/pings.yaml
+        "2df76493a78a6cc21c37b699fa4ae3eb91f87218",
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -92,6 +112,23 @@ SKIP_COMMITS = {
         "642be079c4465445ab42b55d18e0a4d644c19c36",  # No toolkit/components/telemetry/pings.yaml
         # Missing toolkit/components/telemetry/dap/metrics.yaml
         "c5c002f81f08a73e04868e0c2bf0eb113f200b03",
+        # Missing browser/components/backup/metrics.yaml
+        "4d4322e829aa7ba8a4abd00fca0dcd3b10e127a3",
+        # Missing browser/components/privatebrowsing/metrics.yaml
+        "47da40cec7bb1235bd9dc597a26f7b69b48fc2a7",
+        # Missing dom/media/platforms/wmf/metrics.yaml
+        "41edcdf7fe44678c5913a603a286b1fc3979d540",
+        # Missing toolkit/components/contentrelevancy/metrics.yaml
+        "856ef9e3e5132cf536dc5662e220c0e0e5127a7e",
+        # Missing toolkit/components/contentrelevancy/metrics.yaml
+        "c7f67706fcdac6a6198d8867cb102546213dbaf8",
+        # Missing toolkit/components/places/metrics.yaml
+        "bc739eb4ae15600f5eb668a060de8732e34e7e26",
+        # Missing toolkit/components/shopping/metrics.yaml
+        "f03abd1c7bf9f721afd0df7e36023f4ea925afd2",
+        "c9bbde88a4e816950372d1647827491902f62af4",  # Missing widget/windows/metrics.yaml
+        "21001e9ab793daf750ad988ce86cc7eefd29b856",  # Missing toolkit/components/nimbus/pings.yaml
+        "514742c4bda3c0a5ea5c631029929efa8fd6f855",  # Missing toolkit/components/nimbus/pings.yaml
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
