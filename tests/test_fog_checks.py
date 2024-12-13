@@ -178,14 +178,17 @@ def test_bug_number_from_url():
         )
         == 1701769
     )
-    # Parser isn't smart, but it's Best Effort anyway so just make sure it returns None
+    assert (
+        fog_checks.bug_number_from_url("https://bugzilla.mozilla.org/1885138")
+        == 1885138
+    )
     assert (
         fog_checks.bug_number_from_url(
             "https://bugzilla.mozilla.org/show_bug.cgi?id=1701769#c1"
         )
-        is None
+        == 1701769
     )
-    assert fog_checks.bug_number_from_url("https://bugzil.la/1701769") is None
+    assert fog_checks.bug_number_from_url("https://bugzil.la/1701769") == 1701769
     # Parser shouldn't give a good number for github urls
     assert (
         fog_checks.bug_number_from_url(
