@@ -9,6 +9,7 @@ FOG is Glean, yes, but is sufficiently different that it benefits from doing
 its own expiry checks. Sending its own emails. Filing its own bugs.
 """
 
+import re
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Set, TypedDict
 
@@ -99,6 +100,9 @@ This bug was auto-filed by [probe-scraper](https://github.com/mozilla/probe-scra
 """  # noqa
 
 
+BUG_NUMBER_PATTERN = re.compile(r"\d+")
+
+
 def get_expiring_metrics(
     metrics: Dict[str, Dict], latest_nightly_version: str
 ) -> Dict[str, Dict]:
@@ -138,13 +142,19 @@ def bug_number_from_url(url: str) -> Optional[int]:
     Given a bug url, get its bug number.
     If we can't figure out a reasonable bug number, return None.
     """
-    # ASSUMPTION: bug urls end in the pattern `=<bug number>`
-    # TODO: Write a test in Firefox Desktop that asserts this is true.
-    try:
-        return int(url.rsplit("=")[-1])
-    except ValueError:
-        print(f"Can't figure out bug number for url: {url}")
+    if "bugz" not in url:
+        # Not a bugzilla url. We don't understand you.
+        print(f"Can't figure out bug number for non-bugzilla url: {url}")
         return None
+
+    bug = BUG_NUMBER_PATTERN.search(url)
+    if bug is not None:
+        try:
+            bug = int(bug[0])
+        except Exception:
+            print(f"Can't figure out bug number for url: {url}")
+            return None
+        return bug
 
 
 def file_bugs(
