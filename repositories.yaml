@@ -334,6 +334,7 @@ applications:
       - browser/components/pocket/metrics.yaml
       - browser/components/preferences/metrics.yaml
       - browser/components/privatebrowsing/metrics.yaml
+      - browser/components/profiles/metrics.yaml
       - browser/components/protections/metrics.yaml
       - browser/components/protocolhandler/metrics.yaml
       - browser/components/screenshots/metrics.yaml
@@ -348,6 +349,7 @@ applications:
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
       - services/fxaccounts/metrics.yaml
+      - toolkit/components/captchadetection/metrics.yaml
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
@@ -367,6 +369,7 @@ applications:
       - browser/components/urlbar/pings.yaml
       - browser/modules/pings.yaml
       - services/fxaccounts/pings.yaml
+      - toolkit/components/captchadetection/pings.yaml
       - toolkit/components/crashes/pings.yaml
       - toolkit/components/nimbus/pings.yaml
       - toolkit/components/telemetry/pings.yaml
