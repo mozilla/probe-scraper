@@ -22,6 +22,140 @@ from .scrapers.git_scraper import Commit
 SKIP_METRICS = {
     "gecko.version": ["gecko", "pine", "firefox-desktop"],
     "gecko.build_id": ["gecko", "pine", "firefox-desktop"],
+    "broken_site_report.breakage_category": ["gecko", "fenix", "firefox-desktop"],
+    "broken_site_report.description": ["gecko", "fenix", "firefox-desktop"],
+    "broken_site_report.url": ["gecko", "fenix", "firefox-desktop"],
+    "broken_site_report.browser_info.app.default_locales": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.app.default_useragent_string": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.app.fission_enabled": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.graphics.device_pixel_ratio": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.graphics.devices_json": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.graphics.drivers_json": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.graphics.features_json": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.graphics.has_touch_screen": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.graphics.monitors_json": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.prefs.cookie_behavior": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.prefs.global_privacy_control_enabled": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.prefs.installtrigger_enabled": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.prefs.opaque_response_blocking": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.prefs.resist_fingerprinting_enabled": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.prefs.software_webrender": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.browser_info.system.memory": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.languages": ["gecko", "fenix", "firefox-desktop"],
+    "broken_site_report.tab_info.useragent_string": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.antitracking.block_list": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.antitracking.btp_has_purged_site": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.antitracking.has_mixed_active_content_blocked": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.antitracking.has_mixed_display_content_blocked": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.antitracking.has_tracking_content_blocked": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.antitracking.is_private_browsing": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.frameworks.fastclick": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.frameworks.marfeel": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
+    "broken_site_report.tab_info.frameworks.mobify": [
+        "gecko",
+        "fenix",
+        "firefox-desktop",
+    ],
 }
 
 
