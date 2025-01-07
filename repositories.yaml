@@ -1497,30 +1497,6 @@ applications:
       - v1_name: mozillavpn-backend-cirrus
         app_id: mozillavpn_backend_cirrus
 
-  - app_name: mlhackweek_search
-    canonical_app_name: ML Hack Week Search App
-    app_description: |
-      This application collects search terms and results to build a data set
-      for a Data Org Hack Week.
-    deprecated: true
-    url: https://github.com/mozilla/mlhackweek2021
-    notification_emails:
-      - gleonard@mozilla.com
-    branch: main
-    metrics_files:
-      - searchapp/mysite/searchranking/glean_config/metrics.yaml
-    ping_files:
-      - searchapp/mysite/searchranking/glean_config/pings.yaml
-    dependencies:
-      - glean-core
-    channels:
-      - v1_name: mlhackweek-search
-        app_id: mlhackweek-search
-    skip_documentation: true
-    moz_pipeline_metadata_defaults:
-      expiration_policy:
-        delete_after_days: 1130
-
   - app_name: regrets_reporter
     canonical_app_name: RegretsReporter
     app_description: |
