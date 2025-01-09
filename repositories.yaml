@@ -289,7 +289,6 @@ libraries:
       - toolkit/components/printing/metrics.yaml
       - toolkit/components/processtools/metrics.yaml
       - toolkit/components/reader/metrics.yaml
-      - toolkit/components/reportbrokensite/metrics.yaml
       - toolkit/components/resistfingerprinting/metrics.yaml
       - toolkit/components/startup/metrics.yaml
       - toolkit/components/translations/metrics.yaml
@@ -307,7 +306,6 @@ libraries:
       - toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
       - toolkit/components/captchadetection/pings.yaml
       - toolkit/components/glean/pings.yaml
-      - toolkit/components/reportbrokensite/pings.yaml
       - toolkit/components/resistfingerprinting/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
@@ -356,6 +354,7 @@ applications:
       - toolkit/components/nimbus/metrics.yaml
       - toolkit/components/pictureinpicture/metrics.yaml
       - toolkit/components/places/metrics.yaml
+      - toolkit/components/reportbrokensite/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/shopping/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
@@ -372,6 +371,7 @@ applications:
       - services/fxaccounts/pings.yaml
       - toolkit/components/crashes/pings.yaml
       - toolkit/components/nimbus/pings.yaml
+      - toolkit/components/reportbrokensite/pings.yaml
       - toolkit/components/telemetry/pings.yaml
       - toolkit/modules/pings.yaml
     tag_files:
