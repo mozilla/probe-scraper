@@ -23,12 +23,11 @@ What to do about this:
 
 1. If this is expected and you do not need data for any of these tables past the listed dates, then no action is needed.
 
-2. If you wish to continue collecting data for a longer period of time for any of these tables, please file Jira ticket for the data org, requesting the changes to retention settings at https://mozilla-hub.atlassian.net/secure/CreateIssue.jspa?issuetype=10180&pid=10057
+2. If you wish to continue collecting data for a longer period of time for any of these tables, please file Jira ticket for data engineering, requesting the changes to retention settings at https://mozilla-hub.atlassian.net/secure/CreateIssue.jspa?issuetype=10007&pid=10056
+
+Requests should be triaged at least weekly but if there's urgency or if you have any questions, please ask on the #data-help Slack channel. We'll give you a hand.
 
 Retention policies are defined in probe-scraper [1], with options to either stop collecting data after a certain or delete data older than the specified number of days.
-
-For more information on requesting help from the data team, see https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849444/Getting+Help+Jira+documentation
-If you have any questions, please ask on the #data-help Slack channel. We'll give you a hand.
 
 Your Friendly Neighborhood Data Team
 
@@ -42,7 +41,7 @@ APP_GROUP_TEMPLATE = """
 {messages}
 """
 
-RETENTION_DAYS_MESSAGE_TEMPLATE = '\t- The "{table_name}" table for will start expiring data older than {retention_days} days starting on {expiry_date} ({num_weeks} weeks from now)'  # noqa
+RETENTION_DAYS_MESSAGE_TEMPLATE = '\t- The "{table_name}" table for will start expiring data older than {retention_days} days starting on {expiry_date} ({num_weeks} week{plural_weeks} from now)'  # noqa
 
 # emails in this list will receive alerts for all pings
 DEFAULT_EMAILS = ["telemetry-alerts@mozilla.com", "dataops+alerts@mozilla.com"]
@@ -296,6 +295,7 @@ def get_expiring_pings(
                     retention_days=table_info["partition_expiration_days"],
                     expiry_date=table_info["next_deletion_date"],
                     num_weeks=expires_in_days // 7,
+                    plural_weeks="" if expires_in_days // 7 == 1 else "s",
                 )
                 for email in email_list:
                     expiring_pings_by_email[email][app_name].append(message)
