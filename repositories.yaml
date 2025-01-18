@@ -297,6 +297,7 @@ libraries:
       - toolkit/mozapps/extensions/metrics.yaml
       - toolkit/mozapps/extensions/metrics_legacy.yaml
       - toolkit/mozapps/handling/metrics.yaml
+      - toolkit/mozapps/update/shared_metrics.yaml
       - toolkit/profile/metrics.yaml
       - toolkit/xre/metrics.yaml
       - widget/metrics.yaml
@@ -486,7 +487,8 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - toolkit/components/crashes/metrics.yaml
-      - toolkit/mozapps/update/metrics.yaml
+      - toolkit/mozapps/update/background_task_metrics.yaml
+      - toolkit/mozapps/update/shared_metrics.yaml
     ping_files:
       - toolkit/components/crashes/pings.yaml
       - toolkit/mozapps/update/pings.yaml
