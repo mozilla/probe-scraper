@@ -24,8 +24,6 @@ For reviewers:
 * Canonical source for the index: <{INDEX_URL}>
 * Please double-check that the changes here are valid and that the referenced files exist.
     * If the referenced files do not exist, schema deploys will fail
-* Please double-check that none of the files are _deleted_ from the list.
-    * Deleted files result in incompatible schema changes that might not be immediately caught.
 * Delete this branch after merging or closing the PR.
 
 ---
