@@ -296,7 +296,6 @@ libraries:
       - toolkit/mozapps/extensions/metrics.yaml
       - toolkit/mozapps/extensions/metrics_legacy.yaml
       - toolkit/mozapps/handling/metrics.yaml
-      - toolkit/mozapps/update/shared_metrics.yaml
       - toolkit/profile/metrics.yaml
       - toolkit/xre/metrics.yaml
       - widget/metrics.yaml
@@ -359,6 +358,7 @@ applications:
       - toolkit/components/shopping/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/modules/metrics.yaml
+      - toolkit/mozapps/update/shared_metrics.yaml
       - widget/cocoa/metrics.yaml
       - widget/gtk/metrics.yaml
       - widget/windows/metrics.yaml
