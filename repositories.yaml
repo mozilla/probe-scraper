@@ -623,6 +623,9 @@ applications:
       pseudo-main:
         expiration_policy:
           delete_after_days: 1130
+      user-characteristics:
+        expiration_policy:
+          delete_after_days: 90
 
   - app_name: fenix
     app_description: Firefox for Android (Fenix)
@@ -1348,6 +1351,9 @@ applications:
       pageload:
         expiration_policy:
           delete_after_days: 400
+      user-characteristics:
+        expiration_policy:
+          delete_after_days: 90
     channels:
       - v1_name: firefox-focus-android
         app_id: org.mozilla.focus
@@ -1390,6 +1396,9 @@ applications:
       pageload:
         expiration_policy:
           delete_after_days: 400
+      user-characteristics:
+        expiration_policy:
+          delete_after_days: 90
     channels:
       - v1_name: firefox-klar-android
         app_id: org.mozilla.klar
@@ -2044,6 +2053,11 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 420
+    moz_pipeline_metadata:
+      user-characteristics:
+        expiration_policy:
+          delete_after_days: 90
+
 
   - app_name: thunderbird_android
     canonical_app_name: Thunderbird for Android
