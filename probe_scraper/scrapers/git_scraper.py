@@ -103,6 +103,10 @@ SKIP_COMMITS = {
         "de714a36bce1431b1332b52c48106fedb2d4142a",
         # Missing toolkit/components/resistfingerprinting/pings.yaml
         "2df76493a78a6cc21c37b699fa4ae3eb91f87218",
+        # Missing toolkit/components/captchadetection/metrics.yaml
+        "1fc70947ff229c30ba1b5c54f884a503af13ccda",
+        # pdfjs metrics missing `description`s
+        "35ed43c92f51ee67e66f2a8d2814d57acbb4063e",
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -129,6 +133,10 @@ SKIP_COMMITS = {
         "c9bbde88a4e816950372d1647827491902f62af4",  # Missing widget/windows/metrics.yaml
         "21001e9ab793daf750ad988ce86cc7eefd29b856",  # Missing toolkit/components/nimbus/pings.yaml
         "514742c4bda3c0a5ea5c631029929efa8fd6f855",  # Missing toolkit/components/nimbus/pings.yaml
+        # Missing toolkit/components/reportbrokensite/metrics.yaml
+        "42acdc9cd5ae89222bdceeeaed7bacac755be48f",
+        # Missing toolkit/components/reportbrokensite/metrics.yaml
+        "c76093316c58ae74a21e854b8035c91d0c75df6e",
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
