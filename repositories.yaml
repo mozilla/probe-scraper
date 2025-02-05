@@ -257,8 +257,10 @@ libraries:
       - dom/push/metrics.yaml
       - dom/quota/metrics.yaml
       - dom/security/metrics.yaml
+      - dom/serviceworkers/metrics.yaml
       - dom/storage/metrics.yaml
       - dom/webauthn/metrics.yaml
+      - dom/workers/metrics.yaml
       - gfx/metrics.yaml
       - image/decoders/metrics.yaml
       - js/xpconnect/metrics.yaml
@@ -287,6 +289,7 @@ libraries:
       - toolkit/components/extensions/metrics.yaml
       - toolkit/components/formautofill/metrics.yaml
       - toolkit/components/glean/metrics.yaml
+      - toolkit/components/mediasniffer/metrics.yaml
       - toolkit/components/messaging-system/metrics.yaml
       - toolkit/components/normandy/metrics.yaml
       - toolkit/components/passwordmgr/metrics.yaml
