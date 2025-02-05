@@ -1460,7 +1460,6 @@ applications:
     notification_emails:
       - vpn@mozilla.com
       - amarchesini@mozilla.com
-      - brizental@mozilla.com
       - mcleinman@mozilla.com
     branch: main
     metrics_files:
