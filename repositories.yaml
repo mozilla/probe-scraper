@@ -1464,6 +1464,7 @@ applications:
       - mcleinman@mozilla.com
     branch: main
     metrics_files:
+      - src/telemetry/extension_metrics.yaml
       - src/telemetry/metrics.yaml
       - src/telemetry/impression_metrics.yaml
       - src/telemetry/interaction_metrics.yaml
