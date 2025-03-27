@@ -2005,3 +2005,24 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
+
+  - app_name: glam
+    canonical_app_name: GLAM
+    app_description: |
+      The Glean Aggregated Metrics Dashboard.
+    url: https://github.com/mozilla/glam
+    notification_emails:
+      - efilho@mozilla.com
+    branch: main
+    metrics_files:
+      - src/telemetry/metrics.yaml
+    ping_files:
+      - src/telemetry/pings.yaml
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    channels:
+      - v1_name: glam
+        app_id: glam
