@@ -2014,10 +2014,8 @@ applications:
     notification_emails:
       - efilho@mozilla.com
     branch: main
-    metrics_files:
-      - src/telemetry/metrics.yaml
-    ping_files:
-      - src/telemetry/pings.yaml
+    metrics_files: []
+    ping_files: []
     dependencies:
       - glean-js
     moz_pipeline_metadata_defaults:
