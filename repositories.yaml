@@ -338,6 +338,7 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
+      - browser/actors/metrics.yaml
       - browser/components/asrouter/metrics.yaml
       - browser/components/backup/metrics.yaml
       - browser/components/doh/metrics.yaml
