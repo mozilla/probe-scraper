@@ -16,6 +16,9 @@ DEFAULT_ORGANIZATION = "mozilla"
 DEFAULT_AUTHOR_NAME = "data-updater"
 DEFAULT_AUTHOR_EMAIL = "telemetry-alerts@mozilla.com"
 USAGE = "usage: fog-update"
+HTTP_HEADERS = {
+    "user-agent": "probe-scraper/1.0",
+}
 INDEX_URL = "https://raw.githubusercontent.com/mozilla/gecko-dev/master/toolkit/components/glean/metrics_index.py"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
@@ -110,7 +113,7 @@ def swap_file_list(content, app, files, metrics_or_pings, library=False):
 
 
 def get_latest_metrics_index():
-    r = requests.get(INDEX_URL)
+    r = requests.get(INDEX_URL, headers=HTTP_HEADERS)
     r.raise_for_status()
     return r.text
 

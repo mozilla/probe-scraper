@@ -9,6 +9,7 @@ from collections import defaultdict
 
 import requests
 
+from ..parsers.utils import HTTP_HEADERS
 from .buildhub import Buildhub
 
 BASE_URI = "https://hg.mozilla.org"
@@ -97,7 +98,6 @@ def relative_path_is_in_version(rel_path, version):
 
 
 def download_files(channel, node, temp_dir, error_cache, version, tree=None):
-
     if tree is None:
         uri = CHANNELS[channel]["base_uri"]
     else:
@@ -133,7 +133,7 @@ def download_files(channel, node, temp_dir, error_cache, version, tree=None):
         if not relative_path_is_in_version(rel_path, int(version)):
             continue
 
-        req = requests.get(uri)
+        req = requests.get(uri, headers=HTTP_HEADERS)
         if req.status_code != requests.codes.ok:
             if os.path.basename(rel_path) == "Histograms.json":
                 raise Exception(
@@ -200,7 +200,6 @@ def scrape_channel_revisions(
         channels = CHANNELS.keys()
 
     for channel in channels:
-
         print("\nRetreiving Buildhub results for channel " + channel)
 
         revision_dates = [

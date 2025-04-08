@@ -18,7 +18,7 @@ from probe_scraper import emailer
 from probe_scraper.parsers.events import EventsParser
 from probe_scraper.parsers.histograms import HistogramsParser
 from probe_scraper.parsers.scalars import ScalarsParser
-from probe_scraper.parsers.utils import get_major_version
+from probe_scraper.parsers.utils import HTTP_HEADERS, get_major_version
 
 FROM_EMAIL = "telemetry-alerts@mozilla.com"
 DEFAULT_TO_EMAIL = "glean-team@mozilla.com"
@@ -83,7 +83,7 @@ class ProbeDetails:
 
 
 def bugzilla_request_header(api_key: str) -> Dict[str, str]:
-    return {"X-BUGZILLA-API-KEY": api_key}
+    return {"X-BUGZILLA-API-KEY": api_key} | HTTP_HEADERS
 
 
 def get_bug_component(
@@ -292,7 +292,7 @@ def get_latest_nightly_version():
 
 
 def download_file(url: str, output_filepath: str):
-    content = requests.get(url).text
+    content = requests.get(url, headers=HTTP_HEADERS).text
     with open(output_filepath, "w") as output_file:
         output_file.write(content)
 
