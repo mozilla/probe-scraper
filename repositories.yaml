@@ -2044,10 +2044,9 @@ applications:
     ping_files: []
     dependencies:
       - glean-server
-      - glean-js
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 10000
+        delete_after_days: 760
     channels:
       - v1_name: subscription-platform-backend
         app_id: subscription.platform.backend
