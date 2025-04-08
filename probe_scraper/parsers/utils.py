@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+HTTP_HEADERS = {
+    "user-agent": "probe-scraper/1.0",
+}
+
 
 def set_in_nested_dict(dictionary, path, value):
     """Set a property in a nested dictionary by specifying a path to it.

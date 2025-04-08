@@ -9,6 +9,7 @@ import requests
 from google.cloud import bigquery
 
 from probe_scraper.emailer import send_ses
+from probe_scraper.parsers.utils import HTTP_HEADERS
 
 EMAIL_SUBJECT_TEMPLATE = "Glean Pings Expiring for {app_name}"
 
@@ -115,7 +116,7 @@ def parse_args():
 
 
 def request_get(url: str) -> Dict:
-    response = requests.get(url)
+    response = requests.get(url, headers=HTTP_HEADERS)
     response.raise_for_status()
     return response.json()
 
