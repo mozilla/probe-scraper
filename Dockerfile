@@ -25,6 +25,8 @@ RUN apt-get update && \
 
 # Upgrade pip
 RUN pip install --upgrade pip
+# Ensure setuptools is new enough, to avoid issues with wheels
+RUN pip install 'setuptools>=70.1'
 
 WORKDIR ${HOME}
 
