@@ -1,5 +1,4 @@
 FROM python:3.11
-MAINTAINER Harold Woo <hwoo@mozilla.com>
 
 ENV PYTHONUNBUFFERED=1
 
