@@ -2029,3 +2029,24 @@ applications:
     channels:
       - v1_name: glam
         app_id: glam
+
+  - app_name: subscription_platform_backend
+    canonical_app_name: Subscription Platform
+    app_description: |
+      Mozilla Subscription Platform is Mozilla's subscription management
+      solution for account-based end-user services and features.
+    url: https://github.com/mozilla/fxa
+    notification_emails:
+      - dalvarez@mozilla.com
+    branch: main
+    metrics_files:
+      - libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-server
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
+    channels:
+      - v1_name: subscription-platform-backend
+        app_id: subscription.platform.backend
