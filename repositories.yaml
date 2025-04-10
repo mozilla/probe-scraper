@@ -1962,7 +1962,6 @@ applications:
     notification_emails:
       - alessandro@thunderbird.net
       - sancus@thunderbird.net
-      - cketti@thunderbird.net
       - kewisch@thunderbird.net
     metrics_files: []
     ping_files: []
