@@ -1191,7 +1191,9 @@ applications:
       - focus-ios/Blockzilla/metrics.yaml
     ping_files:
       - focus-ios/Blockzilla/pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-core
+      - nimbus
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 720
@@ -1211,7 +1213,9 @@ applications:
       - focus-ios/Blockzilla/metrics.yaml
     ping_files:
       - focus-ios/Blockzilla/pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-core
+      - nimbus
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 720
@@ -1230,7 +1234,13 @@ applications:
       - mobile/android/focus-android/app/metrics.yaml
     ping_files:
       - mobile/android/focus-android/app/pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+      - org.mozilla.components:lib-crash
+      - nimbus
+      - org.mozilla.components:service-nimbus
+      - gecko
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
@@ -1269,7 +1279,13 @@ applications:
       - mobile/android/focus-android/app/metrics.yaml
     ping_files:
       - mobile/android/focus-android/app/pings.yaml
-    dependencies: []
+    dependencies:
+      - glean-core
+      - org.mozilla.components:service-glean
+      - org.mozilla.components:lib-crash
+      - nimbus
+      - org.mozilla.components:service-nimbus
+      - gecko
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
