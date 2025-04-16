@@ -19,7 +19,7 @@ from .glean_checks import get_current_metrics_by_repo
 from .parsers.repositories import Repository
 
 EXPIRED_METRICS_EMAIL_TEMPLATE = """
-Each metric in the following list will soon expire in Firefox {version}.
+Each metric in the following list will soon expire at the end of Firefox {version}.
 For your convenience, we've filed bugs to track the work of removing or renewing them:
 
 {expiring_bugs_list}
@@ -70,13 +70,13 @@ FOG_REPOS: Set[str] = {"firefox-desktop", "gecko"}
 # The BMO whiteboard tag to use for auto-filed bugs
 BUG_WHITEBOARD_TAG = "[metric-expiry-alert]"
 # The BMO Title, templated by version and metric family
-BUG_SUMMARY_TEMPLATE = "Remove or update metrics expiring in Firefox {version}: {probe}"
+BUG_SUMMARY_TEMPLATE = "Remove or update metrics expiring at the end of Firefox {version}: {probe}"
 # BE ALERT: We regex on this template to find existing bugs.
 # SEE probe_expiry_alert.find_existing_bugs FOR DETAILS.
 # IF YOU MODIFY THIS WITHOUT CARE WE WILL FILE DUPLICATE BUGS.
 # Please be kind to your Sheriffs and only modify with care.
 BUG_DESCRIPTION_TEMPLATE = """
-The following metrics will expire in the next Firefox Nightly release: [version {version}][1].
+The following metrics will expire at the end of Firefox Nightly release: [version {version}][1].
 
 ```
 {probes}
@@ -297,7 +297,7 @@ def file_bugs_and_get_emails_for_expiring_metrics(
                     "subject": f"Expired metrics in {fog_repo}",
                     "message": EXPIRED_METRICS_EMAIL_TEMPLATE.format(
                         expiring_bugs_list="\n".join(expiring_bugs_list),
-                        version=int(latest_nightly_version) + 1,
+                        version=int(latest_nightly_version),
                     ),
                 }
             ],
