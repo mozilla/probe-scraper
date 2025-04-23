@@ -70,7 +70,9 @@ FOG_REPOS: Set[str] = {"firefox-desktop", "gecko"}
 # The BMO whiteboard tag to use for auto-filed bugs
 BUG_WHITEBOARD_TAG = "[metric-expiry-alert]"
 # The BMO Title, templated by version and metric family
-BUG_SUMMARY_TEMPLATE = "Remove or update metrics expiring at the end of Firefox {version}: {probe}"
+BUG_SUMMARY_TEMPLATE = (
+    "Remove or update metrics expiring at the end of Firefox {version}: {probe}"
+)
 # BE ALERT: We regex on this template to find existing bugs.
 # SEE probe_expiry_alert.find_existing_bugs FOR DETAILS.
 # IF YOU MODIFY THIS WITHOUT CARE WE WILL FILE DUPLICATE BUGS.
