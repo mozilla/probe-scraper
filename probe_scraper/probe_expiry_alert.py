@@ -37,12 +37,14 @@ EVENTS_FILE = "Events.yaml"
 BUG_DEFAULT_PRODUCT = "Firefox"
 BUG_DEFAULT_COMPONENT = "General"
 BUG_WHITEBOARD_TAG = "[probe-expiry-alert]"
-BUG_SUMMARY_TEMPLATE = "Remove or update probes expiring in Firefox {version}: {probe}"
+BUG_SUMMARY_TEMPLATE = (
+    "Remove or update probes expiring at the end of Firefox {version}: {probe}"
+)
 
 # Regex for version and probe names requires bug description to have a certain structure
 # This template should be modified with care
 BUG_DESCRIPTION_TEMPLATE = """
-The following Firefox probes will expire in the next major Firefox nightly release: version {version} [1].
+The following Firefox probes will expire at the end of Firefox nightly release: version {version} [1].
 
 ```
 {probes}
@@ -435,7 +437,8 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
     # Only send create bugs on Wednesdays, run the rest for debugging/error detection
     dryrun = dryrun or current_date.weekday() != 2
 
-    next_version = str(int(get_latest_nightly_version()) + 1)
+    current_version = str(int(get_latest_nightly_version()))
+    next_version = str(int(current_version) + 1)
 
     with tempfile.TemporaryDirectory() as tempdir:
         events_file_path = os.path.join(tempdir, EVENTS_FILE)
@@ -474,10 +477,10 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
                 email_list.remove(email)
 
     probe_to_bug_id = file_bugs(
-        expiring_probes, next_version, bugzilla_api_key, dryrun=dryrun
+        expiring_probes, current_version, bugzilla_api_key, dryrun=dryrun
     )
 
-    send_emails(emails_wo_accounts, probe_to_bug_id, next_version, dryrun=dryrun)
+    send_emails(emails_wo_accounts, probe_to_bug_id, current_version, dryrun=dryrun)
 
 
 def parse_args():
