@@ -2,7 +2,7 @@
 
 Automation to update `repositories.yaml` of `probe-scraper` with the latest `metrics_index.py` list.
 
-Fetches and parses the `metrics_index.py` from `gecko-dev`, extracts the relevant list of YAML files
+Fetches and parses the `metrics_index.py` from `mozilla-firefox/firefox`, extracts the relevant list of YAML files
 and creates a new Pull Request against `probe-scraper` if it contains any changes.
 
 ## Environment variables

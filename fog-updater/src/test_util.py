@@ -14,7 +14,7 @@ libraries:
     description: The browser engine developed by Mozilla
     notification_emails:
       - chutten@mozilla.com
-    url: https://github.com/mozilla/gecko-dev
+    url: https://github.com/mozilla-firefox/firefox
     metrics_files:
       - LIB_METRICS_FILES
     ping_files:
