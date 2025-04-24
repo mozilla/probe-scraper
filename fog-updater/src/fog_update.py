@@ -19,7 +19,7 @@ USAGE = "usage: fog-update"
 HTTP_HEADERS = {
     "user-agent": "probe-scraper/1.0",
 }
-INDEX_URL = "https://raw.githubusercontent.com/mozilla/gecko-dev/master/toolkit/components/glean/metrics_index.py"  # noqa
+INDEX_URL = "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/glean/metrics_index.py"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
 For reviewers:
