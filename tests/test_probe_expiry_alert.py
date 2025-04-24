@@ -106,14 +106,14 @@ def test_not_dryrun_only_once_per_week(
         probe_expiry_alert.main(base_date + datetime.timedelta(days=weekday), False, "")
 
     mock_file_bugs.assert_has_calls(
-        [mock.call([], "76", "", dryrun=False)]
-        + [mock.call([], "76", "", dryrun=True)] * 6,
+        [mock.call([], "75", "", dryrun=False)]
+        + [mock.call([], "75", "", dryrun=True)] * 6,
         any_order=True,
     )
     assert mock_file_bugs.call_count == 7
     mock_send_emails.assert_has_calls(
-        [mock.call({}, {}, "76", dryrun=False)]
-        + [mock.call({}, {}, "76", dryrun=True)] * 6,
+        [mock.call({}, {}, "75", dryrun=False)]
+        + [mock.call({}, {}, "75", dryrun=True)] * 6,
         any_order=True,
     )
     assert mock_send_emails.call_count == 7
@@ -223,7 +223,7 @@ def test_main_run(
 
     expected_expiring_probes = [ProbeDetails("p1", "Firefox", "General", [], None)]
     mock_file_bugs.assert_called_once_with(
-        expected_expiring_probes, "76", "", dryrun=False
+        expected_expiring_probes, "75", "", dryrun=False
     )
 
 
