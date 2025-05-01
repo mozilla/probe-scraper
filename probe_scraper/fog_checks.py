@@ -209,7 +209,7 @@ def file_bugs(
 
     metrics_to_bug_numbers = probe_expiry_alert.file_bugs(
         expiring_probes,
-        next_version,
+        str(latest_nightly_version),
         bugzilla_api_key,
         dry_run,
         BUG_WHITEBOARD_TAG,
