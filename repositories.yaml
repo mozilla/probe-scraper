@@ -93,23 +93,6 @@ libraries:
     variants:
       - v1_name: sync
         dependency_name: org.mozilla.appservices:syncmanager
-  - library_name: engine-gecko
-    description: GeckoView metrics
-    notification_emails:
-      - aplacitelli@mozilla.com
-      - android-components-team@mozilla.com
-      - geckoview-team@mozilla.com
-    url: https://github.com/mozilla/gecko-dev
-    metrics_files: []
-    variants:
-      - v1_name: engine-gecko
-        branch: release
-        dependency_name: org.mozilla.components:browser-engine-gecko
-      - v1_name: engine-gecko-beta
-        branch: beta
-        dependency_name: org.mozilla.components:browser-engine-gecko-beta
-      - v1_name: engine-gecko-nightly
-        dependency_name: org.mozilla.components:browser-engine-gecko-nightly
 
   - library_name: logins-store
     description: >-
@@ -759,22 +742,16 @@ applications:
       - v1_name: firefox-android-release
         app_id: org.mozilla.firefox
         app_channel: release
-        additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko
         description: >-
           Release channel of Firefox for Android.
       - v1_name: firefox-android-beta
         app_id: org.mozilla.firefox_beta
         app_channel: beta
-        additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko-beta
         description: >-
           Beta channel of Firefox for Android.
       - v1_name: fenix
         app_id: org.mozilla.fenix
         app_channel: nightly
-        additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko-beta
         description: >-
           Nightly channel of Firefox for Android.
           Prior to June 2020, this app_id was used for the beta channel
@@ -782,15 +759,11 @@ applications:
       - v1_name: fenix-nightly
         app_id: org.mozilla.fenix.nightly
         app_channel: nightly
-        additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko-nightly
         description: >-
           Nightly channel of Firefox Preview.
       - v1_name: firefox-android-nightly
         app_id: org.mozilla.fennec.aurora
         app_channel: nightly
-        additional_dependencies:
-          - org.mozilla.components:browser-engine-gecko-beta
         description: >-
           Nightly channel of Firefox for Android users migrated to Fenix;
           delisted in June 2020.
