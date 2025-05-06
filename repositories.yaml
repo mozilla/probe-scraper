@@ -812,12 +812,13 @@ applications:
       - tlong@mozilla.com
     url: https://github.com/mozilla-mobile/firefox-ios
     metrics_files:
-      - firefox-ios/Client/metrics.yaml
+      - firefox-ios/Client/Glean/metrics.yaml
+      - firefox-ios/Client/Glean/settings.yaml
       - firefox-ios/Storage/metrics.yaml
     ping_files:
-      - firefox-ios/Client/pings.yaml
+      - firefox-ios/Client/Glean/pings.yaml
     tag_files:
-      - firefox-ios/Client/tags.yaml
+      - firefox-ios/Client/Glean/tags.yaml
     branch: main
     dependencies:
       - glean-core
