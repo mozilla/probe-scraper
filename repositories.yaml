@@ -2068,3 +2068,23 @@ applications:
     channels:
       - v1_name: subscription-platform-backend
         app_id: subscription.platform.backend
+
+  - app_name: experimenter_cirrus
+    canonical_app_name: "Experimenter"
+    app_description: >
+      Experimenter's instances of Cirrus
+    url: https://github.com/mozilla/experimenter
+    notification_emails:
+      - project-nimbus@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - glean-core
+      - nimbus-cirrus
+    channels:
+      - v1_name: experimenter-cirrus
+        app_id: experimenter.cirrus
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
