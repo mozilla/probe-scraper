@@ -2070,9 +2070,9 @@ applications:
         app_id: subscription.platform.backend
 
   - app_name: experimenter_cirrus
-    canonical_app_name: "Experimenter"
+    canonical_app_name: "Experimenter (Cirrus)"
     app_description: >
-      Experimenter's instances of Cirrus
+      Instances of Cirrus (Mozilla's web experimentation tooling) for Experimenter (Mozilla's experimentation management application)
     url: https://github.com/mozilla/experimenter
     notification_emails:
       - project-nimbus@mozilla.com
