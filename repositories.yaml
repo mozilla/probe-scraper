@@ -2071,8 +2071,16 @@ applications:
 
   - app_name: experimenter_cirrus
     canonical_app_name: "Experimenter (Cirrus)"
-    app_description: >
-      Instances of Cirrus (Mozilla's web experimentation tooling) for Experimenter (Mozilla's experimentation management application)
+    app_description: |
+      Experimenter is Mozilla's internal web application for managing experiments and rollouts across Mozilla's many 
+      applications.
+      
+      Cirrus is a Docker container we deploy in order to support experimentation for web applications.
+      
+      This application contains the data definitions for Experimenter's instances of Cirrus.
+      
+      Documentation for the experimentation program at Mozilla can be found [here](https://experimenter.info/), and 
+      experimenter's git repository can be found [here](https://github.com/mozilla/experimenter).
     url: https://github.com/mozilla/experimenter
     notification_emails:
       - project-nimbus@mozilla.com
