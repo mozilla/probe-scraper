@@ -372,7 +372,6 @@ applications:
       - browser/components/screenshots/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/components/sessionstore/metrics.yaml
-      - browser/components/shopping/metrics.yaml
       - browser/components/sidebar/metrics.yaml
       - browser/components/tabbrowser/metrics.yaml
       - browser/components/textrecognition/metrics.yaml
@@ -389,7 +388,6 @@ applications:
       - toolkit/components/reportbrokensite/metrics.yaml
       - toolkit/components/satchel/megalist/metrics.yaml
       - toolkit/components/search/metrics.yaml
-      - toolkit/components/shopping/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
       - toolkit/modules/metrics.yaml
       - toolkit/mozapps/update/shared_metrics.yaml
