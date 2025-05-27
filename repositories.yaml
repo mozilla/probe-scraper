@@ -408,6 +408,7 @@ applications:
       - toolkit/components/reportbrokensite/pings.yaml
       - toolkit/components/telemetry/pings.yaml
       - toolkit/modules/pings.yaml
+      - toolkit/mozapps/update/shared_pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
@@ -527,6 +528,7 @@ applications:
     ping_files:
       - toolkit/components/crashes/pings.yaml
       - toolkit/mozapps/update/pings.yaml
+      - toolkit/mozapps/update/shared_pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
