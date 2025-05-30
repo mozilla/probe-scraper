@@ -11,6 +11,7 @@ import io
 import os
 import requests
 import sys
+import yaml
 
 DEFAULT_ORGANIZATION = "mozilla"
 DEFAULT_AUTHOR_NAME = "data-updater"
@@ -20,6 +21,7 @@ HTTP_HEADERS = {
     "user-agent": "probe-scraper/1.0",
 }
 INDEX_URL = "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/glean/metrics_index.py"  # noqa
+FFX_IOS_INDEX_URL = "https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/firefox-ios/Client/Glean/glean_index.yaml"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
 For reviewers:
@@ -118,6 +120,12 @@ def get_latest_metrics_index():
     return r.text
 
 
+def get_latest_ios_metrics_index():
+    r = requests.get(FFX_IOS_INDEX_URL, headers=HTTP_HEADERS)
+    r.raise_for_status()
+    return r.text
+
+
 def _rewrite_repositories_yaml(repo, branch, data, debug=False):
     contents = repo.get_contents("repositories.yaml", ref=branch)
     content = contents.decoded_content.decode("utf-8")
@@ -180,6 +188,12 @@ def main(argv, repo, author, debug=False, dry_run=False):
     background_tasks_metrics = sorted(data["background_tasks_metrics"])
     background_tasks_pings = sorted(data["background_tasks_pings"])
 
+    ios_metrics_index = get_latest_ios_metrics_index()
+    data = yaml.safe_load(ios_metrics_index)
+    firefox_ios_pings = sorted(data["ping_files"])
+    firefox_ios_metrics = sorted(data["metrics_files"])
+    firefox_ios_tags = sorted(data["tag_files"])
+
     data = [
         # Name, metrics/pings, library?, files
         ["gecko", "metrics", True, gecko_metrics],
@@ -200,6 +214,9 @@ def main(argv, repo, author, debug=False, dry_run=False):
             background_tasks_metrics,
         ],
         ["firefox_desktop_background_tasks", "pings", False, background_tasks_pings],
+        ["firefox_ios", "pings", False, firefox_ios_pings],
+        ["firefox_ios", "metrics", False, firefox_ios_metrics],
+        ["firefox_ios", "tags", False, firefox_ios_tags],
     ]
 
     print(f"{ts()} Updating repositories.yaml")
