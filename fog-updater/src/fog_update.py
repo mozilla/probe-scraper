@@ -99,6 +99,8 @@ def swap_file_list(content, app, files, metrics_or_pings, library=False):
             state = "files"
         elif state == "app" and metrics_or_pings == "pings" and "ping_files:" in line:
             state = "files"
+        elif state == "app" and metrics_or_pings == "tags" and "tag_files:" in line:
+            state = "files"
         elif state == "files":
             if line.strip().startswith("-"):
                 indent = line.find("-")
