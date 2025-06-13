@@ -330,6 +330,7 @@ libraries:
       - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
+      - services/sync/pings.yaml
       - toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
       - toolkit/components/backgroundhangmonitor/pings.yaml
       - toolkit/components/captchadetection/pings.yaml
