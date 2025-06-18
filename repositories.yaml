@@ -826,6 +826,7 @@ applications:
       - firefox-ios/Client/Glean/probes/metrics.yaml
       - firefox-ios/Client/Glean/probes/microsurvey.yaml
       - firefox-ios/Client/Glean/probes/settings.yaml
+      - firefox-ios/Client/Glean/probes/toast.yaml
       - firefox-ios/Storage/metrics.yaml
     ping_files:
       - firefox-ios/Client/Glean/pings.yaml
