@@ -829,9 +829,11 @@ applications:
       - firefox-ios/Client/Glean/probes/microsurvey.yaml
       - firefox-ios/Client/Glean/probes/reader_mode.yaml
       - firefox-ios/Client/Glean/probes/settings.yaml
+      - firefox-ios/Client/Glean/probes/share_sheet.yaml
       - firefox-ios/Client/Glean/probes/tabs_panel.yaml
       - firefox-ios/Client/Glean/probes/toast.yaml
       - firefox-ios/Client/Glean/probes/toolbar.yaml
+      - firefox-ios/Client/Glean/probes/tracking_protection.yaml
       - firefox-ios/Storage/metrics.yaml
     ping_files:
       - firefox-ios/Client/Glean/pings.yaml
