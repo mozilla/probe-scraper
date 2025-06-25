@@ -381,6 +381,7 @@ applications:
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
       - services/fxaccounts/metrics.yaml
+      - toolkit/components/contentanalysis/metrics.yaml
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
@@ -834,6 +835,7 @@ applications:
       - firefox-ios/Client/Glean/probes/toast.yaml
       - firefox-ios/Client/Glean/probes/toolbar.yaml
       - firefox-ios/Client/Glean/probes/tracking_protection.yaml
+      - firefox-ios/Client/Glean/probes/zoom_bar.yaml
       - firefox-ios/Storage/metrics.yaml
     ping_files:
       - firefox-ios/Client/Glean/pings.yaml
