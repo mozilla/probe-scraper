@@ -1510,6 +1510,30 @@ applications:
       - v1_name: glean-dictionary
         app_id: glean-dictionary
 
+  - app_name: mdn_fred
+    canonical_app_name: Mozilla Developer Network
+    app_description: |
+      MDN Web Docs is an open-source, collaborative project documenting Web
+      platform technologies, including CSS, HTML, JavaScript, and Web APIs.
+      MDN also provides an extensive set of learning resources for beginning
+      developers and students.
+    url: https://github.com/mdn/fred
+    notification_emails:
+      - caugner@mozilla.com
+      - tlong@mozilla.com
+      - glean-team@mozilla.com
+    branch: main
+    metrics_files: []
+    ping_files: []
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 1130
+    channels:
+      - v1_name: mdn-fred
+        app_id: mdn-fred
+
   - app_name: mdn_yari
     canonical_app_name: Mozilla Developer Network
     app_description: |
