@@ -855,6 +855,9 @@ applications:
       expiration_policy:
         delete_after_days: 775
     moz_pipeline_metadata:
+      fx-accounts:
+        expiration_policy:
+          delete_after_days: 30
       topsites-impression:
         expiration_policy:
           delete_after_days: 30
