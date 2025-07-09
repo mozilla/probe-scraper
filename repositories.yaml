@@ -1520,7 +1520,6 @@ applications:
     url: https://github.com/mdn/fred
     notification_emails:
       - caugner@mozilla.com
-      - tlong@mozilla.com
       - glean-team@mozilla.com
     branch: main
     metrics_files: []
@@ -1544,7 +1543,6 @@ applications:
     url: https://github.com/mdn/yari
     notification_emails:
       - caugner@mozilla.com
-      - tlong@mozilla.com
       - glean-team@mozilla.com
     branch: main
     metrics_files:
