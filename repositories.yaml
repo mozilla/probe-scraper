@@ -243,6 +243,7 @@ libraries:
       - devtools/client/inspector/metrics.yaml
       - devtools/client/responsive/metrics.yaml
       - devtools/client/shared/metrics.yaml
+      - devtools/client/webconsole/metrics.yaml
       - devtools/shared/heapsnapshot/metrics.yaml
       - docshell/base/metrics.yaml
       - dom/base/use_counter_metrics.yaml
@@ -291,6 +292,7 @@ libraries:
       - services/common/metrics.yaml
       - services/sync/modules/metrics.yaml
       - startupcache/metrics.yaml
+      - storage/metrics.yaml
       - toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
       - toolkit/components/antitracking/metrics.yaml
       - toolkit/components/backgroundhangmonitor/metrics.yaml
