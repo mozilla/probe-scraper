@@ -1511,7 +1511,7 @@ applications:
         app_id: glean-dictionary
 
   - app_name: mdn_fred
-    canonical_app_name: Mozilla Developer Network
+    canonical_app_name: MDN
     app_description: |
       Fred is the 2025 web frontend of MDN, an open-source, collaborative
       project documenting Web platform technologies, including CSS, HTML,
@@ -1534,7 +1534,7 @@ applications:
         app_id: mdn-fred
 
   - app_name: mdn_yari
-    canonical_app_name: Mozilla Developer Network
+    canonical_app_name: MDN (2022–2025)
     app_description: |
       Yari is the 2022 web frontend of MDN, an open-source, collaborative
       project documenting Web platform technologies, including CSS, HTML,
