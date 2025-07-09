@@ -1513,10 +1513,10 @@ applications:
   - app_name: mdn_fred
     canonical_app_name: Mozilla Developer Network
     app_description: |
-      MDN Web Docs is an open-source, collaborative project documenting Web
-      platform technologies, including CSS, HTML, JavaScript, and Web APIs.
-      MDN also provides an extensive set of learning resources for beginning
-      developers and students.
+      Fred is the 2025 web frontend of MDN, an open-source, collaborative
+      project documenting Web platform technologies, including CSS, HTML,
+      JavaScript, and Web APIs. MDN also provides an extensive set of
+      learning resources for beginning developers and students.
     url: https://github.com/mdn/fred
     notification_emails:
       - caugner@mozilla.com
@@ -1536,10 +1536,10 @@ applications:
   - app_name: mdn_yari
     canonical_app_name: Mozilla Developer Network
     app_description: |
-      MDN Web Docs is an open-source, collaborative project documenting Web
-      platform technologies, including CSS, HTML, JavaScript, and Web APIs.
-      MDN also provides an extensive set of learning resources for beginning
-      developers and students.
+      Yari is the 2022 web frontend of MDN, an open-source, collaborative
+      project documenting Web platform technologies, including CSS, HTML,
+      JavaScript, and Web APIs. MDN also provides an extensive set of
+      learning resources for beginning developers and students.
     url: https://github.com/mdn/yari
     notification_emails:
       - caugner@mozilla.com
