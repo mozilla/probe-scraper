@@ -1938,7 +1938,8 @@ applications:
       emails, phone calls, and text messages.
     url: https://github.com/mozilla/fx-private-relay
     notification_emails:
-      - jwhitlock@mozilla.com
+      - lcrouch@mozilla.com
+      - jhermann@mozilla.com
     branch: main
     metrics_files:
       - telemetry/glean/relay-server-metrics.yaml
