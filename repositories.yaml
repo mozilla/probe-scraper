@@ -122,7 +122,7 @@ libraries:
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
     metrics_files:
-      - components/logins/android/metrics.yaml
+      - components/logins/metrics.yaml
     variants:
       - v1_name: logins-store
         branch: main
