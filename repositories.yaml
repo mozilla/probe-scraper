@@ -1817,6 +1817,7 @@ applications:
     canonical_app_name: Mozilla Social Mastodon Backend
     app_description: |
       Mastodon instance for Mozilla Social
+    deprecated: true
     url: https://github.com/MozillaSocial/mastodon
     notification_emails:
       - breyes@mozilla.com
