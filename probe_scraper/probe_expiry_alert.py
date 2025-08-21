@@ -28,7 +28,8 @@ BUGZILLA_USER_URL = "https://bugzilla.mozilla.org/rest/user"
 BUGZILLA_BUG_LINK_TEMPLATE = "https://bugzilla.mozilla.org/show_bug.cgi?id={bug_id}"
 
 BASE_URI = (
-    "https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/telemetry/"
+    "https://raw.githubusercontent.com/mozilla-firefox/firefox/refs/heads/main/"
+    "toolkit/components/telemetry/"
 )
 HISTOGRAMS_FILE = "Histograms.json"
 SCALARS_FILE = "Scalars.yaml"
