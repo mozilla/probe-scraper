@@ -833,6 +833,7 @@ applications:
       - firefox-ios/Client/Glean/probes/autofill.password_generator.yaml
       - firefox-ios/Client/Glean/probes/autofill.passwords.yaml
       - firefox-ios/Client/Glean/probes/history.yaml
+      - firefox-ios/Client/Glean/probes/homepage.shortcuts_library.yaml
       - firefox-ios/Client/Glean/probes/library.bookmarks_panel.yaml
       - firefox-ios/Client/Glean/probes/library.downloads_panel.yaml
       - firefox-ios/Client/Glean/probes/library.history_panel.yaml
