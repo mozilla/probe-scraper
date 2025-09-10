@@ -384,6 +384,7 @@ applications:
       - browser/components/taskbartabs/metrics.yaml
       - browser/components/textrecognition/metrics.yaml
       - browser/components/urlbar/metrics.yaml
+      - browser/extensions/data-leak-blocker/metrics.yaml
       - browser/extensions/search-detection/metrics.yaml
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
@@ -410,6 +411,7 @@ applications:
       - browser/components/profiles/pings.yaml
       - browser/components/search/pings.yaml
       - browser/components/urlbar/pings.yaml
+      - browser/extensions/data-leak-blocker/pings.yaml
       - browser/modules/pings.yaml
       - dom/security/pings.yaml
       - services/fxaccounts/pings.yaml
