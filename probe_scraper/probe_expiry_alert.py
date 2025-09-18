@@ -221,6 +221,17 @@ def create_bug(
             f"{', '.join([f'bug {bug_num}' for bug_num in see_also_bugs_str])}"
         )
 
+    accessible_see_also_bugs = []
+    for bug_num in see_also_bugs:
+        bug_response = requests.get(
+            BUGZILLA_BUG_URL + "/" + str(see_also_bugs[0]),
+            headers=bugzilla_request_header(api_key),
+        )
+        if bug_response.status_code == 401:
+            print(f"Bug {bug_num} not accessible, not adding to 'see also' field")
+        else:
+            accessible_see_also_bugs.append(bug_num)
+
     create_params = {
         "product": probes[0].product,
         "component": probes[0].component,
@@ -231,7 +242,7 @@ def create_bug(
         "version": "unspecified",
         "type": "task",
         "whiteboard": whiteboard_tag,
-        "see_also": see_also_bugs,
+        "see_also": accessible_see_also_bugs,
         "flags": [
             {"name": "needinfo", "type_id": 800, "status": "?", "requestee": email}
             for email in probes[0].emails

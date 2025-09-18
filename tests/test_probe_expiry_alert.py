@@ -358,6 +358,38 @@ def test_create_bug_try_on_requestee_inactive(mock_post):
     assert len(call_args_2["flags"]) == 0
 
 
+@mock.patch("requests.post")
+@mock.patch("requests.get")
+def test_create_bug_inacessible_see_also(mock_get, mock_post):
+    mock_response = mock.MagicMock()
+    mock_response.json = mock.MagicMock(return_value={"id": 2})
+    mock_post.return_value = mock_response
+
+    # return 401 status code for first see also bug
+    mock_get.side_effect = [
+        mock.MagicMock(status_code=401),
+        mock.MagicMock(status_code=200),
+    ]
+
+    probes = [
+        ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 1),
+        ProbeDetails("p1", "prod", "comp", ["a@test.com", "b@test.com"], 2),
+    ]
+    bug_id = probe_expiry_alert.create_bug(
+        probes,
+        "76",
+        probe_expiry_alert.BUG_WHITEBOARD_TAG,
+        probe_expiry_alert.BUG_SUMMARY_TEMPLATE,
+        probe_expiry_alert.BUG_DESCRIPTION_TEMPLATE,
+        "",
+    )
+
+    assert mock_get.call_count == 2
+    assert mock_post.call_count == 1
+    assert mock_post.call_args_list[0].kwargs["json"]["see_also"] == [2]
+    assert bug_id == 2
+
+
 @mock.patch("requests.get")
 def test_bug_description_parser(mock_get):
     """
