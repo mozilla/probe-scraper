@@ -603,7 +603,7 @@ applications:
         app_id: firefox.desktop.background.defaultagent
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 400
+        delete_after_days: 775
 
   - app_name: pine
     canonical_app_name: Pinebuild
