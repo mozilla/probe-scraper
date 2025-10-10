@@ -156,6 +156,12 @@ SKIP_METRICS = {
         "fenix",
         "firefox-desktop",
     ],
+    "update.bitshresult": ["gecko", "firefox-desktop-background-update"],
+    "update.move_result": ["gecko", "firefox-desktop-background-update"],
+    "update.no_window_auto_restarts": ["gecko", "firefox-desktop-background-update"],
+    "update.skip_startup_update_reason": ["gecko", "firefox-desktop-background-update"],
+    "update.suppress_prompts": ["gecko", "firefox-desktop-background-update"],
+    "update.version_pin": ["gecko", "firefox-desktop-background-update"],
 }
 
 
