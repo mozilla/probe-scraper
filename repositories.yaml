@@ -1467,32 +1467,6 @@ applications:
       - v1_name: mozillavpn-backend-cirrus
         app_id: mozillavpn_backend_cirrus
 
-  - app_name: regrets_reporter
-    canonical_app_name: RegretsReporter
-    app_description: |
-      The RegretsReporter extension gives you a way to easily report bad or
-      unwanted YouTube recommended videos to control your YouTube
-      experience and power Mozilla’s research into YouTube’s recommendation
-      algorithm.
-    deprecated: true
-    url: https://github.com/mozilla-extensions/regrets-reporter
-    notification_emails:
-      - jessed@mozillafoundation.org
-      - rebeccar@mozillafoundation.org
-    branch: main
-    metrics_files:
-      - source/telemetry/metrics.yaml
-    ping_files:
-      - source/telemetry/pings.yaml
-    dependencies:
-      - glean-js
-    moz_pipeline_metadata_defaults:
-      expiration_policy:
-        delete_after_days: 730
-    channels:
-      - v1_name: regrets-reporter-ucs
-        app_id: regrets.reporter.ucs
-
   - app_name: glean_dictionary
     canonical_app_name: Glean Dictionary
     app_description: |
@@ -1880,60 +1854,6 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130  # 37 months
-
-  - app_name: tiktokreporter_ios
-    canonical_app_name: TikTok Reporter (iOS)
-    app_description: |
-      An app for iOS to enable Mozilla Foundation research into TikTok
-    url: https://github.com/MozillaFoundation/tiktok-reporter-app-ios
-    notification_emails:
-      - jessed@mozillafoundation.org
-      - tlong@mozilla.com
-    branch: main
-    metrics_files:
-      - "TikTok Reporter/metrics.yaml"
-    ping_files:
-      - "TikTok Reporter/pings.yaml"
-    dependencies:
-      - glean-core
-    moz_pipeline_metadata_defaults:
-      expiration_policy:
-        delete_after_days: 400
-    channels:
-      - v1_name: tiktokreporter-ios
-        app_id: org.mozilla.ios.TikTok-Reporter
-        app_channel: release
-        description: |
-          This is the base iOS TikTok reporter application
-      - v1_name: tiktokreporter-ios-share-extension
-        app_id: org.mozilla.ios.TikTok-Reporter.TikTok-ReporterShare
-        app_channel: release
-        description: |
-          This is the share extension that works with the base iOS
-          TikTok reporter. Due to how Apple sets bundle identifiers,
-          this ends up having a different identifier.
-
-  - app_name: tiktokreporter_android
-    canonical_app_name: TikTok Reporter (Android)
-    app_description: |
-      An app for Android to enable Mozilla Foundation research into TikTok
-    url: https://github.com/MozillaFoundation/tiktok-reporter-app-android
-    notification_emails:
-      - jessed@mozillafoundation.org
-      - tlong@mozilla.com
-    branch: main
-    metrics_files:
-      - "app/metrics.yaml"
-    ping_files:
-      - "app/pings.yaml"
-    dependencies:
-      - glean-core
-    moz_pipeline_metadata_defaults:
-      expiration_policy:
-        delete_after_days: 400
-    channels:
-      - v1_name: tiktokreporter-android
-        app_id: org.mozilla.tiktokreporter
 
   - app_name: relay_backend
     canonical_app_name: Firefox Relay Backend
