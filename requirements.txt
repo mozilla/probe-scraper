@@ -3,7 +3,7 @@ beautifulsoup4==4.8.2
 GitPython==3.1.41
 boto3==1.28.7
 Flask==2.3.3
-glean-parser~=17.3.0
+glean-parser~=18.0.6
 google-cloud-bigquery==3.23.1
 google-cloud-storage==2.2.1
 gsutil==5.28
