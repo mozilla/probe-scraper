@@ -2114,7 +2114,7 @@ applications:
     ping_files:
       - experimenter/experimenter/telemetry/pings.yaml
     dependencies:
-      - glean-core
+      - glean-server
     channels:
       - v1_name: experimenter-backend
         app_id: experimenter.backend
