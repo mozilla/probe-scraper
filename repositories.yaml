@@ -94,6 +94,22 @@ libraries:
     variants:
       - v1_name: sync
         dependency_name: org.mozilla.appservices:syncmanager
+
+  - library_name: error-support
+    description: >-
+      Rust component error tracking library
+    notification_emails:
+      - bdeankawamura@mozilla.com
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/support/error/metrics.yaml
+    ping_files:
+      - components/support/error/pings.yaml
+    variants:
+      - v1_name: error-support
+        dependency_name: org.mozilla.appservices:errorsupport
+
   - library_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
@@ -693,6 +709,7 @@ applications:
       - org.mozilla.components:lib-crash
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:logins
+      - org.mozilla.appservices:errorsupport
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
       - org.mozilla.appservices:fxaclient
