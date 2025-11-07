@@ -2123,7 +2123,7 @@ applications:
         delete_after_days: 760
 
   - app_name: subplat_cirrus
-    canonical_app_name: "Subscript Platform (Cirrus)"
+    canonical_app_name: "Subscription Platform (Cirrus)"
     app_description: |
       Mozilla Subscription Platform is Mozilla's subscription management
       solution for account-based end-user services and features.
