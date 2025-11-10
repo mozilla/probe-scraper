@@ -2122,7 +2122,7 @@ applications:
       expiration_policy:
         delete_after_days: 760
 
-  - app_name: subplat_cirrus
+  - app_name: subscription_platform_backend_cirrus
     canonical_app_name: "Subscription Platform (Cirrus)"
     app_description: |
       Mozilla Subscription Platform is Mozilla's subscription management
@@ -2137,8 +2137,8 @@ applications:
       - glean-server
       - nimbus-cirrus
     channels:
-      - v1_name: subplat-cirrus
-        app_id: subplat.cirrus
+      - v1_name: subscription-platform-backend-cirrus
+        app_id: subscription.platform.backend.cirrus
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
