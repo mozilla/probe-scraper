@@ -2101,6 +2101,28 @@ applications:
       expiration_policy:
         delete_after_days: 760
 
+  - app_name: experimenter_backend
+    canonical_app_name: "Experimenter"
+    app_description: |
+      Experimenter is Mozilla's internal web application for managing
+      experiments and rollouts across Mozilla's many applications.
+    url: https://github.com/mozilla/experimenter
+    notification_emails:
+      - project-nimbus@mozilla.com
+    branch: main
+    metrics_files:
+      - experimenter/experimenter/telemetry/metrics.yaml
+    ping_files:
+      - experimenter/experimenter/telemetry/pings.yaml
+    dependencies:
+      - glean-server
+    channels:
+      - v1_name: experimenter-backend
+        app_id: experimenter.backend
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
+
   - app_name: subscription_platform_backend_cirrus
     canonical_app_name: "Subscription Platform (Cirrus)"
     app_description: |
