@@ -853,6 +853,7 @@ applications:
       - firefox-ios/Client/Glean/probes/app_menu.yaml
       - firefox-ios/Client/Glean/probes/autofill.addresses.yaml
       - firefox-ios/Client/Glean/probes/autofill.credit_cards.yaml
+      - firefox-ios/Client/Glean/probes/autofill.email_mask.yaml
       - firefox-ios/Client/Glean/probes/autofill.password_generator.yaml
       - firefox-ios/Client/Glean/probes/autofill.passwords.yaml
       - firefox-ios/Client/Glean/probes/history.yaml
