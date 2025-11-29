@@ -350,12 +350,14 @@ libraries:
       - xpcom/metrics.yaml
     ping_files:
       - dom/pings.yaml
+      - netwerk/pings.yaml
       - toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
       - toolkit/components/backgroundhangmonitor/pings.yaml
       - toolkit/components/captchadetection/pings.yaml
       - toolkit/components/gecko-trace/pings.yaml
       - toolkit/components/glean/pings.yaml
       - toolkit/components/resistfingerprinting/pings.yaml
+      - toolkit/mozapps/extensions/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     variants:
