@@ -1944,7 +1944,7 @@ applications:
         app_id: ads.backend
     moz_pipeline_metadata_defaults:
       expiration_policy:
-        delete_after_days: 400
+        delete_after_days: 775
 
   - app_name: thunderbird_desktop
     canonical_app_name: Thunderbird
