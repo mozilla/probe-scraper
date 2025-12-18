@@ -75,28 +75,11 @@ libraries:
     url: https://github.com/mozilla-firefox/firefox
     metrics_files:
       - mobile/android/android-components/components/lib/crash/metrics.yaml
+    ping_files:
+      - mobile/android/android-components/components/lib/crash/pings.yaml
     variants:
       - v1_name: lib-crash
         dependency_name: org.mozilla.components:lib-crash
-        branch: main
-
-  - library_name: crashping
-    description: >-
-      The crashping crate, which is used on all platforms to send crash pings.
-    notification_emails:
-      - afranchuk@mozilla.com
-      - crash-reporting-wg@mozilla.org
-      - stability@mozilla.org
-    url: https://github.com/mozilla-firefox/firefox
-    metrics_files:
-      - toolkit/crashreporter/crashping/generated_metrics.yaml
-    ping_files:
-      - toolkit/crashreporter/crashping/pings.yaml
-    tag_files:
-      - toolkit/components/glean/tags.yaml
-    variants:
-      - v1_name: crashping
-        dependency_name: crashping
         branch: main
 
   - library_name: sync
@@ -452,6 +435,7 @@ applications:
       - dom/security/pings.yaml
       - services/fxaccounts/pings.yaml
       - services/sync/pings.yaml
+      - toolkit/components/crashes/pings.yaml
       - toolkit/components/nimbus/pings.yaml
       - toolkit/components/reportbrokensite/pings.yaml
       - toolkit/components/telemetry/pings.yaml
@@ -462,7 +446,6 @@ applications:
     dependencies:
       - gecko
       - glean-core
-      - crashping
       # does not actually depend on glean-android, including for backwards
       # compat
       - org.mozilla.components:service-glean
@@ -541,9 +524,14 @@ applications:
     branch: main
     notification_emails:
       - afranchuk@mozilla.com
+    metrics_files:
+      - toolkit/components/crashes/metrics.yaml
+    ping_files:
+      - toolkit/components/crashes/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
     dependencies:
       - glean-core
-      - crashping
     channels:
       - v1_name: firefox-crashreporter
         app_id: firefox.crashreporter
@@ -566,9 +554,11 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
+      - toolkit/components/crashes/metrics.yaml
       - toolkit/mozapps/update/background_task_metrics.yaml
       - toolkit/mozapps/update/shared_metrics.yaml
     ping_files:
+      - toolkit/components/crashes/pings.yaml
       - toolkit/mozapps/update/pings.yaml
       - toolkit/mozapps/update/shared_pings.yaml
     tag_files:
@@ -576,7 +566,6 @@ applications:
     dependencies:
       - gecko
       - glean-core
-      - crashping
     channels:
       - v1_name: firefox-desktop-background-update
         app_id: firefox.desktop.background.update
@@ -720,7 +709,6 @@ applications:
     dependencies:
       - gecko
       - glean-core
-      - crashping
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - org.mozilla.appservices:syncmanager
@@ -1331,7 +1319,6 @@ applications:
       - mobile/android/focus-android/app/pings.yaml
     dependencies:
       - glean-core
-      - crashping
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
@@ -1378,7 +1365,6 @@ applications:
       - mobile/android/focus-android/app/pings.yaml
     dependencies:
       - glean-core
-      - crashping
       - org.mozilla.components:service-glean
       - org.mozilla.components:lib-crash
       - nimbus
@@ -1660,9 +1646,11 @@ applications:
     metrics_files:
       - browser/components/metrics.yaml
       - toolkit/components/backgroundtasks/metrics.yaml
+      - toolkit/components/crashes/metrics.yaml
       - toolkit/mozapps/defaultagent/metrics.yaml
     ping_files:
       - toolkit/components/backgroundtasks/pings.yaml
+      - toolkit/components/crashes/pings.yaml
       - toolkit/components/nimbus/pings.yaml
       - toolkit/mozapps/defaultagent/pings.yaml
     dependencies:
