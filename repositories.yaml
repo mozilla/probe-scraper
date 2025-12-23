@@ -1438,7 +1438,6 @@ applications:
       - mcleinman@mozilla.com
     branch: main
     metrics_files:
-      - src/telemetry/extension_metrics.yaml
       - src/telemetry/metrics.yaml
     ping_files:
       - src/telemetry/pings.yaml
