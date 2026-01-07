@@ -146,7 +146,7 @@ libraries:
 
   - library_name: ads-client
     description: >-
-      Application-services component that allows surfaces to request ads via MARS
+      Application-services component that allows the requesting ads via MARS
     notification_emails:
       - llisi@mozilla.com
       - ahanot@mozilla.com
