@@ -731,6 +731,7 @@ applications:
       - org.mozilla.appservices:errorsupport
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
+      - org.mozilla.appservices:adsclient
       - org.mozilla.appservices:fxaclient
       - nimbus
       - org.mozilla.components:service-nimbus
@@ -908,6 +909,7 @@ applications:
       - nimbus
       - org.mozilla.appservices:logins
       - org.mozilla.appservices:syncmanager
+      - org.mozilla.appservices:adsclient
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
