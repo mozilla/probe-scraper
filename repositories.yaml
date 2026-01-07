@@ -144,6 +144,21 @@ libraries:
         branch: main
         dependency_name: org.mozilla.appservices:logins
 
+  - library_name: ads-client
+    description: >-
+      Application-services component that allows surfaces to request ads via MARS
+    notification_emails:
+      - llisi@mozilla.com
+      - ahanot@mozilla.com
+      - toast@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/ads-client/metrics.yaml
+    variants:
+      - v1_name: ads-client
+        branch: main
+        dependency_name: org.mozilla.appservices:adsclient
+
   - library_name: fxa-client
     description: >-
       Application-services FxA client library
