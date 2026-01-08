@@ -144,6 +144,21 @@ libraries:
         branch: main
         dependency_name: org.mozilla.appservices:logins
 
+  - library_name: ads-client
+    description: >-
+      Application-services component that allows requesting ads via MARS
+    notification_emails:
+      - llisi@mozilla.com
+      - ahanot@mozilla.com
+      - toast@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/ads-client/metrics.yaml
+    variants:
+      - v1_name: ads-client
+        branch: main
+        dependency_name: org.mozilla.appservices:adsclient
+
   - library_name: fxa-client
     description: >-
       Application-services FxA client library
@@ -716,6 +731,7 @@ applications:
       - org.mozilla.appservices:errorsupport
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
+      - org.mozilla.appservices:adsclient
       - org.mozilla.appservices:fxaclient
       - nimbus
       - org.mozilla.components:service-nimbus
@@ -893,6 +909,7 @@ applications:
       - nimbus
       - org.mozilla.appservices:logins
       - org.mozilla.appservices:syncmanager
+      - org.mozilla.appservices:adsclient
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
