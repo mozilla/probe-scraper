@@ -1249,6 +1249,7 @@ applications:
     metrics_files:
       - python/mach/metrics.yaml
       - python/mozbuild/metrics.yaml
+      - tools/tryselect/metrics.yaml
     ping_files:
       - python/mach/pings.yaml
     dependencies:
