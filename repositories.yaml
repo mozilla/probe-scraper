@@ -521,7 +521,7 @@ applications:
           delete_after_days: 775
       microsurvey:
         expiration_policy:
-          delete_after_days: 90
+          delete_after_days: 365
       metrics:
         expiration_policy:
           delete_after_days: 775
