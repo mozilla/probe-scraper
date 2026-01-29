@@ -583,6 +583,7 @@ applications:
     notification_emails:
       - chutten@mozilla.com
     metrics_files:
+      - toolkit/components/crashes/metrics.yaml
       - toolkit/mozapps/update/background_task_metrics.yaml
       - toolkit/mozapps/update/shared_metrics.yaml
     ping_files:
@@ -1679,6 +1680,7 @@ applications:
     metrics_files:
       - browser/components/metrics.yaml
       - toolkit/components/backgroundtasks/metrics.yaml
+      - toolkit/components/crashes/metrics.yaml
       - toolkit/mozapps/defaultagent/metrics.yaml
     ping_files:
       - toolkit/components/backgroundtasks/pings.yaml
