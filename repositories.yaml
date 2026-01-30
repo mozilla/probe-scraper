@@ -176,6 +176,20 @@ libraries:
         branch: main
         dependency_name: org.mozilla.appservices:adsclient
 
+  - library_name: fxa-client
+    description: >-
+      Application-services FxA client library
+    notification_emails:
+      - bdeankawamura@mozilla.com
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/fxa-client/android/metrics.yaml
+    variants:
+      - v1_name: fxa-client
+        branch: main
+        dependency_name: org.mozilla.appservices:fxaclient
+
   - library_name: support-migration
     description: >-
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
@@ -733,6 +747,7 @@ applications:
       - org.mozilla.components:support-migration
       - org.mozilla.components:places
       - org.mozilla.appservices:adsclient
+      - org.mozilla.appservices:fxaclient
       - nimbus
       - org.mozilla.components:service-nimbus
     moz_pipeline_metadata_defaults:
