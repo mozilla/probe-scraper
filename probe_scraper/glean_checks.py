@@ -8,6 +8,7 @@ This file contains various sanity checks for Glean.
 
 import datetime
 from pathlib import Path
+import logging
 from typing import Any, Dict
 
 from schema import And, Optional, Schema
@@ -359,11 +360,12 @@ def check_for_duplicate_metrics(repositories, metrics_by_repo, emails):
         addresses = set()
         duplicates = []
         for name, sources in duplicate_sources.items():
-            duplicates.append(
-                "- {!r} defined more than once in {}".format(
-                    name, ", ".join(sorted(sources))
-                )
+            duplicate_error_msg = "- {!r} defined more than once in {}".format(
+                name, ", ".join(sorted(sources))
             )
+
+            duplicates.append(duplicate_error_msg)
+            logging.error(duplicate_error_msg)
 
             for source in sources:
                 # Send to the repository contacts
