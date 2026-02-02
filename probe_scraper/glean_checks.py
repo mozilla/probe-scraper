@@ -204,6 +204,7 @@ SKIP_METRICS = {
     "memory.total_physical": ["crashping", "firefox-crashreporter"],
     "memory.total_virtual": ["crashping", "firefox-crashreporter"],
     "windows.package_family_name": ["crashping", "firefox-crashreporter"],
+    "crash.minidump_sha256_hash": ["crashping", "firefox-crashreporter"],
 }
 
 
