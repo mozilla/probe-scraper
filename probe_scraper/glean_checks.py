@@ -7,8 +7,8 @@ This file contains various sanity checks for Glean.
 """
 
 import datetime
-from pathlib import Path
 import logging
+from pathlib import Path
 from typing import Any, Dict
 
 from schema import And, Optional, Schema
