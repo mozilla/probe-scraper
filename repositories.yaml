@@ -1993,6 +1993,7 @@ applications:
       - mail/components/cloudfile/metrics.yaml
       - mail/components/inappnotifications/metrics.yaml
       - calendar/metrics.yaml
+      - mailnews/protocols/ews/metrics.yaml
     # While bug 1910995 asks to use comm/mail/pings.yaml, this
     # file is currently empty in the repo and we won't add it
     # to prevent failures, as probe-scraper doesn't like empty
