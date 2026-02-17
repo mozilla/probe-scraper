@@ -244,6 +244,7 @@ libraries:
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/nimbus/metrics.yaml
+      - components/nimbus/pings.yaml
     variants:
       - v1_name: nimbus
         branch: main
