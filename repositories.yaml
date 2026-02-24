@@ -409,6 +409,7 @@ applications:
       - chutten@mozilla.com
     metrics_files:
       - browser/actors/metrics.yaml
+      - browser/components/aiwindow/metrics.yaml
       - browser/components/asrouter/metrics.yaml
       - browser/components/attribution/metrics.yaml
       - browser/components/backup/metrics.yaml
