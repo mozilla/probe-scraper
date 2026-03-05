@@ -554,6 +554,9 @@ applications:
       pseudo-main:
         expiration_policy:
           delete_after_days: 775
+      onboarding-opt-out:
+        expiration_policy:
+          delete_after_days: 775
 
   - app_name: firefox_crashreporter
     canonical_app_name: Firefox Crash Reporter
@@ -838,6 +841,9 @@ applications:
       user-characteristics:
         expiration_policy:
           delete_after_days: 90
+      onboarding-opt-out:
+        expiration_policy:
+          delete_after_days: 775
     channels:
       - v1_name: firefox-android-release
         app_id: org.mozilla.firefox
@@ -944,6 +950,9 @@ applications:
           - name: "geo_city"
             value: null
         submission_timestamp_granularity: "seconds"
+      onboarding-opt-out:
+        expiration_policy:
+          delete_after_days: 775
     channels:
       - v1_name: firefox-ios-release
         app_id: org.mozilla.ios.Firefox
