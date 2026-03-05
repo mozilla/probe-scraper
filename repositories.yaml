@@ -556,7 +556,7 @@ applications:
           delete_after_days: 775
       onboarding-opt-out:
         expiration_policy:
-            delete_after_days: 775
+          delete_after_days: 775
 
   - app_name: firefox_crashreporter
     canonical_app_name: Firefox Crash Reporter
@@ -950,7 +950,7 @@ applications:
         override_attributes:
           - name: "geo_city"
             value: null
-        submission_timestamp_granularity: "seconds" 
+        submission_timestamp_granularity: "seconds"
       onboarding-opt-out:
         expiration_policy:
           delete_after_days: 775
