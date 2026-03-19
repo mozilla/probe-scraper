@@ -558,6 +558,9 @@ applications:
       onboarding-opt-out:
         expiration_policy:
           delete_after_days: 775
+      pwmgr-origin-failure:
+        expiration_policy:
+          delete_after_days: 30
 
   - app_name: firefox_crashreporter
     canonical_app_name: Firefox Crash Reporter
