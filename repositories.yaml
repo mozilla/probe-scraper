@@ -449,6 +449,7 @@ applications:
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
+      - toolkit/components/passwordmgr/metrics.yaml
       - toolkit/components/pictureinpicture/metrics.yaml
       - toolkit/components/places/metrics.yaml
       - toolkit/components/reportbrokensite/metrics.yaml
@@ -473,6 +474,7 @@ applications:
       - services/fxaccounts/pings.yaml
       - services/sync/pings.yaml
       - toolkit/components/nimbus/pings.yaml
+      - toolkit/components/passwordmgr/pings.yaml
       - toolkit/components/reportbrokensite/pings.yaml
       - toolkit/components/telemetry/pings.yaml
       - toolkit/modules/pings.yaml
