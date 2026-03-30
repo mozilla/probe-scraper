@@ -2130,6 +2130,28 @@ applications:
       - v1_name: subscription-platform-backend
         app_id: subscription.platform.backend
 
+  - app_name: subscription_platform_frontend
+    canonical_app_name: Subscription Platform Frontend
+    app_description: |
+      Mozilla Subscription Platform is Mozilla's subscription management
+      solution for account-based end-user services and features.
+    url: https://github.com/mozilla/fxa
+    notification_emails:
+      - lchan@mozilla.com
+      - subplat-team@mozilla.com
+    branch: main
+    metrics_files:
+      - libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-js
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 760
+    channels:
+      - v1_name: subscription-platform-frontend
+        app_id: subscription.platform.frontend
+
   - app_name: experimenter_cirrus
     canonical_app_name: "Experimenter (Cirrus)"
     app_description: |
