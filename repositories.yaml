@@ -571,6 +571,8 @@ applications:
     branch: main
     notification_emails:
       - afranchuk@mozilla.com
+      - crash-reporting-wg@mozilla.org
+      - stability@mozilla.org
     dependencies:
       - glean-core
       - crashping
@@ -2033,6 +2035,28 @@ applications:
         expiration_policy:
           delete_after_days: 90
 
+  - app_name: thunderbird_crashreporter
+    canonical_app_name: Thunderbird Crash Reporter
+    app_description: >-
+      The Thunderbird desktop crash reporter client.
+    url: https://github.com/mozilla/releases-comm-central
+    notification_emails:
+      - afranchuk@mozilla.com
+      - crash-reporting-wg@mozilla.org
+      - stability@mozilla.org
+    dependencies:
+      - glean-core
+      - crashping
+    channels:
+      - v1_name: thunderbird-crashreporter
+        app_id: thunderbird.crashreporter
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    moz_pipeline_metadata:
+      crash:
+        expiration_policy:
+          delete_after_days: 775
 
   - app_name: thunderbird_android
     canonical_app_name: Thunderbird for Android
