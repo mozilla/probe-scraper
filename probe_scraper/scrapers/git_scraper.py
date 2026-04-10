@@ -107,6 +107,60 @@ SKIP_COMMITS = {
         "1fc70947ff229c30ba1b5c54f884a503af13ccda",
         # pdfjs metrics missing `description`s
         "35ed43c92f51ee67e66f2a8d2814d57acbb4063e",
+        # Around this point we switched from gecko-dev to mozilla-firefox/firefox
+        # meaning that prior SHAs no longer apply : |
+        "34092faf48616f4f9dfc351e9d8176b3ac54c121",  # Missing services/common/metrics.yaml
+        # Missing devtools/client/webconsole/metrics.yaml
+        "40e17f076bef05a0ea4f85d2e47a566037d59dad",
+        # Missing dom/base/use_counter_metrics.yaml
+        "aeac4d77e188608115b323888a0e7f4ab771d593",
+        # Missing dom/base/use_counter_metrics.yaml
+        "7f8a3ccc5ea8efe09c87b36b27563e7c7239e643",
+        "d01e8d9f996cab64c99d4871de5c2096df0a9f3d",  # Missing dom/media/webrtc/metrics.yaml
+        "0e02a53995929ece449457cc60b5a7ed461b3376",  # Missing dom/security/metrics.yaml
+        "e61c5ecc4d75444051c805cd5e6c660047df8edb",  # Missing gfx/metrics.yaml
+        "f3bc89cb1fd9732c951f4f55e580a845c1feb00d",  # Missing intl/locale/metrics.yaml
+        "379594ec0cb8003005a24ae833e08426ebefde7c",  # Missing netwerk/protocol/http/metrics.yaml
+        "21a149a784310241f4f3d1db46f855e9a0b5e336",  # Missing netwerk/protocol/http/metrics.yaml
+        "b903ab5d69ce3e13d405b950ef9ebea8c39364ed",  # Missing netwerk/protocol/http/metrics.yaml
+        "b80eb24c664e6baa15bd9c5fc2413b176b96e629",  # Missing security/ct/metrics.yaml
+        "17360b21e0f09bf2e5fff13338ce6fe35ffca6b7",  # Missing security/manager/ssl/metrics.yaml
+        "cbdeaba2c139bf9c369a3445f824de7af0eb88ad",  # Missing security/manager/ssl/metrics.yaml
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
+        "02a2978f8047c21aff54c2941e964aadd2eea758",
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/metrics.yaml
+        "7cdea11ce1ce783ab2ef6fb6d497613bb49f5fef",
+        # Missing toolkit/components/captchadetection/metrics.yaml
+        "48bbabbc358143032f3bdf0b89eaeb792f0ca390",
+        "cc33cd20bb9efd8895f57236f8d3b19c65c6a608",  # Missing toolkit/components/doh/metrics.yaml
+        "1d64fae3b4027244ffa603ea5a075ae5b35aca43",  # Missing toolkit/components/ml/metrics.yaml
+        "a4c382ea54e5ff84183230f1ae6173e8af182962",  # Missing toolkit/components/pdfjs/metrics.yaml
+        # Missing toolkit/components/reader/metrics.yaml
+        "806eacf8c594522a3de2b171c276cf9f6e2968d0",
+        # Missing toolkit/components/translations/metrics.yaml
+        "b971c9609e34ff8fe76145ae5059d8503fd06583",
+        "afe3db6bb23e76bbf925d61c8e0c5db84ee9391f",  # Missing toolkit/mozapps/update/metrics.yaml
+        "aee1a52659567c4d08f6dcc9d173b6ff1eea9223",  # Missing toolkit/profile/metrics.yaml
+        "df36a8d502166bdfc9ad9f34353a8d967bbd5ff9",  # Missing xpcom/metrics.yaml
+        "7cade7af82b2fa1c9c908f0154934e7990d89643",  # Missing dom/pings.yaml
+        "eb5d60087707d1acaf663a8ea2bbf14602e88d2f",  # Missing netwerk/pings.yaml
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
+        "7422c4eea96ee39d39acd8f953403c29a2a53d9a",
+        # Missing toolkit/components/antitracking/bouncetrackingprotection/pings.yaml
+        "88e54822a53a68a74616930098d1a6a23966c308",
+        # Missing toolkit/components/captchadetection/pings.yaml
+        "48bbabbc358143032f3bdf0b89eaeb792f0ca390",
+        "ed7c6247ed0f2821d411453a3f07b5ae300c3416",  # Missing toolkit/components/glean/pings.yaml
+        "744c67d2de320fe19f127039f290395a8d826bb1",  # Missing toolkit/components/glean/pings.yaml
+        # Missing toolkit/components/resistfingerprinting/pings.yaml
+        "d534c92fc42671af1ba2480aa626fcbedb622418",
+        # Missing toolkit/components/resistfingerprinting/pings.yaml
+        "db3d57b115a2eb86f5cbc62a7a060a1c6e782169",
+        "22d98c8bb4325c2e2fb32f9fd06394a6e19b8dce",  # Missing toolkit/components/glean/tags.yaml
+        "775705d9e5e29f9b81899080d20b3ecbdd4e244b",  # Bad ping 'gecko_trace'
+        "29e167130c00b71907e8eb64d2dd95efafaf44dc",  # pdfjs metrics missing descriptions
+        # Bad yaml alias in toolkit/components/translations/metrics.yaml
+        "7ddead757c64f11521f663448e5171aaaae2f8ad",
     ],
     "firefox-desktop": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
@@ -137,9 +191,73 @@ SKIP_COMMITS = {
         "42acdc9cd5ae89222bdceeeaed7bacac755be48f",
         # Missing toolkit/components/reportbrokensite/metrics.yaml
         "c76093316c58ae74a21e854b8035c91d0c75df6e",
+        # Around this point we switched from gecko-dev to mozilla-firefox/firefox
+        # meaning that prior SHAs no longer apply : |
+        # Missing browser/components/asrouter/metrics.yaml
+        "695882bbbfdcb8c5cd9a613ced7c6b6a86a29afb",
+        # Missing browser/components/attribution/metrics.yaml
+        "efcf0aaa0af9644c5213f2acc8b33cff0f0c7fd7",
+        # Missing browser/components/attribution/metrics.yaml
+        "280680c5c455ccb18ecf3615dc3b72ec549bae63",
+        # Missing browser/components/attribution/metrics.yaml
+        "ed01a1d8b2d1cc0339b424fc35e4c5ee6639b71b",
+        # Missing browser/components/backup/metrics.yaml
+        "013051b63c532875b99d47157926350af3f28128",
+        # Missing browser/components/contextualidentity/metrics.yaml
+        "dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c",
+        # Missing browser/components/contextualidentity/metrics.yaml
+        "257efb0851f403d6f49aeb9adeb142f899710a2a",
+        # Missing browser/components/contextualidentity/metrics.yaml
+        "fdd7267509d268df2f11e60d338be0afd1296c6b",
+        # Missing browser/components/contextualidentity/metrics.yaml
+        "dd94fbfd7a6bc94a89df928f583c9eae9fef83ee",
+        # Missing browser/components/customkeys/metrics.yaml
+        "d277e7f5b98c953c914c13a522ea767a7ceda2c4",
+        # Missing browser/components/newtab/metrics.yaml
+        "b967cfd2bb58fecbaab44e2e1db43a0bf81e35fe",
+        # Missing browser/components/privatebrowsing/metrics.yaml
+        "a389d668fb89ff4a74d6a1c4389a24e8a2423b0c",
+        # Missing browser/components/search/metrics.yaml
+        "b967cfd2bb58fecbaab44e2e1db43a0bf81e35fe",
+        # Missing browser/components/tabnotes/metrics.yaml
+        "bb3d5095b9b93306feb11edf6953e6aa65731ba4",
+        "dbc4a6f9dd59e24cac39d2f360d17e27064be646",  # Missing dom/media/platforms/wmf/metrics.yaml
+        # Missing toolkit/components/contentanalysis/metrics.yaml
+        "abfcb76cf97c59ab3e55523e63cec18ec370adfe",
+        # Missing toolkit/components/contentrelevancy/metrics.yaml
+        "4d64600494aaacff9d18e3546366a61c98ef023b",
+        # Missing toolkit/components/contentrelevancy/metrics.yaml
+        "28b0abdfac3b5be8cca4a9236a23cc1a36246551",
+        # Missing toolkit/components/nimbus/metrics.yaml
+        "4e2cd0f7c2ba33d3cfc474e4a9aefa2bd8a75eab",
+        # Missing toolkit/components/places/metrics.yaml
+        "aef39cc559ae3837341ec01cc0a47b05845e052f",
+        # Missing toolkit/components/reportbrokensite/metrics.yaml
+        "f0be2f011927a48c1c135463eb7a3ea57db29b27",
+        # Missing toolkit/components/reportbrokensite/metrics.yaml
+        "8e6281d821149c1ea7e968272b66cbb6c096ab52",
+        "6a27bbefde56fff7e1f63b5653686497c01c834b",  # Missing widget/windows/metrics.yaml
+        # Missing browser/components/asrouter/pings.yaml
+        "695882bbbfdcb8c5cd9a613ced7c6b6a86a29afb",
+        "b967cfd2bb58fecbaab44e2e1db43a0bf81e35fe",  # Missing browser/components/newtab/pings.yaml
+        "4af280a39685908b2947cae3057adabf748e12a2",  # Missing services/sync/pings.yaml
+        "91f71ab9b13d3d44541fe40f1b8752c36e053f58",  # Missing toolkit/components/nimbus/pings.yaml
+        "3dee923b49228c5fbba22354de6c5650b0a26720",  # Missing toolkit/components/nimbus/pings.yaml
+        # Missing toolkit/components/reportbrokensite/pings.yaml
+        "f0be2f011927a48c1c135463eb7a3ea57db29b27",
+        # Missing toolkit/components/reportbrokensite/pings.yaml
+        "8e6281d821149c1ea7e968272b66cbb6c096ab52",
+        # Missing toolkit/components/telemetry/pings.yaml
+        "6c64ffc8e1fcb59b48533e22eca8f426e72e6ce2",
+        "22d98c8bb4325c2e2fb32f9fd06394a6e19b8dce",  # Missing toolkit/components/glean/tags.yaml
+        # Bad yaml alias in toolkit/components/nimbus/metrics.yaml
+        "12175724abfa7ae282cb27e308f551d116aede1b",
     ],
     "firefox-desktop-background-update": [
         "c5d5f045aaba41933622b5a187c39da0d6ab5d80",  # Missing toolkit/components/glean/tags.yaml
+        # Around this point we switched from gecko-dev to mozilla-firefox/firefox
+        # meaning that prior SHAs no longer apply : |
+        "22d98c8bb4325c2e2fb32f9fd06394a6e19b8dce",  # Missing toolkit/components/glean/tags.yaml
     ],
     "firefox-desktop-background-tasks": [
         # Missing toolkit/components/backgroundtasks/metrics.yaml
