@@ -2249,3 +2249,24 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 760
+  - app_name: mdn_mcp
+    canonical_app_name: "MDN MCP"
+    app_description: |
+      MDN's MCP server provides up-to-date search
+      and retrieval of MDN’s web platform documentation
+      and Browser Compatibility Data.
+    url: https://github.com/mdn/mcp
+    notification_emails:
+      - mdn-engineering@mozilla.com
+    branch: main
+    metrics_files:
+      - glean/metrics.yaml
+    ping_files: []
+    dependencies:
+      - glean-js
+    channels:
+      - v1_name: mdn-mcp
+        app_id: mdn-mcp
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 1130
