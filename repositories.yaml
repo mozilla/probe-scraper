@@ -925,6 +925,7 @@ applications:
       - firefox-ios/Client/Glean/probes/toolbar.yaml
       - firefox-ios/Client/Glean/probes/tracking_protection.yaml
       - firefox-ios/Client/Glean/probes/user.yaml
+      - firefox-ios/Client/Glean/probes/world_cup_widget.yaml
       - firefox-ios/Client/Glean/probes/zoom_bar.yaml
       - firefox-ios/Storage/metrics.yaml
     ping_files:
