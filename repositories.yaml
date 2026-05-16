@@ -478,6 +478,7 @@ applications:
       - toolkit/components/telemetry/pings.yaml
       - toolkit/modules/pings.yaml
       - toolkit/mozapps/update/shared_pings.yaml
+      - toolkit/profile/pings.yaml
     tag_files:
       - toolkit/components/glean/tags.yaml
     dependencies:
