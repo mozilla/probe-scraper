@@ -215,6 +215,7 @@ libraries:
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/places/android/metrics.yaml
+      - components/places/metrics.yaml
     variants:
       - v1_name: android-places
         branch: main
