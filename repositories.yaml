@@ -748,6 +748,7 @@ applications:
       - aplacitelli@mozilla.com
     metrics_files:
       - mobile/android/fenix/app/metrics.yaml
+      - mobile/android/fenix/app/longfox/metrics.yaml
     ping_files:
       - mobile/android/fenix/app/pings.yaml
     tag_files:
