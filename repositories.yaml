@@ -208,8 +208,7 @@ libraries:
 
   - library_name: android-places
     description: >-
-      A collection of Android libraries to build browsers or browser-like
-      applications
+      Android wrapper for the application-services places library.
     notification_emails:
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
@@ -220,6 +219,19 @@ libraries:
       - v1_name: android-places
         branch: main
         dependency_name: org.mozilla.components:places
+
+  - library_name: ios-places
+    description: >-
+      iOS wrapper for the application-services places library.
+    notification_emails:
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/places/metrics.yaml
+    variants:
+      - v1_name: places
+        branch: main
+        dependency_name: org.mozilla.appservices:places
 
   - library_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
@@ -943,6 +955,7 @@ applications:
       - org.mozilla.appservices:logins
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:adsclient
+      - org.mozilla.appservices:places
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
