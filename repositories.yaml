@@ -2285,3 +2285,93 @@ applications:
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 1130
+
+  - app_name: firefox_enterprise
+    canonical_app_name: "Firefox Enterprise"
+    app_description: Managed, open-source browsing at scale
+    notification_emails:
+      - enterprise-telemetry@mozilla.org
+    url: https://github.com/mozilla/enterprise-firefox
+    branch: enterprise-main
+    metrics_files:
+      - browser/actors/metrics.yaml
+      - browser/components/aiwindow/metrics.yaml
+      - browser/components/asrouter/metrics.yaml
+      - browser/components/attribution/metrics.yaml
+      - browser/components/backup/metrics.yaml
+      - browser/components/contentsharing/metrics.yaml
+      - browser/components/contextualidentity/metrics.yaml
+      - browser/components/controlcenter/metrics.yaml
+      - browser/components/customkeys/metrics.yaml
+      - browser/components/downloads/metrics.yaml
+      - browser/components/extensions/metrics.yaml
+      - browser/components/firefoxview/metrics.yaml
+      - browser/components/genai/metrics.yaml
+      - browser/components/ipprotection/metrics.yaml
+      - browser/components/metrics.yaml
+      - browser/components/migration/metrics.yaml
+      - browser/components/newtab/metrics.yaml
+      - browser/components/places/metrics.yaml
+      - browser/components/preferences/metrics.yaml
+      - browser/components/privatebrowsing/metrics.yaml
+      - browser/components/profiles/metrics.yaml
+      - browser/components/protections/metrics.yaml
+      - browser/components/protocolhandler/metrics.yaml
+      - browser/components/screenshots/metrics.yaml
+      - browser/components/search/metrics.yaml
+      - browser/components/sessionstore/metrics.yaml
+      - browser/components/sidebar/metrics.yaml
+      - browser/components/tabbrowser/metrics.yaml
+      - browser/components/tabnotes/metrics.yaml
+      - browser/components/taskbartabs/metrics.yaml
+      - browser/components/textrecognition/metrics.yaml
+      - browser/components/urlbar/metrics.yaml
+      - browser/extensions/search-detection/metrics.yaml
+      - browser/modules/metrics.yaml
+      - dom/media/platforms/wmf/metrics.yaml
+      - services/fxaccounts/metrics.yaml
+      - toolkit/components/contentanalysis/metrics.yaml
+      - toolkit/components/contentrelevancy/metrics.yaml
+      - toolkit/components/crashes/metrics.yaml
+      - toolkit/components/nimbus/metrics.yaml
+      - toolkit/components/pictureinpicture/metrics.yaml
+      - toolkit/components/places/metrics.yaml
+      - toolkit/components/reportbrokensite/metrics.yaml
+      - toolkit/components/satchel/megalist/metrics.yaml
+      - toolkit/components/search/metrics.yaml
+      - toolkit/components/telemetry/metrics.yaml
+      - toolkit/modules/metrics.yaml
+      - toolkit/mozapps/update/shared_metrics.yaml
+      - widget/cocoa/metrics.yaml
+      - widget/gtk/metrics.yaml
+      - widget/windows/metrics.yaml
+    ping_files:
+      - browser/components/asrouter/pings.yaml
+      - browser/components/backup/pings.yaml
+      - browser/components/enterprisepolicies/pings.yaml
+      - browser/components/newtab/pings.yaml
+      - browser/components/profiles/pings.yaml
+      - browser/components/search/pings.yaml
+      - browser/components/urlbar/pings.yaml
+      - browser/modules/pings.yaml
+      - services/fxaccounts/pings.yaml
+      - services/sync/pings.yaml
+      - toolkit/components/nimbus/pings.yaml
+      - toolkit/components/reportbrokensite/pings.yaml
+      - toolkit/components/telemetry/pings.yaml
+      - toolkit/modules/pings.yaml
+      - toolkit/mozapps/update/shared_pings.yaml
+      - toolkit/profile/pings.yaml
+    tag_files:
+      - toolkit/components/glean/tags.yaml
+    dependencies:
+      - gecko
+      - glean-core
+      - crashping
+    prototype: true
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    channels:
+      - v1_name: firefox-enteprise
+        app_id: firefox-enterprise.desktop
