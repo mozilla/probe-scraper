@@ -2017,7 +2017,7 @@ applications:
   - app_name: thunderbird_desktop
     canonical_app_name: Thunderbird
     app_description: Thunderbird email client
-    url: https://github.com/mozilla/releases-comm-central
+    url: https://github.com/thunderbird/thunderbird-desktop
     notification_emails:
       - alessandro@thunderbird.net
       - sancus@thunderbird.net
@@ -2054,7 +2054,7 @@ applications:
     canonical_app_name: Thunderbird Crash Reporter
     app_description: >-
       The Thunderbird desktop crash reporter client.
-    url: https://github.com/mozilla/releases-comm-central
+    url: https://github.com/thunderbird/thunderbird-desktop
     notification_emails:
       - afranchuk@mozilla.com
       - crash-reporting-wg@mozilla.org
