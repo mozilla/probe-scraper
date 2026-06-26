@@ -21,23 +21,23 @@ jobs:
         persist-credentials: false
 
     - name: Build
-      run: docker-compose build
+      run: docker compose build
 
     - name: Lint
       run: |
-        docker-compose run app flake8 .
-        docker-compose run app yamllint repositories.yaml .circleci
-        docker-compose run app python -m black --check probe_scraper tests ./*.py
-        docker-compose run app python -m isort --profile black --check-only probe_scraper tests ./*.py
+        docker compose run app flake8 .
+        docker compose run app yamllint repositories.yaml .circleci
+        docker compose run app python -m black --check probe_scraper tests ./*.py
+        docker compose run app python -m isort --profile black --check-only probe_scraper tests ./*.py
 
     - name: Check Repos
-      run: docker-compose run app python -m probe_scraper.check_repositories
+      run: docker compose run app python -m probe_scraper.check_repositories
 
     - name: Test
-      run: docker-compose run app pytest tests/ --run-web-tests
+      run: docker compose run app pytest tests/ --run-web-tests
 
     - name: Burnham Dryrun
-      run: docker-compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --glean-limit-date 2023-10-20 --dry-run
+      run: docker compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --glean-limit-date 2023-10-20 --dry-run
 
   docs_build:
     runs-on: ubuntu-latest
@@ -54,8 +54,8 @@ jobs:
         node-version: lts/*
         package-manager-cache: false
 
-    - name: Install redoc
-      run: npm install @redocly/cli
+    - name: Install dependencies
+      run: npm ci
 
     - name: Build docs
       run: |
@@ -97,7 +97,7 @@ jobs:
 
     - name: Install and configure dependencies
       run: |
-        npm install gh-pages@2.0.1
+        npm ci
         git config user.email "ci-build@mozilla.com"
         git config user.name "ci-build"
 
