@@ -1,0 +1,183 @@
+name: build-test-deploy
+on:
+  push:
+    branches:
+    - main
+    tags:
+    - '*'
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+
+    - name: Build
+      run: docker compose build
+
+    - name: Lint
+      run: |
+        docker compose run app flake8 .
+        docker compose run app yamllint repositories.yaml .circleci
+        docker compose run app python -m black --check probe_scraper tests ./*.py
+        docker compose run app python -m isort --profile black --check-only probe_scraper tests ./*.py
+
+    - name: Check Repos
+      run: docker compose run app python -m probe_scraper.check_repositories
+
+    - name: Test
+      run: docker compose run app pytest tests/ --run-web-tests
+
+    - name: Burnham Dryrun
+      run: docker compose run app python -m probe_scraper.runner --glean --glean-repo glean-core --glean-repo glean-android --glean-repo burnham --glean-limit-date 2023-10-20 --dry-run
+
+  docs_build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+
+    - name: Set up Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: lts/*
+        package-manager-cache: false
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build docs
+      run: |
+        npx @redocly/cli build-docs probeinfo_api.yaml -o docs/index.html \
+          --theme.openapi.expandResponses="200,201" \
+          --theme.openapi.jsonSampleExpandLevel=2
+
+    - name: Upload docs artifact
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: docs-html
+        path: docs/index.html
+
+  docs_deploy:
+    needs: docs_build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+
+    - name: Download docs artifact
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        name: docs-html
+        path: docs/
+
+    - name: Disable jekyll builds
+      run: touch docs/.nojekyll
+
+    - name: Setup Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: lts/*
+        package-manager-cache: false
+
+    - name: Install and configure dependencies
+      run: |
+        npm ci
+        git config user.email "ci-build@mozilla.com"
+        git config user.name "ci-build"
+
+    - name: Deploy docs to gh-pages branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+      run: npx gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/ --repo "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git"
+
+  deploy_docker:
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    environment: GH Actions
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+
+    - name: Build the Docker image for main
+      if: github.ref == 'refs/heads/main'
+      run: docker build . -t us-docker.pkg.dev/moz-fx-data-artifacts-prod/probe-scraper/probe-scraper:latest
+
+    - name: Push Docker image to GAR for main
+      if: github.ref == 'refs/heads/main'
+      uses: mozilla-it/deploy-actions/docker-push@20256256ac0d19735926dc7975a86dbbb7a06e5f # v6.6.3
+      with:
+        project_id: moz-fx-data-artifacts-prod
+        image_tags: us-docker.pkg.dev/moz-fx-data-artifacts-prod/probe-scraper/probe-scraper:latest
+        workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+        service_account_name: probe-scraper
+
+    - name: Build the Docker image for tag
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        IMAGE_TAG: ${{ github.ref_name }}
+      run: docker build . -t us-docker.pkg.dev/moz-fx-data-artifacts-prod/probe-scraper/probe-scraper:$IMAGE_TAG
+
+    - name: Push Docker image to GAR for tag
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: mozilla-it/deploy-actions/docker-push@20256256ac0d19735926dc7975a86dbbb7a06e5f # v6.6.3
+      with:
+        project_id: moz-fx-data-artifacts-prod
+        image_tags: us-docker.pkg.dev/moz-fx-data-artifacts-prod/probe-scraper/probe-scraper:${{ github.ref_name }}
+        workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+        service_account_name: probe-scraper
+
+  deploy_cloud_function:
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: GH Actions
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+    - name: Authenticate to GCP (OIDC)
+      uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      with:
+        workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+
+    - name: Deploy Google Cloud Function
+      env:
+        PROD_SERVICE_ACCOUNT_INVOKER: ${{ secrets.PROD_SERVICE_ACCOUNT_INVOKER }}
+      run: |-
+        gcloud functions deploy glean-push --region=us-west1 --allow-unauthenticated \
+          --entry-point=glean_push --memory=2048 --runtime=python310 \
+          --set-env-vars=BOTO_PATH=.gce_boto,OUTPUT_BUCKET=gs://probe-scraper-prod-artifacts/ \
+          --trigger-http --service-account=$PROD_SERVICE_ACCOUNT_INVOKER --timeout=540s \
+          --source=.
