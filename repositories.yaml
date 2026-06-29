@@ -208,8 +208,7 @@ libraries:
 
   - library_name: android-places
     description: >-
-      A collection of Android libraries to build browsers or browser-like
-      applications
+      Android wrapper for the application-services places library.
     notification_emails:
       - sync-team@mozilla.com
     url: https://github.com/mozilla/application-services
@@ -220,6 +219,19 @@ libraries:
       - v1_name: android-places
         branch: main
         dependency_name: org.mozilla.components:places
+
+  - library_name: ios-places
+    description: >-
+      iOS wrapper for the application-services places library.
+    notification_emails:
+      - sync-team@mozilla.com
+    url: https://github.com/mozilla/application-services
+    metrics_files:
+      - components/places/metrics.yaml
+    variants:
+      - v1_name: places
+        branch: main
+        dependency_name: org.mozilla.appservices:places
 
   - library_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
@@ -299,7 +311,6 @@ libraries:
       - docshell/base/metrics.yaml
       - dom/base/use_counter_metrics.yaml
       - dom/canvas/metrics.yaml
-      - dom/crypto/metrics.yaml
       - dom/geolocation/metrics.yaml
       - dom/indexedDB/metrics.yaml
       - dom/localstorage/metrics.yaml
@@ -443,7 +454,6 @@ applications:
       - browser/components/taskbartabs/metrics.yaml
       - browser/components/textrecognition/metrics.yaml
       - browser/components/urlbar/metrics.yaml
-      - browser/extensions/data-leak-blocker/metrics.yaml
       - browser/extensions/search-detection/metrics.yaml
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
@@ -470,7 +480,6 @@ applications:
       - browser/components/profiles/pings.yaml
       - browser/components/search/pings.yaml
       - browser/components/urlbar/pings.yaml
-      - browser/extensions/data-leak-blocker/pings.yaml
       - browser/modules/pings.yaml
       - services/fxaccounts/pings.yaml
       - services/sync/pings.yaml
@@ -946,6 +955,7 @@ applications:
       - org.mozilla.appservices:logins
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:adsclient
+      - org.mozilla.appservices:places
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
@@ -2007,7 +2017,7 @@ applications:
   - app_name: thunderbird_desktop
     canonical_app_name: Thunderbird
     app_description: Thunderbird email client
-    url: https://github.com/mozilla/releases-comm-central
+    url: https://github.com/thunderbird/thunderbird-desktop
     notification_emails:
       - alessandro@thunderbird.net
       - sancus@thunderbird.net
@@ -2044,7 +2054,7 @@ applications:
     canonical_app_name: Thunderbird Crash Reporter
     app_description: >-
       The Thunderbird desktop crash reporter client.
-    url: https://github.com/mozilla/releases-comm-central
+    url: https://github.com/thunderbird/thunderbird-desktop
     notification_emails:
       - afranchuk@mozilla.com
       - crash-reporting-wg@mozilla.org

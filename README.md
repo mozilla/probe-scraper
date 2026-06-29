@@ -71,7 +71,7 @@ for descriptions of all the available parameters.
 ## Developing the probe-scraper
 
 You can choose to develop using the container, or locally. Using the container will be slower, since changes will trigger a rebuild of the container.
-But using the container method will ensure that your PR passes CircleCI build/test phases.
+But using the container method will ensure that your PR passes CI build/test phases.
 
 ### Local development
 
@@ -106,7 +106,7 @@ To test whether the code conforms to the style rules, you can run:
 ```
 python -m black --check probe_scraper tests ./*.py
 flake8 --max-line-length 100 probe_scraper tests ./*.py
-yamllint repositories.yaml .circleci
+yamllint repositories.yaml
 python -m isort --profile black --check-only probe_scraper tests ./*.py
 ```
 
