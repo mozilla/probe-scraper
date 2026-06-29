@@ -26,7 +26,6 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 apidoc:
-	# Keep in sync with doc task in .circleci/config.yml
 	docker run --rm \
 		-v ${PWD}:/local \
 		cimg/node:lts \
@@ -38,7 +37,7 @@ format:
 
 lint: build
 	docker-compose run app flake8 .
-	docker-compose run app yamllint repositories.yaml .circleci
+	docker-compose run app yamllint repositories.yaml
 	docker-compose run app python -m black --check probe_scraper tests ./*.py
 	docker-compose run app python -m isort --profile black --check-only probe_scraper tests ./*.py
 

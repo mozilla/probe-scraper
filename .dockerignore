@@ -78,6 +78,15 @@ celerybeat-schedule
 # dotenv
 .env
 
+# GitHub Actions GCP credential files written by google-github-actions/auth.
+# Keep these out of the image so short-lived creds are never baked in.
+gha-creds-*.json
+
+# Node tooling used only by the docs CI jobs, not by the Python runtime image.
+node_modules/
+package.json
+package-lock.json
+
 # virtualenv
 venv/
 ENV/

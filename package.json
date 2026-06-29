@@ -1,0 +1,10 @@
+{
+  "name": "probe-scraper-docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dev tooling for building and deploying probe-scraper API docs in CI.",
+  "devDependencies": {
+    "@redocly/cli": "2.35.1",
+    "gh-pages": "6.3.0"
+  }
+}
