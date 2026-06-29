@@ -26,7 +26,7 @@ jobs:
     - name: Lint
       run: |
         docker compose run app flake8 .
-        docker compose run app yamllint repositories.yaml .circleci
+        docker compose run app yamllint repositories.yaml
         docker compose run app python -m black --check probe_scraper tests ./*.py
         docker compose run app python -m isort --profile black --check-only probe_scraper tests ./*.py
 
