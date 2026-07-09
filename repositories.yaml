@@ -920,6 +920,7 @@ applications:
       - firefox-ios/Client/Glean/probes/autofill.email_mask.yaml
       - firefox-ios/Client/Glean/probes/autofill.password_generator.yaml
       - firefox-ios/Client/Glean/probes/autofill.passwords.yaml
+      - firefox-ios/Client/Glean/probes/broken_site_report.yaml
       - firefox-ios/Client/Glean/probes/history.yaml
       - firefox-ios/Client/Glean/probes/homepage.shortcuts_library.yaml
       - firefox-ios/Client/Glean/probes/library.bookmarks_panel.yaml
