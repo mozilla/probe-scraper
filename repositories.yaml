@@ -2298,12 +2298,8 @@ applications:
     metrics_files:
       - plugins/glean/metrics.yaml
     channels:
-      - v1_name: mozcloud-backstage-dev
+      - v1_name: mozcloud-backstage
         app_id: moz_backstage
-        app_channel: development
-      - v1_name: mozcloud-backstage-prod
-        app_id: moz_backstage
-        app_channel: production
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
