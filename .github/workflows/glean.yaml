@@ -6,13 +6,18 @@ on:
 jobs:
   probe-scraper:
     name: Glean probe-scraper
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Validate Glean metrics via probe-scraper, and if appropriate publish changes
         run: |-
           curl --fail-with-body https://us-west1-moz-fx-data-probe-s-prod-2bc3.cloudfunctions.net/glean-push --data '{
-            "url": "${{github.server_url}}/${{github.repository}}",
-            "commit":"${{github.sha}}",
-            "branch":"${{github.ref_name}}"
+            "url": "${SERVER_URL}/${REPOSITORY}",
+            "commit":"${COMMIT}",
+            "branch":"${BRANCH}"
           }'
+        env:
+          SERVER_URL: "${{ github.server_url }}"
+          REPOSITORY: "${{ github.repository }}"
+          COMMIT: "${{ github.sha }}"
+          BRANCH: "${{ github.ref_name }}"
 
