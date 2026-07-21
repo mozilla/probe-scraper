@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 
-from fog_update import eval_extract, swap_file_list
+from fog_updater import eval_extract, swap_file_list
 
 
 REPOSITORIES_YAML = """

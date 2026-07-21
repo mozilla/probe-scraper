@@ -15,19 +15,16 @@ and creates a new Pull Request against `probe-scraper` if it contains any change
 | `AUTHOR_NAME` | The name to use for the commit |
 | `AUTHOR_EMAIL` | The email to use for the commit |
 
-## Running with Docker
+## Running
 
 ```
-$ docker build -t fog-update .
-$ docker run -it --rm fog-update
+uv run fog-updater
 ```
 
 ## Development
 
 ```
-$ python3 -m venv env
-$ pip install -r requirements.txt
-$ pip install pytest
+uv sync
 ```
 
 ## Testing
@@ -35,7 +32,7 @@ $ pip install pytest
 You can run the tests:
 
 ```
-pytest
+uv run pytest
 ```
 
 Manual runs of the updater requires a `GITHUB_TOKEN`.
