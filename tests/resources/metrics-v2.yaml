@@ -1,0 +1,26 @@
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+example:
+  object_metric:
+    type: object
+    lifetime: application
+    send_in_pings:
+      - baseline
+    description: |
+      The object metric for testing
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1497894
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1512938#c3
+    notification_emails:
+      - telemetry-client-dev@mozilla.com
+    expires: never
+    structure:
+      type: array
+      items:
+        type: object
+        properties:
+          prop_a:
+            type: string
+          prop_b:
+            type: boolean

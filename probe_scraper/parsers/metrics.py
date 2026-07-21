@@ -27,7 +27,12 @@ class GleanMetricsParser:
         errors = [err for err in results]
 
         metrics = {
-            metric.identifier(): metric.serialize()
+            metric.identifier(): metric.serialize(
+                rename_fields={
+                    "_generate_structure": "structure",
+                    "_generate_enums": "enums",
+                }
+            )
             for category, probes in results.value.items()
             for probe_name, metric in probes.items()
         }
