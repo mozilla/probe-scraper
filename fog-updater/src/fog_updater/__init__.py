@@ -267,6 +267,10 @@ def run(argv, repo, author, debug=False, dry_run=False):
         head=pr_branch_name,
         base=release_branch_name,
     )
+
+    # Enable auto-merge on the new pull request
+    pr.enable_automerge(merge_method="REBASE")
+
     print(f"{ts()} Pull request at {pr.html_url}")
 
 
