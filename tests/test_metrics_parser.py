@@ -25,6 +25,22 @@ def test_metrics_parser():
     assert "session-end" in parsed_metrics["example.os"]["send_in_pings"]
 
 
+def test_metrics_parser_schema_v2():
+    # Parse the histograms from the test definitions.
+    parser = GleanMetricsParser()
+    parsed_metrics, errs = parser.parse(["tests/resources/metrics-v2.yaml"], {})
+
+    assert errs == []
+
+    # Make sure we loaded all the metrics.
+    # Notably, we do not check the contents; that is left up to the
+    # glean parser to handle.
+    assert len(parsed_metrics) == 1
+    for name, data in parsed_metrics.items():
+        assert is_string(name)
+        assert "structure" in data
+
+
 def test_source_url():
     parser = GleanMetricsParser()
     parsed_metrics, errs = parser.parse(
