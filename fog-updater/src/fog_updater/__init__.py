@@ -171,7 +171,7 @@ def _commit_repositories_yaml(repo, branch, author, new_content):
     return True
 
 
-def main(argv, repo, author, debug=False, dry_run=False):
+def run(argv, repo, author, debug=False, dry_run=False):
     if len(argv) < 1:
         print(USAGE)
         sys.exit(1)
@@ -270,7 +270,7 @@ def main(argv, repo, author, debug=False, dry_run=False):
     print(f"{ts()} Pull request at {pr.html_url}")
 
 
-if __name__ == "__main__":
+def main():
     debug = os.getenv("DEBUG") is not None
     if debug:
         enable_console_debug_logging()
@@ -299,4 +299,4 @@ if __name__ == "__main__":
         f"{ts()} This is fog-update working on https://github.com/{organization} as {author_email} / {author_name}"  # noqa
     )
 
-    main(sys.argv, repo, author, debug, dry_run)
+    run(sys.argv, repo, author, debug, dry_run)
