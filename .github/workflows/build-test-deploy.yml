@@ -177,7 +177,7 @@ jobs:
         FUNCTION_RUNTIME_SERVICE_ACCOUNT: ${{ vars.FUNCTION_RUNTIME_SERVICE_ACCOUNT }}
       run: |-
         gcloud functions deploy glean-push --region=us-west1 --allow-unauthenticated \
-          --entry-point=glean_push --memory=2048 --runtime=python310 \
+          --entry-point=glean_push --memory=2048 --runtime=python314 \
           --set-env-vars=BOTO_PATH=.gce_boto,OUTPUT_BUCKET=gs://probe-scraper-prod-artifacts/ \
           --trigger-http --service-account="$FUNCTION_RUNTIME_SERVICE_ACCOUNT" --timeout=540s \
           --source=.
