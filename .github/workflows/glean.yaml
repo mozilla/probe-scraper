@@ -10,11 +10,11 @@ jobs:
     steps:
       - name: Validate Glean metrics via probe-scraper, and if appropriate publish changes
         run: |-
-          curl --fail-with-body https://us-west1-moz-fx-data-probe-s-prod-2bc3.cloudfunctions.net/glean-push --data '{
-            "url": "${SERVER_URL}/${REPOSITORY}",
-            "commit":"${COMMIT}",
-            "branch":"${BRANCH}"
-          }'
+          curl --fail-with-body https://us-west1-moz-fx-data-probe-s-prod-2bc3.cloudfunctions.net/glean-push --data "{
+            \"url\": \"${SERVER_URL}/${REPOSITORY}\",
+            \"commit\":\"${COMMIT}\",
+            \"branch\":\"${BRANCH}\"
+          }"
         env:
           SERVER_URL: "${{ github.server_url }}"
           REPOSITORY: "${{ github.repository }}"
