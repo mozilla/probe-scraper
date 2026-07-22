@@ -181,3 +181,71 @@ jobs:
           --set-env-vars=BOTO_PATH=.gce_boto,OUTPUT_BUCKET=gs://probe-scraper-prod-artifacts/ \
           --trigger-http --service-account="$FUNCTION_RUNTIME_SERVICE_ACCOUNT" --timeout=540s \
           --source=.
+
+  automerge:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    permissions:
+      contents: read
+      pull-requests: write  # for commenting
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+    - name: Get changed files
+      if:
+        ${{
+          github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork != true
+        }}
+      id: changed-files
+      uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323  # v47.0.5
+      with:
+        base_sha: ${{ github.event.pull_request.base.sha || github.event.before }}
+
+    - name: Auto-merge
+      if:
+        ${{
+          github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork != true
+        }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_PAT: ${{ secrets.GH_PAT }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        ACTOR: ${{ github.actor }}
+        EVENT: ${{ toJSON(github.event) }}
+        ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        echo "pr=$PR_NUMBER"
+        echo "actor=$ACTOR"
+
+        for file in ${ALL_CHANGED_FILES}; do
+          if [[ "$file" != "repositories.txt" ]]; then
+            echo "$file was modified. Only repositories.txt changes are merged automatically."
+            echo "Bailing out."
+            gh pr comment "$PR_NUMBER" \
+              --body "Auto-merge aborted. '${file}' was modified. Only repositories.txt changes are merged automatically."
+            exit 0
+          fi
+        done
+
+        permission=$(gh api /repos/mozilla/probe-scraper/collaborators/${ACTOR}/permission | jq -r .permission)
+        echo "permission=$permission"
+        if [[ "$permission" = "admin" ]]; then
+          true
+        else
+          echo "Insufficient permission. Stopping."
+          exit 0
+        fi
+
+        pr_info=$(gh api "/repos/mozilla/probe-scraper/pulls/${PR_NUMBER}")
+        pr_state=$(echo "$pr_info" | jq -r .state)
+        if [[ "$pr_state" != "open" ]]; then
+          echo "PR is not open. State: ${pr_state}. Stopping."
+          exit 0
+        fi
+
+        echo "Tests succeeded. Merging this PR automatically."
+        gh pr comment "$PR_NUMBER" \
+          --body "Tests succeeded. This PR will be automatically merged now."
+        GH_TOKEN="$GH_PAT" gh pr merge --admin --rebase "$PR_NUMBER"
