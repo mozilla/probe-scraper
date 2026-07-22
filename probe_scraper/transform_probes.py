@@ -309,6 +309,7 @@ def metrics_equal(def1, def2):
                 "type",
                 "version",
                 "extra_keys",
+                "structure",
             }
         )
     )
