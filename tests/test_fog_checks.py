@@ -135,7 +135,7 @@ def test_get_expiring_metrics(fake_metrics, fake_latest_nightly_version):
             **fake_metrics,
             "expiring.metric_name": {
                 **FAKE_METRIC,
-                "expires": str(int(fake_latest_nightly_version) + 1),
+                "expires": str(int(fake_latest_nightly_version) + 2),
             },
         },
         fake_latest_nightly_version,

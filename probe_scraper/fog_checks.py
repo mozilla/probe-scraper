@@ -113,7 +113,7 @@ def get_expiring_metrics(
     """
 
     # We start warning one version ahead.
-    target_version = int(latest_nightly_version) + 1
+    target_version = int(latest_nightly_version) + 2
 
     expiring_metrics = {}
     for metric_name, metric in metrics.items():
@@ -171,7 +171,7 @@ def file_bugs(
     If `dry_run`, doesn't file any new bugs, returning a fake bug url for all expiring metrics.
     """
 
-    next_version = str(int(latest_nightly_version) + 1)
+    next_version = str(int(latest_nightly_version) + 2)
 
     # We try our best to reuse pieces of probe_expiry_alert.
     # Swizzle and filter expiring_metrics into a list of ProbeDetails structs.
