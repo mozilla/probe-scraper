@@ -215,13 +215,21 @@ def test_main_run(
             "expiry_version": "77",
             "notification_emails": ["test@email.com"],
             "bug_numbers": [],
-        }
+        },
+        "p4": {
+            "expiry_version": "78",
+            "notification_emails": ["test@email.com"],
+            "bug_numbers": [],
+        },
     }
     mock_get_version.return_value = "75"
 
     probe_expiry_alert.main(datetime.date(2020, 1, 8), False, "")
 
-    expected_expiring_probes = [ProbeDetails("p1", "Firefox", "General", [], None)]
+    expected_expiring_probes = [
+        ProbeDetails("p1", "Firefox", "General", [], None),
+        ProbeDetails("p3", "Firefox", "General", [], None),
+    ]
     mock_file_bugs.assert_called_once_with(
         expected_expiring_probes, "75", "", dryrun=False
     )

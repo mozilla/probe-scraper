@@ -450,7 +450,7 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
     dryrun = dryrun or current_date.weekday() != 2
 
     current_version = str(int(get_latest_nightly_version()))
-    next_version = str(int(current_version) + 1)
+    target_versions = [str(int(current_version) + 1), str(int(current_version) + 2)]
 
     with tempfile.TemporaryDirectory() as tempdir:
         events_file_path = os.path.join(tempdir, EVENTS_FILE)
@@ -459,9 +459,11 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
 
         histograms_file_path = os.path.join(tempdir, HISTOGRAMS_FILE)
         download_file(BASE_URI + HISTOGRAMS_FILE, histograms_file_path)
-        histograms = HistogramsParser().parse(
-            [histograms_file_path], version=next_version
-        )
+        histograms = {}
+        for target_version in target_versions:
+            histograms.update(
+                HistogramsParser().parse([histograms_file_path], version=target_version)
+            )
 
         scalars_file_path = os.path.join(tempdir, SCALARS_FILE)
         download_file(BASE_URI + SCALARS_FILE, scalars_file_path)
@@ -471,9 +473,14 @@ def main(current_date: datetime.date, dryrun: bool, bugzilla_api_key: str):
     all_probes.update(histograms)
     all_probes.update(scalars)
 
-    expiring_probes = find_expiring_probes(all_probes, next_version, bugzilla_api_key)
+    expiring_probes = []
+    for target_version in target_versions:
+        expiring_probes += find_expiring_probes(
+            all_probes, target_version, bugzilla_api_key
+        )
 
-    print(f"Found {len(expiring_probes)} probes expiring in nightly {next_version}")
+    target_versions = ", ".join(target_versions)
+    print(f"Found {len(expiring_probes)} probes expiring in nightly {target_versions}")
     print([probe.name for probe in expiring_probes])
 
     # find emails with no bugzilla account

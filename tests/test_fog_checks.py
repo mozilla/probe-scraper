@@ -133,15 +133,20 @@ def test_get_expiring_metrics(fake_metrics, fake_latest_nightly_version):
     expiring_metrics = fog_checks.get_expiring_metrics(
         {
             **fake_metrics,
-            "expiring.metric_name": {
+            "expiring.metric_name1": {
                 **FAKE_METRIC,
                 "expires": str(int(fake_latest_nightly_version) + 1),
+            },
+            "expiring.metric_name2": {
+                **FAKE_METRIC,
+                "expires": str(int(fake_latest_nightly_version) + 2),
             },
         },
         fake_latest_nightly_version,
     )
     assert "expired.category.name.metric_name" in expiring_metrics
-    assert "expiring.metric_name" in expiring_metrics
+    assert "expiring.metric_name1" in expiring_metrics
+    assert "expiring.metric_name2" in expiring_metrics
     assert "category.name.metric_name" not in expiring_metrics
 
 
