@@ -445,12 +445,16 @@ def check_for_expired_metrics(
         if repo.deprecated:
             continue
 
-        target_version = None
+        target_versions = None
         if repo.name == "fenix":
             try:
-                target_version = (
-                    int(probe_expiry_alert.get_latest_nightly_version()) + 2
+                latest_nightly_version = int(
+                    probe_expiry_alert.get_latest_nightly_version()
                 )
+                target_versions = [
+                    latest_nightly_version + 1,
+                    latest_nightly_version + 2,
+                ]
             except ValueError:
                 # Can't parse the version as an int. Welp.
                 pass
@@ -468,9 +472,11 @@ def check_for_expired_metrics(
 
             if isinstance(metric["expires"], int):
                 # Uses expire-by-version.
-                if target_version is not None:
-                    if metric["expires"] == target_version:
-                        expired_metrics.append(f" - {metric_name} in {target_version}")
+                if target_versions is not None:
+                    if metric["expires"] in target_versions:
+                        expired_metrics.append(
+                            f" - {metric_name} in {metric['expires']}"
+                        )
                         addresses.update(metric["notification_emails"])
                 continue
 
