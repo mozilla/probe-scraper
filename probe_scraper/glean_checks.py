@@ -449,7 +449,7 @@ def check_for_expired_metrics(
         if repo.name == "fenix":
             try:
                 target_version = (
-                    int(probe_expiry_alert.get_latest_nightly_version()) + 1
+                    int(probe_expiry_alert.get_latest_nightly_version()) + 2
                 )
             except ValueError:
                 # Can't parse the version as an int. Welp.
