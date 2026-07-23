@@ -112,8 +112,8 @@ def get_expiring_metrics(
     Filter the provided dict of metric name to metric info to just the expiring ones.
     """
 
-    # We start warning one version ahead.
-    target_version = int(latest_nightly_version) + 1
+    # We start warning for the next two versions.
+    target_versions = [int(latest_nightly_version) + 1, int(latest_nightly_version) + 2]
 
     expiring_metrics = {}
     for metric_name, metric in metrics.items():
@@ -133,7 +133,7 @@ def get_expiring_metrics(
             # TODO: Should we send emails for unparseable expiry versions?
             continue
 
-        if expiry_version == target_version:
+        if expiry_version in target_versions:
             expiring_metrics[metric_name] = metric
 
     return expiring_metrics
@@ -171,7 +171,10 @@ def file_bugs(
     If `dry_run`, doesn't file any new bugs, returning a fake bug url for all expiring metrics.
     """
 
-    next_version = str(int(latest_nightly_version) + 1)
+    target_versions = [
+        str(int(latest_nightly_version) + 1),
+        str(int(latest_nightly_version) + 2),
+    ]
 
     # We try our best to reuse pieces of probe_expiry_alert.
     # Swizzle and filter expiring_metrics into a list of ProbeDetails structs.
@@ -204,7 +207,10 @@ def file_bugs(
         )
 
     # Debug print time
-    print(f"Found {len(expiring_probes)} 'probes' expiring in nightly {next_version}:")
+    target_versions = ", ".join(target_versions)
+    print(
+        f"Found {len(expiring_probes)} 'probes' expiring in nightly {target_versions}:"
+    )
     print([probe.name for probe in expiring_probes])
 
     metrics_to_bug_numbers = probe_expiry_alert.file_bugs(
