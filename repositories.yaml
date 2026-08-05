@@ -426,7 +426,6 @@ applications:
       - browser/components/asrouter/metrics.yaml
       - browser/components/attribution/metrics.yaml
       - browser/components/backup/metrics.yaml
-      - browser/components/contentsharing/metrics.yaml
       - browser/components/contextualidentity/metrics.yaml
       - browser/components/controlcenter/metrics.yaml
       - browser/components/customkeys/metrics.yaml
@@ -447,6 +446,7 @@ applications:
       - browser/components/screenshots/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/components/sessionstore/metrics.yaml
+      - browser/components/sharing/metrics.yaml
       - browser/components/shell/metrics.yaml
       - browser/components/sidebar/metrics.yaml
       - browser/components/tabbrowser/metrics.yaml
