@@ -196,6 +196,10 @@ def run(argv, repo, author, debug=False, dry_run=False):
     background_tasks_metrics = sorted(data["background_tasks_metrics"])
     background_tasks_pings = sorted(data["background_tasks_pings"])
 
+    firefox_android_pings = sorted(data["android_ping_files"])
+    firefox_android_metrics = sorted(data["android_metrics_files"])
+    firefox_android_tags = sorted(data["android_tag_files"])
+
     ios_metrics_index = get_latest_ios_metrics_index()
     data = yaml.safe_load(ios_metrics_index)
     firefox_ios_pings = sorted(data["ping_files"])
@@ -225,6 +229,10 @@ def run(argv, repo, author, debug=False, dry_run=False):
         ["firefox_ios", "pings", False, firefox_ios_pings],
         ["firefox_ios", "metrics", False, firefox_ios_metrics],
         ["firefox_ios", "tags", False, firefox_ios_tags],
+
+        ["fenix", "pings", False, firefox_android_pings],
+        ["fenix", "metrics", False, firefox_android_metrics],
+        ["fenix", "tags", False, firefox_android_tags],
     ]
 
     print(f"{ts()} Updating repositories.yaml")
