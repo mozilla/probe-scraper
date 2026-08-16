@@ -28,6 +28,7 @@ HTTP_HEADERS = {
 }
 INDEX_URL = "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/glean/metrics_index.py"  # noqa
 FFX_IOS_INDEX_URL = "https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/firefox-ios/Client/Glean/glean_index.yaml"  # noqa
+FFX_ENTERPRISE_INDEX_URL = "https://raw.githubusercontent.com/mozilla/enterprise-firefox/enterprise-main/toolkit/components/glean/metrics_index.py"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
 For reviewers:
@@ -134,6 +135,12 @@ def get_latest_ios_metrics_index():
     return r.text
 
 
+def get_latest_enterprise_metrics_index():
+    r = requests.get(FFX_ENTERPRISE_INDEX_URL, headers=HTTP_HEADERS)
+    r.raise_for_status()
+    return r.text
+
+
 def _rewrite_repositories_yaml(repo, branch, data, debug=False):
     contents = repo.get_contents("repositories.yaml", ref=branch)
     content = contents.decoded_content.decode("utf-8")
@@ -202,6 +209,11 @@ def run(argv, repo, author, debug=False, dry_run=False):
     firefox_ios_metrics = sorted(data["metrics_files"])
     firefox_ios_tags = sorted(data["tag_files"])
 
+    firefox_enterprise_index = get_latest_enterprise_metrics_index()
+    data = eval_extract(firefox_enterprise_index)
+    firefox_enterprise_metrics = sorted(data["firefox_desktop_metrics"])
+    firefox_enterprise_pings = sorted(data["firefox_desktop_pings"])
+
     data = [
         # Name, metrics/pings, library?, files
         ["gecko", "metrics", True, gecko_metrics],
@@ -225,6 +237,8 @@ def run(argv, repo, author, debug=False, dry_run=False):
         ["firefox_ios", "pings", False, firefox_ios_pings],
         ["firefox_ios", "metrics", False, firefox_ios_metrics],
         ["firefox_ios", "tags", False, firefox_ios_tags],
+        ["firefox_enterprise_desktop", "metrics", False, firefox_enterprise_metrics],
+        ["firefox_enterprise_desktop", "pings", False, firefox_enterprise_pings],
     ]
 
     print(f"{ts()} Updating repositories.yaml")
