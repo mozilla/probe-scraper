@@ -2311,8 +2311,8 @@ applications:
       expiration_policy:
         delete_after_days: 400
 
-  - app_name: firefox_enterprise
-    canonical_app_name: "Firefox Enterprise"
+  - app_name: firefox_enterprise_desktop
+    canonical_app_name: Firefox Enterprise for Desktop
     app_description: Managed, open-source browsing at scale
     notification_emails:
       - enterprise-telemetry@mozilla.org
@@ -2397,5 +2397,5 @@ applications:
       expiration_policy:
         delete_after_days: 400
     channels:
-      - v1_name: firefox-enteprise
-        app_id: firefox-enterprise.desktop
+      - v1_name: firefox-enteprise-desktop
+        app_id: firefox.enterprise.desktop
