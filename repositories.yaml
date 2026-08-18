@@ -2393,7 +2393,6 @@ applications:
       - gecko
       - glean-core
       - crashping
-    prototype: true
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 400
