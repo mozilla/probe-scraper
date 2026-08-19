@@ -2324,11 +2324,11 @@ applications:
       - browser/components/asrouter/metrics.yaml
       - browser/components/attribution/metrics.yaml
       - browser/components/backup/metrics.yaml
-      - browser/components/contentsharing/metrics.yaml
       - browser/components/contextualidentity/metrics.yaml
       - browser/components/controlcenter/metrics.yaml
       - browser/components/customkeys/metrics.yaml
       - browser/components/downloads/metrics.yaml
+      - browser/components/enterprise/metrics.yaml
       - browser/components/enterprisepolicies/metrics.yaml
       - browser/components/extensions/metrics.yaml
       - browser/components/firefoxview/metrics.yaml
@@ -2343,9 +2343,12 @@ applications:
       - browser/components/profiles/metrics.yaml
       - browser/components/protections/metrics.yaml
       - browser/components/protocolhandler/metrics.yaml
+      - browser/components/referrals/metrics.yaml
       - browser/components/screenshots/metrics.yaml
       - browser/components/search/metrics.yaml
       - browser/components/sessionstore/metrics.yaml
+      - browser/components/sharing/metrics.yaml
+      - browser/components/shell/metrics.yaml
       - browser/components/sidebar/metrics.yaml
       - browser/components/tabbrowser/metrics.yaml
       - browser/components/tabnotes/metrics.yaml
@@ -2377,6 +2380,7 @@ applications:
       - browser/components/enterprisepolicies/pings.yaml
       - browser/components/newtab/pings.yaml
       - browser/components/profiles/pings.yaml
+      - browser/components/referrals/pings.yaml
       - browser/components/search/pings.yaml
       - browser/components/urlbar/pings.yaml
       - browser/modules/pings.yaml
