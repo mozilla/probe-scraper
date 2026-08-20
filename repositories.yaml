@@ -2402,5 +2402,5 @@ applications:
       expiration_policy:
         delete_after_days: 400
     channels:
-      - v1_name: firefox-enteprise-desktop
+      - v1_name: firefox-enterprise-desktop
         app_id: firefox.enterprise.desktop
