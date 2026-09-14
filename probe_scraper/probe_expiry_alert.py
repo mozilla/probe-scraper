@@ -288,7 +288,7 @@ def check_bugzilla_user_exists(email: str, api_key: str):
         user_response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         # 400 is raised if user does not exist
-        if e.response.status_code == 400 and e.response.json()["code"] == 51:
+        if e.response.status_code in (400, 404) and e.response.json()["code"] == 51:
             return False
         raise
     # As of Sept 2020, api seems to be returning 200 response with an unknown
