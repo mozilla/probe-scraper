@@ -3,6 +3,7 @@ import json
 from dataclasses import dataclass
 from unittest import mock
 
+import pytest
 from requests.exceptions import HTTPError
 
 from probe_scraper import probe_expiry_alert
@@ -493,10 +494,11 @@ def test_get_longest_prefix():
     assert probe_expiry_alert.get_longest_prefix(["abc"]) == "abc"
 
 
+@pytest.mark.parametrize("status_code", [400, 404])
 @mock.patch("requests.get")
-def test_check_bugzilla_user_account_not_found(mock_get):
+def test_check_bugzilla_user_account_not_found(mock_get, status_code):
     mock_response = mock.MagicMock()
-    mock_response.status_code = 400
+    mock_response.status_code = status_code
     mock_response.json = mock.MagicMock(return_value={"code": 51})
 
     def user_not_found():
