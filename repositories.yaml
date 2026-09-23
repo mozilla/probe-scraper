@@ -1650,7 +1650,7 @@ applications:
     app_description: The Mozilla website www.mozilla.org
     url: https://github.com/mozilla/bedrock
     notification_emails:
-      - agibson@mozilla.com
+      - martech@mozilla.com
     branch: main
     metrics_files:
       - glean/metrics.yaml
