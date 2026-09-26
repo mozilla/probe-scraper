@@ -389,6 +389,7 @@ libraries:
       - toolkit/modules/gecko_metrics.yaml
       - toolkit/mozapps/extensions/metrics.yaml
       - toolkit/mozapps/handling/metrics.yaml
+      - toolkit/mozapps/pushnotificationhelper/metrics.yaml
       - toolkit/mozapps/update/metrics.yaml
       - toolkit/profile/metrics.yaml
       - toolkit/xre/metrics.yaml
@@ -437,6 +438,7 @@ applications:
       - browser/components/ipprotection/metrics.yaml
       - browser/components/metrics.yaml
       - browser/components/migration/metrics.yaml
+      - browser/components/miniwindow/metrics.yaml
       - browser/components/newtab/metrics.yaml
       - browser/components/places/metrics.yaml
       - browser/components/preferences/metrics.yaml
