@@ -1652,8 +1652,7 @@ applications:
     notification_emails:
       - martech@mozilla.com
     branch: main
-    metrics_files:
-      - glean/metrics.yaml
+    metrics_files: []
     dependencies:
       - glean-js
     moz_pipeline_metadata_defaults:
@@ -1663,6 +1662,7 @@ applications:
     channels:
       - v1_name: bedrock
         app_id: bedrock
+        deprecated: true
 
   - app_name: viu_politica
     canonical_app_name: Viu Politica
