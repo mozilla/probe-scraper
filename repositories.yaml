@@ -2345,7 +2345,6 @@ applications:
       - browser/components/privatebrowsing/metrics.yaml
       - browser/components/profiles/metrics.yaml
       - browser/components/protections/metrics.yaml
-      - browser/components/protocolhandler/metrics.yaml
       - browser/components/referrals/metrics.yaml
       - browser/components/screenshots/metrics.yaml
       - browser/components/search/metrics.yaml
