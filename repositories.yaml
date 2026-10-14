@@ -1751,10 +1751,8 @@ applications:
       - akomarzewski@mozilla.com
     branch: main
     metrics_files:
-      - packages/fxa-shared/metrics/glean/fxa-ui-metrics.yaml
       - libs/shared/metrics/glean/src/registry/fxa-ui-metrics.yaml
     ping_files:
-      - packages/fxa-shared/metrics/glean/fxa-ui-pings.yaml
       - libs/shared/metrics/glean/src/registry/fxa-ui-pings.yaml
     dependencies:
       - glean-js
@@ -1777,12 +1775,9 @@ applications:
       - akomarzewski@mozilla.com
     branch: main
     metrics_files:
-      - packages/fxa-shared/metrics/glean/fxa-backend-metrics.yaml
       - libs/shared/metrics/glean/src/registry/fxa-backend-metrics.yaml
-      - packages/fxa-shared/metrics/glean/glean-backend-metrics-compat.yaml
       - libs/shared/metrics/glean/src/registry/glean-backend-metrics-compat.yaml
     ping_files:
-      - packages/fxa-shared/metrics/glean/fxa-backend-pings.yaml
       - libs/shared/metrics/glean/src/registry/fxa-backend-pings.yaml
     dependencies:
       - glean-server-metrics-compat
