@@ -380,6 +380,7 @@ libraries:
       - toolkit/components/reader/metrics.yaml
       - toolkit/components/reputationservice/metrics.yaml
       - toolkit/components/resistfingerprinting/metrics.yaml
+      - toolkit/components/satchel/metrics.yaml
       - toolkit/components/startup/metrics.yaml
       - toolkit/components/thumbnails/metrics.yaml
       - toolkit/components/translations/metrics.yaml
@@ -2330,6 +2331,7 @@ applications:
       - browser/components/backup/metrics.yaml
       - browser/components/contextualidentity/metrics.yaml
       - browser/components/controlcenter/metrics.yaml
+      - browser/components/customizableui/metrics.yaml
       - browser/components/customkeys/metrics.yaml
       - browser/components/downloads/metrics.yaml
       - browser/components/enterprise/metrics.yaml
