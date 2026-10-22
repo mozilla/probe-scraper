@@ -970,7 +970,6 @@ applications:
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:adsclient
       - org.mozilla.appservices:places
-      - org.mozilla.appservices:errorsupport
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
