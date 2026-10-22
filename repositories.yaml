@@ -965,6 +965,7 @@ applications:
       # compat
       - org.mozilla.components:service-glean
       - nimbus
+      - org.mozilla.appservices:errorsupport
       - org.mozilla.appservices:logins
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:adsclient
