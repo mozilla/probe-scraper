@@ -1,40 +1,24 @@
 """
-Diff the Glean output that probe-scraper would publish for two versions of
-repositories.yaml, and render it as a markdown PR comment.
+Diff the Glean output of two probe-scraper runs and render it as a markdown PR
+comment.
 
-No git history is scraped, so this only covers output derived from
-repositories.yaml itself (dependencies, repositories, app-listings, etc).
+The outputs are expected to come from
+`python -m probe_scraper.runner --glean --update --dry-run`, which doesn't scrape
+git history, so this only covers output derived from repositories.yaml itself
+(dependencies, repositories, app-listings, etc).
 """
 
 import argparse
 import difflib
 import re
-import tempfile
 from pathlib import Path
 from typing import List
-
-from .runner import load_glean_metrics
 
 COMMENT_MARKER = "<!-- probe-scraper-repositories-diff -->"
 # GitHub rejects comments longer than 65536 characters, so leave room for the text around the diff
 MAX_DIFF_LENGTH = 60000
-# These only contain the time of the run
-IGNORED_FILE_NAMES = {"general", "index.html"}
-
-
-def generate_output(repositories_file: Path, out_dir: Path):
-    # update=True without any repo filter skips scraping and only writes the
-    # output that comes from repositories.yaml
-    load_glean_metrics(
-        cache_dir=out_dir / "cache",
-        out_dir=out_dir / "output",
-        repositories_file=repositories_file,
-        dry_run=True,
-        glean_repos=None,
-        bugzilla_api_key=None,
-        update=True,
-    )
-    return out_dir / "output"
+# general files only contain the time of the run
+IGNORED_FILE_NAMES = {"general"}
 
 
 def diff_dirs(base_dir: Path, head_dir: Path) -> List[str]:
@@ -48,8 +32,18 @@ def diff_dirs(base_dir: Path, head_dir: Path) -> List[str]:
     def read_lines(path: Path):
         return path.read_text().splitlines(keepends=True) if path.exists() else []
 
+    base_files = output_files(base_dir)
+    head_files = output_files(head_dir)
+    # Update runs never delete per-app files (glean/<app>/*) from the bucket, so
+    # an app removed from repositories.yaml keeps its old files.
+    kept_files = {
+        name
+        for name in base_files - head_files
+        if name.startswith("glean/") and name.count("/") == 2
+    }
+
     lines = []
-    for name in sorted(output_files(base_dir) | output_files(head_dir)):
+    for name in sorted((base_files | head_files) - kept_files):
         file_diff = list(
             difflib.unified_diff(
                 read_lines(base_dir / name),
@@ -67,10 +61,11 @@ def render_comment(diff_lines: List[str]) -> str:
     header = (
         f"{COMMENT_MARKER}\n"
         "### probe-scraper output diff\n\n"
-        "Changes to the Glean metadata probe-scraper would publish with this "
-        "version of `repositories.yaml`. Metrics, pings and tags are not scraped, "
-        "so changes that depend on them (e.g. new `metrics_files` or ping "
-        "`moz_pipeline_metadata`) don't show up here.\n\n"
+        "Changes to the Glean metadata probe-scraper would publish with this PR, "
+        "compared to the base branch. Metrics, pings and tags are not scraped, "
+        "so the per-app `metrics`, `pings` and `tags` files are empty here. For "
+        "example, a new `metrics_files` entry or ping `moz_pipeline_metadata` "
+        "shows up in `glean/repositories`, but not its effect on those files.\n\n"
     )
     if not diff_lines:
         return header + "No changes to probe-scraper output.\n"
@@ -105,16 +100,16 @@ def render_comment(diff_lines: List[str]) -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--base-file",
-        help="repositories.yaml to compare against.",
+        "--base-dir",
+        help="Output of the base branch.",
         type=Path,
         required=True,
     )
     parser.add_argument(
-        "--head-file",
-        help="Changed repositories.yaml.",
+        "--head-dir",
+        help="Output of the PR.",
         type=Path,
-        default="repositories.yaml",
+        required=True,
     )
     parser.add_argument(
         "--output-dir",
@@ -124,12 +119,7 @@ def main():
     )
     args = parser.parse_args()
 
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp_dir = Path(tmp)
-        base_dir = generate_output(args.base_file, tmp_dir / "base")
-        head_dir = generate_output(args.head_file, tmp_dir / "head")
-        diff_lines = diff_dirs(base_dir, head_dir)
-
+    diff_lines = diff_dirs(args.base_dir, args.head_dir)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "full.diff").write_text("".join(diff_lines))
     (args.output_dir / "comment.md").write_text(render_comment(diff_lines))
