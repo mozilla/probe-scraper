@@ -1,0 +1,72 @@
+name: repositories-diff
+on:
+  # Runs on every PR rather than filtering on repositories.yaml, so the diff
+  # comment is updated if a PR stops changing it.
+  pull_request:
+
+permissions: {}
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+        # the base branch is the first parent of the PR merge commit
+        fetch-depth: 2
+
+    - name: Check for repositories.yaml changes
+      id: check
+      run: |
+        mkdir diff-output
+        if git diff --quiet HEAD^1 HEAD -- repositories.yaml; then
+          touch diff-output/repositories-unchanged
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Set up Python
+      if: steps.check.outputs.changed == 'true'
+      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      with:
+        python-version: "3.11"
+
+    # The base output is generated with the base branch's code and schema, so
+    # it matches what is published today even if the PR changes them.
+    - name: Generate base output
+      if: steps.check.outputs.changed == 'true'
+      run: |
+        git worktree add --detach "$RUNNER_TEMP/base" HEAD^1
+        cd "$RUNNER_TEMP/base"
+        pip install -r requirements.txt
+        python -m probe_scraper.runner --glean --update --dry-run \
+          --out-dir "$RUNNER_TEMP/base-output"
+
+    - name: Generate head output
+      if: steps.check.outputs.changed == 'true'
+      run: |
+        pip install -r requirements.txt
+        python -m probe_scraper.runner --glean --update --dry-run \
+          --out-dir "$RUNNER_TEMP/head-output"
+
+    - name: Diff output
+      if: steps.check.outputs.changed == 'true'
+      run: |
+        python -m probe_scraper.repositories_diff \
+          --base-dir "$RUNNER_TEMP/base-output" \
+          --head-dir "$RUNNER_TEMP/head-output" \
+          --output-dir diff-output
+        cat diff-output/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+    # Fork PRs get a read-only token, so the comment is posted by
+    # repositories-diff-comment.yml using this artifact.
+    - name: Upload diff
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: repositories-diff
+        path: diff-output/
