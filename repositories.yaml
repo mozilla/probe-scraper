@@ -33,7 +33,7 @@ libraries:
       - v1_name: glean-server
         branch: main
         dependency_name: glean-server
-gbgfbnbyghnghjn hfghjbnfghjbn ghjbn
+
   - library_name: glean-server-metrics-compat
     description: >-
       Modern cross-platform telemetry (server usage).
@@ -970,7 +970,6 @@ applications:
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:adsclient
       - org.mozilla.appservices:places
-      - org.mozilla.appservices:fxaclient
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
