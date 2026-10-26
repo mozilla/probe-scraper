@@ -2411,3 +2411,5 @@ applications:
     channels:
       - v1_name: firefox-enterprise-desktop
         app_id: firefox.enterprise.desktop
+  - app_name: frowny_face
+    app_description:(
