@@ -1,10 +1,15 @@
 name: repositories-diff
 on:
-  # Runs on every PR rather than filtering on repositories.yaml, so the diff
-  # comment is updated if a PR stops changing it.
+  # Runs on every PR rather than filtering on paths, so the diff comment is
+  # updated if a PR stops changing them.
   pull_request:
 
 permissions: {}
+
+env:
+  # The comment job finds its existing comment by this marker
+  COMMENT_MARKER: "<!-- probe-scraper-repositories-diff -->"
+  COMMENT_TITLE: "### probe-scraper output diff"
 
 concurrency:
   group: repositories-diff-${{ github.event.pull_request.number }}
@@ -25,10 +30,11 @@ jobs:
         # the base branch is the first parent of the PR merge commit
         fetch-depth: 2
 
-    - name: Check for repositories.yaml changes
+    # Code and schema changes can change the output too
+    - name: Check for changes that affect the output
       id: check
       run: |
-        if git diff --quiet HEAD^1 HEAD -- repositories.yaml; then
+        if git diff --quiet HEAD^1 HEAD -- repositories.yaml probeinfo_api.yaml probe_scraper/; then
           echo "changed=false" >> "$GITHUB_OUTPUT"
         else
           echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -66,6 +72,7 @@ jobs:
           --base-dir "$RUNNER_TEMP/base-output" \
           --head-dir "$RUNNER_TEMP/head-output" \
           --output-dir diff-output
+        printf '%s\n\n' "$COMMENT_TITLE" >> "$GITHUB_STEP_SUMMARY"
         cat diff-output/comment.md >> "$GITHUB_STEP_SUMMARY"
 
     - name: Upload diff
@@ -104,23 +111,26 @@ jobs:
         RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         DIFF_DIR: ${{ runner.temp }}/repositories-diff
       run: |
-        marker='<!-- probe-scraper-repositories-diff -->'
         body_file="$RUNNER_TEMP/body.md"
-        # Only a new diff creates a comment. The other states only update an
-        # existing comment, so it doesn't keep showing an outdated diff.
+        printf '%s\n%s\n\n' "$COMMENT_MARKER" "$COMMENT_TITLE" > "$body_file"
+        # A PR that should have a diff always gets a comment. If it no longer
+        # needs one, only an existing comment is updated, so it doesn't keep
+        # showing an outdated diff.
         create=false
-        if [[ "$DIFF_RESULT" != "success" ]]; then
-          printf '%s\n### probe-scraper output diff\n\nThe diff failed.\n' "$marker" > "$body_file"
-        elif [[ "$CHANGED" != "true" ]]; then
-          printf '%s\n### probe-scraper output diff\n\nThis PR no longer changes `repositories.yaml`.\n' "$marker" > "$body_file"
-        else
-          cp "$DIFF_DIR/comment.md" "$body_file"
+        if [[ "$CHANGED" == "true" ]]; then
           create=true
+        fi
+        if [[ "$DIFF_RESULT" != "success" ]]; then
+          echo "The diff failed. See the workflow run for details." >> "$body_file"
+        elif [[ "$CHANGED" != "true" ]]; then
+          echo "This PR no longer changes anything that affects probe-scraper output." >> "$body_file"
+        else
+          cat "$DIFF_DIR/comment.md" >> "$body_file"
         fi
         printf '\n---\nGenerated for %s by [this workflow run](%s).\n' "$HEAD_SHA" "$RUN_URL" >> "$body_file"
 
         comment_id=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
-          --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" \
+          --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith(env.COMMENT_MARKER))) | .id' \
           | head -n 1)
         if [[ -n "$comment_id" ]]; then
           gh api --method PATCH "repos/$REPO/issues/comments/$comment_id" -F "body=@$body_file"

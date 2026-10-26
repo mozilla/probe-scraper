@@ -87,7 +87,6 @@ def test_diff_dirs(tmp_path):
 
 def test_render_comment_no_changes():
     comment = repositories_diff.render_comment([])
-    assert comment.startswith(repositories_diff.COMMENT_MARKER)
     assert "No changes" in comment
 
 
