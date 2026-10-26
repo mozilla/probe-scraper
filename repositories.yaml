@@ -969,14 +969,13 @@ applications:
       - org.mozilla.appservices:syncmanager
       - org.mozilla.appservices:adsclient
       - org.mozilla.appservices:places
-      - org.mozilla.appservices:fxaclient
     moz_pipeline_metadata_defaults:
       expiration_policy:
         delete_after_days: 775
     moz_pipeline_metadata:
       fx-accounts:
         expiration_policy:
-          delete_after_days: 60
+          delete_after_days: 30
       topsites-impression:
         expiration_policy:
           delete_after_days: 30
@@ -2411,5 +2410,3 @@ applications:
     channels:
       - v1_name: firefox-enterprise-desktop
         app_id: firefox.enterprise.desktop
-  - app_name: frowny_face
-    app_description:(
