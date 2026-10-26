@@ -6,11 +6,17 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: repositories-diff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   diff:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
     steps:
     - name: Checkout code
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -22,9 +28,7 @@ jobs:
     - name: Check for repositories.yaml changes
       id: check
       run: |
-        mkdir diff-output
         if git diff --quiet HEAD^1 HEAD -- repositories.yaml; then
-          touch diff-output/repositories-unchanged
           echo "changed=false" >> "$GITHUB_OUTPUT"
         else
           echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -54,6 +58,7 @@ jobs:
         python -m probe_scraper.runner --glean --update --dry-run \
           --out-dir "$RUNNER_TEMP/head-output"
 
+    # The job summary is how fork PRs see the diff, since they don't get a comment
     - name: Diff output
       if: steps.check.outputs.changed == 'true'
       run: |
@@ -63,10 +68,62 @@ jobs:
           --output-dir diff-output
         cat diff-output/comment.md >> "$GITHUB_STEP_SUMMARY"
 
-    # Fork PRs get a read-only token, so the comment is posted by
-    # repositories-diff-comment.yml using this artifact.
     - name: Upload diff
+      if: steps.check.outputs.changed == 'true'
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: repositories-diff
         path: diff-output/
+
+  # Separate from the diff job so the write token is never exposed to PR code.
+  # Fork PRs get a read-only token, so they only get the diff job's summary.
+  comment:
+    needs: diff
+    if: >-
+      !cancelled() &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # post the diff comment
+    steps:
+    - name: Download diff
+      if: needs.diff.result == 'success' && needs.diff.outputs.changed == 'true'
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        name: repositories-diff
+        path: ${{ runner.temp }}/repositories-diff
+
+    - name: Post or update comment
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        DIFF_RESULT: ${{ needs.diff.result }}
+        CHANGED: ${{ needs.diff.outputs.changed }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        DIFF_DIR: ${{ runner.temp }}/repositories-diff
+      run: |
+        marker='<!-- probe-scraper-repositories-diff -->'
+        body_file="$RUNNER_TEMP/body.md"
+        # Only a new diff creates a comment. The other states only update an
+        # existing comment, so it doesn't keep showing an outdated diff.
+        create=false
+        if [[ "$DIFF_RESULT" != "success" ]]; then
+          printf '%s\n### probe-scraper output diff\n\nThe diff failed.\n' "$marker" > "$body_file"
+        elif [[ "$CHANGED" != "true" ]]; then
+          printf '%s\n### probe-scraper output diff\n\nThis PR no longer changes `repositories.yaml`.\n' "$marker" > "$body_file"
+        else
+          cp "$DIFF_DIR/comment.md" "$body_file"
+          create=true
+        fi
+        printf '\n---\nGenerated for %s by [this workflow run](%s).\n' "$HEAD_SHA" "$RUN_URL" >> "$body_file"
+
+        comment_id=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
+          --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" \
+          | head -n 1)
+        if [[ -n "$comment_id" ]]; then
+          gh api --method PATCH "repos/$REPO/issues/comments/$comment_id" -F "body=@$body_file"
+        elif [[ "$create" == true ]]; then
+          gh api --method POST "repos/$REPO/issues/$PR_NUMBER/comments" -F "body=@$body_file"
+        fi
