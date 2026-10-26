@@ -127,7 +127,8 @@ jobs:
         else
           cat "$DIFF_DIR/comment.md" >> "$body_file"
         fi
-        printf '\n---\nGenerated for %s by [this workflow run](%s).\n' "$HEAD_SHA" "$RUN_URL" >> "$body_file"
+        printf '\n---\nGenerated for %s by [this workflow run](%s) at %s.\n' \
+          "$HEAD_SHA" "$RUN_URL" "$(date -u '+%Y-%m-%d %H:%M UTC')" >> "$body_file"
 
         comment_id=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
           --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith(env.COMMENT_MARKER))) | .id' \
