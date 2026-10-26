@@ -1,6 +1,6 @@
 """
-Diff the Glean output of two probe-scraper runs and render it as a markdown PR
-comment.
+Diff the Glean output of two probe-scraper runs and render it as the body of a
+markdown PR comment. The repositories-diff workflow adds the title and marker.
 
 The outputs are expected to come from
 `python -m probe_scraper.runner --glean --update --dry-run`, which doesn't scrape
@@ -14,7 +14,6 @@ import re
 from pathlib import Path
 from typing import List
 
-COMMENT_MARKER = "<!-- probe-scraper-repositories-diff -->"
 # GitHub rejects comments longer than 65536 characters, so leave room for the text around the diff
 MAX_DIFF_LENGTH = 60000
 # general files only contain the time of the run
@@ -59,8 +58,6 @@ def diff_dirs(base_dir: Path, head_dir: Path) -> List[str]:
 
 def render_comment(diff_lines: List[str]) -> str:
     header = (
-        f"{COMMENT_MARKER}\n"
-        "### probe-scraper output diff\n\n"
         "Changes to the Glean metadata probe-scraper would publish with this PR, "
         "compared to the base branch. Metrics, pings and tags are not scraped, "
         "so the per-app `metrics`, `pings` and `tags` files are empty here. For "
