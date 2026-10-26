@@ -9,8 +9,8 @@ libraries:
   - library_name: glean-core
     description: Modern cross-platform telemetry (core library)
     notification_emails:
-      - aplacitelli@mozilla.com
-      - glean-team@mozilla.com
+      - aplacitelli@example.com
+      - glean-team@example.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/metrics.yaml
@@ -18,20 +18,20 @@ libraries:
       - glean-core/pings.yaml
     variants:
       - v1_name: glean-core
-        branch: main
+        branch: trunk
         dependency_name: glean-core
 
   - library_name: glean-server
     description: Modern cross-platform telemetry (server usage)
     notification_emails:
-      - glean-team@mozilla.com
+      - glean-team@example.com
     url: https://github.com/mozilla/glean_parser
     metrics_files: []
     ping_files:
       - server_telemetry/server-side-pings.yaml
     variants:
       - v1_name: glean-server
-        branch: main
+        branch: trunk
         dependency_name: glean-server
 
   - library_name: glean-server-metrics-compat
@@ -40,7 +40,7 @@ libraries:
       This is a temporary library to transition existing server applications to
       the new glean-server library. It is not intended for new applications.
     notification_emails:
-      - glean-team@mozilla.com
+      - glean-team@example.com
     url: https://github.com/mozilla/glean_parser
     metrics_files:
       - server_telemetry/sdk-metrics-compat.yaml
@@ -48,20 +48,20 @@ libraries:
       - server_telemetry/server-side-pings.yaml
     variants:
       - v1_name: glean-server-metrics-compat
-        branch: main
+        branch: trunk
         dependency_name: glean-server-metrics-compat
 
   - library_name: glean-android
     description: Modern cross-platform telemetry (Android-specific)
     notification_emails:
-      - aplacitelli@mozilla.com
-      - glean-team@mozilla.com
+      - aplacitelli@example.com
+      - glean-team@example.com
     url: https://github.com/mozilla/glean
     metrics_files:
       - glean-core/android/metrics.yaml
     variants:
       - v1_name: glean-android
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.components:service-glean
 
   - library_name: lib-crash
@@ -69,22 +69,22 @@ libraries:
       A generic crash reporter component that can report crashes to multiple
       services
     notification_emails:
-      - aplacitelli@mozilla.com
-      - glean-team@mozilla.com
-      - android-probes@mozilla.com
+      - aplacitelli@example.com
+      - glean-team@example.com
+      - android-probes@example.com
     url: https://github.com/mozilla-firefox/firefox
     metrics_files:
       - mobile/android/android-components/components/lib/crash/metrics.yaml
     variants:
       - v1_name: lib-crash
         dependency_name: org.mozilla.components:lib-crash
-        branch: main
+        branch: trunk
 
   - library_name: crashping
     description: >-
       The crashping crate, which is used on all platforms to send crash pings.
     notification_emails:
-      - afranchuk@mozilla.com
+      - afranchuk@example.com
       - crash-reporting-wg@mozilla.org
       - stability@mozilla.org
     url: https://github.com/mozilla-firefox/firefox
@@ -97,12 +97,12 @@ libraries:
     variants:
       - v1_name: crashping
         dependency_name: crashping
-        branch: main
+        branch: trunk
 
   - library_name: sync
     description: Sync telemetry helper functionality
     notification_emails:
-      - sync-team@mozilla.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/sync_manager/metrics.yaml
@@ -116,8 +116,8 @@ libraries:
     description: >-
       Rust component error tracking library
     notification_emails:
-      - bdeankawamura@mozilla.com
-      - sync-team@mozilla.com
+      - bdeankawamura@example.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/support/error/metrics.yaml
@@ -130,9 +130,9 @@ libraries:
   - library_name: engine-gecko
     description: GeckoView metrics
     notification_emails:
-      - aplacitelli@mozilla.com
-      - android-components-team@mozilla.com
-      - geckoview-team@mozilla.com
+      - aplacitelli@example.com
+      - android-components-team@example.com
+      - geckoview-team@example.com
     url: https://github.com/mozilla-firefox/firefox
     metrics_files: []
     variants:
@@ -143,7 +143,7 @@ libraries:
         branch: beta
         dependency_name: org.mozilla.components:browser-engine-gecko-beta
       - v1_name: engine-gecko-nightly
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.components:browser-engine-gecko-nightly
 
   - library_name: logins-store
@@ -151,43 +151,43 @@ libraries:
       A collection of Android libraries to build browsers or browser-like
       applications
     notification_emails:
-      - mhammond@mozilla.com
-      - sync-team@mozilla.com
+      - mhammond@example.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/logins/metrics.yaml
     variants:
       - v1_name: logins-store
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.appservices:logins
 
   - library_name: ads-client
     description: >-
       Application-services component that allows requesting ads via MARS
     notification_emails:
-      - llisi@mozilla.com
-      - ahanot@mozilla.com
-      - toast@mozilla.com
+      - llisi@example.com
+      - ahanot@example.com
+      - toast@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/ads-client/metrics.yaml
     variants:
       - v1_name: ads-client
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.appservices:adsclient
 
   - library_name: fxa-client
     description: >-
       Application-services FxA client library
     notification_emails:
-      - bdeankawamura@mozilla.com
-      - sync-team@mozilla.com
+      - bdeankawamura@example.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/fxa-client/android/metrics.yaml
     variants:
       - v1_name: fxa-client
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.appservices:fxaclient
 
   - library_name: support-migration
@@ -195,7 +195,7 @@ libraries:
       Helper code to migrate from a Fennec-based (Firefox for Android) app to
       an Android Components based app
     notification_emails:
-      - glean-team@mozilla.com
+      - glean-team@example.com
     url: https://github.com/mozilla-mobile/android-components
     metrics_files:
       - components/support/migration/metrics.yaml
@@ -210,35 +210,35 @@ libraries:
     description: >-
       Android wrapper for the application-services places library.
     notification_emails:
-      - sync-team@mozilla.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/places/android/metrics.yaml
       - components/places/metrics.yaml
     variants:
       - v1_name: android-places
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.components:places
 
   - library_name: ios-places
     description: >-
       iOS wrapper for the application-services places library.
     notification_emails:
-      - sync-team@mozilla.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/places/metrics.yaml
     variants:
       - v1_name: places
-        branch: main
+        branch: trunk
         dependency_name: org.mozilla.appservices:places
 
   - library_name: glean-js
     description: Modern cross-platform telemetry (Javascript library)
     notification_emails:
-      - aplacitelli@mozilla.com
-      - glean-team@mozilla.com
-      - brizental@mozilla.com
+      - aplacitelli@example.com
+      - glean-team@example.com
+      - brizental@example.com
     url: https://github.com/mozilla/glean.js
     metrics_files:
       - glean/src/metrics.yaml
@@ -246,14 +246,14 @@ libraries:
       - glean/src/pings.yaml
     variants:
       - v1_name: glean-js
-        branch: main
+        branch: trunk
         dependency_name: glean-js
 
   - library_name: nimbus
     description: Rapid experimentation platform
     notification_emails:
-      - tlong@mozilla.com
-      - sync-team@mozilla.com
+      - tlong@example.com
+      - sync-team@example.com
     url: https://github.com/mozilla/application-services
     metrics_files:
       - components/nimbus/metrics.yaml
@@ -261,7 +261,7 @@ libraries:
       - components/nimbus/pings.yaml
     variants:
       - v1_name: nimbus
-        branch: main
+        branch: trunk
         dependency_name: nimbus
 
   - library_name: nimbus-cirrus
@@ -269,7 +269,7 @@ libraries:
       The Nimbus Cirrus Web server implementation,
       uses Nimbus under the hood
     notification_emails:
-      - sync-team@mozilla.com
+      - sync-team@example.com
     url: https://github.com/mozilla/experimenter
     metrics_files:
       - cirrus/server/telemetry/metrics.yaml
@@ -277,26 +277,26 @@ libraries:
       - cirrus/server/telemetry/pings.yaml
     variants:
       - v1_name: nimbus-cirrus
-        branch: main
+        branch: trunk
         dependency_name: nimbus-cirrus
 
   - library_name: service-nimbus
     description: >
       The Nimbus Android-Component used by Fenix and Focus
     notification_emails:
-      - sync-team@mozilla.com
+      - sync-team@example.com
     url: https://github.com/mozilla-firefox/firefox
     metrics_files:
       - mobile/android/android-components/components/service/nimbus/metrics.yaml
     variants:
       - v1_name: service-nimbus
         dependency_name: org.mozilla.components:service-nimbus
-        branch: main
+        branch: trunk
 
   - library_name: gecko
     description: The browser engine developed by Mozilla
     notification_emails:
-      - chutten@mozilla.com
+      - chutten@example.com
     url: https://github.com/mozilla-firefox/firefox
     metrics_files:
       - accessible/metrics.yaml
@@ -412,7 +412,7 @@ libraries:
     variants:
       - v1_name: gecko
         dependency_name: gecko
-        branch: main
+        branch: trunk
 
 # See https://mozilla.github.io/probe-scraper/#tag/application
 applications:
@@ -420,9 +420,9 @@ applications:
     canonical_app_name: Firefox for Desktop
     app_description: The desktop version of Firefox
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - chutten@mozilla.com
+      - chutten@example.com
     metrics_files:
       - browser/actors/metrics.yaml
       - browser/components/aiwindow/metrics.yaml
@@ -585,9 +585,9 @@ applications:
     app_description: >-
       The Firefox desktop crash reporter client.
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - afranchuk@mozilla.com
+      - afranchuk@example.com
       - crash-reporting-wg@mozilla.org
       - stability@mozilla.org
     dependencies:
@@ -611,9 +611,9 @@ applications:
       considered a separate application because it has its own client
       id and sends its own version of the standard pings.
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - chutten@mozilla.com
+      - chutten@example.com
     metrics_files:
       - toolkit/components/crashes/metrics.yaml
       - toolkit/mozapps/update/background_task_metrics.yaml
@@ -666,10 +666,10 @@ applications:
 
       Also known as Windows Default Browser Agent (WDBA).
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - nrishel@mozilla.com
-      - install-update@mozilla.com
+      - nrishel@example.com
+      - install-update@example.com
     metrics_files:
       - toolkit/mozapps/defaultagent/metrics.yaml
     ping_files:
@@ -690,9 +690,9 @@ applications:
     app_description: >-
       The pine build of mozilla-central.
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - chutten@mozilla.com
+      - chutten@example.com
     metrics_files:
       - browser/components/metrics.yaml
       - browser/components/newtab/metrics.yaml
@@ -758,9 +758,9 @@ applications:
     app_description: Firefox for Android (Fenix)
     canonical_app_name: Firefox for Android
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - aplacitelli@mozilla.com
+      - aplacitelli@example.com
     metrics_files:
       - mobile/android/fenix/app/metrics.yaml
       - mobile/android/fenix/app/longfox/metrics.yaml
@@ -913,7 +913,7 @@ applications:
     canonical_app_name: Firefox for iOS
     app_description: Firefox for iOS
     notification_emails:
-      - tlong@mozilla.com
+      - tlong@example.com
     url: https://github.com/mozilla-mobile/firefox-ios
     metrics_files:
       - firefox-ios/Client/Glean/probes/ai.quick_answers.yaml
@@ -958,7 +958,7 @@ applications:
       - firefox-ios/Client/Glean/pings.yaml
     tag_files:
       - firefox-ios/Client/Glean/tags.yaml
-    branch: main
+    branch: trunk
     dependencies:
       - glean-core
       # does not actually depend on glean-android, including for backwards
@@ -1010,7 +1010,7 @@ applications:
       A full-featured browser reference implementation using Mozilla Android
       Components
     notification_emails:
-      - aplacitelli@mozilla.com
+      - aplacitelli@example.com
     url: https://github.com/mozilla-mobile/reference-browser
     prototype: true
     metrics_files:
@@ -1044,7 +1044,7 @@ applications:
     app_description: Firefox for Amazon's Fire TV
     deprecated: true
     notification_emails:
-      - glean-team@mozilla.com
+      - glean-team@example.com
     url: https://github.com/mozilla-mobile/firefox-tv
     metrics_files:
       - app/metrics.yaml
@@ -1065,8 +1065,8 @@ applications:
       augmented-reality headsets
     deprecated: true
     notification_emails:
-      - glean-team@mozilla.com
-    branch: main
+      - glean-team@example.com
+    branch: trunk
     url: https://github.com/MozillaReality/FirefoxReality
     metrics_files:
       - app/metrics.yaml
@@ -1089,7 +1089,7 @@ applications:
       Firefox's Lockwise app for Android
     deprecated: true
     notification_emails:
-      - glean-team@mozilla.com
+      - glean-team@example.com
     url: https://github.com/mozilla-lockwise/lockwise-android
     metrics_files:
       - app/metrics.yaml
@@ -1110,7 +1110,7 @@ applications:
       Firefox's Lockwise app for iOS
     deprecated: true
     notification_emails:
-      - tlong@mozilla.com
+      - tlong@example.com
     url: https://github.com/mozilla-lockwise/lockwise-ios
     dependencies:
       - glean-core
@@ -1126,7 +1126,7 @@ applications:
     canonical_app_name: mozregression
     app_description: Regression range finder for Mozilla nightly builds
     notification_emails:
-      - zeid@mozilla.com
+      - zeid@example.com
     url: https://github.com/mozilla/mozregression
     metrics_files:
       - mozregression/metrics.yaml
@@ -1167,9 +1167,9 @@ applications:
     # https://github.com/mozilla/burnham/commit/6501fbfbb3612e63425bbf69aad11b0e67362b66
     deprecated: true
     notification_emails:
-      - rpierzina@mozilla.com
+      - rpierzina@example.com
     url: https://github.com/mozilla/burnham
-    branch: main
+    branch: trunk
     metrics_files:
       - application/src/burnham/config/metrics.yaml
     ping_files:
@@ -1215,7 +1215,7 @@ applications:
     canonical_app_name: mozphab
     app_description: Phabricator review submission/management tool
     notification_emails:
-      - zeid@mozilla.com
+      - zeid@example.com
     url: https://github.com/mozilla-conduit/review
     metrics_files:
       - mozphab/metrics.yaml
@@ -1255,7 +1255,7 @@ applications:
     deprecated: true
     url: https://github.com/mozilla-mobile/firefox-echo-show
     notification_emails:
-      - tlong@mozilla.com
+      - tlong@example.com
     metrics_files:
       - app/metrics.yaml
     dependencies:
@@ -1287,7 +1287,7 @@ applications:
     deprecated: true
     url: https://github.com/MozillaReality/FirefoxRealityPC
     notification_emails:
-      - dmu@mozilla.com
+      - dmu@example.com
     metrics_files:
       - Source/FirefoxRealityUnity/metrics.yaml
     ping_files:
@@ -1305,9 +1305,9 @@ applications:
     canonical_app_name: mach
     app_description: Mach build telemetry
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - mhentges@mozilla.com
+      - mhentges@example.com
     metrics_files:
       - python/mach/metrics.yaml
       - python/mozbuild/metrics.yaml
@@ -1347,9 +1347,9 @@ applications:
     app_description: Firefox Focus on iOS. Klar is the sibling application
     url: https://github.com/mozilla-mobile/firefox-ios
     notification_emails:
-      - sarentz@mozilla.com
-      - tlong@mozilla.com
-    branch: main
+      - sarentz@example.com
+      - tlong@example.com
+    branch: trunk
     metrics_files:
       - focus-ios/Blockzilla/metrics.yaml
     ping_files:
@@ -1369,9 +1369,9 @@ applications:
     app_description: Firefox Klar on iOS. Focus is the sibling application
     url: https://github.com/mozilla-mobile/firefox-ios
     notification_emails:
-      - sarentz@mozilla.com
-      - tlong@mozilla.com
-    branch: main
+      - sarentz@example.com
+      - tlong@example.com
+    branch: trunk
     metrics_files:
       - focus-ios/Blockzilla/metrics.yaml
     ping_files:
@@ -1390,10 +1390,10 @@ applications:
     canonical_app_name: Firefox Focus for Android
     app_description: Firefox Focus on Android. Klar is the sibling application
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - jalmeida@mozilla.com
-      - tlong@mozilla.com
+      - jalmeida@example.com
+      - tlong@example.com
     metrics_files:
       - mobile/android/focus-android/app/metrics.yaml
     ping_files:
@@ -1437,10 +1437,10 @@ applications:
     canonical_app_name: Firefox Klar for Android
     app_description: Firefox Klar on Android. Focus is the sibling application
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - jalmeida@mozilla.com
-      - tlong@mozilla.com
+      - jalmeida@example.com
+      - tlong@example.com
     metrics_files:
       - mobile/android/focus-android/app/metrics.yaml
     ping_files:
@@ -1473,7 +1473,7 @@ applications:
     deprecated: true
     url: https://github.com/mozilla-extensions/firefox-translations
     notification_emails:
-      - epavlov@mozilla.com
+      - epavlov@example.com
     branch: legacy
     metrics_files:
       - src/core/ts/background-scripts/background.js/telemetry/metrics.yaml
@@ -1494,8 +1494,8 @@ applications:
     deprecated: true
     url: https://github.com/mozilla/firefox-translations
     notification_emails:
-      - epavlov@mozilla.com
-    branch: main
+      - epavlov@example.com
+    branch: trunk
     metrics_files:
       - extension/model/telemetry/metrics.yaml
     ping_files:
@@ -1517,10 +1517,10 @@ applications:
     url: https://github.com/mozilla-mobile/mozilla-vpn-client
     deprecated: true
     notification_emails:
-      - vpn@mozilla.com
-      - amarchesini@mozilla.com
-      - mcleinman@mozilla.com
-    branch: main
+      - vpn@example.com
+      - amarchesini@example.com
+      - mcleinman@example.com
+    branch: trunk
     metrics_files:
       - src/telemetry/metrics.yaml
     ping_files:
@@ -1563,8 +1563,8 @@ applications:
       The sidecar Cirrus container for the Mozilla VPN server
     url: https://github.com/mozilla-services/guardian-website
     notification_emails:
-      - brizental@mozilla.com
-    branch: main
+      - brizental@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -1584,9 +1584,9 @@ applications:
       by Mozilla projects that use Glean.
     url: https://github.com/mozilla/glean-dictionary
     notification_emails:
-      - aplacitelli@mozilla.com
-      - glean-team@mozilla.com
-    branch: main
+      - aplacitelli@example.com
+      - glean-team@example.com
+    branch: trunk
     metrics_files:
       - src/telemetry/metrics.yaml
     ping_files:
@@ -1609,9 +1609,9 @@ applications:
       learning resources for beginning developers and students.
     url: https://github.com/mdn/fred
     notification_emails:
-      - caugner@mozilla.com
-      - glean-team@mozilla.com
-    branch: main
+      - caugner@example.com
+      - glean-team@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -1632,9 +1632,9 @@ applications:
       learning resources for beginning developers and students.
     url: https://github.com/mdn/yari
     notification_emails:
-      - caugner@mozilla.com
-      - glean-team@mozilla.com
-    branch: main
+      - caugner@example.com
+      - glean-team@example.com
+    branch: trunk
     metrics_files:
       - client/src/telemetry/metrics.yaml
     ping_files:
@@ -1654,8 +1654,8 @@ applications:
     app_description: The Mozilla website www.mozilla.org
     url: https://github.com/mozilla/bedrock
     notification_emails:
-      - martech@mozilla.com
-    branch: main
+      - martech@example.com
+    branch: trunk
     metrics_files: []
     dependencies:
       - glean-js
@@ -1678,7 +1678,7 @@ applications:
     notification_emails:
       - chico@mozillafoundation.org
       - ranadheer@mozillafoundation.org
-    branch: main
+    branch: trunk
     metrics_files:
       - source/telemetry/metrics.yaml
     ping_files:
@@ -1700,7 +1700,7 @@ applications:
     url: https://github.com/mozilla/treeherder
     deprecated: true
     notification_emails:
-      - jmaher@mozilla.com
+      - jmaher@example.com
     branch: master
     metrics_files:
       - ui/glean/metrics.yaml
@@ -1721,11 +1721,11 @@ applications:
       Background tasks of Firefox Desktop.
       Currently used by `BackgroundTask_removeDirectory`.
     url: https://github.com/mozilla-firefox/firefox
-    branch: main
+    branch: trunk
     notification_emails:
-      - necko@mozilla.com
-      - krosylight@mozilla.com
-      - vgosu@mozilla.com
+      - necko@example.com
+      - krosylight@example.com
+      - vgosu@example.com
     metrics_files:
       - browser/components/metrics.yaml
       - toolkit/components/backgroundtasks/metrics.yaml
@@ -1751,9 +1751,9 @@ applications:
       for account-based end-user services and features.
     url: https://github.com/mozilla/fxa
     notification_emails:
-      - fxa-staff@mozilla.com
-      - akomarzewski@mozilla.com
-    branch: main
+      - fxa-staff@example.com
+      - akomarzewski@example.com
+    branch: trunk
     metrics_files:
       - libs/shared/metrics/glean/src/registry/fxa-ui-metrics.yaml
     ping_files:
@@ -1775,9 +1775,9 @@ applications:
       for account-based end-user services and features.
     url: https://github.com/mozilla/fxa
     notification_emails:
-      - fxa-staff@mozilla.com
-      - akomarzewski@mozilla.com
-    branch: main
+      - fxa-staff@example.com
+      - akomarzewski@example.com
+    branch: trunk
     metrics_files:
       - libs/shared/metrics/glean/src/registry/fxa-backend-metrics.yaml
       - libs/shared/metrics/glean/src/registry/glean-backend-metrics-compat.yaml
@@ -1799,9 +1799,9 @@ applications:
       for account-based end-user services and features.
     url: https://github.com/mozilla/fxa
     notification_emails:
-      - fxa-staff@mozilla.com
-      - project-nimbus@mozilla.com
-    branch: main
+      - fxa-staff@example.com
+      - project-nimbus@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -1821,11 +1821,11 @@ applications:
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
-      - chumphreys@mozilla.com
-      - project-nimbus@mozilla.com
-      - jozhou@mozilla.com
-      - rhelmer@mozilla.com
-    branch: main
+      - chumphreys@example.com
+      - project-nimbus@example.com
+      - jozhou@example.com
+      - rhelmer@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -1844,8 +1844,8 @@ applications:
       Web application for viewing Glean debug pings in real-time.
     url: https://github.com/mozilla/debug-ping-view
     notification_emails:
-      - glean-team@mozilla.com
-    branch: main
+      - glean-team@example.com
+    branch: trunk
     metrics_files:
       - src/glean/metrics.yaml
     ping_files: []
@@ -1865,8 +1865,8 @@ applications:
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
-      - rhelmer@mozilla.com
-    branch: main
+      - rhelmer@example.com
+    branch: trunk
     metrics_files:
       - src/telemetry/metrics.yaml
     ping_files: []
@@ -1886,8 +1886,8 @@ applications:
       to keep your personal information safe.
     url: https://github.com/mozilla/blurts-server
     notification_emails:
-      - rhelmer@mozilla.com
-    branch: main
+      - rhelmer@example.com
+    branch: trunk
     metrics_files:
       - src/telemetry/backend-metrics.yaml
     ping_files: []
@@ -1907,8 +1907,8 @@ applications:
     deprecated: true
     url: https://github.com/MozillaSocial/mastodon
     notification_emails:
-      - breyes@mozilla.com
-    branch: main
+      - breyes@example.com
+    branch: trunk
     metrics_files:
       - .glean/metrics.yaml
     ping_files: []
@@ -1926,9 +1926,9 @@ applications:
     app_description: Web client for Mozilla Social
     url: https://github.com/MozillaSocial/elk
     notification_emails:
-      - kdemtchouk@mozilla.com
-      - klong@mozilla.com
-    branch: main
+      - kdemtchouk@example.com
+      - klong@example.com
+    branch: trunk
     metrics_files:
       - telemetry/metrics.yaml
     ping_files: []
@@ -1948,9 +1948,9 @@ applications:
     deprecated: true
     url: https://github.com/MozillaSocial/mozilla-social-android
     notification_emails:
-      - kdemtchouk@mozilla.com
-      - klong@mozilla.com
-    branch: main
+      - kdemtchouk@example.com
+      - klong@example.com
+    branch: trunk
     metrics_files:
       - core/analytics/metrics.yaml
     ping_files: []
@@ -1973,9 +1973,9 @@ applications:
       emails, phone calls, and text messages.
     url: https://github.com/mozilla/fx-private-relay
     notification_emails:
-      - lcrouch@mozilla.com
-      - jhermann@mozilla.com
-    branch: main
+      - lcrouch@example.com
+      - jhermann@example.com
+    branch: trunk
     metrics_files:
       - telemetry/glean/relay-server-metrics.yaml
     ping_files: []
@@ -1994,8 +1994,8 @@ applications:
       Glean.js user and developer documentation.
     url: https://github.com/mozilla/glean.js
     notification_emails:
-      - glean-team@mozilla.com
-    branch: main
+      - glean-team@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -2013,8 +2013,8 @@ applications:
       Mozilla Ads Backend Service
     url: https://github.com/mozilla-services/mars-telemetry
     notification_emails:
-      - gleonard@mozilla.com
-    branch: main
+      - gleonard@example.com
+    branch: trunk
     metrics_files:
       - telemetry/glean/metrics.yaml
     ping_files:
@@ -2070,7 +2070,7 @@ applications:
       The Thunderbird desktop crash reporter client.
     url: https://github.com/thunderbird/thunderbird-desktop
     notification_emails:
-      - afranchuk@mozilla.com
+      - afranchuk@example.com
       - crash-reporting-wg@mozilla.org
       - stability@mozilla.org
     dependencies:
@@ -2127,8 +2127,8 @@ applications:
       Mozilla Sync Storage Backend built with Rust.
     url: https://github.com/mozilla-services/syncstorage-rs
     notification_emails:
-      - tlong@mozilla.com
-      - sync-backend@mozilla.com
+      - tlong@example.com
+      - sync-backend@example.com
     branch: master
     metrics_files:
       - glean/metrics.yaml
@@ -2149,8 +2149,8 @@ applications:
       The Glean Aggregated Metrics Dashboard.
     url: https://github.com/mozilla/glam
     notification_emails:
-      - efilho@mozilla.com
-    branch: main
+      - efilho@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -2169,8 +2169,8 @@ applications:
       solution for account-based end-user services and features.
     url: https://github.com/mozilla/fxa
     notification_emails:
-      - dalvarez@mozilla.com
-    branch: main
+      - dalvarez@example.com
+    branch: trunk
     metrics_files:
       - libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml
     ping_files: []
@@ -2190,9 +2190,9 @@ applications:
       solution for account-based end-user services and features.
     url: https://github.com/mozilla/fxa
     notification_emails:
-      - lchan@mozilla.com
-      - subplat-team@mozilla.com
-    branch: main
+      - lchan@example.com
+      - subplat-team@example.com
+    branch: trunk
     metrics_files:
       - libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml
     ping_files: []
@@ -2222,8 +2222,8 @@ applications:
       can be found [here](https://github.com/mozilla/experimenter).
     url: https://github.com/mozilla/experimenter
     notification_emails:
-      - project-nimbus@mozilla.com
-    branch: main
+      - project-nimbus@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -2243,8 +2243,8 @@ applications:
       experiments and rollouts across Mozilla's many applications.
     url: https://github.com/mozilla/experimenter
     notification_emails:
-      - project-nimbus@mozilla.com
-    branch: main
+      - project-nimbus@example.com
+    branch: trunk
     metrics_files:
       - experimenter/experimenter/telemetry/metrics.yaml
     ping_files:
@@ -2265,8 +2265,8 @@ applications:
       solution for account-based end-user services and features.
     url: https://github.com/mozilla/fxa
     notification_emails:
-      - project-nimbus@mozilla.com
-    branch: main
+      - project-nimbus@example.com
+    branch: trunk
     metrics_files: []
     ping_files: []
     dependencies:
@@ -2286,8 +2286,8 @@ applications:
       and Browser Compatibility Data.
     url: https://github.com/mdn/mcp
     notification_emails:
-      - mdn-engineering@mozilla.com
-    branch: main
+      - mdn-engineering@example.com
+    branch: trunk
     metrics_files:
       - glean/metrics.yaml
     ping_files: []
@@ -2305,7 +2305,7 @@ applications:
     app_description: Mozcloud Service Catalog (Backstage)
     url: https://github.com/mozilla/mozcloud-backstage
     notification_emails:
-      - wstuckey@mozilla.com
+      - wstuckey@example.com
     metrics_files:
       - plugins/glean/metrics.yaml
     dependencies:
