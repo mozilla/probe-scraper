@@ -977,7 +977,7 @@ applications:
     moz_pipeline_metadata:
       fx-accounts:
         expiration_policy:
-          delete_after_days: 30
+          delete_after_days: 60
       topsites-impression:
         expiration_policy:
           delete_after_days: 30
