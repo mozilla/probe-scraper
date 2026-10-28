@@ -501,6 +501,7 @@ applications:
       - gecko
       - glean-core
       - crashping
+      - org.mozilla.appservices:errorsupport
       # does not actually depend on glean-android, including for backwards
       # compat
       - org.mozilla.components:service-glean
