@@ -2411,3 +2411,25 @@ applications:
     channels:
       - v1_name: firefox-enterprise-desktop
         app_id: firefox.enterprise.desktop
+
+  - app_name: firefox_enterprise_crashreporter
+    canonical_app_name: Firefox Enterprise Crash Reporter
+    app_description: >-
+      The Firefox Enterprise desktop crash reporter client.
+    url: https://github.com/mozilla/enterprise-firefox
+    branch: enterprise-main
+    notification_emails:
+      - enterprise-telemetry@mozilla.org
+    dependencies:
+      - glean-core
+      - crashping
+    channels:
+      - v1_name: firefox-enterprise-crashreporter
+        app_id: firefox.enterprise.crashreporter
+    moz_pipeline_metadata_defaults:
+      expiration_policy:
+        delete_after_days: 400
+    moz_pipeline_metadata:
+      crash:
+        expiration_policy:
+          delete_after_days: 775
