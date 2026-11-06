@@ -28,6 +28,7 @@ HTTP_HEADERS = {
 }
 INDEX_URL = "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/glean/metrics_index.py"  # noqa
 FFX_IOS_INDEX_URL = "https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/firefox-ios/Client/Glean/glean_index.yaml"  # noqa
+FFX_ANDROID_INDEX_URL = "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/mobile/android/fenix/app/glean_index.yaml"  # noqa
 FFX_ENTERPRISE_INDEX_URL = "https://raw.githubusercontent.com/mozilla/enterprise-firefox/enterprise-main/toolkit/components/glean/metrics_index.py"  # noqa
 BODY_TEMPLATE = f"""This (automated) patch updates the list from metrics_index.py.
 
@@ -135,6 +136,12 @@ def get_latest_ios_metrics_index():
     return r.text
 
 
+def get_latest_android_metrics_index():
+    r = requests.get(FFX_ANDROID_INDEX_URL, headers=HTTP_HEADERS)
+    r.raise_for_status()
+    return r.text
+
+
 def get_latest_enterprise_metrics_index():
     r = requests.get(FFX_ENTERPRISE_INDEX_URL, headers=HTTP_HEADERS)
     r.raise_for_status()
@@ -209,6 +216,12 @@ def run(argv, repo, author, debug=False, dry_run=False):
     firefox_ios_metrics = sorted(data["metrics_files"])
     firefox_ios_tags = sorted(data["tag_files"])
 
+    android_metrics_index = get_latest_android_metrics_index()
+    data = yaml.safe_load(android_metrics_index)
+    firefox_android_pings = sorted(data["ping_files"])
+    firefox_android_metrics = sorted(data["metrics_files"])
+    firefox_android_tags = sorted(data["tag_files"])
+
     # TODO: Update once https://bugzilla.mozilla.org/show_bug.cgi?id=2063254 is resolved
     firefox_enterprise_index = get_latest_enterprise_metrics_index()
     data = eval_extract(firefox_enterprise_index)
@@ -238,6 +251,9 @@ def run(argv, repo, author, debug=False, dry_run=False):
         ["firefox_ios", "pings", False, firefox_ios_pings],
         ["firefox_ios", "metrics", False, firefox_ios_metrics],
         ["firefox_ios", "tags", False, firefox_ios_tags],
+        ["fenix", "pings", False, firefox_android_pings],
+        ["fenix", "metrics", False, firefox_android_metrics],
+        ["fenix", "tags", False, firefox_android_tags],
         ["firefox_enterprise_desktop", "metrics", False, firefox_enterprise_metrics],
         ["firefox_enterprise_desktop", "pings", False, firefox_enterprise_pings],
     ]
