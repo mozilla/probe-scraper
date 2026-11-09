@@ -2336,9 +2336,10 @@ applications:
       - browser/components/controlcenter/metrics.yaml
       - browser/components/customizableui/metrics.yaml
       - browser/components/customkeys/metrics.yaml
+      - browser/components/downloads/enterprise_metrics.yaml
       - browser/components/downloads/metrics.yaml
-      - browser/components/enterprise/metrics.yaml
-      - browser/components/enterprisepolicies/metrics.yaml
+      - browser/components/enterprise/enterprise_metrics.yaml
+      - browser/components/enterprisepolicies/enterprise_metrics.yaml
       - browser/components/extensions/metrics.yaml
       - browser/components/firefoxview/metrics.yaml
       - browser/components/genai/metrics.yaml
@@ -2368,17 +2369,22 @@ applications:
       - browser/modules/metrics.yaml
       - dom/media/platforms/wmf/metrics.yaml
       - services/fxaccounts/metrics.yaml
+      - toolkit/components/contentanalysis/enterprise_metrics.yaml
       - toolkit/components/contentanalysis/metrics.yaml
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
       - toolkit/components/pictureinpicture/metrics.yaml
       - toolkit/components/places/metrics.yaml
+      - toolkit/components/printing/enterprise_metrics.yaml
       - toolkit/components/reportbrokensite/metrics.yaml
+      - toolkit/components/reputationservice/enterprise_metrics.yaml
       - toolkit/components/satchel/megalist/metrics.yaml
       - toolkit/components/search/metrics.yaml
       - toolkit/components/telemetry/metrics.yaml
+      - toolkit/components/url-classifier/enterprise_metrics.yaml
       - toolkit/modules/metrics.yaml
+      - toolkit/mozapps/extensions/enterprise_metrics.yaml
       - toolkit/mozapps/update/shared_metrics.yaml
       - widget/cocoa/metrics.yaml
       - widget/gtk/metrics.yaml
@@ -2386,7 +2392,7 @@ applications:
     ping_files:
       - browser/components/asrouter/pings.yaml
       - browser/components/backup/pings.yaml
-      - browser/components/enterprisepolicies/pings.yaml
+      - browser/components/enterprisepolicies/enterprise_pings.yaml
       - browser/components/newtab/pings.yaml
       - browser/components/profiles/pings.yaml
       - browser/components/referrals/pings.yaml

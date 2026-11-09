@@ -209,11 +209,16 @@ def run(argv, repo, author, debug=False, dry_run=False):
     firefox_ios_metrics = sorted(data["metrics_files"])
     firefox_ios_tags = sorted(data["tag_files"])
 
-    # TODO: Update once https://bugzilla.mozilla.org/show_bug.cgi?id=2063254 is resolved
+    # Firefox Enterprise builds include all Firefox Desktop definitions plus
+    # enterprise-only definitions that are only built with MOZ_ENTERPRISE.
     firefox_enterprise_index = get_latest_enterprise_metrics_index()
     data = eval_extract(firefox_enterprise_index)
-    firefox_enterprise_metrics = sorted(data["firefox_desktop_metrics"])
-    firefox_enterprise_pings = sorted(data["firefox_desktop_pings"])
+    firefox_enterprise_metrics = sorted(
+        data["firefox_desktop_metrics"] + data["firefox_enterprise_metrics"]
+    )
+    firefox_enterprise_pings = sorted(
+        data["firefox_desktop_pings"] + data["firefox_enterprise_pings"]
+    )
 
     data = [
         # Name, metrics/pings, library?, files
