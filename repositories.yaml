@@ -2374,6 +2374,7 @@ applications:
       - toolkit/components/contentanalysis/metrics.yaml
       - toolkit/components/contentrelevancy/metrics.yaml
       - toolkit/components/crashes/metrics.yaml
+      - toolkit/components/ipprotection/enterprise_metrics.yaml
       - toolkit/components/nimbus/metrics.yaml
       - toolkit/components/pictureinpicture/metrics.yaml
       - toolkit/components/places/metrics.yaml
