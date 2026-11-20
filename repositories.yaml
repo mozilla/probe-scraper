@@ -954,6 +954,7 @@ applications:
       - firefox-ios/Client/Glean/probes/tracking_protection.yaml
       - firefox-ios/Client/Glean/probes/user.yaml
       - firefox-ios/Client/Glean/probes/vpn.attestation.yaml
+      - firefox-ios/Client/Glean/probes/vpn.yaml
       - firefox-ios/Client/Glean/probes/webview.error_page.wayback_machine.yaml
       - firefox-ios/Client/Glean/probes/zoom_bar.yaml
       - firefox-ios/Storage/metrics.yaml
@@ -2339,7 +2340,6 @@ applications:
       - browser/components/customkeys/metrics.yaml
       - browser/components/downloads/enterprise_metrics.yaml
       - browser/components/downloads/metrics.yaml
-      - browser/components/enterprise/enterprise_metrics.yaml
       - browser/components/enterprisepolicies/enterprise_metrics.yaml
       - browser/components/extensions/metrics.yaml
       - browser/components/firefoxview/metrics.yaml
