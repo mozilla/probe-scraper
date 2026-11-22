@@ -372,7 +372,6 @@ libraries:
       - toolkit/components/mediasniffer/metrics.yaml
       - toolkit/components/messaging-system/metrics.yaml
       - toolkit/components/ml/metrics.yaml
-      - toolkit/components/normandy/metrics.yaml
       - toolkit/components/pageextractor/metrics.yaml
       - toolkit/components/passwordmgr/metrics.yaml
       - toolkit/components/pdfjs/metrics.yaml
@@ -764,7 +763,6 @@ applications:
     notification_emails:
       - aplacitelli@mozilla.com
     metrics_files:
-      - mobile/android/fenix/app/longfox/metrics.yaml
       - mobile/android/fenix/app/metrics.yaml
     ping_files:
       - mobile/android/fenix/app/pings.yaml
