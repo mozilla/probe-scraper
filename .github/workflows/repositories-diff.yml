@@ -24,7 +24,7 @@ jobs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@v7.0.0
       with:
         persist-credentials: false
         # the base branch is the first parent of the PR merge commit
@@ -42,7 +42,7 @@ jobs:
 
     - name: Set up Python
       if: steps.check.outputs.changed == 'true'
-      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      uses: actions/setup-python@v7.1.0
       with:
         python-version: "3.11"
 
@@ -77,7 +77,7 @@ jobs:
 
     - name: Upload diff
       if: steps.check.outputs.changed == 'true'
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: repositories-diff
         path: diff-output/
@@ -95,7 +95,7 @@ jobs:
     steps:
     - name: Download diff
       if: needs.diff.result == 'success' && needs.diff.outputs.changed == 'true'
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      uses: actions/download-artifact@v8.0.1
       with:
         name: repositories-diff
         path: ${{ runner.temp }}/repositories-diff
