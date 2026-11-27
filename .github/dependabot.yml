@@ -5,9 +5,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    versioning-strategy: lockfile-only
+    versioning-strategy: increase-if-necessary
     reviewers:
       - "mozilla/glean"
-    versioning-strategy: increase-if-necessary
     allow:
       - dependency-name: "glean-parser"
